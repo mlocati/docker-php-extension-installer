@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Reset the Internal Field Separator
+resetIFS () {
+	IFS='	 
+'
+}
+
+# Check if a string is in a list of space-separated string
+#
+# Arguments:
+# $1: the string to be checked
+# $2: the string list
+#
+# Return:
+# 0 (true): if the string is in the list
+# 1 (false): if the string is not in the list
+stringInList () {
+	resetIFS
+	for stringInList_listItem in ${2}
+	do
+		if test "${1}" = "${stringInList_listItem}"
+		then
+			return 0
+		fi
+	done
+	return 1
+}
