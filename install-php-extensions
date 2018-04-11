@@ -478,4 +478,4 @@ fi
 docker-php-source delete
 rm -rf /tmp/pear
 rm -rf /var/lib/apt/lists/*
-#rm -rf /tmp/src
+rm -rf /tmp/src
