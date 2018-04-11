@@ -16,7 +16,8 @@ FROM php:7.2-cli
 
 ADD https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions /usr/local/bin/
 
-RUN install-php-extensions gd xdebug
+RUN chmod uga+x /usr/local/bin/install-php-extensions && \
+    install-php-extensions gd xdebug
 ```
 
 ## Supported PHP extensions
