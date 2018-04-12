@@ -54,7 +54,6 @@ fi
 
 echo 'Updating README.md'
 "${TRAVIS_BUILD_DIR}/scripts/update-readme"
-set -x
 if test -z "$(git -C "${TRAVIS_BUILD_DIR}" ls-files -m | grep -E '^README\.md$')"
 then
 	echo 'README.md has not been changed'
