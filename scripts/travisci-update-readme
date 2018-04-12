@@ -38,6 +38,9 @@ then
 	exit 1
 fi
 
+printf 'Checking-out branch %s\n' "${TRAVIS_BRANCH}"
+git checkout --force "${TRAVIS_BRANCH}"
+
 LAST_AUTO_UPDATED_IN="$(git -C "${TRAVIS_BUILD_DIR}" rev-list --max-count 1 --author "<${UPDATE_README_COMMIT_AUTHOR_EMAIL}>" --grep "${UPDATE_README_COMMIT_MESSAGE}" "${TRAVIS_BRANCH}")"
 if test -z "${LAST_AUTO_UPDATED_IN}"
 then
@@ -60,17 +63,16 @@ then
 	exit 0
 fi
 
+printf 'Adding %s remote\n' "${TRAVIS_REPO_SLUG}"
+git remote add deploy "https://${GUTHUB_ACCESS_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git"
+
 echo 'Committing changes to README.md'
 git -C "${TRAVIS_BUILD_DIR}" config user.name "${UPDATE_README_COMMIT_AUTHOR_NAME}"
 git -C "${TRAVIS_BUILD_DIR}" config user.email "${UPDATE_README_COMMIT_AUTHOR_EMAIL}"
 git -C "${TRAVIS_BUILD_DIR}" add README.md
 git -C "${TRAVIS_BUILD_DIR}" commit -m "${UPDATE_README_COMMIT_MESSAGE}"
 
-printf 'Adding %s remote\n' "${TRAVIS_REPO_SLUG}"
-git remote add deploy "https://${GUTHUB_ACCESS_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git"
-
 printf 'Pushing to %s\n' "${TRAVIS_REPO_SLUG}"
-git push deploy "${TARGET_BRANCH}"
-git -C "${TRAVIS_BUILD_DIR}" push add deploy "https://${GUTHUB_ACCESS_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git"
+git push deploy "${TRAVIS_BRANCH}"
 
 echo 'Done.'
