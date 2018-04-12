@@ -1,0 +1,5 @@
+/.* export-ignore
+/data/ export-ignore
+/scripts/ export-ignore
+/LICENSE export-ignore
+/README.md export-ignore

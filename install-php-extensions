@@ -4,7 +4,9 @@
 #
 # Copyright (c) Michele Locati, 2018
 #
-# MIT license
+# Source: https://github.com/mlocati/docker-php-extension-installer
+#
+# License: MIT - see https://github.com/mlocati/docker-php-extension-installer/blob/master/LICENSE
 
 # Let's set a sane environment
 set -o errexit
