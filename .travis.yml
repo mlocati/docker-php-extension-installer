@@ -12,7 +12,7 @@ install:
 
 script:
   - if test "${TRAVIS_EVENT_TYPE:-}" = 'pull_request'; then ./scripts/travisci-test-new-extensions; fi
-  - if test "${TRAVIS_EVENT_TYPE:-}" = 'push'; then ./scripts/travisci-update-readme; fi
+  - if test "${TRAVIS_EVENT_TYPE:-}" = 'push' && test "${TRAVIS_BRANCH:-}" = 'master'; then ./scripts/travisci-update-readme; fi
 
 notifications:
   email: false
