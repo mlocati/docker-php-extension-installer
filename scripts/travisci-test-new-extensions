@@ -1,0 +1,138 @@
+#!/bin/sh
+
+# Let's set a sane environment
+set -o errexit
+set -o nounset
+
+echo 'Checking environment'
+if test -z "${TRAVIS_BUILD_DIR:-}"
+then
+	echo 'Not in a TravisCI environment' >&2
+	exit 1
+fi
+
+if test -z "${TRAVIS_COMMIT_RANGE:-}"
+then
+	echo 'The TravisCI commit range is empty' >&2
+	exit 0
+fi
+
+. "${TRAVIS_BUILD_DIR}/scripts/common"
+
+
+# Get the docker image ID for a PHP extension and a PHP version
+#
+# Arguments:
+# $1: the extension name
+# $2: the PHP version
+#
+# Outputs:
+# the full docker image ID
+getExtensionImage () {
+	getExtensionImage_result="php:${2}-cli"
+	getExtensionImage_reqs="${TRAVIS_BUILD_DIR}/data/special-requirements"
+	if test -f "${getExtensionImage_reqs}"
+	then
+		if test -n "$(cat "${getExtensionImage_reqs}" | grep -E "^${1}[ \t]+zts[ \t]*$")"
+		then
+			getExtensionImage_result="php:${2}-zts"
+		fi
+	fi
+	printf '%s' "${getExtensionImage_result}"
+}
+
+
+# Test an extension
+#
+# Arguments:
+# $1: the extension name
+# $2: the PHP version
+#
+# Return:
+# 0 (true): if test passes
+# 1 (false): if test fails
+testExtension () {
+	printf 'PHP version: %s\n' "${2}"
+	if test -n "$(printf '%s' "${2}" | sed -E 's/^[0-9]+\.[0-9]+$//')"
+	then
+		printf '  INVALID PHP VERSION: %s\n' "${2}" >&2
+		exit 1
+	fi
+	testExtension_Image="$(getExtensionImage "${1}" "${2}")"
+	printf ' - Docker image: %s\n' "${testExtension_Image}"
+	docker run --rm --volume "${TRAVIS_BUILD_DIR}:/app" --workdir /app "${testExtension_Image}" ./install-php-extensions "${1}"
+}
+
+# Test a new extension line
+#
+# Arguments:
+# $1: the extension name
+# $@: the list of PHP versions
+#
+# Return:
+# 0 (true): if test passes
+# 1 (false): if test fails
+testNewExtensionLine () {
+	testNewExtensionLine_rc=0
+	if test $# -lt 2
+	then
+		printf 'Missing PHP version list for the new extension %s\n' "${1:-}"
+		testNewExtensionLine_rc=1
+	else
+		printf '### TESTING NEW EXTENSION %s ###\n' "${1}"
+		if test -n "$(printf '%s' "${1}" | sed -E 's/^[a-z][a-z0-9\-\_\.]+$//')"
+		then
+			printf '   INVALID PHP EXTENSION NAME: %s\n' "${1}" >&2
+			testNewExtensionLine_rc=1
+		else
+			testNewExtensionLine_extension="${1}"
+			while test $# -ge 2
+			do
+				shift
+				testNewExtensionLine_phpVersion="${1}"
+				if ! testExtension "${testNewExtensionLine_extension}" "${1}"
+				then
+					testNewExtensionLine_rc=1
+				fi
+			done
+		fi
+	fi
+	return ${testNewExtensionLine_rc}
+}
+
+TESTS_RESULTS=0
+ADDED_EXTENSION_LINE=
+FOUND_ATAT=
+	IFS='
+'
+for DIFF_LINE in $(git -C "${TRAVIS_BUILD_DIR}" diff --no-indent-heuristic --minimal --no-color --word-diff=none -no-renames --unified=0 "${TRAVIS_COMMIT_RANGE:-}" -- data/supported-extensions)
+do
+	if test -n "${DIFF_LINE}"
+	then
+		if test -z "${FOUND_ATAT}"
+		then
+			if test -z "${DIFF_LINE##@@*}"
+			then
+				FOUND_ATAT=y
+			fi
+		elif test -z "${DIFF_LINE##+*}"
+		then
+			resetIFS
+			ADDED_EXTENSION_LINE="${DIFF_LINE##+}"
+			if ! testNewExtensionLine ${ADDED_EXTENSION_LINE}
+			then
+				TESTS_RESULTS=1
+			fi
+		fi
+	fi
+done
+
+if test ${TESTS_RESULTS} -ne 0
+then
+	exit ${TESTS_RESULTS}
+fi
+
+if test -z "${ADDED_EXTENSION_LINE}"
+then
+	echo 'No new extensions detected.'
+fi
