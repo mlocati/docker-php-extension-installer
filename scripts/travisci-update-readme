@@ -11,7 +11,7 @@ WATCHED_FILES='data/special-requirements data/supported-extensions scripts/commo
 
 
 echo 'Checking environment'
-if test -z "${TRAVIS_BUILD_DIR:-}" -o -z "${TRAVIS_BRANCH:-}" -o -z "${TRAVIS_EVENT_TYPE:-}" -o -z "${TRAVIS_REPO_SLUG:-}"
+if test -z "${TRAVIS_BUILD_DIR:-}" || test -z "${TRAVIS_BRANCH:-}" || test -z "${TRAVIS_EVENT_TYPE:-}" || test -z "${TRAVIS_REPO_SLUG:-}"
 then
 	echo 'Not in a TravisCI environment' >&2
 	exit 1

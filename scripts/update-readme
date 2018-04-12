@@ -203,7 +203,7 @@ generateReadme () {
 	generateReadme_skip=''
 	while IFS= read -r generateReadme_line
 	do
-		if test "${generateReadme_line}" = "${generateReadme_ph_ExtensionsEnd}" -o "${generateReadme_line}" = "${generateReadme_ph_SpecialEnd}"
+		if test "${generateReadme_line}" = "${generateReadme_ph_ExtensionsEnd}" || test "${generateReadme_line}" = "${generateReadme_ph_SpecialEnd}"
 		then
 			generateReadme_skip=''
 		fi

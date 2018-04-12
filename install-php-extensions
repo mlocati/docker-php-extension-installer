@@ -320,7 +320,7 @@ getPackageSource () {
 	getPackageSource_outDir=''
 	for getPackageSource_i in $(ls "${getPackageSource_tempDir}")
 	do
-		if test -n "${getPackageSource_outDir}" -o -f "${getPackageSource_tempDir}/${getPackageSource_i}"
+		if test -n "${getPackageSource_outDir}" || test -f "${getPackageSource_tempDir}/${getPackageSource_i}"
 		then
 			getPackageSource_outDir=''
 			break
