@@ -43,6 +43,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && \
 | dba | V | V | V | V |
 | enchant | V | V | V | V |
 | exif | V | V | V | V |
+| foobar | V |  |  | V |
 | gd | V | V | V | V |
 | gettext | V | V | V | V |
 | gmp | V | V | V | V |
