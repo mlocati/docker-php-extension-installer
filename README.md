@@ -1,6 +1,9 @@
+[![TravisCI Build Status](https://travis-ci.org/mlocati/docker-php-extension-installer.svg?branch=master)](https://travis-ci.org/mlocati/docker-php-extension-installer)
+
 # Easy installation of PHP extensions in official PHP Docker images
 
 This repository contains a script that can be used to easily install a PHP extension inside the [official PHP Docker images](https://hub.docker.com/_/php/).
+
 
 ## Known limits
 
