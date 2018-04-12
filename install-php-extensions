@@ -361,6 +361,12 @@ installPECLModule () {
 	printf '### INSTALLING PECL MODULE %s ###\n' "${2}"
 	installPECLModule_actual="${2}"
 	case "${2}" in
+		mcrypt)
+			if test $1 -ge 702
+			then
+				installPECLModule_actual="${2}-1.0.1"
+			fi
+			;;
 		memcached)
 			if test $1 -lt 700
 			then
