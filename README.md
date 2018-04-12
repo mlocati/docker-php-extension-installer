@@ -115,3 +115,15 @@ Some extension has special requirements:
 |:---:|:---:|
 | pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 <!-- END OF SPECIAL REQUIREMENTS -->
+
+
+## How to contribute
+
+- If you want to add support for a new PHP extension:
+  1. change the `install-php-extensions` script
+  2. update the `data/supported-extensions` file, adding a new line with the handle of the extension and the list of supported PHP versions
+  3. if the extension requires ZTS images:  
+     add a new line to the `data/special-requirements` file, with the extension handle followed by a space and `zts`
+- If you want to change the list of supported PHP versions for an already supported extension:
+  1. change the `install-php-extensions` script
+  2. update the `data/supported-extensions` file, adding the new PHP version to the existing line corresponding to the updated extension
