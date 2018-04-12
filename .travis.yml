@@ -1,0 +1,17 @@
+sudo: false
+
+services:
+  - docker
+
+env:
+  global:
+    - secure: "52OvxqyWxE2xRP+6+QqbYBJD8qMqgid4SPAWM70GOaksDMOtwuA7eJ+wY4qX69d8m8OwG5UTr7PUuYSYoCjKspgO9Uj5e1jX/u/LpsT+/C4WnwC/7mmQJ5LEOFEULDRzV0YarArsI3R9hfi1Dfs8Aym9wQ4fzL5L/b8gNLpwB9BYXd7F0vaKi0w+aDXCFGOVrD8+TrSFtRL3jN+ssx6iiBDISZOhcNnJwEKwe8SJryWttYHs6xPZrqCZ8pcev2K1UHt5Gyq5Rd5Nqz8ha1M73X0y2SuCxeAVPzg+wejU/KazPUkQpUCaftxOv2ilB6LlYLYpp/hr/bhX86tGkzi3Vx+lXyxXXzYS4vwDLXRjIX/EExG07rPM+tKU/tZGeQM3mxyK1pGMSvxHmUqjD/21WBze+oCChqhnZdPMsH4/XaKqZL2rDFMiEiQy1qyAkZajw5AUvfRuXxQhAzBmEzoep5p+6fgnmUTjqvNY0ateSOQLr3QHG2fQcIurKjSNjNHfhPfNeA1mi+Aulk1LR8eKaE4o7Q88TqG0QhCdRUfoNHgi8vQ+G3Vsaz9JM5wP3aUrjMMLOTR/PgY97HgqJvbwZM0efu1+kNfDm1ihYmHwR/6IhLu0yrZ7x8JAhD3uLMfhPxeuwY5Q7nzIH9JI7JnAwR4St997SdZY44xMluF1y0k="
+
+install:
+  - true
+
+script:
+  - if test "${TRAVIS_EVENT_TYPE:-}" = 'push'; then ./scripts/travisci-update-readme; fi
+
+notifications:
+  email: false

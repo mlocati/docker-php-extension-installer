@@ -26,3 +26,29 @@ stringInList () {
 	done
 	return 1
 }
+
+# Return the strings that are present in two space-separated strings
+#
+# Arguments:
+# $1: the first space-separated string
+# $2: the first second-separated string
+#
+# Output:
+# The space-separated list of strings that are present in both lists
+commonElements () {
+	commonElements_result=''
+	resetIFS
+	for commonElements_inA in ${1}
+	do
+		if stringInList "${commonElements_inA}" "${2}"
+		then
+			if test -z "${commonElements_result}"
+			then
+				commonElements_result="${commonElements_inA}"
+			else
+				commonElements_result="${commonElements_result} ${commonElements_inA}"
+			fi
+		fi
+	done
+	echo "${commonElements_result}"
+}
