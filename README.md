@@ -92,6 +92,12 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && \
 | zip | V | V | V | V |
 <!-- END OF EXTENSIONS TABLE -->
 
+PS: the pre-installed PHP extensions are excluded from this list.
+You can list them with the following command (change `php:7.2-cli` to reflect the PHP version you are interested in):
+
+```sh
+docker run --rm -it php:7.2-cli php -m
+```
 
 ## Special requirements
 
