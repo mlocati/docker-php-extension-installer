@@ -94,7 +94,7 @@ getModulesToInstall () {
 		if test -z "${getModulesToInstall_endArgs}"
 		then
 			case "${1}" in
-				--apt-remove)
+				--cleanup)
 					getModulesToInstall_skip='y'
 					DO_APT_REMOVE='y'
 					;;
