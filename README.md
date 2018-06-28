@@ -23,6 +23,12 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions gd xdebug
 ```
 
+`install-php-extensions` will install all the required APT packages.  
+If you want to remove the APT development packages (which shouldn't be needed after the PHP extensions have been installed), you can use the `--apt-remove` option:
+```
+install-php-extensions --apt-remove gd xdebug
+```
+
 ## Supported PHP extensions
 
 <!-- START OF EXTENSIONS TABLE -->

@@ -72,29 +72,56 @@ getPHPInstalledModules () {
 #
 # Arguments:
 #   $@: all module handles
+#
+# Set:
+#   DO_APT_REMOVE
+#   PHP_MODULES_TO_INSTALL
+#
 # Output:
-#   Space-separated list of module handles
+#   Nothing
 getModulesToInstall () {
 	getModulesToInstall_alreadyInstalled="$(getPHPInstalledModules)"
-	getModulesToInstall_result=''
+	getModulesToInstall_endArgs=''
+	DO_APT_REMOVE=''
+	PHP_MODULES_TO_INSTALL=''
 	while :
 	do
 		if test $# -lt 1
 		then
 			break
 		fi
-		if stringInList "${1}" "${getModulesToInstall_result}"
+		getModulesToInstall_skip=''
+		if test -z "${getModulesToInstall_endArgs}"
 		then
-			printf '### WARNING Duplicated module name specified: %s ###\n' "${1}" >&2
-		elif stringInList "${1}" "${getModulesToInstall_alreadyInstalled}"
+			case "${1}" in
+				--apt-remove)
+					getModulesToInstall_skip='y'
+					DO_APT_REMOVE='y'
+					;;
+				--)
+					getModulesToInstall_skip='y'
+					getModulesToInstall_endArgs='y'
+					;;
+				-*)
+					printf 'Unrecognized option: %s\n' "${1}" >&2
+					exit 1
+					;;
+			esac
+		fi
+		if test -z "${getModulesToInstall_skip}"
 		then
-			printf '### WARNING Module already installed: %s ###\n' "${1}" >&2
-		else
-			getModulesToInstall_result="${getModulesToInstall_result} ${1}"
+			if stringInList "${1}" "${PHP_MODULES_TO_INSTALL}"
+			then
+				printf '### WARNING Duplicated module name specified: %s ###\n' "${1}" >&2
+			elif stringInList "${1}" "${getModulesToInstall_alreadyInstalled}"
+			then
+				printf '### WARNING Module already installed: %s ###\n' "${1}" >&2
+			else
+				PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL} ${1}"
+			fi
 		fi
 		shift
 	done
-	printf '%s' "${getModulesToInstall_result}"
 }
 
 # Get the required APT packages for a specific PHP version and for the list of module handles
@@ -234,11 +261,56 @@ getRequiredAptPackages () {
 	printf '%s' "${getRequiredAptPackages_result}"
 }
 
+# Get the newly installed APT packages that will be no more needed after the installation of PHP extensions
+#
+# Arguments:
+#   $1: the list of APT packages that will be installed
+#
+# Output:
+#   Space-separated list of APT packages to be removed
+getAptPackagesToRemove () {
+	getAptPackagesToRemove_inNewPackages=''
+	getAptPackagesToRemove_result=''
+	IFS='
+'
+	for getAptPackagesToRemove_aptLine in $(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@)
+	do
+		if test -z "${getAptPackagesToRemove_inNewPackages}"
+		then
+			if test "${getAptPackagesToRemove_aptLine}" = 'The following NEW packages will be installed:'
+			then
+				getAptPackagesToRemove_inNewPackages='y'
+				resetIFS
+			fi
+		elif test "${getAptPackagesToRemove_aptLine}" = "${getAptPackagesToRemove_aptLine# }"
+		then
+			getAptPackagesToRemove_inNewPackages=''
+		else
+			for getAptPackagesToRemove_newPackage in ${getAptPackagesToRemove_aptLine}
+			do
+				case "${getAptPackagesToRemove_newPackage}" in
+					*-dev|cmake|cmake-data)
+						getAptPackagesToRemove_result="${getAptPackagesToRemove_result} ${getAptPackagesToRemove_newPackage}"
+						;;
+				esac
+			done
+		fi
+	done
+	resetIFS
+	printf '%s' "${getAptPackagesToRemove_result}"
+}
+
 # Install a bundled PHP module given its handle
 #
 # Arguments:
 #   $1: the numeric PHP Major-Minor version
 #   $2: the handle of the PHP module
+#
+# Set:
+#   UNNEEDED_APT_PACKAGE_LINKS
+#
+# Output:
+#   Nothing
 installBundledModule () {
 	printf '### INSTALLING BUNDLED MODULE %s ###\n' "${2}"
 	case "${2}" in
@@ -259,6 +331,7 @@ installBundledModule () {
 					if ! test -f /usr/include/gmp.h
 					then
 						ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h
+						UNNEEDED_APT_PACKAGE_LINKS="${UNNEEDED_APT_PACKAGE_LINKS} /usr/include/gmp.h"
 					fi
 					;;
 			esac
@@ -275,6 +348,7 @@ installBundledModule () {
 					if ! test -f /usr/lib/libsybdb.so
 					then
 						ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
+						UNNEEDED_APT_PACKAGE_LINKS="${UNNEEDED_APT_PACKAGE_LINKS} /usr/lib/libsybdb.so"
 					fi
 					;;
 			esac
@@ -436,7 +510,6 @@ stringInList () {
 }
 
 resetIFS
-TEMPORARY_DIRS=''
 PHP_MAJMIN_VERSION=$(getPHPMajorMinor)
 case "${PHP_MAJMIN_VERSION}" in
 	506|700|701|702)
@@ -444,7 +517,9 @@ case "${PHP_MAJMIN_VERSION}" in
 	*)
 		printf "### ERROR: Unsupported PHP version: %s.%s ###\n" $(( PHP_MAJMIN_VERSION / 100 )) $(( PHP_MAJMIN_VERSION % 100 ))
 esac
-PHP_MODULES_TO_INSTALL=$(getModulesToInstall "$@")
+UNNEEDED_APT_PACKAGES=''
+UNNEEDED_APT_PACKAGE_LINKS=''
+getModulesToInstall "$@"
 if test -n "${PHP_MODULES_TO_INSTALL}"
 then
 	REQUIRED_APT_PACKAGES=$(getRequiredAptPackages ${PHP_MAJMIN_VERSION} ${PHP_MODULES_TO_INSTALL})
@@ -452,6 +527,10 @@ then
 	then
 		printf '### INSTALLING REQUIRED APT PACKAGES ###\n'
 		DEBIAN_FRONTEND=noninteractive apt-get update -y
+		if test -n "${DO_APT_REMOVE}"
+		then
+			UNNEEDED_APT_PACKAGES=$(getAptPackagesToRemove ${REQUIRED_APT_PACKAGES})
+		fi
 		DEBIAN_FRONTEND=noninteractive apt-get install -y ${REQUIRED_APT_PACKAGES}
 	fi
 	docker-php-source extract
@@ -481,6 +560,21 @@ then
 			fi
 		fi
 	done
+	if test -n "${UNNEEDED_APT_PACKAGES}"
+	then
+		printf '### REMOVING UNNEEDED APT PACKAGES ###\n'
+		if test -n "${UNNEEDED_APT_PACKAGE_LINKS}"
+		then
+			for unneededAptPackageLink in ${UNNEEDED_APT_PACKAGE_LINKS}
+			do
+				if test -L "${unneededAptPackageLink}"
+				then
+					rm -f "${unneededAptPackageLink}"
+				fi
+			done
+		fi
+		DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y ${UNNEEDED_APT_PACKAGES}
+	fi
 fi
 
 docker-php-source delete
