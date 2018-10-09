@@ -372,7 +372,7 @@ installBundledModule () {
 			docker-php-ext-configure sybase_ct --with-sybase-ct=/usr
 			;;
 	esac
-	docker-php-ext-install "${2}"
+	docker-php-ext-install -j$(nproc) "${2}"
 }
 
 # Fetch a tar.gz file, extract it and returns the path of the extracted folder.
