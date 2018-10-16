@@ -143,6 +143,9 @@ getRequiredAptPackages () {
 		fi
 		shift
 		case "${1}" in
+			amqp)
+				getRequiredAptPackages_result="${getRequiredAptPackages_result} librabbitmq-dev libssh-dev"
+				;;
 			bz2)
 				getRequiredAptPackages_result="${getRequiredAptPackages_result} libbz2-dev"
 				;;
