@@ -9,6 +9,9 @@ UPDATE_README_COMMIT_AUTHOR_EMAIL='michele@locati.it'
 UPDATE_README_COMMIT_MESSAGE='Automatically update README.md'
 WATCHED_FILES='data/special-requirements data/supported-extensions scripts/common scripts/update-readme scripts/travisci-update-readme'
 
+SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "${0}")" && pwd)"
+. "${SCRIPTS_DIR}/common"
+
 
 echo 'Checking environment'
 if test -z "${TRAVIS_BUILD_DIR:-}" || test -z "${TRAVIS_BRANCH:-}" || test -z "${TRAVIS_EVENT_TYPE:-}" || test -z "${TRAVIS_REPO_SLUG:-}"
