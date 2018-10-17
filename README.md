@@ -41,6 +41,7 @@ install-php-extensions --cleanup gd xdebug
 <!-- ########################################################### -->
 | Extension | PHP 5.6 | PHP 7.0 | PHP 7.1 | PHP 7.2 |
 |:---:|:---:|:---:|:---:|:---:|
+| amqp |  | V | V | V |
 | apcu |  | V | V | V |
 | bcmath | V | V | V | V |
 | bz2 | V | V | V | V |
