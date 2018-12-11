@@ -6,7 +6,7 @@ set -o nounset
 
 UPDATE_README_COMMIT_AUTHOR_NAME='Travis CI'
 UPDATE_README_COMMIT_AUTHOR_EMAIL='michele@locati.it'
-UPDATE_README_COMMIT_MESSAGE='Automatically update README.md'
+UPDATE_README_COMMIT_MESSAGE='[skip ci] Automatically update README.md'
 WATCHED_FILES='data/special-requirements data/supported-extensions scripts/common scripts/update-readme scripts/travisci-update-readme'
 
 SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "${0}")" && pwd)"
