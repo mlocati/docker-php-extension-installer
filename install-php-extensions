@@ -347,7 +347,7 @@ installBundledModule () {
 			;;
 		mssql|pdo_dblib)
 			case "$1" in
-				506|700|701|702)
+				506|700|701|702|703)
 					if ! test -f /usr/lib/libsybdb.so
 					then
 						ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
@@ -358,7 +358,7 @@ installBundledModule () {
 			;;
 		odbc)
 			case "$1" in
-				506|700|701|702)
+				506|700|701|702|703)
 					docker-php-source extract
 					cd /usr/src/php/ext/odbc
 					phpize
@@ -515,7 +515,7 @@ stringInList () {
 resetIFS
 PHP_MAJMIN_VERSION=$(getPHPMajorMinor)
 case "${PHP_MAJMIN_VERSION}" in
-	506|700|701|702)
+	506|700|701|702|703)
 		;;
 	*)
 		printf "### ERROR: Unsupported PHP version: %s.%s ###\n" $(( PHP_MAJMIN_VERSION / 100 )) $(( PHP_MAJMIN_VERSION % 100 ))
