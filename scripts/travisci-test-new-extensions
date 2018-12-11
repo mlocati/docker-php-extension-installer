@@ -56,7 +56,7 @@ testExtension () {
 	testExtension_Image="$(getExtensionImage "${1}" "${2}")"
 	printf ' - Docker image: %s\n' "${testExtension_Image}"
 	testExtension_out=`mktemp`
-	if $(docker run --rm --volume "${TRAVIS_BUILD_DIR}:/app" --workdir /app "${testExtension_Image}" bash -c "./install-php-extensions ${1} && php -r "'"'"exit(extension_loaded('${1}') ? 0 : 1);"'"'"" >"${testExtension_out}" 2>&1); then
+	if $(docker run --rm --volume "${TRAVIS_BUILD_DIR}:/app" --workdir /app "${testExtension_Image}" bash -c "./install-php-extensions '${1}' && php ./scripts/check-installed-extension.php '${1}'" >"${testExtension_out}" 2>&1); then
 		rm -rf "${testExtension_out}"
 		printf ' - Passed\n'
 		return 0
