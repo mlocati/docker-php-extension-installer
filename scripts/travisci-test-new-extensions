@@ -103,7 +103,7 @@ testNewExtensionLine () {
 TESTS_RESULTS=0
 ADDED_EXTENSION_LINE=
 FOUND_ATAT=
-	IFS='
+IFS='
 '
 for DIFF_LINE in $(git -C "${TRAVIS_BUILD_DIR}" diff --no-indent-heuristic --minimal --no-color --word-diff=none -no-renames --unified=0 "${TRAVIS_COMMIT_RANGE:-}" -- data/supported-extensions)
 do
