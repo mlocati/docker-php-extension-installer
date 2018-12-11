@@ -15,6 +15,7 @@ if (isset($nameMap[$extensionLowerCase])) {
 }
 
 if (extension_loaded($extension)) {
+    fprintf(STDOUT, sprintf("Extension correctly loaded: %s\n", $extension));
     exit(0);
 }
 fprintf(STDERR, sprintf("Extension not loaded: %s\n", $extension));
