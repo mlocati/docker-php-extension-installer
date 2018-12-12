@@ -257,7 +257,7 @@ getRequiredAptPackages () {
 				getRequiredAptPackages_result="${getRequiredAptPackages_result} libyaml-dev"
 				;;
 			zip)
-				getRequiredAptPackages_result="${getRequiredAptPackages_result} zlib1g-dev"
+				getRequiredAptPackages_result="${getRequiredAptPackages_result} libzip-dev"
 				;;
 		esac
 	done
