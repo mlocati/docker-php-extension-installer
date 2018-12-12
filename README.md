@@ -96,7 +96,7 @@ install-php-extensions --cleanup gd xdebug
 | xmlrpc | V | V | V | V | V |
 | xsl | V | V | V | V | V |
 | yaml | V | V | V | V | V |
-| zip | V | V | V | V |  |
+| zip | V | V | V | V | V |
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
