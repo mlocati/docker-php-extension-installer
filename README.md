@@ -92,7 +92,7 @@ install-php-extensions --cleanup gd xdebug
 | timezonedb | V | V | V | V | V |
 | uuid | V | V | V | V | V |
 | wddx | V | V | V | V | V |
-| xdebug | V | V | V | V |  |
+| xdebug | V | V | V | V | V |
 | xmlrpc | V | V | V | V | V |
 | xsl | V | V | V | V | V |
 | yaml | V | V | V | V | V |
