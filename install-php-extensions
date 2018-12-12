@@ -475,6 +475,9 @@ installPECLModule () {
 			elif test $1 -lt 700
 			then
 				installPECLModule_actual="${2}-2.5.5"
+			elif test $1 -ge 703
+			then
+				installPECLModule_actual="${2}-beta"
 			fi
 			;;
 		yaml)
