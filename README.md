@@ -53,6 +53,7 @@ install-php-extensions --cleanup gd xdebug
 | gd | V | V | V | V | V |
 | gettext | V | V | V | V | V |
 | gmp | V | V | V | V | V |
+| igbinary | V | V | V | V | V |
 | imagick | V | V | V | V | V |
 | imap | V | V | V | V | V |
 | interbase | V | V | V | V | V |
