@@ -418,12 +418,13 @@ getPackageSource () {
 #   $1: the handle of the PHP module
 #   $2: the URL of the module source code
 #   $3: the options of the configure command
+#   $4: the value of CFLAGS
 installModuleFromSource () {
 	printf '### INSTALLING MODULE %s FROM SOURCE CODE ###\n' "${1}"
 	installModuleFromSource_dir="$(getPackageSource "${2}")"
 	cd "${installModuleFromSource_dir}"
 	phpize
-	./configure ${3}
+	./configure ${3} CFLAGS="${4:-}"
 	make -j$(nproc) install
 	cd --
 	docker-php-ext-enable "${1}"
@@ -546,6 +547,7 @@ then
 		else
 			MODULE_SOURCE=''
 			MODULE_SOURCE_CONFIGOPTIONS=''
+			MODULE_SOURCE_CFLAGS=''
 			case "${PHP_MODULE_TO_INSTALL}" in
 				cmark)
 					MODULE_SOURCE=https://github.com/krakjoe/cmark/archive/v1.0.0.tar.gz
@@ -554,10 +556,19 @@ then
 					cd -
 					MODULE_SOURCE_CONFIGOPTIONS=--with-cmark
 					;;
+				igbinary)
+					if test ${PHP_MAJMIN_VERSION} -lt 700; then
+						MODULE_SOURCE="https://github.com/igbinary/igbinary/archive/2.0.8.tar.gz"
+					else
+						MODULE_SOURCE="https://github.com/igbinary/igbinary/archive/3.0.1.tar.gz"
+					fi
+					MODULE_SOURCE_CONFIGOPTIONS=--enable-igbinary
+					MODULE_SOURCE_CFLAGS='-O2 -g'
+					;;
 			esac
 			if test -n "${MODULE_SOURCE}"
 			then
-				installModuleFromSource "${PHP_MODULE_TO_INSTALL}" "${MODULE_SOURCE}" "${MODULE_SOURCE_CONFIGOPTIONS}"
+				installModuleFromSource "${PHP_MODULE_TO_INSTALL}" "${MODULE_SOURCE}" "${MODULE_SOURCE_CONFIGOPTIONS}" "${MODULE_SOURCE_CFLAGS}"
 			else
 				installPECLModule ${PHP_MAJMIN_VERSION} "${PHP_MODULE_TO_INSTALL}"
 			fi
