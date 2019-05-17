@@ -575,10 +575,10 @@ then
 		fi
 	done
 	if test -n "${DO_APT_REMOVE}"
-    then
+	then
 		printf '### REMOVING NO LONGER REQUIRED PACKAGES ###\n'
-        DEBIAN_FRONTEND=noninteractive apt autoremove -y
-    fi
+		DEBIAN_FRONTEND=noninteractive apt autoremove -y
+	fi
 	if test -n "${UNNEEDED_APT_PACKAGES}"
 	then
 		printf '### REMOVING UNNEEDED APT PACKAGES ###\n'
