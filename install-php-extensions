@@ -374,6 +374,9 @@ installBundledModule () {
 		sybase_ct)
 			docker-php-ext-configure sybase_ct --with-sybase-ct=/usr
 			;;
+		zip)
+			docker-php-ext-configure zip --with-libzip
+			;;
 	esac
 	docker-php-ext-install -j$(nproc) "${2}"
 }
