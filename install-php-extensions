@@ -318,6 +318,15 @@ installBundledModule () {
 	printf '### INSTALLING BUNDLED MODULE %s ###\n' "${2}"
 	case "${2}" in
 		gd)
+
+			# It seems that this utility is no longer included in libfreetype6-dev
+			ln -s /bin/true /usr/local/bin/freetype-config
+
+			# Somewhere along the way, gd doesn't catch the include path from docker-php-ext-configure
+			ln -s /usr/include/freetype2/ft2build.h /usr/local/include/php/ft2build.h
+			ln -s /usr/include/freetype2/freetype /usr/local/include/php/freetype
+			ln -s /usr/include/freetype2/freetype2 /usr/local/include/php/freetype2
+
 			if test $1 -lt 700
 			then
 				docker-php-ext-configure gd --with-gd --with-vpx-dir --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --enable-gd-native-ttf
