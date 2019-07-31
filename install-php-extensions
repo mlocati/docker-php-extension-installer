@@ -257,7 +257,7 @@ getRequiredAptPackages () {
 				getRequiredAptPackages_result="${getRequiredAptPackages_result} libyaml-dev"
 				;;
 			zip)
-				getRequiredAptPackages_result="${getRequiredAptPackages_result} libzip-dev"
+				getRequiredAptPackages_result="${getRequiredAptPackages_result} cmake zlib1g-dev libbz2-dev libmbedtls-dev"
 				;;
 		esac
 	done
@@ -373,6 +373,15 @@ installBundledModule () {
 			;;
 		sybase_ct)
 			docker-php-ext-configure sybase_ct --with-sybase-ct=/usr
+			;;
+		zip)
+			libZipSrc="$(getPackageSource https://libzip.org/download/libzip-1.5.2.tar.gz)"
+			mkdir "$libZipSrc/build"
+			cd "$libZipSrc/build"
+			cmake ..
+			make install
+			cd -
+			docker-php-ext-configure zip --with-libzip
 			;;
 	esac
 	docker-php-ext-install -j$(nproc) "${2}"
