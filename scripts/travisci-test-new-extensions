@@ -67,6 +67,7 @@ testExtension () {
 	return 1
 }
 
+
 # Test a new extension line
 #
 # Arguments:
@@ -100,6 +101,103 @@ testNewExtensionLine () {
 	return ${testNewExtensionLine_rc}
 }
 
+
+#Get the list of all supported PHP versions
+#
+# Arguments:
+# $1: the extension name
+#
+# Outputs:
+# the space-separated list of supported PHP versions
+getAllPHPVersionsFor () {
+	getAllPHPVersionsFor_result=''
+	while IFS= read -r getAllPHPVersionsFor_line; do
+		getAllPHPVersionsFor_ok=
+		IFS=' '
+		for getAllPHPVersionsFor_chunk in $getAllPHPVersionsFor_line; do
+			if test -z "$getAllPHPVersionsFor_ok"; then
+				if test "$getAllPHPVersionsFor_chunk" = "$1"; then
+					getAllPHPVersionsFor_ok=y
+				else
+					getAllPHPVersionsFor_ok=n
+				fi
+			else
+				if test $getAllPHPVersionsFor_ok = 'y'; then
+					if test -z "$getAllPHPVersionsFor_result"; then
+						getAllPHPVersionsFor_result="$getAllPHPVersionsFor_chunk"
+					else
+						if ! stringInList "$getAllPHPVersionsFor_chunk" "$getAllPHPVersionsFor_result"; then
+							getAllPHPVersionsFor_result="$getAllPHPVersionsFor_result $getAllPHPVersionsFor_chunk"
+						fi
+					fi
+				fi
+			fi
+		done
+	done < "$TRAVIS_BUILD_DIR/data/supported-extensions"
+	printf '%s' "${getAllPHPVersionsFor_result}"
+}
+
+
+# Test extensions by reading a commit message
+#
+# Arguments:
+# $1: the commit hash
+#
+# Return:
+# 0 (true): if test passes
+# 1 (false): if test fails
+testExtensionsFromMessage () {
+	testExtensionsFromMessage_result=0
+	TEST_EXTENSIONS=
+	FIRST_LINE=1
+	testExtensionsFromMessage_message="$(git -C "${TRAVIS_BUILD_DIR}" log --pretty='format:%B' -n 1 "$1")"
+	IFS='
+'
+	
+	for COMMIT_LINE in $testExtensionsFromMessage_message; do
+		if test $FIRST_LINE -eq 1; then
+			FIRST_LINE=0
+		else
+			TESTLIST=
+			case "$COMMIT_LINE" in
+				Test:* )
+					TESTLIST=${COMMIT_LINE#Test:}
+					;;
+				TEST:* )
+					TESTLIST=${COMMIT_LINE#TEST:}
+					;;
+				test:* )
+					TESTLIST=${COMMIT_LINE#test:}
+					;;
+			esac
+			if test -n "$TESTLIST"; then
+				IFS=' ,;'
+				for COMMIT_LINE_EXT in $TESTLIST; do
+					if test -z "$TEST_EXTENSIONS"; then
+						TEST_EXTENSIONS=$COMMIT_LINE_EXT;
+					else
+						if ! stringInList "$COMMIT_LINE_EXT" "$TEST_EXTENSIONS"; then
+							TEST_EXTENSIONS="$TEST_EXTENSIONS $COMMIT_LINE_EXT"
+						fi
+					fi
+				done
+			fi
+		fi
+		IFS=' '
+		for TEST_EXTENSION in $TEST_EXTENSIONS; do
+			printf '### TESTING EXTENSION %s ###\n' "$TEST_EXTENSION"
+			for TEST_PHPVERSION in $(getAllPHPVersionsFor $TEST_EXTENSION); do
+				if ! testExtension "$TEST_EXTENSION" "$TEST_PHPVERSION"; then
+					testExtensionsFromMessage_result=1
+				fi
+			done
+		done
+	done
+	resetIFS
+	return $testExtensionsFromMessage_result
+}
+
+
 TESTS_RESULTS=0
 ADDED_EXTENSION_LINE=
 FOUND_ATAT=
@@ -118,6 +216,15 @@ for DIFF_LINE in $(git -C "${TRAVIS_BUILD_DIR}" diff --no-indent-heuristic --min
 				TESTS_RESULTS=1
 			fi
 		fi
+	fi
+done
+
+
+IFS='
+'
+for COMMIT_HASH in $(git -C "${TRAVIS_BUILD_DIR}" log --pretty='format:%H' "${TRAVIS_COMMIT_RANGE:-}"); do
+	if ! testExtensionsFromMessage "$COMMIT_HASH"; then
+		TESTS_RESULTS=1
 	fi
 done
 
