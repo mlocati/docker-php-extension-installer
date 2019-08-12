@@ -343,7 +343,7 @@ installBundledModule () {
 			docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 			;;
 		ldap)
-			docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu
+			docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)
 			;;
 		mssql|pdo_dblib)
 			case "$1" in
