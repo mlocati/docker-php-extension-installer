@@ -135,3 +135,10 @@ Some extension has special requirements:
 - If you want to change the list of supported PHP versions for an already supported extension:
   1. change the `install-php-extensions` script
   2. update the `data/supported-extensions` file, adding the new PHP version to the existing line corresponding to the updated extension
+- If you change some code that affects one or more extensions, please add a line with `Test: extension1, extension2` to your (last) commit message.
+  Here's an example of a commit message:
+  ```
+  Improve the GD and ZIP extensions
+  
+  Test: gd, zip
+  ```
