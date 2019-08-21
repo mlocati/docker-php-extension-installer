@@ -67,6 +67,7 @@ install-php-extensions --cleanup gd xdebug
 | odbc | V | V | V | V | V |
 | opcache | V | V | V | V | V |
 | pcntl | V | V | V | V | V |
+| pcov |  | V | V | V | V |
 | pdo_dblib | V | V | V | V | V |
 | pdo_firebird | V | V | V | V | V |
 | pdo_mysql | V | V | V | V | V |
