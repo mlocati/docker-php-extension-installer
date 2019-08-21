@@ -460,6 +460,12 @@ installPECLModule () {
 				installPECLModule_actual="${2}-2.2.0"
 			fi
 			;;
+		pcov)
+			if test $1 -lt 701
+			then
+				installPECLModule_actual="${2}-0.9.0"
+			fi
+			;;
 		pthreads)
 			if test $1 -lt 700
 			then
