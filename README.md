@@ -92,6 +92,7 @@ install-php-extensions --cleanup gd xdebug
 | sysvshm | V | V | V | V | V |
 | tidy | V | V | V | V | V |
 | timezonedb | V | V | V | V | V |
+| uopz | V | V | V | V | V |
 | uuid | V | V | V | V | V |
 | wddx | V | V | V | V | V |
 | xdebug | V | V | V | V | V |
