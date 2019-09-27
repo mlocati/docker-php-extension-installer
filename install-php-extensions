@@ -493,6 +493,15 @@ installPECLModule () {
 				installPECLModule_actual="${2}-2.5.5"
 			fi
 			;;
+		uopz)
+			if test $1 -lt 700
+			then
+				installPECLModule_actual="${2}-2.0.7"
+			elif test $1 -lt 701
+			then
+				installPECLModule_actual="${2}-5.0.2"
+			fi
+			;;
 		yaml)
 			if test $1 -lt 700
 			then
