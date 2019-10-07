@@ -34,8 +34,7 @@ getPHPInstalledModules () {
 	getPHPInstalledModules_result=''
 	IFS='
 '
-	for getPHPInstalledModules_module in $(php -m)
-	do
+	for getPHPInstalledModules_module in $(php -m); do
 		getPHPInstalledModules_moduleNormalized=''
 		case "${getPHPInstalledModules_module}" in
 			\[PHP\ Modules\])
@@ -56,10 +55,8 @@ getPHPInstalledModules () {
 				getPHPInstalledModules_moduleNormalized="${getPHPInstalledModules_module}"
 				;;
 		esac
-		if test -n "${getPHPInstalledModules_moduleNormalized}"
-		then
-			if ! stringInList "${getPHPInstalledModules_moduleNormalized}" "${getPHPInstalledModules_result}"
-			then
+		if test -n "${getPHPInstalledModules_moduleNormalized}"; then
+			if ! stringInList "${getPHPInstalledModules_moduleNormalized}" "${getPHPInstalledModules_result}"; then
 				getPHPInstalledModules_result="${getPHPInstalledModules_result} ${getPHPInstalledModules_moduleNormalized}"
 			fi
 		fi
@@ -84,15 +81,12 @@ getModulesToInstall () {
 	getModulesToInstall_endArgs=''
 	DO_APT_REMOVE=''
 	PHP_MODULES_TO_INSTALL=''
-	while :
-	do
-		if test $# -lt 1
-		then
+	while :; do
+		if test $# -lt 1; then
 			break
 		fi
 		getModulesToInstall_skip=''
-		if test -z "${getModulesToInstall_endArgs}"
-		then
+		if test -z "${getModulesToInstall_endArgs}"; then
 			case "${1}" in
 				--cleanup)
 					getModulesToInstall_skip='y'
@@ -108,13 +102,10 @@ getModulesToInstall () {
 					;;
 			esac
 		fi
-		if test -z "${getModulesToInstall_skip}"
-		then
-			if stringInList "${1}" "${PHP_MODULES_TO_INSTALL}"
-			then
+		if test -z "${getModulesToInstall_skip}"; then
+			if stringInList "${1}" "${PHP_MODULES_TO_INSTALL}"; then
 				printf '### WARNING Duplicated module name specified: %s ###\n' "${1}" >&2
-			elif stringInList "${1}" "${getModulesToInstall_alreadyInstalled}"
-			then
+			elif stringInList "${1}" "${getModulesToInstall_alreadyInstalled}"; then
 				printf '### WARNING Module already installed: %s ###\n' "${1}" >&2
 			else
 				PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL} ${1}"
@@ -135,10 +126,8 @@ getModulesToInstall () {
 getRequiredAptPackages () {
 	getRequiredAptPackages_result=''
 	getRequiredAptPackages_phpv=${1}
-	while :
-	do
-		if test $# -lt 2
-		then
+	while :; do
+		if test $# -lt 2; then
 			break
 		fi
 		shift
@@ -156,8 +145,7 @@ getRequiredAptPackages () {
 				getRequiredAptPackages_result="${getRequiredAptPackages_result} libenchant-dev"
 				;;
 			gd)
-				if test $getRequiredAptPackages_phpv -lt 700
-				then
+				if test $getRequiredAptPackages_phpv -lt 700; then
 					getRequiredAptPackages_result="${getRequiredAptPackages_result} libvpx-dev libjpeg62-turbo-dev libpng-dev libxpm-dev libfreetype6-dev"
 				else
 					getRequiredAptPackages_result="${getRequiredAptPackages_result} libwebp-dev libjpeg62-turbo-dev libpng-dev libxpm-dev libfreetype6-dev"
@@ -276,21 +264,16 @@ getAptPackagesToRemove () {
 	getAptPackagesToRemove_result=''
 	IFS='
 '
-	for getAptPackagesToRemove_aptLine in $(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@)
-	do
-		if test -z "${getAptPackagesToRemove_inNewPackages}"
-		then
-			if test "${getAptPackagesToRemove_aptLine}" = 'The following NEW packages will be installed:'
-			then
+	for getAptPackagesToRemove_aptLine in $(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@); do
+		if test -z "${getAptPackagesToRemove_inNewPackages}"; then
+			if test "${getAptPackagesToRemove_aptLine}" = 'The following NEW packages will be installed:'; then
 				getAptPackagesToRemove_inNewPackages='y'
 				resetIFS
 			fi
-		elif test "${getAptPackagesToRemove_aptLine}" = "${getAptPackagesToRemove_aptLine# }"
-		then
+		elif test "${getAptPackagesToRemove_aptLine}" = "${getAptPackagesToRemove_aptLine# }"; then
 			getAptPackagesToRemove_inNewPackages=''
 		else
-			for getAptPackagesToRemove_newPackage in ${getAptPackagesToRemove_aptLine}
-			do
+			for getAptPackagesToRemove_newPackage in ${getAptPackagesToRemove_aptLine}; do
 				case "${getAptPackagesToRemove_newPackage}" in
 					*-dev|cmake|cmake-data)
 						getAptPackagesToRemove_result="${getAptPackagesToRemove_result} ${getAptPackagesToRemove_newPackage}"
@@ -318,11 +301,9 @@ installBundledModule () {
 	printf '### INSTALLING BUNDLED MODULE %s ###\n' "${2}"
 	case "${2}" in
 		gd)
-			if test $1 -lt 700
-			then
+			if test $1 -lt 700; then
 				docker-php-ext-configure gd --with-gd --with-vpx-dir --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --enable-gd-native-ttf
-			elif test $1 -lt 702
-			then
+			elif test $1 -lt 702; then
 				docker-php-ext-configure gd --with-gd --with-webp-dir --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --enable-gd-native-ttf
 			else
 				docker-php-ext-configure gd --with-gd --with-webp-dir --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir
@@ -331,8 +312,7 @@ installBundledModule () {
 		gmp)
 			case "$1" in
 				506)
-					if ! test -f /usr/include/gmp.h
-					then
+					if ! test -f /usr/include/gmp.h; then
 						ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h
 						UNNEEDED_APT_PACKAGE_LINKS="${UNNEEDED_APT_PACKAGE_LINKS} /usr/include/gmp.h"
 					fi
@@ -348,8 +328,7 @@ installBundledModule () {
 		mssql|pdo_dblib)
 			case "$1" in
 				506|700|701|702|703)
-					if ! test -f /usr/lib/libsybdb.so
-					then
+					if ! test -f /usr/lib/libsybdb.so; then
 						ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
 						UNNEEDED_APT_PACKAGE_LINKS="${UNNEEDED_APT_PACKAGE_LINKS} /usr/lib/libsybdb.so"
 					fi
@@ -404,17 +383,14 @@ getPackageSource () {
 	cd - >/dev/null
 	unlink "${getPackageSource_tempFile}"
 	getPackageSource_outDir=''
-	for getPackageSource_i in $(ls "${getPackageSource_tempDir}")
-	do
-		if test -n "${getPackageSource_outDir}" || test -f "${getPackageSource_tempDir}/${getPackageSource_i}"
-		then
+	for getPackageSource_i in $(ls "${getPackageSource_tempDir}"); do
+		if test -n "${getPackageSource_outDir}" || test -f "${getPackageSource_tempDir}/${getPackageSource_i}"; then
 			getPackageSource_outDir=''
 			break
 		fi
 		getPackageSource_outDir="${getPackageSource_tempDir}/${getPackageSource_i}"
 	done
-	if test -n "${getPackageSource_outDir}"
-	then
+	if test -n "${getPackageSource_outDir}"; then
 		printf '%s' "${getPackageSource_outDir}"
 	else
 		printf '%s' "${getPackageSource_tempDir}"
@@ -449,68 +425,55 @@ installPECLModule () {
 	installPECLModule_actual="${2}"
 	case "${2}" in
 		mcrypt)
-			if test $1 -ge 702
-			then
+			if test $1 -ge 702; then
 				installPECLModule_actual="${2}-1.0.1"
 			fi
 			;;
 		memcached)
-			if test $1 -lt 700
-			then
+			if test $1 -lt 700; then
 				installPECLModule_actual="${2}-2.2.0"
 			fi
 			;;
 		pcov)
-			if test $1 -lt 701
-			then
+			if test $1 -lt 701; then
 				installPECLModule_actual="${2}-0.9.0"
 			fi
 			;;
 		pthreads)
-			if test $1 -lt 700
-			then
+			if test $1 -lt 700; then
 				installPECLModule_actual="${2}-2.0.10"
 			fi
 			;;
 		ssh2)
-			if test $1 -ge 700
-			then
+			if test $1 -ge 700; then
 				installPECLModule_actual="${2}-1.1.2"
 			fi
 			;;
 		xdebug)
-			if test $1 -lt 501
-			then
+			if test $1 -lt 501; then
 				installPECLModule_actual="${2}-2.0.5"
-			elif test $1 -lt 504
-			then
+			elif test $1 -lt 504; then
 				installPECLModule_actual="${2}-2.2.7"
-			elif test $1 -lt 505
-			then
+			elif test $1 -lt 505; then
 				installPECLModule_actual="${2}-2.4.1"
-			elif test $1 -lt 700
-			then
+			elif test $1 -lt 700; then
 				installPECLModule_actual="${2}-2.5.5"
 			fi
 			;;
 		uopz)
-			if test $1 -lt 700
-			then
+			if test $1 -lt 700; then
 				installPECLModule_actual="${2}-2.0.7"
-			elif test $1 -lt 701
-			then
+			elif test $1 -lt 701; then
 				installPECLModule_actual="${2}-5.0.2"
 			fi
 			;;
 		yaml)
-			if test $1 -lt 700
-			then
+			if test $1 -lt 700; then
 				installPECLModule_actual="${2}-1.3.1"
 			fi
 			;;
 	esac
-	if test "${2}" != "${installPECLModule_actual}"
-	then
+	if test "${2}" != "${installPECLModule_actual}"; then
 		printf '  (installing version %s)\n' "${installPECLModule_actual}"
 	fi
 	pecl install "${installPECLModule_actual}"
@@ -527,10 +490,8 @@ installPECLModule () {
 #   0 (true): if the string is in the list
 #   1 (false): if the string is not in the list
 stringInList () {
-	for stringInList_listItem in ${2}
-	do
-		if test "${1}" = "${stringInList_listItem}"
-		then
+	for stringInList_listItem in ${2}; do
+		if test "${1}" = "${stringInList_listItem}"; then
 			return 0
 		fi
 	done
@@ -548,25 +509,20 @@ esac
 UNNEEDED_APT_PACKAGES=''
 UNNEEDED_APT_PACKAGE_LINKS=''
 getModulesToInstall "$@"
-if test -n "${PHP_MODULES_TO_INSTALL}"
-then
+if test -n "${PHP_MODULES_TO_INSTALL}"; then
 	REQUIRED_APT_PACKAGES=$(getRequiredAptPackages ${PHP_MAJMIN_VERSION} ${PHP_MODULES_TO_INSTALL})
-	if test -n "${REQUIRED_APT_PACKAGES}"
-	then
+	if test -n "${REQUIRED_APT_PACKAGES}"; then
 		printf '### INSTALLING REQUIRED APT PACKAGES ###\n'
 		DEBIAN_FRONTEND=noninteractive apt-get update -y
-		if test -n "${DO_APT_REMOVE}"
-		then
+		if test -n "${DO_APT_REMOVE}"; then
 			UNNEEDED_APT_PACKAGES=$(getAptPackagesToRemove ${REQUIRED_APT_PACKAGES})
 		fi
 		DEBIAN_FRONTEND=noninteractive apt-get install -y ${REQUIRED_APT_PACKAGES}
 	fi
 	docker-php-source extract
 	BUNDLED_MODULES="$(find /usr/src/php/ext -mindepth 2 -maxdepth 2 -type f -name 'config.m4' | xargs -n1 dirname | xargs -n1 basename | xargs)"
-	for PHP_MODULE_TO_INSTALL in ${PHP_MODULES_TO_INSTALL}
-	do
-		if stringInList "${PHP_MODULE_TO_INSTALL}" "${BUNDLED_MODULES}"
-		then
+	for PHP_MODULE_TO_INSTALL in ${PHP_MODULES_TO_INSTALL}; do
+		if stringInList "${PHP_MODULE_TO_INSTALL}" "${BUNDLED_MODULES}"; then
 			installBundledModule ${PHP_MAJMIN_VERSION} "${PHP_MODULE_TO_INSTALL}"
 		else
 			MODULE_SOURCE=''
@@ -590,28 +546,22 @@ then
 					MODULE_SOURCE_CFLAGS='-O2 -g'
 					;;
 			esac
-			if test -n "${MODULE_SOURCE}"
-			then
+			if test -n "${MODULE_SOURCE}"; then
 				installModuleFromSource "${PHP_MODULE_TO_INSTALL}" "${MODULE_SOURCE}" "${MODULE_SOURCE_CONFIGOPTIONS}" "${MODULE_SOURCE_CFLAGS}"
 			else
 				installPECLModule ${PHP_MAJMIN_VERSION} "${PHP_MODULE_TO_INSTALL}"
 			fi
 		fi
 	done
-	if test -n "${DO_APT_REMOVE}"
-	then
+	if test -n "${DO_APT_REMOVE}"; then
 		printf '### REMOVING NO LONGER REQUIRED PACKAGES ###\n'
 		DEBIAN_FRONTEND=noninteractive apt autoremove -y
 	fi
-	if test -n "${UNNEEDED_APT_PACKAGES}"
-	then
+	if test -n "${UNNEEDED_APT_PACKAGES}"; then
 		printf '### REMOVING UNNEEDED APT PACKAGES ###\n'
-		if test -n "${UNNEEDED_APT_PACKAGE_LINKS}"
-		then
-			for unneededAptPackageLink in ${UNNEEDED_APT_PACKAGE_LINKS}
-			do
-				if test -L "${unneededAptPackageLink}"
-				then
+		if test -n "${UNNEEDED_APT_PACKAGE_LINKS}"; then
+			for unneededAptPackageLink in ${UNNEEDED_APT_PACKAGE_LINKS}; do
+				if test -L "${unneededAptPackageLink}"; then
 					rm -f "${unneededAptPackageLink}"
 				fi
 			done
