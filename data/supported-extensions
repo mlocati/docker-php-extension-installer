@@ -30,7 +30,7 @@ pdo_firebird 5.6 7.0 7.1 7.2 7.3
 pdo_mysql 5.6 7.0 7.1 7.2 7.3
 pdo_odbc 5.6 7.0 7.1 7.2 7.3
 pdo_pgsql 5.6 7.0 7.1 7.2 7.3
-pdo_sqlsrv 7.0 7.1 7.2
+pdo_sqlsrv 7.0 7.1 7.2 7.3
 pgsql 5.6 7.0 7.1 7.2 7.3
 pspell 5.6 7.0 7.1 7.2 7.3
 pthreads 5.6 7.0
@@ -41,7 +41,7 @@ snmp 5.6 7.0 7.1 7.2 7.3
 soap 5.6 7.0 7.1 7.2 7.3
 sockets 5.6 7.0 7.1 7.2 7.3
 solr 5.6 7.0 7.1
-sqlsrv 7.0 7.1 7.2
+sqlsrv 7.0 7.1 7.2 7.3
 ssh2 5.6 7.0 7.1 7.2
 sybase_ct 5.6
 sysvmsg 5.6 7.0 7.1 7.2 7.3
