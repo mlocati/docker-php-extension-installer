@@ -73,7 +73,7 @@ install-php-extensions --cleanup gd xdebug
 | pdo_mysql | V | V | V | V | V |
 | pdo_odbc | V | V | V | V | V |
 | pdo_pgsql | V | V | V | V | V |
-| pdo_sqlsrv |  | V | V | V |  |
+| pdo_sqlsrv |  | V | V | V | V |
 | pgsql | V | V | V | V | V |
 | pspell | V | V | V | V | V |
 | pthreads | V | V |  |  |  |
@@ -84,7 +84,7 @@ install-php-extensions --cleanup gd xdebug
 | soap | V | V | V | V | V |
 | sockets | V | V | V | V | V |
 | solr | V | V | V |  |  |
-| sqlsrv |  | V | V | V |  |
+| sqlsrv |  | V | V | V | V |
 | ssh2 | V | V | V | V |  |
 | sybase_ct | V |  |  |  |  |
 | sysvmsg | V | V | V | V | V |
