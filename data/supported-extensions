@@ -30,7 +30,7 @@ pdo_firebird 5.6 7.0 7.1 7.2 7.3
 pdo_mysql 5.6 7.0 7.1 7.2 7.3
 pdo_odbc 5.6 7.0 7.1 7.2 7.3
 pdo_pgsql 5.6 7.0 7.1 7.2 7.3
-pdo_sqlsrv 7.0 7.1 7.2
+pdo_sqlsrv 7.0 7.1 7.2 7.3
 pgsql 5.6 7.0 7.1 7.2 7.3
 pspell 5.6 7.0 7.1 7.2 7.3
 pthreads 5.6 7.0
