@@ -16,7 +16,7 @@ imap 5.6 7.0 7.1 7.2 7.3
 interbase 5.6 7.0 7.1 7.2 7.3
 intl 5.6 7.0 7.1 7.2 7.3
 ldap 5.6 7.0 7.1 7.2 7.3
-mcrypt 5.6 7.0 7.1 7.2
+mcrypt 5.6 7.0 7.1 7.2 7.3
 memcache 5.6
 memcached 5.6 7.0 7.1 7.2 7.3
 mysql 5.6
