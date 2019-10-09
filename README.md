@@ -23,6 +23,16 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions gd xdebug
 ```
 
+Installation via COPY --from
+
+```
+FROM php:7.2-cli
+
+COPY --from=docker-install-php-extensions /usr/bin/install-php-extensions /usr/bin/
+
+RUN install-php-extensions gd xdebug
+```
+
 `install-php-extensions` will install all the required APT packages.  
 If you want to remove the APT development packages (which shouldn't be needed after the PHP extensions have been installed) and other no longer required packages, you can use the `--cleanup` option (**EXPERIMENTAL**):
 ```
