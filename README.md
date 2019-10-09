@@ -59,7 +59,7 @@ install-php-extensions --cleanup gd xdebug
 | interbase | V | V | V | V | V |
 | intl | V | V | V | V | V |
 | ldap | V | V | V | V | V |
-| mcrypt | V | V | V | V |  |
+| mcrypt | V | V | V | V | V |
 | memcache | V |  |  |  |  |
 | memcached | V | V | V | V | V |
 | mysql | V |  |  |  |  |
