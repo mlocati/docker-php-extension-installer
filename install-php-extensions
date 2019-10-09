@@ -427,7 +427,7 @@ installPECLModule () {
 	case "${2}" in
 		mcrypt)
 			if test $1 -ge 702; then
-				installPECLModule_actual="${2}-1.0.1"
+				installPECLModule_stdin='autodetect'
 			fi
 			;;
 		memcached)
