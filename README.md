@@ -85,7 +85,7 @@ install-php-extensions --cleanup gd xdebug
 | sockets | V | V | V | V | V |
 | solr | V | V | V |  |  |
 | sqlsrv |  | V | V | V | V |
-| ssh2 | V | V | V | V |  |
+| ssh2 | V | V | V | V | V |
 | sybase_ct | V |  |  |  |  |
 | sysvmsg | V | V | V | V | V |
 | sysvsem | V | V | V | V | V |
