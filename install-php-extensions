@@ -487,6 +487,8 @@ installPECLModule () {
 				installPECLModule_actual="${2}-2.4.1"
 			elif test $1 -lt 700; then
 				installPECLModule_actual="${2}-2.5.5"
+			elif test $1 -ge 704; then
+				installPECLModule_actual="${2}-2.8.0beta2"
 			fi
 			;;
 		uopz)
