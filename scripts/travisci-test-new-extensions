@@ -27,11 +27,16 @@ fi
 # Outputs:
 # the full docker image ID
 getExtensionImage () {
-	getExtensionImage_result="php:${2}-cli"
+	if test "${2}" = '7.4'; then
+		getExtensionImage_version='7.4.0RC3'
+	else
+		getExtensionImage_version="${2}"
+	fi
+	getExtensionImage_result="php:${getExtensionImage_version}-cli"
 	getExtensionImage_reqs="${TRAVIS_BUILD_DIR}/data/special-requirements"
 	if test -f "${getExtensionImage_reqs}"; then
 		if test -n "$(cat "${getExtensionImage_reqs}" | grep -E "^${1}[ \t]+zts[ \t]*$")"; then
-			getExtensionImage_result="php:${2}-zts"
+			getExtensionImage_result="php:${getExtensionImage_version}-zts"
 		fi
 	fi
 	printf '%s' "${getExtensionImage_result}"
