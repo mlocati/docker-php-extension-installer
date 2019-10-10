@@ -458,6 +458,11 @@ installPECLModule () {
 				installPECLModule_actual="${2}-2.0.10"
 			fi
 			;;
+		redis)
+			if test $1 -le 506; then
+				installPECLModule_actual="${2}-4.3.0"
+			fi
+			;;
 		ssh2)
 			if test $1 -le 506; then
 				installPECLModule_stdin='autodetect'
