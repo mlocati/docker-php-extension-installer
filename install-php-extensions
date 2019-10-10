@@ -48,7 +48,7 @@ getPHPInstalledModules () {
 			Zend\ OPcache)
 				getPHPInstalledModules_moduleNormalized='opcache'
 				;;
-			*\ *|A*|*B*|*C*|*D*|*E*|*F*|*G*|*H*|*I*|*J*|*K*|*L*|*M*|*N*|*O*|*P*|*Q*|*R*|*S*|*T*|*U*|*V*|*W*|*X*|*Y*|*Z*)
+			*\ *|*A*|*B*|*C*|*D*|*E*|*F*|*G*|*H*|*I*|*J*|*K*|*L*|*M*|*N*|*O*|*P*|*Q*|*R*|*S*|*T*|*U*|*V*|*W*|*X*|*Y*|*Z*)
 				printf '### WARNING Unrecognized module name: %s ###\n' "${getPHPInstalledModules_module}" >&2
 				;;
 			*)
@@ -425,6 +425,11 @@ installPECLModule () {
 	installPECLModule_actual="${2}"
 	installPECLModule_stdin=''
 	case "${2}" in
+		apcu)
+			if test $1 -le 506; then
+				installPECLModule_actual="${2}-4.0.11"
+			fi
+			;;
 		mcrypt)
 			if test $1 -ge 702; then
 				installPECLModule_stdin='autodetect'
