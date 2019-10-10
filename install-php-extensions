@@ -337,7 +337,7 @@ installBundledModule () {
 			;;
 		odbc)
 			case "$1" in
-				506|700|701|702|703)
+				506|700|701|702|703|704)
 					docker-php-source extract
 					cd /usr/src/php/ext/odbc
 					phpize
