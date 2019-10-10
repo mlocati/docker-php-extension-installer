@@ -449,6 +449,8 @@ installPECLModule () {
 			# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
 			if test $1 -le 700; then
 				installPECLModule_actual="${2}-5.3.0"
+			elif test $1 -ge 704; then
+				installPECLModule_actual="${2}-5.7.0preview"
 			fi
 			;;
 		pthreads)
