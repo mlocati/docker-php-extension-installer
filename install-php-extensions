@@ -327,7 +327,7 @@ installBundledModule () {
 			;;
 		mssql|pdo_dblib)
 			case "$1" in
-				506|700|701|702|703)
+				506|700|701|702|703|704)
 					if ! test -f /usr/lib/libsybdb.so; then
 						ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
 						UNNEEDED_APT_PACKAGE_LINKS="${UNNEEDED_APT_PACKAGE_LINKS} /usr/lib/libsybdb.so"
