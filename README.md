@@ -83,33 +83,33 @@ install-php-extensions --cleanup gd xdebug
 | pdo_mysql | V | V | V | V | V | V |
 | pdo_odbc | V | V | V | V | V | V |
 | pdo_pgsql | V | V | V | V | V | V |
-| pdo_sqlsrv |  | V | V | V | V |  |
-| pgsql | V | V | V | V | V |  |
-| pspell | V | V | V | V | V |  |
+| pdo_sqlsrv |  | V | V | V | V | V |
+| pgsql | V | V | V | V | V | V |
+| pspell | V | V | V | V | V | V |
 | pthreads | V | V |  |  |  |  |
 | recode | V | V | V | V | V |  |
-| redis | V | V | V | V | V |  |
-| shmop | V | V | V | V | V |  |
-| snmp | V | V | V | V | V |  |
-| soap | V | V | V | V | V |  |
-| sockets | V | V | V | V | V |  |
-| solr | V | V | V | V | V |  |
-| sqlsrv |  | V | V | V | V |  |
-| ssh2 | V | V | V | V | V |  |
+| redis | V | V | V | V | V | V |
+| shmop | V | V | V | V | V | V |
+| snmp | V | V | V | V | V | V |
+| soap | V | V | V | V | V | V |
+| sockets | V | V | V | V | V | V |
+| solr | V | V | V | V | V | V |
+| sqlsrv |  | V | V | V | V | V |
+| ssh2 | V | V | V | V | V | V |
 | sybase_ct | V |  |  |  |  |  |
-| sysvmsg | V | V | V | V | V |  |
-| sysvsem | V | V | V | V | V |  |
-| sysvshm | V | V | V | V | V |  |
-| tidy | V | V | V | V | V |  |
-| timezonedb | V | V | V | V | V |  |
-| uopz | V | V | V | V | V |  |
-| uuid | V | V | V | V | V |  |
+| sysvmsg | V | V | V | V | V | V |
+| sysvsem | V | V | V | V | V | V |
+| sysvshm | V | V | V | V | V | V |
+| tidy | V | V | V | V | V | V |
+| timezonedb | V | V | V | V | V | V |
+| uopz | V | V | V | V | V | V |
+| uuid | V | V | V | V | V | V |
 | wddx | V | V | V | V | V |  |
-| xdebug | V | V | V | V | V |  |
-| xmlrpc | V | V | V | V | V |  |
-| xsl | V | V | V | V | V |  |
-| yaml | V | V | V | V | V |  |
-| zip | V | V | V | V | V |  |
+| xdebug | V | V | V | V | V | V |
+| xmlrpc | V | V | V | V | V | V |
+| xsl | V | V | V | V | V | V |
+| yaml | V | V | V | V | V | V |
+| zip | V | V | V | V | V | V |
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
