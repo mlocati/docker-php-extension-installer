@@ -28,7 +28,7 @@ Installation via COPY --from
 ```
 FROM php:7.2-cli
 
-COPY --from=docker-install-php-extensions /usr/bin/install-php-extensions /usr/bin/
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 
 RUN install-php-extensions gd xdebug
 ```
