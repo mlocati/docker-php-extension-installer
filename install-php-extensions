@@ -536,7 +536,7 @@ stringInList () {
 resetIFS
 PHP_MAJMIN_VERSION=$(getPHPMajorMinor)
 case "${PHP_MAJMIN_VERSION}" in
-	506|700|701|702|703)
+	506|700|701|702|703|704)
 		;;
 	*)
 		printf "### ERROR: Unsupported PHP version: %s.%s ###\n" $(( PHP_MAJMIN_VERSION / 100 )) $(( PHP_MAJMIN_VERSION % 100 ))
