@@ -320,7 +320,7 @@ installBundledModule () {
 			esac
 			;;
 		imap)
-			docker-php-ext-configure imap --with-kerberos --with-imap-ssl
+			PHP_OPENSSL=yes docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 			;;
 		ldap)
 			docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)
