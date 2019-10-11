@@ -423,16 +423,11 @@ installModuleFromSource () {
 installPECLModule () {
 	printf '### INSTALLING PECL MODULE %s ###\n' "${2}"
 	installPECLModule_actual="${2}"
-	installPECLModule_stdin=''
+	installPECLModule_stdin='\n'
 	case "${2}" in
 		apcu)
 			if test $1 -le 506; then
 				installPECLModule_actual="${2}-4.0.11"
-			fi
-			;;
-		mcrypt)
-			if test $1 -ge 702; then
-				installPECLModule_stdin='autodetect'
 			fi
 			;;
 		memcached)
@@ -467,6 +462,8 @@ installPECLModule () {
 			if test $1 -le 506; then
 				installPECLModule_actual="${2}-4.3.0"
 			fi
+			# enable-redis-igbinary? enable-redis-lzf?
+			php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_stdin='yes\nyes\n' || installPECLModule_stdin='no\nyes\n'
 			;;
 		solr)
 			if test $1 -le 506; then
@@ -475,10 +472,8 @@ installPECLModule () {
 			;;
 		ssh2)
 			if test $1 -le 506; then
-				installPECLModule_stdin='autodetect'
 				installPECLModule_actual="${2}-0.13"
 			else
-				installPECLModule_stdin='autodetect'
 				# see https://bugs.php.net/bug.php?id=78560
 				installPECLModule_actual='https://pecl.php.net/get/ssh2'
 			fi
@@ -512,11 +507,7 @@ installPECLModule () {
 	if test "${2}" != "${installPECLModule_actual}"; then
 		printf '  (installing version %s)\n' "${installPECLModule_actual}"
 	fi
-	if test -z "$installPECLModule_stdin"; then
-		pecl install "${installPECLModule_actual}"
-	else
-		printf '%s\n' "$installPECLModule_stdin" | pecl install "${installPECLModule_actual}" 
-	fi
+	printf "${installPECLModule_stdin}" | pecl install "${installPECLModule_actual}" 
 	docker-php-ext-enable "${2}"
 }
 
