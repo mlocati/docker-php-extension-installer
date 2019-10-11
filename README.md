@@ -135,8 +135,6 @@ Some extension has special requirements:
 | Extension | Requirements |
 |:---:|:---:|
 | parallel | Requires images with PHP compiled with thread-safety enabled (`zts`). |
-| Extension | Requirements |
-|:---:|:---:|
 | pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 <!-- END OF SPECIAL REQUIREMENTS -->
 
