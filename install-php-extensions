@@ -115,6 +115,32 @@ getModulesToInstall () {
 	done
 }
 
+# Sort the modules to be installed, in order to fix dependencies
+#
+# Update:
+#   PHP_MODULES_TO_INSTALL
+#
+# Output:
+#   Nothing
+sortModulesToInstall () {
+	if stringInList 'igbinary' "${PHP_MODULES_TO_INSTALL}"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'igbinary' "${PHP_MODULES_TO_INSTALL}")"
+		if test -z "$PHP_MODULES_TO_INSTALL"; then
+			PHP_MODULES_TO_INSTALL='igbinary'
+		else
+			PHP_MODULES_TO_INSTALL="igbinary $PHP_MODULES_TO_INSTALL"
+		fi
+	fi
+	if stringInList 'msgpack' "${PHP_MODULES_TO_INSTALL}"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'msgpack' "${PHP_MODULES_TO_INSTALL}")"
+		if test -z "$PHP_MODULES_TO_INSTALL"; then
+			PHP_MODULES_TO_INSTALL='msgpack'
+		else
+			PHP_MODULES_TO_INSTALL="msgpack $PHP_MODULES_TO_INSTALL"
+		fi
+	fi
+}
+
 # Get the required APT packages for a specific PHP version and for the list of module handles
 #
 # Arguments:
@@ -555,6 +581,28 @@ stringInList () {
 	return 1
 }
 
+# Remove a word from a space-separated list
+#
+# Arguments:
+#   $1: the word to be removed
+#   $2: the string list
+#
+# Output:
+#   The list without the word
+removeStringFromList () {
+	removeStringFromList_result=''
+	for removeStringFromList_listItem in ${2}; do
+		if test "${1}" != "${removeStringFromList_listItem}"; then
+			if test -z "$removeStringFromList_result"; then
+				removeStringFromList_result="$removeStringFromList_listItem"
+			else
+				removeStringFromList_result="$removeStringFromList_result $removeStringFromList_listItem"
+			fi
+		fi
+	done
+	printf '%s' "${removeStringFromList_result}"
+}
+
 resetIFS
 PHP_MAJMIN_VERSION=$(getPHPMajorMinor)
 case "${PHP_MAJMIN_VERSION}" in
@@ -566,6 +614,8 @@ esac
 UNNEEDED_APT_PACKAGES=''
 UNNEEDED_APT_PACKAGE_LINKS=''
 getModulesToInstall "$@"
+sortModulesToInstall
+
 if test -n "${PHP_MODULES_TO_INSTALL}"; then
 	REQUIRED_APT_PACKAGES=$(getRequiredAptPackages ${PHP_MAJMIN_VERSION} ${PHP_MODULES_TO_INSTALL})
 	if test -n "${REQUIRED_APT_PACKAGES}"; then
