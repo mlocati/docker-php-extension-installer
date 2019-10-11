@@ -72,6 +72,7 @@ install-php-extensions --cleanup gd xdebug
 | mcrypt | V | V | V | V | V | V |
 | memcache | V |  |  |  |  |  |
 | memcached | V | V | V | V | V | V |
+| msgpack | V | V | V | V | V | V |
 | mysql | V |  |  |  |  |  |
 | mysqli | V | V | V | V | V | V |
 | odbc | V | V | V | V | V | V |
