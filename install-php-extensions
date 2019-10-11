@@ -433,6 +433,27 @@ installPECLModule () {
 		memcached)
 			if test $1 -lt 700; then
 				installPECLModule_actual="${2}-2.2.0"
+				# --with-libmemcached-dir (default: no)      Set the path to libmemcached install prefix
+			else
+				installPECLModule_stdin=''
+				# --with-libmemcached-dir (default: no)      Set the path to libmemcached install prefix
+				installPECLModule_stdin="${installPECLModule_stdin}\n"
+				# --with-zlib-dir (default: no)              Set the path to ZLIB install prefix
+				installPECLModule_stdin="${installPECLModule_stdin}\n"
+				# --with-system-fastlz (default: no)         Use system FastLZ library
+				installPECLModule_stdin="${installPECLModule_stdin}no\n"
+				# --enable-memcached-igbinary (default: no)  Enable memcached igbinary serializer support
+				php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_stdin="${installPECLModule_stdin}yes\n" || installPECLModule_stdin="${installPECLModule_stdin}no\n"
+				# --enable-memcached-msgpack (default: no)   Enable memcached msgpack serializer support
+				php --ri msgpack >/dev/null 2>/dev/null && installPECLModule_stdin="${installPECLModule_stdin}yes\n" || installPECLModule_stdin="${installPECLModule_stdin}no\n"
+				# --enable-memcached-json (default: no)      Enable memcached json serializer support
+				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
+				# --enable-memcached-protocol (default: no)  Enable memcached protocol support
+				installPECLModule_stdin="${installPECLModule_stdin}no\n" # https://github.com/php-memcached-dev/php-memcached/issues/418#issuecomment-449587972
+				# --enable-memcached-sasl (default: yes)     Enable memcached sasl support
+				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
+				# --enable-memcached-session (default: yes)  Enable memcached session handler support
+				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
 			fi
 			;;
 		msgpack)
