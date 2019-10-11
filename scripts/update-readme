@@ -171,6 +171,7 @@ generateSpecialRequirementsTable () {
 		then
 			printf '| Extension | Requirements |\n'
 			printf '|:---:|:---:|\n'
+			generateSpecialRequirementsTable_started='y'
 		fi
 		resetIFS
 		generateSpecialRequirementsTable_requirement="$(echo "${generateSpecialRequirementsTable_line}" | sed -E 's/^\s*\w+\s+//')"
