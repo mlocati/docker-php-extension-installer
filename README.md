@@ -76,6 +76,7 @@ install-php-extensions --cleanup gd xdebug
 | mysqli | V | V | V | V | V | V |
 | odbc | V | V | V | V | V | V |
 | opcache | V | V | V | V | V | V |
+| parallel |  |  | V | V | V | V |
 | pcntl | V | V | V | V | V | V |
 | pcov |  | V | V | V | V | V |
 | pdo_dblib | V | V | V | V | V | V |
@@ -131,6 +132,9 @@ Some extension has special requirements:
 <!-- #  EDIT THE data/special-requirements FILE INSTEAD        # -->
 <!-- #                                                         # -->
 <!-- ########################################################### -->
+| Extension | Requirements |
+|:---:|:---:|
+| parallel | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 | Extension | Requirements |
 |:---:|:---:|
 | pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
