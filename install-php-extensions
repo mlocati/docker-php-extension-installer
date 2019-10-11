@@ -435,6 +435,11 @@ installPECLModule () {
 				installPECLModule_actual="${2}-2.2.0"
 			fi
 			;;
+		msgpack)
+			if test $1 -le 506; then
+				installPECLModule_actual="${2}-0.5.7"
+			fi
+			;;
 		parallel)
 			if test $1 -le 701; then
 				installPECLModule_actual="${2}-0.8.3"
