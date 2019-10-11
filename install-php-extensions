@@ -440,6 +440,11 @@ installPECLModule () {
 				installPECLModule_actual="${2}-2.2.0"
 			fi
 			;;
+		parallel)
+			if test $1 -le 701; then
+				installPECLModule_actual="${2}-0.8.3"
+			fi
+			;;
 		pcov)
 			if test $1 -lt 701; then
 				installPECLModule_actual="${2}-0.9.0"
