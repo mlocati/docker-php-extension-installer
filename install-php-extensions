@@ -327,12 +327,14 @@ installBundledModule () {
 	printf '### INSTALLING BUNDLED MODULE %s ###\n' "${2}"
 	case "${2}" in
 		gd)
-			if test $1 -lt 700; then
+			if test $1 -le 506; then
 				docker-php-ext-configure gd --with-gd --with-vpx-dir --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --enable-gd-native-ttf
-			elif test $1 -lt 702; then
+			elif test $1 -le 701; then
 				docker-php-ext-configure gd --with-gd --with-webp-dir --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --enable-gd-native-ttf
-			else
+			elif test $1 -le 703; then
 				docker-php-ext-configure gd --with-gd --with-webp-dir --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir
+			else
+				docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype
 			fi
 			;;
 		gmp)
@@ -386,7 +388,11 @@ installBundledModule () {
 			cmake ..
 			make install
 			cd -
-			docker-php-ext-configure zip --with-libzip
+			if test $1 -le 703; then
+				docker-php-ext-configure zip --with-libzip
+			else
+				docker-php-ext-configure zip --with-zip
+			fi
 			;;
 	esac
 	docker-php-ext-install -j$(nproc) "${2}"
