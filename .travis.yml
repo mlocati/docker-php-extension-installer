@@ -1,22 +1,33 @@
 sudo: false
 
+notifications:
+  email: false
+
 branches:
   only:
-  - master
+    - master
 
 services:
   - docker
 
-env:
-  global:
-    - secure: "vsl8z41oBky/MDRDKqs74Bif6BJldCPFVdl2lbPcjehOYG5cZ4YRLIEuhgJfnOglCGdyY6gh/2umSowRI4r5mC/ZR42RKJzWj9xQX2usJbzeOeZj+5eQv5im1DVwRmigUMzQOS743bd/zEeR9J3MLMgTGhKWEPKOJI6CHseUIKazAc0Z8vH6055YtkhGMqnolOe9h0gJx/sLP18qo2LTw82SyjOAMfbyYuHpiLznAqIOpNtwyj9WAujE3qN2oCo+9ALOnnrlINPqeLjnIOxRcSgYO4wIGPGSXIDTquuUht0McszOLuC9/kc6RybcyxmcqsssYRK2y0DQuavzyja5UaB4Pzf2vMrlbozAxdtF3oadZzfsAYfbhzaLbx0g1aAzL1CTJvXrWkZQgiy2c7tboXKJ3SvOqDp+GXEw08kCTpUq1AYSLw8ExlqcWZGiQxJfnfA05fWOkf8xM38ZQ+LPUHyGrt+PIw8FPAGhOV4E+BmHUlOoXOwoNllCEJ4QNkwxYT90eAMS5Rw8q6KASedwDFwyPCv8VtpNEtsl/FVa3m8/6wA7QmtuPxg7E2wceSkzsqHEcGLzERb4DnhVfrW0wv8zRw92vsnBmZdxusBT5uuyp9h5asjj6YhhVJ52g2NdCAGJlobiPk5X4uifshcdlcS8vF/jBMpI03XyJU4V4xc="
+test-extensions-job-template: &test-extensions-job-template
+  stage: Test extensions
+  if: type = pull_request
+  script: ./scripts/travisci-test-extensions
 
-install:
-  - true
+jobs:
+  include:
+    - <<: *test-extensions-job-template
+      name: Test extensions on Alpine Linux
+      env: DOCKER_DISTRO=alpine
 
-script:
-  - if test "${TRAVIS_EVENT_TYPE:-}" = 'pull_request'; then ./scripts/travisci-test-new-extensions; fi
-  - if test "${TRAVIS_EVENT_TYPE:-}" = 'push' && test "${TRAVIS_BRANCH:-}" = 'master'; then ./scripts/travisci-update-readme; fi
+    - <<: *test-extensions-job-template
+      name: Test extensions on Debian Linux
+      env: DOCKER_DISTRO=debian
 
-notifications:
-  email: false
+    - stage: Update docs
+      name: Update README.md
+      if: branch = master AND type = push
+      env:
+        - secure: "vsl8z41oBky/MDRDKqs74Bif6BJldCPFVdl2lbPcjehOYG5cZ4YRLIEuhgJfnOglCGdyY6gh/2umSowRI4r5mC/ZR42RKJzWj9xQX2usJbzeOeZj+5eQv5im1DVwRmigUMzQOS743bd/zEeR9J3MLMgTGhKWEPKOJI6CHseUIKazAc0Z8vH6055YtkhGMqnolOe9h0gJx/sLP18qo2LTw82SyjOAMfbyYuHpiLznAqIOpNtwyj9WAujE3qN2oCo+9ALOnnrlINPqeLjnIOxRcSgYO4wIGPGSXIDTquuUht0McszOLuC9/kc6RybcyxmcqsssYRK2y0DQuavzyja5UaB4Pzf2vMrlbozAxdtF3oadZzfsAYfbhzaLbx0g1aAzL1CTJvXrWkZQgiy2c7tboXKJ3SvOqDp+GXEw08kCTpUq1AYSLw8ExlqcWZGiQxJfnfA05fWOkf8xM38ZQ+LPUHyGrt+PIw8FPAGhOV4E+BmHUlOoXOwoNllCEJ4QNkwxYT90eAMS5Rw8q6KASedwDFwyPCv8VtpNEtsl/FVa3m8/6wA7QmtuPxg7E2wceSkzsqHEcGLzERb4DnhVfrW0wv8zRw92vsnBmZdxusBT5uuyp9h5asjj6YhhVJ52g2NdCAGJlobiPk5X4uifshcdlcS8vF/jBMpI03XyJU4V4xc="
+      script: ./scripts/travisci-update-readme
