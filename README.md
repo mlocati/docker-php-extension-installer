@@ -30,11 +30,7 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 RUN install-php-extensions gd xdebug
 ```
 
-`install-php-extensions` will install all the required APT packages.  
-If you want to remove the APT development packages (which shouldn't be needed after the PHP extensions have been installed) and other no longer required packages, you can use the `--cleanup` option (**EXPERIMENTAL**):
-```
-install-php-extensions --cleanup gd xdebug
-```
+`install-php-extensions` will install all the required APT/APK packages; at the end of the script execution, the no-more needed packages will be removed.
 
 ## Supported PHP extensions
 
