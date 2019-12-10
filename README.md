@@ -4,10 +4,7 @@
 
 This repository contains a script that can be used to easily install a PHP extension inside the [official PHP Docker images](https://hub.docker.com/_/php/).
 
-
-## Known limits
-
-Currently the script requires the Debian-based images (no Alpine).
+The script works both for Alpine and Debian Linux.
 
 
 ## Usage
@@ -157,3 +154,8 @@ Some extension has special requirements:
   
   Test: gd, zip
   ```
+
+
+## Do you want to really say thank you?
+
+You can offer me a [monthly coffee](https://github.com/sponsors/mlocati) or a [one-time coffee](https://paypal.me/mlocati) :wink:
