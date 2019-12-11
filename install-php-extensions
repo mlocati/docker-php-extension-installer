@@ -448,11 +448,24 @@ buildRequiredPackageLists () {
 			ssh2@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-1-dev"
 				;;
-			sybase_ct@debian)
+			sybase_ct@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
+			sybase_ct@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libct4"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
+				;;
+			tidy@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile tidyhtml-dev"
+				;;
 			tidy@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libtidy5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libtidy-dev"
+				;;
+			timezonedb@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
 			uuid@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile uuid-dev"
@@ -658,6 +671,16 @@ installBundledModule () {
 			;;
 		sybase_ct)
 			docker-php-ext-configure sybase_ct --with-sybase-ct=/usr
+			;;
+		tidy)
+			case "$(getDistro)" in
+				alpine)
+					if ! test -f /usr/include/buffio.h; then
+						ln -s /usr/include/tidybuffio.h /usr/include/buffio.h
+						UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/buffio.h"
+					fi
+					;;
+			esac
 			;;
 		zip)
 			libZipSrc="$(getPackageSource https://libzip.org/download/libzip-1.5.2.tar.gz)"
