@@ -66,6 +66,7 @@ RUN install-php-extensions gd xdebug
 | memcache | V |  |  |  |  |  |
 | memcached | V | V | V | V | V | V |
 | msgpack | V | V | V | V | V | V |
+| mssql | V |  |  |  |  |  |
 | mysql | V |  |  |  |  |  |
 | mysqli | V | V | V | V | V | V |
 | odbc | V | V | V | V | V | V |
