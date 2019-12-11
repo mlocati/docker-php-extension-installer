@@ -328,8 +328,19 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsybdb5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
+			odbc@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS unixodbc-dev"
+				;;
 			odbc@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
+				;;
+			parallel@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				;;
+			pcov@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
 			pdo_dblib@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
@@ -533,6 +544,7 @@ installBundledModule () {
 						#Patch rwlock.h (this has been fixed in later release of firebird 3.x)
 						sed -i '194s/.*/#if 0/'  src/common/classes/rwlock.h
 						./configure --with-system-icu
+						# -j option can't be used: make targets must be compiled sequentially
 						make -s btyacc_binary gpre_boot libfbstatic libfbclient
 						cp gen/firebird/lib/libfbclient.so /usr/lib/
 						ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
