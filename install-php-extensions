@@ -296,7 +296,7 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libldap2-dev"
 				;;
 			mcrypt@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmcrypt"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $PHPIZE_DEPS libmcrypt"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmcrypt-dev"
 				;;
 			mcrypt@debian)
@@ -320,7 +320,12 @@ buildRequiredPackageLists () {
 			msgpack@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
+			mssql@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
+				;;
 			mssql@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsybdb5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
 			odbc@debian)
@@ -527,9 +532,8 @@ installBundledModule () {
 						cd /tmp/src/firebird
 						#Patch rwlock.h (this has been fixed in later release of firebird 3.x)
 						sed -i '194s/.*/#if 0/'  src/common/classes/rwlock.h
-						set +x
 						./configure --with-system-icu
-						make -j$(nproc) btyacc_binary gpre_boot libfbstatic libfbclient
+						make -s btyacc_binary gpre_boot libfbstatic libfbclient
 						cp gen/firebird/lib/libfbclient.so /usr/lib/
 						ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
 						cd -
