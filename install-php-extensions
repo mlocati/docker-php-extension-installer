@@ -196,7 +196,7 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librabbitmq-dev libssh-dev"
 				;;
 			apcu@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile autoconf g++ make"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
 			bz2@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libbz2"
@@ -206,7 +206,7 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libbz2-dev"
 				;;
 			cmark@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake make g++ autoconf"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
 			cmark@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
@@ -253,11 +253,11 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgmp-dev"
 				;;
 			igbinary@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile autoconf g++ make"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
 			imagick@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent imagemagick"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile imagemagick-dev autoconf g++ make re2c"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS imagemagick-dev"
 				;;
 			imagick@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmagickwand-6.q16-?"
@@ -274,8 +274,11 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-client2007e"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-client-dev libkrb5-dev"
 				;;
-
+			interbase@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS icu-dev ncurses-dev"
+				;;
 			interbase@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
 				;;
 			intl@debian)
@@ -492,6 +495,25 @@ installBundledModule () {
 		imap)
 			PHP_OPENSSL=yes docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 			;;
+		interbase)
+			case "$(getDistro)" in
+				alpine)
+					if ! test -d /tmp/src/firebird; then
+						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R2_5_9/Firebird-2.5.9.27139-0.tar.bz2)" /tmp/src/firebird
+						cd /tmp/src/firebird
+						#Patch rwlock.h (this has been fixed in later release of firebird 3.x)
+						sed -i '194s/.*/#if 0/'  src/common/classes/rwlock.h
+						set +x
+						./configure --with-system-icu
+						make btyacc_binary gpre_boot libfbstatic libfbclient
+						cp gen/firebird/lib/libfbclient.so /usr/lib/
+						ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
+						cd -
+					fi
+					CFLAGS='-I/tmp/src/firebird/src/jrd -I/tmp/src/firebird/src/include -I/tmp/src/firebird/src/include/gen' docker-php-ext-configure $2
+					;;
+			esac
+			;;
 		ldap)
 			docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)
 			;;
@@ -553,7 +575,7 @@ getPackageSource () {
 	curl -L -s -S -o "$getPackageSource_tempFile" "$1"
 	getPackageSource_tempDir=$(mktemp -p /tmp/src -d)
 	cd "$getPackageSource_tempDir"
-	tar -xzf "$getPackageSource_tempFile"
+	tar -xzf "$getPackageSource_tempFile" 2>/dev/null || tar -xf "$getPackageSource_tempFile" 
 	cd - >/dev/null
 	unlink "$getPackageSource_tempFile"
 	getPackageSource_outDir=''
