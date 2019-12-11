@@ -494,7 +494,7 @@ buildRequiredPackageLists () {
 				;;
 			xsl@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libxslt"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxslt-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxslt-dev libgcrypt-dev"
 				;;
 			xsl@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libxslt1.1"
