@@ -381,14 +381,35 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1 odbcinst"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
+			pgsql@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
+				;;
 			pgsql@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
 				;;
+			pspell@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile aspell-dev"
+				;;
 			pspell@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaspell15"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpspell-dev"
 				;;
+			pthreads@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				;;
+			recode@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent recode"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile recode-dev"
+				;;
 			recode@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librecode0"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librecode-dev"
+				;;
+			redis@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
 			ssh2@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-1-dev"
