@@ -411,20 +411,42 @@ buildRequiredPackageLists () {
 			redis@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
-			ssh2@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-1-dev"
+			snmp@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent net-snmp-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile net-snmp-dev"
 				;;
 			snmp@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile snmp libsnmp-dev"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent snmp"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsnmp-dev"
+				;;
+			soap@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
 			soap@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
+			solr@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS curl-dev libxml2-dev"
+				;;
 			solr@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-gnutls-dev libxml2-dev"
 				;;
+			sqlsrv@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ unixodbc"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS unixodbc-dev"
+				;;
 			sqlsrv@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
+				;;
+			ssh2@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $PHPIZE_DEPS libssh2"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS libssh2-dev"
+				;;
+			ssh2@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-1-dev"
 				;;
 			sybase_ct@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
@@ -626,6 +648,13 @@ installBundledModule () {
 			;;
 		pdo_odbc)
 			docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr
+			;;
+		snmp)
+			case "$(getDistro)" in
+				alpine)
+					mkdir -p -m 0755 /var/lib/net-snmp/mib_indexes
+					;;
+			esac
 			;;
 		sybase_ct)
 			docker-php-ext-configure sybase_ct --with-sybase-ct=/usr
