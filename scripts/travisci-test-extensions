@@ -26,20 +26,28 @@ fi
 #
 # Outputs:
 # the full docker image ID
-getExtensionImage () {
+getDockerImageName () {
 	case "${2}" in
 		*)
-			getExtensionImage_version="${2}"
+			getDockerImageName_version="${2}"
 			;;
 	esac
-	getExtensionImage_result="php:${getExtensionImage_version}-cli"
-	getExtensionImage_reqs="${TRAVIS_BUILD_DIR}/data/special-requirements"
-	if test -f "${getExtensionImage_reqs}"; then
-		if test -n "$(cat "${getExtensionImage_reqs}" | grep -E "^${1}[ \t]+zts[ \t]*$")"; then
-			getExtensionImage_result="php:${getExtensionImage_version}-zts"
+	getDockerImageName_suffix='-cli'
+	getDockerImageName_reqs="${TRAVIS_BUILD_DIR}/data/special-requirements"
+	if test -f "${getDockerImageName_reqs}"; then
+		if test -n "$(cat "${getDockerImageName_reqs}" | grep -E "^${1}[ \t]+zts[ \t]*$")"; then
+			getDockerImageName_suffix="-zts"
 		fi
 	fi
-	printf '%s' "${getExtensionImage_result}"
+	case "${DOCKER_DISTRO:-}" in
+		alpine)
+			getDockerImageName_distro="-$DOCKER_DISTRO"
+			;;
+		*)
+			getDockerImageName_distro=''
+			;;
+	esac
+	printf 'php:%s%s%s' "${getDockerImageName_version}" "${getDockerImageName_suffix}" "${getDockerImageName_distro}"
 }
 
 
@@ -58,10 +66,10 @@ testExtension () {
 		printf '  INVALID PHP VERSION: %s\n' "${2}" >&2
 		return 1
 	fi
-	testExtension_Image="$(getExtensionImage "${1}" "${2}")"
+	testExtension_Image="$(getDockerImageName "${1}" "${2}")"
 	printf ' - Docker image: %s\n' "${testExtension_Image}"
 	testExtension_out=`mktemp`
-	if $(docker run --rm --volume "${TRAVIS_BUILD_DIR}:/app" --workdir /app "${testExtension_Image}" bash -c "./install-php-extensions '${1}' && php ./scripts/check-installed-extension.php '${1}'" >"${testExtension_out}" 2>&1); then
+	if $(docker run --rm --volume "${TRAVIS_BUILD_DIR}:/app" --workdir /app "${testExtension_Image}" sh -c "./install-php-extensions '${1}' && php ./scripts/check-installed-extension.php '${1}'" >"${testExtension_out}" 2>&1); then
 		rm -rf "${testExtension_out}"
 		printf ' - Passed\n'
 		return 0
@@ -148,6 +156,9 @@ getAllPHPVersionsFor () {
 # Arguments:
 # $1: the commit hash
 #
+# Set:
+# STOP_NEXT_COMMITS to 1 if we should skip next commits
+#
 # Return:
 # 0 (true): if test passes
 # 1 (false): if test fails
@@ -178,7 +189,9 @@ testExtensionsFromMessage () {
 			if test -n "$TESTLIST"; then
 				IFS=' ,;'
 				for COMMIT_LINE_EXT in $TESTLIST; do
-					if test -z "$TEST_EXTENSIONS"; then
+					if test $COMMIT_LINE_EXT = '-STOP-'; then
+						STOP_NEXT_COMMITS=1
+					elif test -z "$TEST_EXTENSIONS"; then
 						TEST_EXTENSIONS=$COMMIT_LINE_EXT;
 					else
 						if ! stringInList "$COMMIT_LINE_EXT" "$TEST_EXTENSIONS"; then
@@ -202,7 +215,7 @@ testExtensionsFromMessage () {
 	return $testExtensionsFromMessage_result
 }
 
-
+STOP_NEXT_COMMITS=0
 TESTS_RESULTS=0
 ADDED_EXTENSION_LINE=
 FOUND_ATAT=
@@ -230,6 +243,9 @@ IFS='
 for COMMIT_HASH in $(git -C "${TRAVIS_BUILD_DIR}" log --pretty='format:%H' "${TRAVIS_COMMIT_RANGE:-}"); do
 	if ! testExtensionsFromMessage "$COMMIT_HASH"; then
 		TESTS_RESULTS=1
+	fi
+	if test $STOP_NEXT_COMMITS -eq 1; then
+		break
 	fi
 done
 

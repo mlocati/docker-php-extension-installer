@@ -4,10 +4,7 @@
 
 This repository contains a script that can be used to easily install a PHP extension inside the [official PHP Docker images](https://hub.docker.com/_/php/).
 
-
-## Known limits
-
-Currently the script requires the Debian-based images (no Alpine).
+The script works both for Alpine and Debian Linux.
 
 
 ## Usage
@@ -33,11 +30,7 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 RUN install-php-extensions gd xdebug
 ```
 
-`install-php-extensions` will install all the required APT packages.  
-If you want to remove the APT development packages (which shouldn't be needed after the PHP extensions have been installed) and other no longer required packages, you can use the `--cleanup` option (**EXPERIMENTAL**):
-```
-install-php-extensions --cleanup gd xdebug
-```
+`install-php-extensions` will install all the required APT/APK packages; at the end of the script execution, the no-more needed packages will be removed.
 
 ## Supported PHP extensions
 
@@ -157,3 +150,16 @@ Some extension has special requirements:
   
   Test: gd, zip
   ```
+  If your pull request contains multiple commits, we'll check the "Test:" message of every commit.
+  If you want to stop parsing next commits, add `-STOP-` in the "Test:" line, for example:
+  ```
+  Improve the GD and ZIP extensions
+  
+  Test: gd, zip, -STOP-
+  ```
+
+
+
+## Do you want to really say thank you?
+
+You can offer me a [monthly coffee](https://github.com/sponsors/mlocati) or a [one-time coffee](https://paypal.me/mlocati) :wink:
