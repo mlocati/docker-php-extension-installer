@@ -156,6 +156,9 @@ getAllPHPVersionsFor () {
 # Arguments:
 # $1: the commit hash
 #
+# Set:
+# STOP_NEXT_COMMITS to 1 if we should skip next commits
+#
 # Return:
 # 0 (true): if test passes
 # 1 (false): if test fails
@@ -186,7 +189,9 @@ testExtensionsFromMessage () {
 			if test -n "$TESTLIST"; then
 				IFS=' ,;'
 				for COMMIT_LINE_EXT in $TESTLIST; do
-					if test -z "$TEST_EXTENSIONS"; then
+					if test $COMMIT_LINE_EXT = '-STOP-'; then
+						STOP_NEXT_COMMITS=1
+					elif test -z "$TEST_EXTENSIONS"; then
 						TEST_EXTENSIONS=$COMMIT_LINE_EXT;
 					else
 						if ! stringInList "$COMMIT_LINE_EXT" "$TEST_EXTENSIONS"; then
@@ -210,7 +215,7 @@ testExtensionsFromMessage () {
 	return $testExtensionsFromMessage_result
 }
 
-
+STOP_NEXT_COMMITS=0
 TESTS_RESULTS=0
 ADDED_EXTENSION_LINE=
 FOUND_ATAT=
@@ -238,6 +243,9 @@ IFS='
 for COMMIT_HASH in $(git -C "${TRAVIS_BUILD_DIR}" log --pretty='format:%H' "${TRAVIS_COMMIT_RANGE:-}"); do
 	if ! testExtensionsFromMessage "$COMMIT_HASH"; then
 		TESTS_RESULTS=1
+	fi
+	if test $STOP_NEXT_COMMITS -eq 1; then
+		break
 	fi
 done
 

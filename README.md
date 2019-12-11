@@ -150,6 +150,14 @@ Some extension has special requirements:
   
   Test: gd, zip
   ```
+  If your pull request contains multiple commits, we'll check the "Test:" message of every commit.
+  If you want to stop parsing next commits, add `-STOP-` in the "Test:" line, for example:
+  ```
+  Improve the GD and ZIP extensions
+  
+  Test: gd, zip, -STOP-
+  ```
+
 
 
 ## Do you want to really say thank you?
