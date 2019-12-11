@@ -342,19 +342,43 @@ buildRequiredPackageLists () {
 			pcov@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
-			pdo_dblib@debian)
+			pdo_dblib@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
+			pdo_dblib@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsybdb5"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
+				;;
+			pdo_firebird@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS icu-dev ncurses-dev"
+				;;
 			pdo_firebird@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
 				;;
-			pdo_pgsql@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
+			pdo_odbc@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS unixodbc-dev"
 				;;
 			pdo_odbc@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
+			pdo_pgsql@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
+				;;
+			pdo_pgsql@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
+				;;
+			pdo_sqlsrv@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ unixodbc"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS unixodbc-dev"
+				;;
 			pdo_sqlsrv@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1 odbcinst"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
 			pgsql@debian)
@@ -535,7 +559,7 @@ installBundledModule () {
 		imap)
 			PHP_OPENSSL=yes docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 			;;
-		interbase)
+		interbase|pdo_firebird)
 			case "$(getDistro)" in
 				alpine)
 					if ! test -d /tmp/src/firebird; then
