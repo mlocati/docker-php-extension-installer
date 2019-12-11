@@ -281,20 +281,44 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
 				;;
+			intl@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev"
+				;;
 			intl@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev"
+				;;
+			ldap@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libldap"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile openldap-dev"
 				;;
 			ldap@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libldap2-dev"
 				;;
+			mcrypt@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmcrypt"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmcrypt-dev"
+				;;
+			mcrypt@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmcrypt4"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmcrypt-dev"
+				;;
+			memcache@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS zlib-dev"
+				;;
 			memcache@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
 				;;
+			memcached@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmemcached-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS libmemcached-dev zlib-dev"
+				;;
 			memcached@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmemcachedutil2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmemcached-dev zlib1g-dev"
 				;;
-			mcrypt@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmcrypt-dev"
+			msgpack@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
 			mssql@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
@@ -505,7 +529,7 @@ installBundledModule () {
 						sed -i '194s/.*/#if 0/'  src/common/classes/rwlock.h
 						set +x
 						./configure --with-system-icu
-						make btyacc_binary gpre_boot libfbstatic libfbclient
+						make -j$(nproc) btyacc_binary gpre_boot libfbstatic libfbclient
 						cp gen/firebird/lib/libfbclient.so /usr/lib/
 						ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
 						cd -
@@ -550,7 +574,7 @@ installBundledModule () {
 			mkdir "$libZipSrc/build"
 			cd "$libZipSrc/build"
 			cmake ..
-			make install
+			make -j$(nproc) install
 			cd -
 			if test $1 -le 703; then
 				docker-php-ext-configure zip --with-libzip
