@@ -528,8 +528,8 @@ buildRequiredPackageLists () {
 			apk update
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get update
-			DEBIAN_FRONTEND=noninteractive apt-get autoremove --purge -y
+			DEBIAN_FRONTEND=noninteractive apt-get update -q
+			DEBIAN_FRONTEND=noninteractive apt-get autoremove --purge -y -q
 			;;
 	esac
 	if test -n "$buildRequiredPackageLists_persistent"; then
@@ -603,7 +603,7 @@ installRequiredPackages () {
 			apk add $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get install -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
+			DEBIAN_FRONTEND=noninteractive apt-get install -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
 	esac
 }
