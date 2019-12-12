@@ -65,6 +65,8 @@ RUN install-php-extensions gd xdebug
 | mcrypt | V | V | V | V | V | V |
 | memcache | V |  |  |  |  |  |
 | memcached | V | V | V | V | V | V |
+| mongo | V |  |  |  |  |  |
+| mongodb | V | V | V | V | V | V |
 | msgpack | V | V | V | V | V | V |
 | mssql | V |  |  |  |  |  |
 | mysql | V |  |  |  |  |  |
