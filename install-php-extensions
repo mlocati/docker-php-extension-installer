@@ -317,6 +317,24 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmemcachedutil2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmemcached-dev zlib1g-dev"
 				;;
+			mongo@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsasl libssl1.0"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS openssl-dev cyrus-sasl-dev"
+				;;
+			mongo@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssl-dev libsasl2-dev"
+				;;
+			mongodb@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl snappy"
+				if test -z "$(apk info | grep -E ^libssl)"; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0"
+				fi
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS icu-dev cyrus-sasl-dev snappy-dev openssl-dev zlib-dev"
+				;;
+			mongodb@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy1v5"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev libssl-dev zlib1g-dev"
+				;;
 			msgpack@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
@@ -813,6 +831,11 @@ installPECLModule () {
 				# --enable-memcached-session (default: yes)  Enable memcached session handler support
 				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
 			fi
+			;;
+		mongo)
+			installPECLModule_stdin=''
+			# --with-mongo-sasl (default: no)      Build with Cyrus SASL (MongoDB Enterprise Authentication) support?
+			installPECLModule_stdin="${installPECLModule_stdin}yes\n"
 			;;
 		msgpack)
 			if test $1 -le 506; then
