@@ -19,6 +19,8 @@ ldap 5.6 7.0 7.1 7.2 7.3 7.4
 mcrypt 5.6 7.0 7.1 7.2 7.3 7.4
 memcache 5.6
 memcached 5.6 7.0 7.1 7.2 7.3 7.4
+mongo 5.6
+mongodb 5.6 7.0 7.1 7.2 7.3 7.4
 msgpack 5.6 7.0 7.1 7.2 7.3 7.4
 mssql 5.6
 mysql 5.6
