@@ -75,7 +75,7 @@ testExtension () {
 		return 0
 	fi
 	printf ' - FAILED!\n' >&2
-	cat "${testExtension_out}" >&2
+	tail -n500 "${testExtension_out}" >&2
 	rm -rf "${testExtension_out}"
 	return 1
 }
