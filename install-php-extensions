@@ -177,8 +177,8 @@ sortModulesToInstall () {
 #   0 (true): if we to install some package
 #   1 (false): if no package is required
 buildRequiredPackageLists () {
-	buildRequiredPackageLists_persistent=''
-	buildRequiredPackageLists_volatile=''
+	PACKAGES_PERSISTENT=''
+	PACKAGES_VOLATILE=''
 	buildRequiredPackageLists_distro="$(getDistro)"
 	buildRequiredPackageLists_phpv=$1
 	while :; do
@@ -188,357 +188,355 @@ buildRequiredPackageLists () {
 		shift
 		case "$1@$buildRequiredPackageLists_distro" in
 			amqp@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent rabbitmq-c"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS rabbitmq-c-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT rabbitmq-c"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS rabbitmq-c-dev"
 				;;
 			amqp@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librabbitmq4"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librabbitmq-dev libssh-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT librabbitmq4"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE librabbitmq-dev libssh-dev"
 				;;
 			apcu@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			bz2@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libbz2"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile bzip2-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libbz2"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE bzip2-dev"
 				;;
 			bz2@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libbz2-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libbz2-dev"
 				;;
 			cmark@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS cmake"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS cmake"
 				;;
 			cmark@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE cmake"
 				;;
 			enchant@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent enchant"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile enchant-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT enchant"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE enchant-dev"
 				;;
 			enchant@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libenchant1c2a"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libenchant-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libenchant1c2a"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libenchant-dev"
 				;;
 			gd@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetype libjpeg-turbo libpng libxpm"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetype-dev libjpeg-turbo-dev libpng-dev libxpm-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT freetype libjpeg-turbo libpng libxpm"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE freetype-dev libjpeg-turbo-dev libpng-dev libxpm-dev"
 				if test $buildRequiredPackageLists_phpv -le 506; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libvpx"
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libvpx-dev"
+					PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libvpx"
+					PACKAGES_VOLATILE="$PACKAGES_VOLATILE libvpx-dev"
 				else
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebp"
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
+					PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libwebp"
+					PACKAGES_VOLATILE="$PACKAGES_VOLATILE libwebp-dev"
 				fi
 				;;
 			gd@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfreetype6 libjpeg62-turbo libpng16-16 libxpm4"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libfreetype6-dev libjpeg62-turbo-dev libpng-dev libxpm-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libfreetype6 libjpeg62-turbo libpng16-16 libxpm4"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libfreetype6-dev libjpeg62-turbo-dev libpng-dev libxpm-dev"
 				if test $buildRequiredPackageLists_phpv -le 506; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libvpx?"
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libvpx-dev"
+					PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libvpx?"
+					PACKAGES_VOLATILE="$PACKAGES_VOLATILE libvpx-dev"
 				else
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebp6"
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
+					PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libwebp6"
+					PACKAGES_VOLATILE="$PACKAGES_VOLATILE libwebp-dev"
 				fi
 				;;
 			gettext@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libintl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gettext-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libintl"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE gettext-dev"
 				;;
 			gmp@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gmp"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gmp-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT gmp"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE gmp-dev"
 				;;
 			gmp@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgmp-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libgmp-dev"
 				;;
 			igbinary@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			imagick@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent imagemagick"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS imagemagick-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT imagemagick"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS imagemagick-dev"
 				;;
 			imagick@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmagickwand-6.q16-?"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmagickwand-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libmagickwand-6.q16-?"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libmagickwand-dev"
 				;;
 			imap@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-client"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT c-client"
 				if test -z "$(apk info | grep -E ^libssl)"; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0"
+					PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libssl1.0"
 				fi
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev openssl openssl-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE krb5-dev imap-dev openssl openssl-dev"
 				;;
 			imap@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-client2007e"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-client-dev libkrb5-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libc-client2007e"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libc-client-dev libkrb5-dev"
 				;;
 			interbase@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS icu-dev ncurses-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS icu-dev ncurses-dev"
 				;;
 			interbase@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libfbclient2"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE firebird-dev libib-util"
 				;;
 			intl@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT icu-libs"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE icu-dev"
 				;;
 			intl@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libicu-dev"
 				;;
 			ldap@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libldap"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile openldap-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libldap"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE openldap-dev"
 				;;
 			ldap@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libldap2-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libldap2-dev"
 				;;
 			mcrypt@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $PHPIZE_DEPS libmcrypt"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmcrypt-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT $PHPIZE_DEPS libmcrypt"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libmcrypt-dev"
 				;;
 			mcrypt@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmcrypt4"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmcrypt-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libmcrypt4"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libmcrypt-dev"
 				;;
 			memcache@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS zlib-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS zlib-dev"
 				;;
 			memcache@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE zlib1g-dev"
 				;;
 			memcached@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmemcached-libs"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS libmemcached-dev zlib-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libmemcached-libs"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS libmemcached-dev zlib-dev"
 				;;
 			memcached@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmemcachedutil2"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmemcached-dev zlib1g-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libmemcachedutil2"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libmemcached-dev zlib1g-dev"
 				;;
 			mongo@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsasl libssl1.0"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS openssl-dev cyrus-sasl-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libsasl libssl1.0"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS openssl-dev cyrus-sasl-dev"
 				;;
 			mongo@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssl-dev libsasl2-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libssl-dev libsasl2-dev"
 				;;
 			mongodb@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl snappy"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT icu-libs libsasl snappy"
 				if test -z "$(apk info | grep -E ^libssl)"; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0"
+					PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libssl1.0"
 				fi
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS icu-dev cyrus-sasl-dev snappy-dev openssl-dev zlib-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS icu-dev cyrus-sasl-dev snappy-dev openssl-dev zlib-dev"
 				;;
 			mongodb@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy1v5"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev libssl-dev zlib1g-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libsnappy1v5"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libicu-dev libsasl2-dev libsnappy-dev libssl-dev zlib1g-dev"
 				;;
 			msgpack@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			mssql@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT freetds"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE freetds-dev"
 				;;
 			mssql@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsybdb5"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libsybdb5"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE freetds-dev"
 				;;
 			odbc@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS unixodbc-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT unixodbc"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS unixodbc-dev"
 				;;
 			odbc@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libodbc1"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE unixodbc-dev"
 				;;
 			parallel@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			pcov@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			pdo_dblib@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT freetds"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE freetds-dev"
 				;;
 			pdo_dblib@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsybdb5"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libsybdb5"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE freetds-dev"
 				;;
 			pdo_firebird@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS icu-dev ncurses-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS icu-dev ncurses-dev"
 				;;
 			pdo_firebird@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libfbclient2"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE firebird-dev libib-util"
 				;;
 			pdo_odbc@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS unixodbc-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT unixodbc"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS unixodbc-dev"
 				;;
 			pdo_odbc@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libodbc1"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE unixodbc-dev"
 				;;
 			pdo_pgsql@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT postgresql-libs"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE postgresql-dev"
 				;;
 			pdo_pgsql@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libpq5"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libpq-dev"
 				;;
 			pdo_sqlsrv@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ unixodbc"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS unixodbc-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libstdc++ unixodbc"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS unixodbc-dev"
 				;;
 			pdo_sqlsrv@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1 odbcinst"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libodbc1 odbcinst"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE unixodbc-dev"
 				;;
 			pgsql@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT postgresql-libs"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE postgresql-dev"
 				;;
 			pgsql@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libpq5"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libpq-dev"
 				;;
 			pspell@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-libs"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile aspell-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT aspell-libs"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE aspell-dev"
 				;;
 			pspell@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaspell15"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpspell-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libaspell15"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libpspell-dev"
 				;;
 			pthreads@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			recode@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent recode"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile recode-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT recode"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE recode-dev"
 				;;
 			recode@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librecode0"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librecode-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT librecode0"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE librecode-dev"
 				;;
 			redis@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			snmp@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent net-snmp-libs"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile net-snmp-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT net-snmp-libs"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE net-snmp-dev"
 				;;
 			snmp@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent snmp"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsnmp-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT snmp"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libsnmp-dev"
 				;;
 			soap@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libxml2-dev"
 				;;
 			soap@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libxml2-dev"
 				;;
 			solr@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS curl-dev libxml2-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS curl-dev libxml2-dev"
 				;;
 			solr@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-gnutls-dev libxml2-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libcurl3-gnutls"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libcurl4-gnutls-dev libxml2-dev"
 				;;
 			sqlsrv@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ unixodbc"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS unixodbc-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libstdc++ unixodbc"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS unixodbc-dev"
 				;;
 			sqlsrv@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT unixodbc"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE unixodbc-dev"
 				;;
 			ssh2@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $PHPIZE_DEPS libssh2"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS libssh2-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT $PHPIZE_DEPS libssh2"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS libssh2-dev"
 				;;
 			ssh2@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-1-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libssh2-1-dev"
 				;;
 			sybase_ct@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT freetds"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE freetds-dev"
 				;;
 			sybase_ct@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libct4"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libct4"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE freetds-dev"
 				;;
 			tidy@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml-libs"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile tidyhtml-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT tidyhtml-libs"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE tidyhtml-dev"
 				;;
 			tidy@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libtidy5*"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libtidy-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libtidy5*"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libtidy-dev"
 				;;
 			timezonedb@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			uopz@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			uuid@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libuuid"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS util-linux-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libuuid"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS util-linux-dev"
 				;;
 			uuid@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile uuid-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE uuid-dev"
 				;;
 			wddx@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libxml2-dev"
 				;;
 			wddx@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libxml2-dev"
 				;;
 			xdebug@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS"
 				;;
 			xmlrpc@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libxml2-dev"
 				;;
 			xmlrpc@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libxml2-dev"
 				;;
 			xsl@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libxslt"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxslt-dev libgcrypt-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libxslt"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libxslt-dev libgcrypt-dev"
 				;;
 			xsl@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libxslt1.1"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxslt-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libxslt1.1"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libxslt-dev"
 				;;
 			yaml@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $PHPIZE_DEPS yaml"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS yaml-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT $PHPIZE_DEPS yaml"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS yaml-dev"
 				;;
 			yaml@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libyaml-0-2"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libyaml-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libyaml-0-2"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE libyaml-dev"
 				;;
 			zip@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS cmake gnutls-dev libzip-dev openssl-dev zlib-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libzip"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $PHPIZE_DEPS cmake gnutls-dev libzip-dev openssl-dev zlib-dev"
 				;;
 			zip@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip4 libmbedtls1?"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libssl-dev libzip-dev libbz2-dev libmbedtls-dev zlib1g-dev"
+				PACKAGES_PERSISTENT="$PACKAGES_PERSISTENT libzip4 libmbedtls1?"
+				PACKAGES_VOLATILE="$PACKAGES_VOLATILE cmake gnutls-dev libssl-dev libzip-dev libbz2-dev libmbedtls-dev zlib1g-dev"
 				;;
 		esac
 	done
-	PACKAGES_PERSISTENT=''
-	PACKAGES_VOLATILE=''
-	if test -z "$buildRequiredPackageLists_persistent$buildRequiredPackageLists_volatile"; then
+	if test -z "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
 		return 0
 	fi
 	case "$buildRequiredPackageLists_distro" in
@@ -550,64 +548,6 @@ buildRequiredPackageLists () {
 			DEBIAN_FRONTEND=noninteractive apt-get autoremove --purge -y -q
 			;;
 	esac
-	if test -n "$buildRequiredPackageLists_persistent"; then
-		PACKAGES_PERSISTENT="$(expandPackagesToBeInstalled $buildRequiredPackageLists_persistent)"
-	fi
-	if test -n "$buildRequiredPackageLists_volatile"; then
-		resetIFS
-		for buildRequiredPackageLists_package in $(expandPackagesToBeInstalled $buildRequiredPackageLists_volatile); do
-			if ! stringInList "$buildRequiredPackageLists_package" "$PACKAGES_PERSISTENT"; then
-				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $buildRequiredPackageLists_package"
-			fi
-		done
-		PACKAGES_VOLATILE="${PACKAGES_VOLATILE# }"
-	fi
-}
-
-# Get the full list of APT/APK packages that will be installed, given the required packages
-#
-# Arguments:
-#   $1: the list of required APT/APK packages
-#
-# Output:
-#   Space-separated list of every APT/APK packages that will be installed
-expandPackagesToBeInstalled () {
-	expandPackagesToBeInstalled_result=''
-	case "$(getDistro)" in
-		alpine)
-			IFS='
-'
-			for expandPackagesToBeInstalled_line in $(apk add --simulate $@); do
-				if test -n "$(printf '%s' "$expandPackagesToBeInstalled_line" | grep -E '^\([0-9]*/[0-9]*) Installing ')"; then
-					expandPackagesToBeInstalled_result="$expandPackagesToBeInstalled_result $(printf '%s' "$expandPackagesToBeInstalled_line" | cut -d ' ' -f 3)"
-				fi
-			done
-			resetIFS
-			;;
-		debian)
-			expandPackagesToBeInstalled_inNewPackages=0
-			IFS='
-'
-			for expandPackagesToBeInstalled_line in $(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@); do
-				if test $expandPackagesToBeInstalled_inNewPackages -eq 0; then
-					if test "$expandPackagesToBeInstalled_line" = 'The following NEW packages will be installed:'; then
-						expandPackagesToBeInstalled_inNewPackages=1
-					fi
-				elif test "$expandPackagesToBeInstalled_line" = "${expandPackagesToBeInstalled_line# }"; then
-					break
-				else
-					resetIFS
-					for expandPackagesToBeInstalled_newPackage in $expandPackagesToBeInstalled_line; do
-						expandPackagesToBeInstalled_result="$expandPackagesToBeInstalled_result $expandPackagesToBeInstalled_newPackage"
-					done
-					IFS='
-'
-				fi
-			done
-			resetIFS
-			;;
-	esac
-	printf '%s' "${expandPackagesToBeInstalled_result# }"
 }
 
 # Install the required APT/APK packages
@@ -618,10 +558,11 @@ installRequiredPackages () {
 	printf '### INSTALLING REQUIRED PACKAGES ###\n'
 	case "$(getDistro)" in
 		alpine)
-			apk add $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
+			apk add $PACKAGES_PERSISTENT
+			apk add --virtual .build-deps $PACKAGES_VOLATILE
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get install -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
+			DEBIAN_FRONTEND=noninteractive apt-get install -qq -y --no-install-recommends $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
 	esac
 }
@@ -978,10 +919,10 @@ cleanup () {
 		printf '### REMOVING UNNEEDED PACKAGES ###\n'
 		case "$cleanup_distro" in
 			alpine)
-				apk del --purge $PACKAGES_VOLATILE
+				apk del --purge .build-deps
 				;;
 			debian)
-				DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y $PACKAGES_VOLATILE
+				DEBIAN_FRONTEND=noninteractive apt-get purge --auto-remove -y $PACKAGES_VOLATILE
 				;;
 		esac
 	fi
