@@ -111,6 +111,8 @@ RUN install-php-extensions gd xdebug
 | xsl | V | V | V | V | V | V |
 | yaml | V | V | V | V | V | V |
 | zip | V | V | V | V | V | V |
+
+*Number of supported extensions: 67*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
