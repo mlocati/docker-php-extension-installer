@@ -143,29 +143,39 @@ Some extension has special requirements:
 
 ## How to contribute
 
-- If you want to add support for a new PHP extension:
-  1. change the `install-php-extensions` script
-  2. update the `data/supported-extensions` file, adding a new line with the handle of the extension and the list of supported PHP versions
-  3. if the extension requires ZTS images:  
-     add a new line to the `data/special-requirements` file, with the extension handle followed by a space and `zts`
-- If you want to change the list of supported PHP versions for an already supported extension:
-  1. change the `install-php-extensions` script
-  2. update the `data/supported-extensions` file, adding the new PHP version to the existing line corresponding to the updated extension
-- If you change some code that affects one or more extensions, please add a line with `Test: extension1, extension2` to the message of one of the pull request commits.
-  Here's an example of a commit message:
-  ```
-  Improve the GD and ZIP extensions
-  
-  Test: gd, zip
-  ```
-  If your pull request contains multiple commits, we'll check the "Test:" message of every commit.
-  If you want to stop parsing next commits, add `-STOP-` in the "Test:" line, for example:
-  ```
-  Improve the GD and ZIP extensions
-  
-  Test: gd, zip, -STOP-
-  ```
+### Adding support to a new PHP extension?
 
+1. change the `install-php-extensions` script
+2. update the `data/supported-extensions` file, adding a new line with the handle of the extension and the list of supported PHP versions
+3. if the extension requires ZTS images:  
+   add a new line to the `data/special-requirements` file, with the extension handle followed by a space and `zts`
+
+### Changing the supported PHP versions for an already supported PHP extension?
+
+1. change the `install-php-extensions` script
+2. update the `data/supported-extensions` file, adding the new PHP version to the existing line corresponding to the updated extension
+
+### Improving code for an already supported extension?
+
+If you change some code that affects one or more extensions, please add a line with `Test: extension1, extension2` to the message of one of the pull request commits.
+That way, the test jobs will check the extension even if you don't touch the `data/supported-extensions` file.
+
+Here's an example of a commit message:
+
+```
+Improve the GD and ZIP extensions
+
+Test: gd, zip
+```
+
+If your pull request contains multiple commits, we'll check the "Test:" message of every commit.
+If you want to stop parsing next commits, add `-STOP-` in the "Test:" line, for example:
+
+```
+Improve the GD and ZIP extensions
+
+Test: gd, zip, -STOP-
+```
 
 
 ## Do you want to really say thank you?
