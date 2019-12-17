@@ -354,6 +354,9 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
+			opencensus@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
+				;;
 			parallel@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
@@ -841,6 +844,9 @@ installPECLModule () {
 			if test $1 -le 506; then
 				installPECLModule_actual="$2-0.5.7"
 			fi
+			;;
+		opencensus)
+			installPECLModule_actual="$2-alpha"
 			;;
 		parallel)
 			if test $1 -le 701; then
