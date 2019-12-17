@@ -56,6 +56,7 @@ RUN install-php-extensions gd xdebug
 | gd | V | V | V | V | V | V |
 | gettext | V | V | V | V | V | V |
 | gmp | V | V | V | V | V | V |
+| grpc | V | V | V | V | V | V |
 | igbinary | V | V | V | V | V | V |
 | imagick | V | V | V | V | V | V |
 | imap | V | V | V | V | V | V |
@@ -84,6 +85,7 @@ RUN install-php-extensions gd xdebug
 | pdo_pgsql | V | V | V | V | V | V |
 | pdo_sqlsrv |  | V | V | V | V | V |
 | pgsql | V | V | V | V | V | V |
+| protobuf | V | V | V | V | V | V |
 | pspell | V | V | V | V | V | V |
 | pthreads | V | V |  |  |  |  |
 | recode | V | V | V | V | V |  |
