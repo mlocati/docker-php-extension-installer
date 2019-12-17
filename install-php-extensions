@@ -813,6 +813,7 @@ installPECLModule () {
 	printf '### INSTALLING PECL MODULE %s ###\n' "$2"
 	installPECLModule_actual="$2"
 	installPECLModule_stdin='\n'
+	installPECLModule_manuallyInstalled=0
 	case "$2" in
 		apcu)
 			if test $1 -le 506; then
@@ -856,7 +857,18 @@ installPECLModule () {
 			fi
 			;;
 		opencensus)
-			installPECLModule_actual="$2-alpha"
+			if test $1 -le 702; then
+				installPECLModule_actual="$2-alpha"
+			else
+				installPECLModule_manuallyInstalled=1
+				installPECLModule_src="$(getPackageSource https://pecl.php.net/get/opencensus)"
+				cd "$installPECLModule_src"/opencensus-*
+				find . -name '*.c' -type f -exec sed -i 's/\bZVAL_DESTRUCTOR\b/zval_dtor/g' {} +
+				phpize
+				./configure
+				make install
+				cd -
+			fi
 			;;
 		parallel)
 			if test $1 -le 701; then
@@ -932,10 +944,12 @@ installPECLModule () {
 			fi
 			;;
 	esac
-	if test "$2" != "$installPECLModule_actual"; then
-		printf '  (installing version %s)\n' "$installPECLModule_actual"
+	if test $installPECLModule_manuallyInstalled -eq 0; then
+		if test "$2" != "$installPECLModule_actual"; then
+			printf '  (installing version %s)\n' "$installPECLModule_actual"
+		fi
+		printf "$installPECLModule_stdin" | pecl install "$installPECLModule_actual"
 	fi
-	printf "$installPECLModule_stdin" | pecl install "$installPECLModule_actual"
 	docker-php-ext-enable "$2"
 }
 
