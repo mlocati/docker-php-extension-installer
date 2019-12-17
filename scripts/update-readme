@@ -98,6 +98,7 @@ generateExtensionsTable () {
 	generateExtensionsTable_data=$(cat "${1}")
 	generateExtensionsTable_extensions="$(getExtensionList "${1}")"
 	generateExtensionsTable_versions="$(getVersionList "${1}")"
+	generateExtensionsTable_count=0
 	printf '| Extension |'
 	IFS=' '
 	for generateExtensionsTable_version in ${generateExtensionsTable_versions}; do
@@ -111,6 +112,7 @@ generateExtensionsTable () {
 	printf '\n'
 	IFS=' '
 	for generateExtensionsTable_extension in ${generateExtensionsTable_extensions}; do
+		generateExtensionsTable_count=$((generateExtensionsTable_count + 1))
 		printf '| %s |' "${generateExtensionsTable_extension}"
 		IFS=' '
 		for generateExtensionsTable_version in ${generateExtensionsTable_versions}; do
@@ -133,6 +135,8 @@ generateExtensionsTable () {
 		done
 		printf '\n'
 	done
+	printf '\n'
+	printf '*Number of supported extensions: %s*\n' $generateExtensionsTable_count
 }
 
 
