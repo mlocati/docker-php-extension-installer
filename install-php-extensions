@@ -252,6 +252,13 @@ buildRequiredPackageLists () {
 			gmp@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgmp-dev"
 				;;
+			grpc@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS zlib-dev"
+				;;
+			grpc@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
+				;;
 			igbinary@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
@@ -409,6 +416,9 @@ buildRequiredPackageLists () {
 			pgsql@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
+				;;
+			protobuf@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
 			pspell@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-libs"
