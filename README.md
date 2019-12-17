@@ -150,10 +150,14 @@ Some extension has special requirements:
 3. if the extension requires ZTS images:  
    add a new line to the `data/special-requirements` file, with the extension handle followed by a space and `zts`
 
+See [this pull request](https://github.com/mlocati/docker-php-extension-installer/pull/60) for an example.
+
 ### Changing the supported PHP versions for an already supported PHP extension?
 
 1. change the `install-php-extensions` script
 2. update the `data/supported-extensions` file, adding the new PHP version to the existing line corresponding to the updated extension
+
+See [this pull request](https://github.com/mlocati/docker-php-extension-installer/pull/62) for an example.
 
 ### Improving code for an already supported extension?
 
@@ -176,6 +180,8 @@ Improve the GD and ZIP extensions
 
 Test: gd, zip, -STOP-
 ```
+
+See [this pull request](https://github.com/mlocati/docker-php-extension-installer/pull/43) for an example.
 
 
 ## Do you want to really say thank you?
