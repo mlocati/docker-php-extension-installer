@@ -21,14 +21,11 @@ getExtensionList () {
 	getExtensionList_extensions=''
 	IFS='
 '
-	for getExtensionList_line in $(cat -- "${1}" | sort)
-	do
+	for getExtensionList_line in $(cat -- "${1}" | sort); do
 		getExtensionList_extension=''
 		IFS=' 	'
-		for getExtensionList_chunk in ${getExtensionList_line}
-		do
-			if test -z "${getExtensionList_extensions}"
-			then
+		for getExtensionList_chunk in ${getExtensionList_line}; do
+			if test -z "${getExtensionList_extensions}"; then
 				getExtensionList_extensions="${getExtensionList_chunk}"
 			else
 				getExtensionList_extensions="${getExtensionList_extensions} ${getExtensionList_chunk}"
@@ -51,20 +48,15 @@ getVersionList () {
 	getVersionList_versions=''
 	IFS='
 '
-	for getVersionList_line in $(cat -- "${1}" | sort)
-	do
+	for getVersionList_line in $(cat -- "${1}" | sort); do
 		getVersionList_extension=''
 		IFS=' 	'
-		for getVersionList_chunk in ${getVersionList_line}
-		do
-			if test -z "${getVersionList_extension}"
-			then
+		for getVersionList_chunk in ${getVersionList_line}; do
+			if test -z "${getVersionList_extension}"; then
 				getVersionList_extension="${getVersionList_chunk}"
-			elif test -z "${getVersionList_versions}"
-			then
+			elif test -z "${getVersionList_versions}"; then
 				getVersionList_versions="${getVersionList_chunk}"
-			elif ! stringInList "${getVersionList_chunk}" "${getVersionList_versions}"
-			then
+			elif ! stringInList "${getVersionList_chunk}" "${getVersionList_versions}"; then
 				getVersionList_versions="${getVersionList_versions} ${getVersionList_chunk}"
 			fi
 		done
@@ -84,10 +76,8 @@ sortVersionList () {
 	sortVersionList_list=''
 	IFS='
 '
-	for sortVersionList_version in $(printf '%s' "${1}" | tr ' ' '\n' | sort -t '.' -k 1,1n -k 2,2n -k 3,3n)
-	do
-		if test -z "${sortVersionList_list}"
-		then
+	for sortVersionList_version in $(printf '%s' "${1}" | tr ' ' '\n' | sort -t '.' -k 1,1n -k 2,2n -k 3,3n); do
+		if test -z "${sortVersionList_list}"; then
 			sortVersionList_list="${sortVersionList_version}"
 		else
 			sortVersionList_list="${sortVersionList_list} ${sortVersionList_version}"
@@ -110,41 +100,33 @@ generateExtensionsTable () {
 	generateExtensionsTable_versions="$(getVersionList "${1}")"
 	printf '| Extension |'
 	IFS=' '
-	for generateExtensionsTable_version in ${generateExtensionsTable_versions}
-	do
+	for generateExtensionsTable_version in ${generateExtensionsTable_versions}; do
 		printf ' PHP %s |' "${generateExtensionsTable_version}"
 	done
 	printf '\n'
 	printf '|:---:|'
-	for generateExtensionsTable_version in ${generateExtensionsTable_versions}
-	do
+	for generateExtensionsTable_version in ${generateExtensionsTable_versions}; do
 		printf -- ':---:|'
 	done
 	printf '\n'
 	IFS=' '
-	for generateExtensionsTable_extension in ${generateExtensionsTable_extensions}
-	do
+	for generateExtensionsTable_extension in ${generateExtensionsTable_extensions}; do
 		printf '| %s |' "${generateExtensionsTable_extension}"
 		IFS=' '
-		for generateExtensionsTable_version in ${generateExtensionsTable_versions}
-		do
+		for generateExtensionsTable_version in ${generateExtensionsTable_versions}; do
 			printf ' '
 			generateExtensionsTable_versionOk=''
 			IFS='
 '
-			for generateExtensionsTable_dataLine in ${generateExtensionsTable_data}
-			do
-				if stringInList "${generateExtensionsTable_extension}" "${generateExtensionsTable_dataLine}"
-				then
-					if stringInList "${generateExtensionsTable_version}" "${generateExtensionsTable_dataLine}"
-					then
+			for generateExtensionsTable_dataLine in ${generateExtensionsTable_data}; do
+				if stringInList "${generateExtensionsTable_extension}" "${generateExtensionsTable_dataLine}"; then
+					if stringInList "${generateExtensionsTable_version}" "${generateExtensionsTable_dataLine}"; then
 						generateExtensionsTable_versionOk='y'
 					fi
 					break
 				fi
 			done
-			if test -n "${generateExtensionsTable_versionOk}"
-			then
+			if test -n "${generateExtensionsTable_versionOk}"; then
 				printf 'V'
 			fi
 			printf ' |'
@@ -165,10 +147,8 @@ generateSpecialRequirementsTable () {
 	generateSpecialRequirementsTable_started=''
 	IFS='
 '
-	for generateSpecialRequirementsTable_line in $(cat -- "${1}" | sort)
-	do
-		if test -z "${generateSpecialRequirementsTable_started}"
-		then
+	for generateSpecialRequirementsTable_line in $(cat -- "${1}" | sort); do
+		if test -z "${generateSpecialRequirementsTable_started}"; then
 			printf '| Extension | Requirements |\n'
 			printf '|:---:|:---:|\n'
 			generateSpecialRequirementsTable_started='y'
@@ -202,18 +182,14 @@ generateReadme () {
 	generateReadme_ph_SpecialStart='<!-- START OF SPECIAL REQUIREMENTS -->'
 	generateReadme_ph_SpecialEnd='<!-- END OF SPECIAL REQUIREMENTS -->'
 	generateReadme_skip=''
-	while IFS= read -r generateReadme_line
-	do
-		if test "${generateReadme_line}" = "${generateReadme_ph_ExtensionsEnd}" || test "${generateReadme_line}" = "${generateReadme_ph_SpecialEnd}"
-		then
+	while IFS= read -r generateReadme_line; do
+		if test "${generateReadme_line}" = "${generateReadme_ph_ExtensionsEnd}" || test "${generateReadme_line}" = "${generateReadme_ph_SpecialEnd}"; then
 			generateReadme_skip=''
 		fi
-		if test -z "${generateReadme_skip}"
-		then
+		if test -z "${generateReadme_skip}"; then
 			printf '%s\n' "${generateReadme_line}"
 		fi
-		if test "${generateReadme_line}" = "${generateReadme_ph_ExtensionsStart}"
-		then
+		if test "${generateReadme_line}" = "${generateReadme_ph_ExtensionsStart}"; then
 			generateReadme_skip='y'
 			printf '<!-- ########################################################### -->\n'
 			printf '<!-- #                                                         # -->\n'
@@ -223,8 +199,7 @@ generateReadme () {
 			printf '<!-- #                                                         # -->\n'
 			printf '<!-- ########################################################### -->\n'
 			generateExtensionsTable "${2}"
-		elif test "${generateReadme_line}" = "${generateReadme_ph_SpecialStart}"
-		then
+		elif test "${generateReadme_line}" = "${generateReadme_ph_SpecialStart}"; then
 			generateReadme_skip='y'
 			printf '<!-- ########################################################### -->\n'
 			printf '<!-- #                                                         # -->\n'
