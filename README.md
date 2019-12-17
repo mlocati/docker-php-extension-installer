@@ -73,6 +73,7 @@ RUN install-php-extensions gd xdebug
 | mysqli | V | V | V | V | V | V |
 | odbc | V | V | V | V | V | V |
 | opcache | V | V | V | V | V | V |
+| opencensus |  | V | V | V |  |  |
 | parallel |  |  | V | V | V | V |
 | pcntl | V | V | V | V | V | V |
 | pcov |  | V | V | V | V | V |
