@@ -433,7 +433,7 @@ buildRequiredPackageLists () {
 				;;
 			rdkafka@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librdkafka"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librdkafka-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS librdkafka-dev"
 				;;
 			rdkafka@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librdkafka++1"
