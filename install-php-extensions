@@ -902,9 +902,20 @@ installPECLModule () {
 			fi
 			;;
 		rdkafka)
-			if test ! -z "$(apt-cache show librdkafka++1 | grep -E '^Version: 0.9')"; then
-				installPECLModule_actual="$2-3.1.3"
-			fi
+			case "$(getDistro)" in
+				alpine)
+					# lowest version on alpine is 0.9
+					if test ! -z "$(apk search librdkafka | grep -E '^librdkafka-0.9')"; then
+						installPECLModule_actual="$2-3.1.3"
+					fi
+					;;
+				debian)
+					# lowest version on debian is 0.8 (jessie), 0.9 (stretch)
+					if test ! -z "$(apt-cache show librdkafka++1 | grep -E -e '^Version: 0.9' -e '^Version: 0.8')"; then
+						installPECLModule_actual="$2-3.1.3"
+					fi
+					;;
+			esac
 			;;
 		redis)
 			if test $1 -le 506; then
