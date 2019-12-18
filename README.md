@@ -172,6 +172,16 @@ Improve the GD and ZIP extensions
 Test: gd, zip
 ```
 
+Tests only check the installation of a single PHP extension at a time.
+If you want to test installing more PHP extensions at the same time, use a commit message like this:
+
+```
+Improve the GD and ZIP extensions
+
+Test: gd+zip
+```
+
+
 If your pull request contains multiple commits, we'll check the "Test:" message of every commit.
 If you want to stop parsing next commits, add `-STOP-` in the "Test:" line, for example:
 

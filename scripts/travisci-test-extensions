@@ -22,7 +22,7 @@ ALREADY_TESTED_EXTENSIONS=''
 # Get the docker image ID for a PHP extension and a PHP version
 #
 # Arguments:
-# $1: the extension name
+# $1: space-separated list with the names of the PHP extensions
 # $2: the PHP version
 #
 # Outputs:
@@ -36,9 +36,12 @@ getDockerImageName () {
 	getDockerImageName_suffix='-cli'
 	getDockerImageName_reqs="${TRAVIS_BUILD_DIR}/data/special-requirements"
 	if test -f "${getDockerImageName_reqs}"; then
-		if test -n "$(cat "${getDockerImageName_reqs}" | grep -E "^${1}[ \t]+zts[ \t]*$")"; then
-			getDockerImageName_suffix="-zts"
-		fi
+		IFS=' '
+		for getDockerImageName_testExtension in $1; do
+			if test -n "$(cat "${getDockerImageName_reqs}" | grep -E "^${getDockerImageName_testExtension}[ \t]+zts[ \t]*$")"; then
+				getDockerImageName_suffix="-zts"
+			fi
+		done
 	fi
 	case "${DOCKER_DISTRO:-}" in
 		alpine)
@@ -55,7 +58,7 @@ getDockerImageName () {
 # Test an extension
 #
 # Arguments:
-# $1: the extension name
+# $1: space-separated list with the names of the PHP extensions to be tested
 # $2: the PHP version
 #
 # Return:
@@ -70,7 +73,7 @@ testExtension () {
 	testExtension_Image="$(getDockerImageName "${1}" "${2}")"
 	printf ' - Docker image: %s\n' "${testExtension_Image}"
 	testExtension_out=`mktemp`
-	if $(docker run --rm --volume "${TRAVIS_BUILD_DIR}:/app" --workdir /app "${testExtension_Image}" sh -c "./install-php-extensions '${1}' && php ./scripts/check-installed-extension.php '${1}'" >"${testExtension_out}" 2>&1); then
+	if $(docker run --rm --volume "${TRAVIS_BUILD_DIR}:/app" --workdir /app "${testExtension_Image}" sh -c "./install-php-extensions ${1} && php ./scripts/check-installed-extension.php ${1}" >"${testExtension_out}" 2>&1); then
 		rm -rf "${testExtension_out}"
 		printf ' - Passed\n'
 		return 0
@@ -117,39 +120,69 @@ testNewExtensionLine () {
 }
 
 
-#Get the list of all supported PHP versions
+# Get the list of all supported PHP versions
 #
 # Arguments:
-# $1: the extension name
+# $1: space-separated list with the names of the PHP extensions to be tested
 #
 # Outputs:
 # the space-separated list of supported PHP versions
-getAllPHPVersionsFor () {
-	getAllPHPVersionsFor_result=''
-	while IFS= read -r getAllPHPVersionsFor_line; do
-		getAllPHPVersionsFor_ok=
+getAllPHPVersionsForExtensions () {
+	getAllPHPVersionsForExtensions_result=''
+	IFS=' '
+	for getAllPHPVersionsForExtensions_extension in $1; do
+		getAllPHPVersionsForExtensions_this="$(getAllPHPVersionsForExtension "$getAllPHPVersionsForExtensions_extension")"
+		if test -z "$getAllPHPVersionsForExtensions_this"; then
+			return
+		fi
+		if test -z "$getAllPHPVersionsForExtensions_result"; then
+			getAllPHPVersionsForExtensions_result="$getAllPHPVersionsForExtensions_this"
+		else
+			getAllPHPVersionsForExtensions_tmp=''
+			for getAllPHPVersionsForExtensions_php1 in $getAllPHPVersionsForExtensions_this; do
+				if stringInList "$getAllPHPVersionsForExtensions_php1" "$getAllPHPVersionsForExtensions_result"; then
+					getAllPHPVersionsForExtensions_tmp="$getAllPHPVersionsForExtensions_tmp $getAllPHPVersionsForExtensions_php1"
+				fi
+			done
+			getAllPHPVersionsForExtensions_result="${getAllPHPVersionsForExtensions_tmp# }"
+		fi
+	done
+	printf '%s' "$getAllPHPVersionsForExtensions_result"
+}
+
+# Get the list of all supported PHP versions
+#
+# Arguments:
+# $1: the names of a PHP extension to be tested
+#
+# Outputs:
+# the space-separated list of supported PHP versions
+getAllPHPVersionsForExtension () {
+	getAllPHPVersionsForExtension_result=''
+	while IFS= read -r getAllPHPVersionsForExtension_line; do
+		getAllPHPVersionsForExtension_ok=
 		IFS=' '
-		for getAllPHPVersionsFor_chunk in $getAllPHPVersionsFor_line; do
-			if test -z "$getAllPHPVersionsFor_ok"; then
-				if test "$getAllPHPVersionsFor_chunk" = "$1"; then
-					getAllPHPVersionsFor_ok=y
+		for getAllPHPVersionsForExtension_chunk in $getAllPHPVersionsForExtension_line; do
+			if test -z "$getAllPHPVersionsForExtension_ok"; then
+				if test "$getAllPHPVersionsForExtension_chunk" = "$1"; then
+					getAllPHPVersionsForExtension_ok=y
 				else
-					getAllPHPVersionsFor_ok=n
+					getAllPHPVersionsForExtension_ok=n
 				fi
 			else
-				if test $getAllPHPVersionsFor_ok = 'y'; then
-					if test -z "$getAllPHPVersionsFor_result"; then
-						getAllPHPVersionsFor_result="$getAllPHPVersionsFor_chunk"
+				if test $getAllPHPVersionsForExtension_ok = 'y'; then
+					if test -z "$getAllPHPVersionsForExtension_result"; then
+						getAllPHPVersionsForExtension_result="$getAllPHPVersionsForExtension_chunk"
 					else
-						if ! stringInList "$getAllPHPVersionsFor_chunk" "$getAllPHPVersionsFor_result"; then
-							getAllPHPVersionsFor_result="$getAllPHPVersionsFor_result $getAllPHPVersionsFor_chunk"
+						if ! stringInList "$getAllPHPVersionsForExtension_chunk" "$getAllPHPVersionsForExtension_result"; then
+							getAllPHPVersionsForExtension_result="$getAllPHPVersionsForExtension_result $getAllPHPVersionsForExtension_chunk"
 						fi
 					fi
 				fi
 			fi
 		done
 	done < "$TRAVIS_BUILD_DIR/data/supported-extensions"
-	printf '%s' "${getAllPHPVersionsFor_result}"
+	printf '%s' "${getAllPHPVersionsForExtension_result}"
 }
 
 
@@ -207,8 +240,9 @@ testExtensionsFromMessage () {
 		for TEST_EXTENSION in $TEST_EXTENSIONS; do
 			if ! stringInList "$TEST_EXTENSION" "$ALREADY_TESTED_EXTENSIONS"; then
 				ALREADY_TESTED_EXTENSIONS="$ALREADY_TESTED_EXTENSIONS $TEST_EXTENSION"
-				printf '### TESTING EXTENSION %s ###\n' "$TEST_EXTENSION"
-				for TEST_PHPVERSION in $(getAllPHPVersionsFor $TEST_EXTENSION); do
+				TEST_EXTENSION="$(printf '%s' "$TEST_EXTENSION" | sed 's/\+/ /g')"
+				printf '### TESTING EXTENSION(S) %s ###\n' "$TEST_EXTENSION"
+				for TEST_PHPVERSION in $(getAllPHPVersionsForExtensions "$TEST_EXTENSION"); do
 					if ! testExtension "$TEST_EXTENSION" "$TEST_PHPVERSION"; then
 						testExtensionsFromMessage_result=1
 					fi
