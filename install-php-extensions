@@ -431,6 +431,14 @@ buildRequiredPackageLists () {
 			pthreads@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
+			rdkafka@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librdkafka"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librdkafka-dev"
+				;;
+			rdkafka@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librdkafka++1"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librdkafka-dev"
+				;;
 			recode@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent recode"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile recode-dev"
@@ -891,6 +899,11 @@ installPECLModule () {
 		pthreads)
 			if test $1 -lt 700; then
 				installPECLModule_actual="$2-2.0.10"
+			fi
+			;;
+		rdkafka)
+			if test ! -z "$(apt-cache show librdkafka++1 | grep -E '^Version: 0.9')"; then
+				installPECLModule_actual="$2-3.1.3"
 			fi
 			;;
 		redis)
