@@ -41,6 +41,22 @@ getDistro () {
 	fi
 }
 
+# Get the distribution name with version
+#
+# Output:
+#   alpine<verion_id>|debian<verion_id>
+getDistroVersion () {
+	getDistro_version_id=''
+	if test -r /etc/os-release; then
+		getDistro_version_id="$(cat /etc/os-release | grep -E ^VERSION_ID= | cut -d = -f 2)"
+	fi
+	if test -n "$getDistro_version_id"; then
+		printf '%s' "$(getDistro)$getDistro_version_id"
+	else
+		printf '%s' ''
+	fi
+}
+
 # Get the PHP Major-Minor version as an integer value, in format MMmm (example: 506 for PHP 5.6.15)
 #
 # Output:
@@ -522,7 +538,13 @@ buildRequiredPackageLists () {
 				;;
 			zip@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip4 libmbedtls1?"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libssl-dev libzip-dev libbz2-dev libmbedtls-dev zlib1g-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev libbz2-dev libmbedtls-dev zlib1g-dev"
+				if test -z "$(apt-cache search libssl1.0 | grep -E ^libssl)"; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssl-dev"
+				else
+					# Debian 9, uses libssl1.0 instead of libssl, due to conflict with libssh-dev
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0-dev"
+				fi
 				;;
 		esac
 	done
@@ -620,6 +642,9 @@ expandPackagesToBeInstalled () {
 #   $@: the list of APT/APK packages to be installed
 installRequiredPackages () {
 	printf '### INSTALLING REQUIRED PACKAGES ###\n'
+	printf 'PACKAGES_PERSISTENT:\n%s\n' "$PACKAGES_PERSISTENT"
+	printf 'PACKAGES_VOLATILE:\n%s\n' "$PACKAGES_VOLATILE"
+
 	case "$(getDistro)" in
 		alpine)
 			apk add $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
