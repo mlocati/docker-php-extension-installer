@@ -1,24 +1,35 @@
 <?php
 
-$extension = isset($argv[1]) ? trim($argv[1]) : '';
-$rc = 1;
-
-if ($extension === '') {
-    fprintf(STDERR, "Missing module handle.\n");
-} else {
-    $nameMap = array(
-        'opcache' => 'Zend OPcache',
-    );
-    $extensionLowerCase = strtolower($extension);
-    if (isset($nameMap[$extensionLowerCase])) {
-        $extension = $nameMap[$extensionLowerCase];
-    }
-    if (!extension_loaded($extension)) {
-        fprintf(STDERR, sprintf("Extension not loaded: %s\n", $extension));
+$rc = 0;
+$numTestedExtensions = 0;
+$nameMap = array(
+    'opcache' => 'Zend OPcache',
+);
+for ($index = 1, $count = isset($argv) ? count($argv) : 0; $index < $count; $index++) {
+    $numTestedExtensions++;
+    $rcThis = 1;
+    $extension = $argv[$index];
+    if ($extension === '') {
+        fprintf(STDERR, "Missing extension handle.\n");
     } else {
-        fprintf(STDOUT, sprintf("Extension correctly loaded: %s\n", $extension));
-        $rc = 0;
+        $extensionLowerCase = strtolower($extension);
+        if (isset($nameMap[$extensionLowerCase])) {
+            $extension = $nameMap[$extensionLowerCase];
+        }
+        if (!extension_loaded($extension)) {
+            fprintf(STDERR, sprintf("Extension not loaded: %s\n", $extension));
+        } else {
+            fprintf(STDOUT, sprintf("Extension correctly loaded: %s\n", $extension));
+            $rcThis = 0;
+        }
     }
+    if ($rcThis !== 0) {
+        $rc = $rcThis;
+    }
+}
+if ($numTestedExtensions === 0) {
+    fprintf(STDERR, "No extension handles specified.\n");
+    $rc = 1;
 }
 
 exit($rc);
