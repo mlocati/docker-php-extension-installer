@@ -527,7 +527,7 @@ buildRequiredPackageLists () {
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssl-dev"
 				else
 					# Debian 9, uses libssl1.0 instead of libssl, due to conflict with libssh-dev
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0-dev"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssl1.0-dev"
 				fi
 				;;
 		esac
