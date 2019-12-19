@@ -272,7 +272,7 @@ buildRequiredPackageLists () {
 				if test -z "$(apk info | grep -E ^libssl)"; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0"
 				fi
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev openssl openssl-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev libressl-dev"
 				;;
 			imap@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-client2007e"
@@ -323,7 +323,7 @@ buildRequiredPackageLists () {
 				;;
 			mongo@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsasl libssl1.0"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile openssl-dev cyrus-sasl-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libressl-dev cyrus-sasl-dev"
 				;;
 			mongo@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssl-dev libsasl2-dev"
@@ -333,7 +333,7 @@ buildRequiredPackageLists () {
 				if test -z "$(apk info | grep -E ^libssl)"; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0"
 				fi
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev openssl-dev zlib-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev libressl-dev zlib-dev"
 				;;
 			mongodb@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy1v5"
@@ -516,7 +516,7 @@ buildRequiredPackageLists () {
 				;;
 			zip@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev openssl-dev zlib-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev libressl-dev zlib-dev"
 				;;
 			zip@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip4 libmbedtls1?"
