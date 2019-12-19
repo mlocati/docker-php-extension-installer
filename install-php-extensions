@@ -738,7 +738,7 @@ installBundledModule () {
 						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R2_5_9/Firebird-2.5.9.27139-0.tar.bz2)" /tmp/src/firebird
 						cd /tmp/src/firebird
 						#Patch rwlock.h (this has been fixed in later release of firebird 3.x)
-						sed -i '194s/.*/#if 0/'  src/common/classes/rwlock.h
+						sed -i '194s/.*/#if 0/' src/common/classes/rwlock.h
 						./configure --with-system-icu
 						# -j option can't be used: make targets must be compiled sequentially
 						make -s btyacc_binary gpre_boot libfbstatic libfbclient
@@ -822,7 +822,7 @@ getPackageSource () {
 	curl -L -s -S -o "$getPackageSource_tempFile" "$1"
 	getPackageSource_tempDir=$(mktemp -p /tmp/src -d)
 	cd "$getPackageSource_tempDir"
-	tar -xzf "$getPackageSource_tempFile" 2>/dev/null || tar -xf "$getPackageSource_tempFile" 
+	tar -xzf "$getPackageSource_tempFile" 2>/dev/null || tar -xf "$getPackageSource_tempFile"
 	cd - >/dev/null
 	unlink "$getPackageSource_tempFile"
 	getPackageSource_outDir=''
