@@ -9,12 +9,11 @@ branches:
 
 language: minimal
 
-services:
-  - docker
-
 test-extensions-job-template: &test-extensions-job-template
   stage: Test extensions
   if: type = pull_request
+  services:
+    - docker
   script: ./scripts/travisci-test-extensions
 
 jobs:
