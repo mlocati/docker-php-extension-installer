@@ -565,9 +565,11 @@ expandPackagesToBeInstalled () {
 	expandPackagesToBeInstalled_result=''
 	case "$(getDistro)" in
 		alpine)
-			expandPackagesToBeInstalled_log="$(apk add --simulate $@ 2>&1)"
+			expandPackagesToBeInstalled_log="$(apk add --simulate $@ 2>&1 || printf '\nERROR: apk failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^ERROR:')"; then
-				printf 'Failed to list the whole package list for %s\n\n%s\n' "$@" "$expandPackagesToBeInstalled_log" >&2
+				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
+				printf '%s ' "$@" >&2
+				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >&2
 				exit 1
 			fi
 			IFS='
@@ -580,9 +582,11 @@ expandPackagesToBeInstalled () {
 			resetIFS
 			;;
 		debian)
-			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@ 2>&1)"
+			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@ 2>&1 || printf '\nE: apt-get failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^E:')"; then
-				printf 'Failed to list the whole package list for %s\n\n%s\n' "$@" "$expandPackagesToBeInstalled_log" >&2
+				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
+				printf '%s ' "$@" >&2
+				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >&2
 				exit 1
 			fi
 			expandPackagesToBeInstalled_inNewPackages=0
