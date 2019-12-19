@@ -563,9 +563,14 @@ expandPackagesToBeInstalled () {
 	expandPackagesToBeInstalled_result=''
 	case "$(getDistro)" in
 		alpine)
+			expandPackagesToBeInstalled_log="$(apk add --simulate $@ 2>&1)"
+			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^ERROR:')"; then
+				printf 'Failed to list the whole package list for %s\n\n%s\n' "$@" "$expandPackagesToBeInstalled_log" >&2
+				exit 1
+			fi
 			IFS='
 '
-			for expandPackagesToBeInstalled_line in $(apk add --simulate $@); do
+			for expandPackagesToBeInstalled_line in $expandPackagesToBeInstalled_log; do
 				if test -n "$(printf '%s' "$expandPackagesToBeInstalled_line" | grep -E '^\([0-9]*/[0-9]*) Installing ')"; then
 					expandPackagesToBeInstalled_result="$expandPackagesToBeInstalled_result $(printf '%s' "$expandPackagesToBeInstalled_line" | cut -d ' ' -f 3)"
 				fi
@@ -573,10 +578,15 @@ expandPackagesToBeInstalled () {
 			resetIFS
 			;;
 		debian)
+			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@ 2>&1)"
+			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^E:')"; then
+				printf 'Failed to list the whole package list for %s\n\n%s\n' "$@" "$expandPackagesToBeInstalled_log" >&2
+				exit 1
+			fi
 			expandPackagesToBeInstalled_inNewPackages=0
 			IFS='
 '
-			for expandPackagesToBeInstalled_line in $(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@); do
+			for expandPackagesToBeInstalled_line in $expandPackagesToBeInstalled_log; do
 				if test $expandPackagesToBeInstalled_inNewPackages -eq 0; then
 					if test "$expandPackagesToBeInstalled_line" = 'The following NEW packages will be installed:'; then
 						expandPackagesToBeInstalled_inNewPackages=1
