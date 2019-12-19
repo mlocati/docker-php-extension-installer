@@ -88,6 +88,7 @@ RUN install-php-extensions gd xdebug
 | protobuf | V | V | V | V | V | V |
 | pspell | V | V | V | V | V | V |
 | pthreads | V | V |  |  |  |  |
+| rdkafka | V | V | V | V | V | V |
 | recode | V | V | V | V | V |  |
 | redis | V | V | V | V | V | V |
 | shmop | V | V | V | V | V | V |
@@ -112,7 +113,7 @@ RUN install-php-extensions gd xdebug
 | yaml | V | V | V | V | V | V |
 | zip | V | V | V | V | V | V |
 
-*Number of supported extensions: 67*
+*Number of supported extensions: 68*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
