@@ -870,6 +870,11 @@ installPECLModule () {
 				installPECLModule_actual="$2-4.0.11"
 			fi
 			;;
+		memcache)
+			if test $1 -lt 700; then
+				installPECLModule_actual="$2-2.2.7"
+			fi
+			;;
 		memcached)
 			if test $1 -lt 700; then
 				installPECLModule_actual="$2-2.2.0"
