@@ -7,6 +7,8 @@ branches:
   only:
     - master
 
+language: minimal
+
 services:
   - docker
 
