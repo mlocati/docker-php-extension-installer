@@ -269,7 +269,7 @@ buildRequiredPackageLists () {
 				;;
 			imap@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-client"
-				if test -z "$(apk info | grep -E ^libssl)"; then
+				if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0"
 				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev libressl-dev"
@@ -330,8 +330,10 @@ buildRequiredPackageLists () {
 				;;
 			mongodb@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl snappy"
-				if test -z "$(apk info | grep -E ^libssl)"; then
+				if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0"
+				elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')"; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libressl2.7-libtls"
 				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev libressl-dev zlib-dev"
 				;;
