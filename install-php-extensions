@@ -181,9 +181,19 @@ buildRequiredPackageLists () {
 	buildRequiredPackageLists_volatile=''
 	buildRequiredPackageLists_distro="$(getDistro)"
 	buildRequiredPackageLists_phpv=$1
-	if test "$buildRequiredPackageLists_distro" = 'alpine'; then
-		buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
-	fi
+	case "$buildRequiredPackageLists_distro" in
+		alpine)
+			buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
+			;;
+		debian)
+			if test -n "$(apt-cache search libssl1.0 | grep -E ^libssl1\.0)"; then
+				# Debian 9, uses libssl1.0 instead of libssl, due to conflict with libssh-dev
+				buildRequiredPackageLists_libssldev='libssl1.0-dev'
+			else
+				buildRequiredPackageLists_libssldev='libssl-dev'
+			fi
+			;;
+	esac
 	while :; do
 		if test $# -lt 2; then
 			break
@@ -326,7 +336,7 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libressl-dev cyrus-sasl-dev"
 				;;
 			mongo@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssl-dev libsasl2-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libsasl2-dev"
 				;;
 			mongodb@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl snappy"
@@ -339,7 +349,7 @@ buildRequiredPackageLists () {
 				;;
 			mongodb@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy1v5"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev libssl-dev zlib1g-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev $buildRequiredPackageLists_libssldev zlib1g-dev"
 				;;
 			mssql@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
@@ -522,13 +532,7 @@ buildRequiredPackageLists () {
 				;;
 			zip@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip4 libmbedtls1?"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev libbz2-dev libmbedtls-dev zlib1g-dev"
-				if test -z "$(apt-cache search libssl1.0 | grep -E ^libssl)"; then
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssl-dev"
-				else
-					# Debian 9, uses libssl1.0 instead of libssl, due to conflict with libssh-dev
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssl1.0-dev"
-				fi
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev $buildRequiredPackageLists_libssldev libzip-dev libbz2-dev libmbedtls-dev zlib1g-dev"
 				;;
 		esac
 	done
