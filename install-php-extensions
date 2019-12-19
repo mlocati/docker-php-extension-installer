@@ -431,6 +431,14 @@ buildRequiredPackageLists () {
 			pthreads@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 				;;
+			rdkafka@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librdkafka"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS librdkafka-dev"
+				;;
+			rdkafka@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librdkafka++1"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librdkafka-dev"
+				;;
 			recode@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent recode"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile recode-dev"
@@ -637,6 +645,52 @@ installRequiredPackages () {
 			DEBIAN_FRONTEND=noninteractive apt-get install -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
 	esac
+}
+
+# Get the version of an installed APT/APK package
+#
+# Arguments:
+#   $1: the name of the installed package
+#
+# Output:
+#   The numeric part of the package version, with from 1 to 3 numbers
+#
+# Example:
+#   1
+#   1.2
+#   1.2.3
+getInstalledPackageVersion() {
+	case "$(getDistro)" in
+		alpine)
+			apk info "$1" | head -n1 | cut -c $(( ${#1} + 2 ))- | grep -o -E '^[0-9]+(\.[0-9]+){0,2}'
+			;;
+		debian)
+			dpkg-query --showformat='${Version}' --show "$1" 2>/dev/null | grep -o -E '^[0-9]+(\.[0-9]+){0,2}'
+			;;
+	esac
+}
+
+# Compare two versions
+#
+# Arguments:
+#   $1: the first version
+#   $2: the second version
+#
+# Output
+#  -1 if $1 is less than $2
+#  0 if $1 is the same as $2
+#  1 if $1 is greater than $2
+compareVersions() {
+	compareVersions_v1="$1.0.0"
+	compareVersions_v2="$2.0.0"
+	compareVersions_vMin="$(printf '%s\n%s' "${compareVersions_v1}" "${compareVersions_v2}" | sort -t '.' -n -k1,1 -k2,2 -k3,3 | head -n 1)"
+	if test "$compareVersions_vMin" != "$compareVersions_v1"; then
+		echo '1'
+	elif test "$compareVersions_vMin" = "$compareVersions_v2"; then
+		echo '0'
+	else
+		echo '-1'
+	fi
 }
 
 # Install a bundled PHP module given its handle
@@ -891,6 +945,25 @@ installPECLModule () {
 		pthreads)
 			if test $1 -lt 700; then
 				installPECLModule_actual="$2-2.0.10"
+			fi
+			;;
+		rdkafka)
+			installPECLModule_tmp=
+			case "$(getDistro)" in
+				alpine)
+					installPECLModule_tmp='librdkafka'
+					;;
+				debian)
+					installPECLModule_tmp='librdkafka++1'
+					;;
+			esac
+			if test -n "$installPECLModule_tmp"; then
+				installPECLModule_tmp="$(getInstalledPackageVersion "$installPECLModule_tmp")"
+				if test -n "$installPECLModule_tmp"; then
+					if test $(compareVersions "$installPECLModule_tmp" '0.11.0') -lt 0; then
+						installPECLModule_actual="$2-3.1.3"
+					fi
+				fi
 			fi
 			;;
 		redis)
