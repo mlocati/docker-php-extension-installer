@@ -23,7 +23,7 @@ jobs:
       if: type = pull_request
       language: go
       go: '1.13'
-      before_script: go install mvdan.cc/sh/v3/cmd/shfmt
+      before_script: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt
       script: shfmt -d -s -ln posix -i 0 -ci -kp install-php-extensions scripts/common scripts/travisci-test-extensions scripts/travisci-update-readme scripts/update-readme
 
     - <<: *test-extensions-job-template
