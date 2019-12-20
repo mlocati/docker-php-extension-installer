@@ -194,6 +194,14 @@ Test: gd, zip, -STOP-
 
 See [this pull request](https://github.com/mlocati/docker-php-extension-installer/pull/43) for an example.
 
+### Reformat files locally
+
+Before committing, you can run the following command to reformat files to make sur that they pass style check.
+Make sure that you have make and docker installed on your system.
+
+```
+make shfmt
+```
 
 ## Do you want to really say thank you?
 

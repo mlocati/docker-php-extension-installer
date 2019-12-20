@@ -1,0 +1,10 @@
+FROM golang
+
+WORKDIR /src
+
+RUN go get github.com/mvdan/sh/cmd/shfmt
+
+#COPY install-php-extensions .
+#COPY scripts scripts
+
+#RUN shfmt -d -s -ln posix -i 0 -ci -kp install-php-extensions scripts/common scripts/travisci-test-extensions scripts/travisci-update-readme scripts/update-readme
