@@ -10,12 +10,7 @@ fi
 
 SRC_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && cd .. pwd)"
 
-if ! docker build -t docker-php-extension-installer-shfmt:latest -f scripts/Dockerfile-shfmt -q .; then
-	printf 'ERROR!' >&2
-	exit 1
-fi
-
-if ! docker run --rm -v "$SRC_DIR:/src" -w /src docker-php-extension-installer-shfmt:latest ./scripts/invoke-shfmt fix; then
+if ! docker run --rm -v "$SRC_DIR:/src" -w /src --entrypoint /src/scripts/invoke-shfmt mvdan/shfmt:latest fix; then
 	printf 'ERROR!' >&2
 	exit 1
 fi

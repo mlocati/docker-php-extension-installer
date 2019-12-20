@@ -1,3 +1,0 @@
-FROM golang
-
-RUN go get github.com/mvdan/sh/cmd/shfmt

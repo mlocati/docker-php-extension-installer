@@ -8,10 +8,7 @@ cd /d "%~dp0.."
 if errorlevel 1 goto err
 set SRC_DIR=%CD%
 
-docker build -t docker-php-extension-installer-shfmt:latest -f scripts\Dockerfile-shfmt -q .
-if errorlevel 1 goto :err
-
-docker run --rm -v "%SRC_DIR%:/src" -w /src docker-php-extension-installer-shfmt:latest ./scripts/invoke-shfmt fix
+docker run --rm -v "%SRC_DIR%:/src" -w /src --entrypoint /src/scripts/invoke-shfmt mvdan/shfmt:latest fix
 if errorlevel 1 goto :err
 goto :eof
 
