@@ -64,7 +64,7 @@ RUN install-php-extensions gd xdebug
 | intl | V | V | V | V | V | V |
 | ldap | V | V | V | V | V | V |
 | mcrypt | V | V | V | V | V | V |
-| memcache | V |  |  |  |  |  |
+| memcache | V | V | V | V | V | V |
 | memcached | V | V | V | V | V | V |
 | mongo | V |  |  |  |  |  |
 | mongodb | V | V | V | V | V | V |
