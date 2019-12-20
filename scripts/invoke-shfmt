@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -o errexit
+set -o nounset
+
+PARAMS='-s -ln posix -i 0 -ci -kp'
+
+case "${1:-}" in
+	check)
+		PARAMS="$PARAMS -d"
+		;;
+	fix)
+		PARAMS="$PARAMS -w"
+		;;
+	*)
+		fprintf 'Syntax: %s <check|fix>' "$0" >&2
+		exit 1
+		;;
+esac
+
+shfmt $PARAMS \
+	install-php-extensions \
+	scripts/common \
+	scripts/invoke-shfmt \
+	scripts/lint \
+	scripts/travisci-test-extensions \
+	scripts/travisci-update-readme \
+	scripts/update-readme

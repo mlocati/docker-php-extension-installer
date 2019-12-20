@@ -8,23 +8,14 @@ if ! docker --version >/dev/null 2>/dev/null; then
 	exit 1
 fi
 
-#SRC_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && cd .. pwd)"
+SRC_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && cd .. pwd)"
 
 if ! docker build -t docker-php-extension-installer-shfmt:latest -f scripts/Dockerfile-shfmt -q .; then
 	printf 'ERROR!' >&2
 	exit 1
 fi
 
-fix() {
-	printf 'Fixing %s... ' "$1"
-	if docker run --rm -v "$SRC_DIR:/src" -w /src docker-php-extension-installer-shfmt:latest shfmt -s -ln posix -i 0 -ci -kp -w "$1"; then
-		printf 'done.\n'
-	fi
-}
-
-fix install-php-extensions
-fix scripts/common
-fix scripts/lint
-fix scripts/travisci-test-extensions
-fix scripts/travisci-update-readme
-fix scripts/update-readme
+if ! docker run --rm -v "$SRC_DIR:/src" -w /src docker-php-extension-installer-shfmt:latest ./scripts/invoke-shfmt fix; then
+	printf 'ERROR!' >&2
+	exit 1
+fi
