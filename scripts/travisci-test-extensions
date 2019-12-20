@@ -22,7 +22,7 @@ ALREADY_TESTED_EXTENSIONS=''
 #
 # Outputs:
 # the full docker image ID
-getDockerImageName () {
+getDockerImageName() {
 	case "$2" in
 		*)
 			getDockerImageName_version="$2"
@@ -43,8 +43,7 @@ getDockerImageName () {
 		alpine3.4)
 			# available for PHP from version 5.6 to version 7.1
 			case "$2" in
-				5.*|7.0|7.1)
-					;;
+				5.* | 7.0 | 7.1) ;;
 				*)
 					return
 					;;
@@ -53,8 +52,7 @@ getDockerImageName () {
 		alpine3.6)
 			# available for PHP 7.2
 			case "$2" in
-				7.2)
-					;;
+				7.2) ;;
 				*)
 					return
 					;;
@@ -67,8 +65,7 @@ getDockerImageName () {
 				7.0)
 					#getDockerImageName_distro='-alpine'
 					;;
-				5.*|7.1|7.2)
-					;;
+				5.* | 7.1 | 7.2) ;;
 				*)
 					return
 					;;
@@ -81,8 +78,7 @@ getDockerImageName () {
 				5.6)
 					#getDockerImageName_distro='-alpine'
 					;;
-				5.*|7.1|7.2|7.3)
-					;;
+				5.* | 7.1 | 7.2 | 7.3) ;;
 				*)
 					return
 					;;
@@ -91,8 +87,7 @@ getDockerImageName () {
 		alpine3.9)
 			# available for PHP from version 7.1 to version 7.3
 			case "$2" in
-				7.1|7.2|7.3)
-					;;
+				7.1 | 7.2 | 7.3) ;;
 				*)
 					return
 					;;
@@ -102,10 +97,10 @@ getDockerImageName () {
 			# available for PHP from version 7.1
 			# default Alpine one for PHP 7.1 -> 7.4
 			case "$2" in
-				7.1|7.2|7.3|7.4)
+				7.1 | 7.2 | 7.3 | 7.4)
 					#getDockerImageName_distro='-alpine'
 					;;
-				5.*|7.0)
+				5.* | 7.0)
 					return
 					;;
 			esac
@@ -113,8 +108,7 @@ getDockerImageName () {
 		jessie) # Debian 8
 			# available for PHP up to version 7.1
 			case "$2" in
-				5.*|7.0|7.1)
-					;;
+				5.* | 7.0 | 7.1) ;;
 				*)
 					return
 					;;
@@ -124,11 +118,10 @@ getDockerImageName () {
 			# available for PHP up to version 7.3
 			# default one for PHP 5.6 -> 7.0
 			case "$2" in
-				5.*|7.0)
+				5.* | 7.0)
 					#getDockerImageName_distro=''
 					;;
-				7.1|7.2|7.3)
-					;;
+				7.1 | 7.2 | 7.3) ;;
 				*)
 					return
 					;;
@@ -138,10 +131,10 @@ getDockerImageName () {
 			# available for PHP from version 7.1
 			# default one for PHP 7.1 -> 7.4
 			case "$2" in
-				7.1|7.2|7.3|7.4)
+				7.1 | 7.2 | 7.3 | 7.4)
 					#getDockerImageName_distro=''
 					;;
-				5.*|7.0)
+				5.* | 7.0)
 					return
 					;;
 			esac
@@ -154,7 +147,6 @@ getDockerImageName () {
 	printf 'php:%s%s%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$getDockerImageName_distro"
 }
 
-
 # Test an extension
 #
 # Arguments:
@@ -164,7 +156,7 @@ getDockerImageName () {
 # Return:
 # 0 (true): if test passes
 # 1 (false): if test fails
-testExtension () {
+testExtension() {
 	printf 'PHP version: %s\n' "$2"
 	if test -n "$(printf '%s' "$2" | sed -E 's/^[0-9]+\.[0-9]+$//')"; then
 		printf '  INVALID PHP VERSION: %s\n' "$2" >&2
@@ -176,7 +168,7 @@ testExtension () {
 		return 0
 	fi
 	printf ' - Docker image: %s\n' "$testExtension_Image"
-	testExtension_out=`mktemp`
+	testExtension_out="$(mktemp)"
 	if $(docker run --rm --volume "$TRAVIS_BUILD_DIR:/app" --workdir /app "$testExtension_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtension_out" 2>&1); then
 		rm -rf "$testExtension_out"
 		printf ' - Passed\n'
@@ -188,7 +180,6 @@ testExtension () {
 	return 1
 }
 
-
 # Test a new extension line
 #
 # Arguments:
@@ -198,7 +189,7 @@ testExtension () {
 # Return:
 # 0 (true): if test passes
 # 1 (false): if test fails
-testNewExtensionLine () {
+testNewExtensionLine() {
 	testNewExtensionLine_rc=0
 	if test $# -lt 2; then
 		printf 'Missing PHP version list for the new extension %s\n' "${1:-}"
@@ -223,7 +214,6 @@ testNewExtensionLine () {
 	return $testNewExtensionLine_rc
 }
 
-
 # Get the list of all supported PHP versions
 #
 # Arguments:
@@ -231,7 +221,7 @@ testNewExtensionLine () {
 #
 # Outputs:
 # the space-separated list of supported PHP versions
-getAllPHPVersionsForExtensions () {
+getAllPHPVersionsForExtensions() {
 	getAllPHPVersionsForExtensions_result=''
 	IFS=' '
 	for getAllPHPVersionsForExtensions_extension in $1; do
@@ -261,7 +251,7 @@ getAllPHPVersionsForExtensions () {
 #
 # Outputs:
 # the space-separated list of supported PHP versions
-getAllPHPVersionsForExtension () {
+getAllPHPVersionsForExtension() {
 	getAllPHPVersionsForExtension_result=''
 	while IFS= read -r getAllPHPVersionsForExtension_line; do
 		getAllPHPVersionsForExtension_ok=
@@ -285,10 +275,9 @@ getAllPHPVersionsForExtension () {
 				fi
 			fi
 		done
-	done < "$TRAVIS_BUILD_DIR/data/supported-extensions"
+	done <"$TRAVIS_BUILD_DIR/data/supported-extensions"
 	printf '%s' "$getAllPHPVersionsForExtension_result"
 }
-
 
 # Test extensions by reading a commit message
 #
@@ -301,27 +290,26 @@ getAllPHPVersionsForExtension () {
 # Return:
 # 0 (true): if test passes
 # 1 (false): if test fails
-testExtensionsFromMessage () {
+testExtensionsFromMessage() {
 	testExtensionsFromMessage_result=0
 	TEST_EXTENSIONS=
 	FIRST_LINE=1
 	testExtensionsFromMessage_message="$(git -C "$TRAVIS_BUILD_DIR" log --pretty='format:%B' -n 1 "$1")"
 	IFS='
 '
-	
 	for COMMIT_LINE in $testExtensionsFromMessage_message; do
 		if test $FIRST_LINE -eq 1; then
 			FIRST_LINE=0
 		else
 			TESTLIST=
 			case "$COMMIT_LINE" in
-				Test:* )
+				Test:*)
 					TESTLIST=${COMMIT_LINE#Test:}
 					;;
-				TEST:* )
+				TEST:*)
 					TESTLIST=${COMMIT_LINE#TEST:}
 					;;
-				test:* )
+				test:*)
 					TESTLIST=${COMMIT_LINE#test:}
 					;;
 			esac
@@ -331,7 +319,7 @@ testExtensionsFromMessage () {
 					if test $COMMIT_LINE_EXT = '-STOP-'; then
 						STOP_NEXT_COMMITS=1
 					elif test -z "$TEST_EXTENSIONS"; then
-						TEST_EXTENSIONS=$COMMIT_LINE_EXT;
+						TEST_EXTENSIONS=$COMMIT_LINE_EXT
 					else
 						if ! stringInList "$COMMIT_LINE_EXT" "$TEST_EXTENSIONS"; then
 							TEST_EXTENSIONS="$TEST_EXTENSIONS $COMMIT_LINE_EXT"
@@ -379,7 +367,6 @@ for DIFF_LINE in $(git -C "$TRAVIS_BUILD_DIR" diff --no-indent-heuristic --minim
 		fi
 	fi
 done
-
 
 IFS='
 '

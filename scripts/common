@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Reset the Internal Field Separator
-resetIFS () {
+resetIFS() {
 	IFS='	 
 '
 }
@@ -15,12 +15,10 @@ resetIFS () {
 # Return:
 # 0 (true): if the string is in the list
 # 1 (false): if the string is not in the list
-stringInList () {
+stringInList() {
 	resetIFS
-	for stringInList_listItem in ${2}
-	do
-		if test "${1}" = "${stringInList_listItem}"
-		then
+	for stringInList_listItem in $2; do
+		if test "$1" = "$stringInList_listItem"; then
 			return 0
 		fi
 	done
@@ -35,20 +33,17 @@ stringInList () {
 #
 # Output:
 # The space-separated list of strings that are present in both lists
-commonElements () {
+commonElements() {
 	commonElements_result=''
 	resetIFS
-	for commonElements_inA in ${1}
-	do
-		if stringInList "${commonElements_inA}" "${2}"
-		then
-			if test -z "${commonElements_result}"
-			then
-				commonElements_result="${commonElements_inA}"
+	for commonElements_inA in $1; do
+		if stringInList "$commonElements_inA" "$2"; then
+			if test -z "$commonElements_result"; then
+				commonElements_result="$commonElements_inA"
 			else
-				commonElements_result="${commonElements_result} ${commonElements_inA}"
+				commonElements_result="$commonElements_result $commonElements_inA"
 			fi
 		fi
 	done
-	echo "${commonElements_result}"
+	echo "$commonElements_result"
 }
