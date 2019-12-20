@@ -5,17 +5,12 @@ set -o errexit
 set -o nounset
 
 echo 'Checking environment'
-if test -z "${TRAVIS_BUILD_DIR:-}"; then
+if test -z "${TRAVIS_BUILD_DIR:-}" || test -z "${TRAVIS_COMMIT_RANGE:-}" || test -z "${DOCKER_DISTRO:-}"; then
 	echo 'Not in a TravisCI environment' >&2
 	exit 1
 fi
 
-if test -z "${TRAVIS_COMMIT_RANGE:-}"; then
-	echo 'The TravisCI commit range is empty' >&2
-	exit 0
-fi
-
-. "${TRAVIS_BUILD_DIR}/scripts/common"
+. "$TRAVIS_BUILD_DIR/scripts/common"
 
 ALREADY_TESTED_EXTENSIONS=''
 
@@ -28,30 +23,135 @@ ALREADY_TESTED_EXTENSIONS=''
 # Outputs:
 # the full docker image ID
 getDockerImageName () {
-	case "${2}" in
+	case "$2" in
 		*)
-			getDockerImageName_version="${2}"
+			getDockerImageName_version="$2"
 			;;
 	esac
 	getDockerImageName_suffix='-cli'
-	getDockerImageName_reqs="${TRAVIS_BUILD_DIR}/data/special-requirements"
-	if test -f "${getDockerImageName_reqs}"; then
+	getDockerImageName_reqs="$TRAVIS_BUILD_DIR/data/special-requirements"
+	if test -f "$getDockerImageName_reqs"; then
 		IFS=' '
 		for getDockerImageName_testExtension in $1; do
-			if test -n "$(cat "${getDockerImageName_reqs}" | grep -E "^${getDockerImageName_testExtension}[ \t]+zts[ \t]*$")"; then
+			if test -n "$(cat "$getDockerImageName_reqs" | grep -E "^$getDockerImageName_testExtension[ \t]+zts[ \t]*$")"; then
 				getDockerImageName_suffix="-zts"
 			fi
 		done
 	fi
-	case "${DOCKER_DISTRO:-}" in
-		alpine)
-			getDockerImageName_distro="-$DOCKER_DISTRO"
+	getDockerImageName_distro="-$DOCKER_DISTRO"
+	case "$DOCKER_DISTRO" in
+		alpine3.4)
+			# available for PHP from version 5.6 to version 7.1
+			case "$2" in
+				5.*|7.0|7.1)
+					;;
+				*)
+					return
+					;;
+			esac
+			;;
+		alpine3.6)
+			# available for PHP 7.2
+			case "$2" in
+				7.2)
+					;;
+				*)
+					return
+					;;
+			esac
+			;;
+		alpine3.7)
+			# available for PHP from version 5.6 to version 7.2
+			# default Alpine one for PHP 7.0
+			case "$2" in
+				7.0)
+					#getDockerImageName_distro='-alpine'
+					;;
+				5.*|7.1|7.2)
+					;;
+				*)
+					return
+					;;
+			esac
+			;;
+		alpine3.8)
+			# available for PHP from version 5.6 to version 7.3 (except PHP 7.0)
+			# default Alpine one for PHP 5.6
+			case "$2" in
+				5.6)
+					#getDockerImageName_distro='-alpine'
+					;;
+				5.*|7.1|7.2|7.3)
+					;;
+				*)
+					return
+					;;
+			esac
+			;;
+		alpine3.9)
+			# available for PHP from version 7.1 to version 7.3
+			case "$2" in
+				7.1|7.2|7.3)
+					;;
+				*)
+					return
+					;;
+			esac
+			;;
+		alpine3.10)
+			# available for PHP from version 7.1
+			# default Alpine one for PHP 7.1 -> 7.4
+			case "$2" in
+				7.1|7.2|7.3|7.4)
+					#getDockerImageName_distro='-alpine'
+					;;
+				5.*|7.0)
+					return
+					;;
+			esac
+			;;
+		jessie) # Debian 8
+			# available for PHP up to version 7.1
+			case "$2" in
+				5.*|7.0|7.1)
+					;;
+				*)
+					return
+					;;
+			esac
+			;;
+		stretch) # Debian 9
+			# available for PHP up to version 7.3
+			# default one for PHP 5.6 -> 7.0
+			case "$2" in
+				5.*|7.0)
+					#getDockerImageName_distro=''
+					;;
+				7.1|7.2|7.3)
+					;;
+				*)
+					return
+					;;
+			esac
+			;;
+		buster) # Debian 10
+			# available for PHP from version 7.1
+			# default one for PHP 7.1 -> 7.4
+			case "$2" in
+				7.1|7.2|7.3|7.4)
+					#getDockerImageName_distro=''
+					;;
+				5.*|7.0)
+					return
+					;;
+			esac
 			;;
 		*)
-			getDockerImageName_distro=''
+			printf 'Unrecognized value of DOCKER_DISTRO environment variable (%s)\n' "$DOCKER_DISTRO" >&2
+			return 1
 			;;
 	esac
-	printf 'php:%s%s%s' "${getDockerImageName_version}" "${getDockerImageName_suffix}" "${getDockerImageName_distro}"
+	printf 'php:%s%s%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$getDockerImageName_distro"
 }
 
 
@@ -65,22 +165,26 @@ getDockerImageName () {
 # 0 (true): if test passes
 # 1 (false): if test fails
 testExtension () {
-	printf 'PHP version: %s\n' "${2}"
-	if test -n "$(printf '%s' "${2}" | sed -E 's/^[0-9]+\.[0-9]+$//')"; then
-		printf '  INVALID PHP VERSION: %s\n' "${2}" >&2
+	printf 'PHP version: %s\n' "$2"
+	if test -n "$(printf '%s' "$2" | sed -E 's/^[0-9]+\.[0-9]+$//')"; then
+		printf '  INVALID PHP VERSION: %s\n' "$2" >&2
 		return 1
 	fi
-	testExtension_Image="$(getDockerImageName "${1}" "${2}")"
-	printf ' - Docker image: %s\n' "${testExtension_Image}"
+	testExtension_Image="$(getDockerImageName "$1" "$2")"
+	if test -z "$testExtension_Image"; then
+		printf ' - Docker image not available\n'
+		return 0
+	fi
+	printf ' - Docker image: %s\n' "$testExtension_Image"
 	testExtension_out=`mktemp`
-	if $(docker run --rm --volume "${TRAVIS_BUILD_DIR}:/app" --workdir /app "${testExtension_Image}" sh -c "./install-php-extensions ${1} && php ./scripts/check-installed-extension.php ${1}" >"${testExtension_out}" 2>&1); then
-		rm -rf "${testExtension_out}"
+	if $(docker run --rm --volume "$TRAVIS_BUILD_DIR:/app" --workdir /app "$testExtension_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtension_out" 2>&1); then
+		rm -rf "$testExtension_out"
 		printf ' - Passed\n'
 		return 0
 	fi
 	printf ' - FAILED!\n' >&2
-	tail -n500 "${testExtension_out}" >&2
-	rm -rf "${testExtension_out}"
+	tail -n500 "$testExtension_out" >&2
+	rm -rf "$testExtension_out"
 	return 1
 }
 
@@ -100,23 +204,23 @@ testNewExtensionLine () {
 		printf 'Missing PHP version list for the new extension %s\n' "${1:-}"
 		testNewExtensionLine_rc=1
 	elif ! stringInList "$1" "$ALREADY_TESTED_EXTENSIONS"; then
-		printf '### TESTING NEW EXTENSION %s ###\n' "${1}"
-		if test -n "$(printf '%s' "${1}" | sed -E 's/^[a-z][a-z0-9\-\_\.]+$//')"; then
-			printf '   INVALID PHP EXTENSION NAME: %s\n' "${1}" >&2
+		printf '### TESTING NEW EXTENSION %s ###\n' "$1"
+		if test -n "$(printf '%s' "$1" | sed -E 's/^[a-z][a-z0-9\-\_\.]+$//')"; then
+			printf '   INVALID PHP EXTENSION NAME: %s\n' "$1" >&2
 			testNewExtensionLine_rc=1
 		else
 			ALREADY_TESTED_EXTENSIONS="$ALREADY_TESTED_EXTENSIONS $1"
-			testNewExtensionLine_extension="${1}"
+			testNewExtensionLine_extension="$1"
 			while test $# -ge 2; do
 				shift
-				testNewExtensionLine_phpVersion="${1}"
-				if ! testExtension "${testNewExtensionLine_extension}" "${1}"; then
+				testNewExtensionLine_phpVersion="$1"
+				if ! testExtension "$testNewExtensionLine_extension" "$1"; then
 					testNewExtensionLine_rc=1
 				fi
 			done
 		fi
 	fi
-	return ${testNewExtensionLine_rc}
+	return $testNewExtensionLine_rc
 }
 
 
@@ -182,7 +286,7 @@ getAllPHPVersionsForExtension () {
 			fi
 		done
 	done < "$TRAVIS_BUILD_DIR/data/supported-extensions"
-	printf '%s' "${getAllPHPVersionsForExtension_result}"
+	printf '%s' "$getAllPHPVersionsForExtension_result"
 }
 
 
@@ -201,7 +305,7 @@ testExtensionsFromMessage () {
 	testExtensionsFromMessage_result=0
 	TEST_EXTENSIONS=
 	FIRST_LINE=1
-	testExtensionsFromMessage_message="$(git -C "${TRAVIS_BUILD_DIR}" log --pretty='format:%B' -n 1 "$1")"
+	testExtensionsFromMessage_message="$(git -C "$TRAVIS_BUILD_DIR" log --pretty='format:%B' -n 1 "$1")"
 	IFS='
 '
 	
@@ -260,16 +364,16 @@ ADDED_EXTENSION_LINE=
 FOUND_ATAT=
 IFS='
 '
-for DIFF_LINE in $(git -C "${TRAVIS_BUILD_DIR}" diff --no-indent-heuristic --minimal --no-color --word-diff=none -no-renames --unified=0 "${TRAVIS_COMMIT_RANGE:-}" -- data/supported-extensions); do
-	if test -n "${DIFF_LINE}"; then
-		if test -z "${FOUND_ATAT}"; then
+for DIFF_LINE in $(git -C "$TRAVIS_BUILD_DIR" diff --no-indent-heuristic --minimal --no-color --word-diff=none -no-renames --unified=0 "$TRAVIS_COMMIT_RANGE" -- data/supported-extensions); do
+	if test -n "$DIFF_LINE"; then
+		if test -z "$FOUND_ATAT"; then
 			if test -z "${DIFF_LINE##@@*}"; then
 				FOUND_ATAT=y
 			fi
 		elif test -z "${DIFF_LINE##+*}"; then
 			resetIFS
 			ADDED_EXTENSION_LINE="${DIFF_LINE##+}"
-			if ! testNewExtensionLine ${ADDED_EXTENSION_LINE}; then
+			if ! testNewExtensionLine $ADDED_EXTENSION_LINE; then
 				TESTS_RESULTS=1
 			fi
 		fi
@@ -279,7 +383,7 @@ done
 
 IFS='
 '
-for COMMIT_HASH in $(git -C "${TRAVIS_BUILD_DIR}" log --pretty='format:%H' "${TRAVIS_COMMIT_RANGE:-}"); do
+for COMMIT_HASH in $(git -C "$TRAVIS_BUILD_DIR" log --pretty='format:%H' "$TRAVIS_COMMIT_RANGE"); do
 	if ! testExtensionsFromMessage "$COMMIT_HASH"; then
 		TESTS_RESULTS=1
 	fi
@@ -288,10 +392,10 @@ for COMMIT_HASH in $(git -C "${TRAVIS_BUILD_DIR}" log --pretty='format:%H' "${TR
 	fi
 done
 
-if test ${TESTS_RESULTS} -ne 0; then
-	exit ${TESTS_RESULTS}
+if test $TESTS_RESULTS -ne 0; then
+	exit $TESTS_RESULTS
 fi
 
-if test -z "${ADDED_EXTENSION_LINE}"; then
+if test -z "$ADDED_EXTENSION_LINE"; then
 	echo 'No new extensions detected.'
 fi
