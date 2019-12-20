@@ -40,14 +40,14 @@ getDistroVersion () {
 	if test -z "$getDistroVersion_distro"; then
 		return
 	fi
-	getDistroVersion_versionID=''
+	getDistroVersion_version=''
 	if test -r /etc/os-release; then
-		getDistroVersion_versionID="$(cat /etc/os-release | grep -E ^VERSION_ID= | cut -d = -f 2 | cut -d '"' -f 2 | cut -d . -f 1,2)"
+		getDistroVersion_version="$(cat /etc/os-release | grep -E ^VERSION_ID= | cut -d = -f 2 | cut -d '"' -f 2 | cut -d . -f 1,2)"
 	fi
-	if test -z "$getDistroVersion_distro"; then
+	if test -z "$getDistroVersion_version"; then
 		return
 	fi
-	printf '%s@%s' "$getDistroVersion_distro" "$getDistroVersion_versionID"
+	printf '%s@%s' "$getDistroVersion_distro" "$getDistroVersion_version"
 }
 
 # Get the PHP Major-Minor version as an integer value, in format MMmm (example: 506 for PHP 5.6.15)
