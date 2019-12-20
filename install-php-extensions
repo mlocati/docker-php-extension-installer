@@ -214,7 +214,7 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile rabbitmq-c-dev"
 				;;
 			amqp@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librabbitmq4"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librabbitmq[0-9]"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librabbitmq-dev libssh-dev"
 				;;
 			bz2@alpine)
@@ -873,7 +873,16 @@ installPECLModule () {
 	installPECLModule_actual="$2"
 	installPECLModule_stdin='\n'
 	installPECLModule_manuallyInstalled=0
+	installPECLModule_distroVersion="$(getDistroVersion)"
 	case "$2" in
+		amqp)
+			case "$installPECLModule_distroVersion" in
+				debian@8)
+					# in Debian Jessie we have librammitmq version 0.5.2
+					installPECLModule_actual="$2-1.9.3"
+					;;
+			esac
+			;;
 		apcu)
 			if test $1 -le 506; then
 				installPECLModule_actual="$2-4.0.11"
