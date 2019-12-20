@@ -13,7 +13,7 @@ set -o errexit
 set -o nounset
 
 # Reset the Internal Field Separator
-resetIFS () {
+resetIFS() {
 	IFS='	 
 '
 }
@@ -22,7 +22,7 @@ resetIFS () {
 #
 # Output:
 #   alpine|debian
-getDistro () {
+getDistro() {
 	getDistro_os_id=''
 	if test -r /etc/os-release; then
 		getDistro_os_id="$(cat /etc/os-release | grep -E ^ID= | cut -d = -f 2)"
@@ -35,7 +35,7 @@ getDistro () {
 # Example output:
 #   alpine@3.10
 #   debian@9
-getDistroVersion () {
+getDistroVersion() {
 	getDistroVersion_distro="$(getDistro)"
 	if test -z "$getDistroVersion_distro"; then
 		return
@@ -54,7 +54,7 @@ getDistroVersion () {
 #
 # Output:
 #   The PHP numeric Major-Minor version
-getPHPMajorMinor () {
+getPHPMajorMinor() {
 	php -r '$v = explode(".", PHP_VERSION); echo $v[0] * 100 + $v[1];'
 }
 
@@ -62,25 +62,24 @@ getPHPMajorMinor () {
 #
 # Output:
 #   Space-separated list of module handles
-getPHPInstalledModules () {
+getPHPInstalledModules() {
 	getPHPInstalledModules_result=''
 	IFS='
 '
 	for getPHPInstalledModules_module in $(php -m); do
 		getPHPInstalledModules_moduleNormalized=''
 		case "$getPHPInstalledModules_module" in
-			\[PHP\ Modules\])
-				;;
+			\[PHP\ Modules\]) ;;
 			\[Zend\ Modules\])
 				break
 				;;
-			Core|PDO|PDO_*|Phar|Reflection|SimpleXML|SPL|SQLite|Xdebug)
+			Core | PDO | PDO_* | Phar | Reflection | SimpleXML | SPL | SQLite | Xdebug)
 				getPHPInstalledModules_moduleNormalized=$(LC_CTYPE=C printf '%s' "$getPHPInstalledModules_module" | tr '[:upper:]' '[:lower:]')
 				;;
 			Zend\ OPcache)
 				getPHPInstalledModules_moduleNormalized='opcache'
 				;;
-			*\ *|*A*|*B*|*C*|*D*|*E*|*F*|*G*|*H*|*I*|*J*|*K*|*L*|*M*|*N*|*O*|*P*|*Q*|*R*|*S*|*T*|*U*|*V*|*W*|*X*|*Y*|*Z*)
+			*\ * | *A* | *B* | *C* | *D* | *E* | *F* | *G* | *H* | *I* | *J* | *K* | *L* | *M* | *N* | *O* | *P* | *Q* | *R* | *S* | *T* | *U* | *V* | *W* | *X* | *Y* | *Z*)
 				printf '### WARNING Unrecognized module name: %s ###\n' "$getPHPInstalledModules_module" >&2
 				;;
 			*)
@@ -107,7 +106,7 @@ getPHPInstalledModules () {
 #
 # Output:
 #   Nothing
-processCommandArguments () {
+processCommandArguments() {
 	processCommandArguments_alreadyInstalled="$(getPHPInstalledModules)"
 	processCommandArguments_endArgs=0
 	PHP_MODULES_TO_INSTALL=''
@@ -153,7 +152,7 @@ processCommandArguments () {
 #
 # Output:
 #   Nothing
-sortModulesToInstall () {
+sortModulesToInstall() {
 	if stringInList 'igbinary' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'igbinary' "$PHP_MODULES_TO_INSTALL")"
 		if test -z "$PHP_MODULES_TO_INSTALL"; then
@@ -185,7 +184,7 @@ sortModulesToInstall () {
 # Return:
 #   0 (true): if we to install some package
 #   1 (false): if no package is required
-buildRequiredPackageLists () {
+buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
 	buildRequiredPackageLists_distro="$(getDistro)"
@@ -580,7 +579,7 @@ buildRequiredPackageLists () {
 #
 # Output:
 #   Space-separated list of every APT/APK packages that will be installed
-expandPackagesToBeInstalled () {
+expandPackagesToBeInstalled() {
 	expandPackagesToBeInstalled_result=''
 	case "$(getDistro)" in
 		alpine)
@@ -637,7 +636,7 @@ expandPackagesToBeInstalled () {
 #
 # Arguments:
 #   $@: the list of APT/APK packages to be installed
-installRequiredPackages () {
+installRequiredPackages() {
 	printf '### INSTALLING REQUIRED PACKAGES ###\n'
 	printf '# Packages to be kept after installation: %s\n' "$PACKAGES_PERSISTENT"
 	printf '# Packages to be used only for installation: %s\n' "$PACKAGES_VOLATILE"
@@ -667,7 +666,7 @@ installRequiredPackages () {
 getInstalledPackageVersion() {
 	case "$(getDistro)" in
 		alpine)
-			apk info "$1" | head -n1 | cut -c $(( ${#1} + 2 ))- | grep -o -E '^[0-9]+(\.[0-9]+){0,2}'
+			apk info "$1" | head -n1 | cut -c $((${#1} + 2))- | grep -o -E '^[0-9]+(\.[0-9]+){0,2}'
 			;;
 		debian)
 			dpkg-query --showformat='${Version}' --show "$1" 2>/dev/null | grep -o -E '^[0-9]+(\.[0-9]+){0,2}'
@@ -688,7 +687,7 @@ getInstalledPackageVersion() {
 compareVersions() {
 	compareVersions_v1="$1.0.0"
 	compareVersions_v2="$2.0.0"
-	compareVersions_vMin="$(printf '%s\n%s' "${compareVersions_v1}" "${compareVersions_v2}" | sort -t '.' -n -k1,1 -k2,2 -k3,3 | head -n 1)"
+	compareVersions_vMin="$(printf '%s\n%s' "$compareVersions_v1" "$compareVersions_v2" | sort -t '.' -n -k1,1 -k2,2 -k3,3 | head -n 1)"
 	if test "$compareVersions_vMin" != "$compareVersions_v1"; then
 		echo '1'
 	elif test "$compareVersions_vMin" = "$compareVersions_v2"; then
@@ -709,7 +708,7 @@ compareVersions() {
 #
 # Output:
 #   Nothing
-installBundledModule () {
+installBundledModule() {
 	printf '### INSTALLING BUNDLED MODULE %s ###\n' "$2"
 	case "$2" in
 		gd)
@@ -736,7 +735,7 @@ installBundledModule () {
 		imap)
 			PHP_OPENSSL=yes docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 			;;
-		interbase|pdo_firebird)
+		interbase | pdo_firebird)
 			case "$(getDistro)" in
 				alpine)
 					if ! test -d /tmp/src/firebird; then
@@ -758,9 +757,9 @@ installBundledModule () {
 		ldap)
 			docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)
 			;;
-		mssql|pdo_dblib)
+		mssql | pdo_dblib)
 			case "$1" in
-				506|700|701|702|703|704)
+				506 | 700 | 701 | 702 | 703 | 704)
 					if ! test -f /usr/lib/libsybdb.so; then
 						ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
 						UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/lib/libsybdb.so"
@@ -770,7 +769,7 @@ installBundledModule () {
 			;;
 		odbc)
 			case "$1" in
-				506|700|701|702|703|704)
+				506 | 700 | 701 | 702 | 703 | 704)
 					docker-php-source extract
 					cd /usr/src/php/ext/odbc
 					phpize
@@ -821,7 +820,7 @@ installBundledModule () {
 #
 # Output:
 #   The path of the extracted directory
-getPackageSource () {
+getPackageSource() {
 	mkdir -p /tmp/src
 	getPackageSource_tempFile=$(mktemp -p /tmp/src)
 	curl -L -s -S -o "$getPackageSource_tempFile" "$1"
@@ -852,7 +851,7 @@ getPackageSource () {
 #   $2: the URL of the module source code
 #   $3: the options of the configure command
 #   $4: the value of CFLAGS
-installModuleFromSource () {
+installModuleFromSource() {
 	printf '### INSTALLING MODULE %s FROM SOURCE CODE ###\n' "$1"
 	installModuleFromSource_dir="$(getPackageSource "$2")"
 	cd "$installModuleFromSource_dir"
@@ -868,7 +867,7 @@ installModuleFromSource () {
 # Arguments:
 #   $1: the numeric PHP Major-Minor version
 #   $2: the handle of the PHP module
-installPECLModule () {
+installPECLModule() {
 	printf '### INSTALLING PECL MODULE %s ###\n' "$2"
 	installPECLModule_actual="$2"
 	installPECLModule_stdin='\n'
@@ -1054,7 +1053,7 @@ installPECLModule () {
 # Return:
 #   0 (true): if the string is in the list
 #   1 (false): if the string is not in the list
-stringInList () {
+stringInList() {
 	for stringInList_listItem in $2; do
 		if test "$1" = "$stringInList_listItem"; then
 			return 0
@@ -1071,7 +1070,7 @@ stringInList () {
 #
 # Output:
 #   The list without the word
-removeStringFromList () {
+removeStringFromList() {
 	removeStringFromList_result=''
 	for removeStringFromList_listItem in $2; do
 		if test "$1" != "$removeStringFromList_listItem"; then
@@ -1086,7 +1085,7 @@ removeStringFromList () {
 }
 
 # Cleanup everything at the end of the execution
-cleanup () {
+cleanup() {
 	cleanup_distro="$(getDistro)"
 	if test -n "$UNNEEDED_PACKAGE_LINKS"; then
 		printf '### REMOVING UNNEEDED PACKAGE LINKS ###\n'
@@ -1123,10 +1122,10 @@ cleanup () {
 resetIFS
 PHP_MAJMIN_VERSION=$(getPHPMajorMinor)
 case "$PHP_MAJMIN_VERSION" in
-	506|700|701|702|703|704)
-		;;
+	506 | 700 | 701 | 702 | 703 | 704) ;;
 	*)
-		printf "### ERROR: Unsupported PHP version: %s.%s ###\n" $(( PHP_MAJMIN_VERSION / 100 )) $(( PHP_MAJMIN_VERSION % 100 ))
+		printf "### ERROR: Unsupported PHP version: %s.%s ###\n" $((PHP_MAJMIN_VERSION / 100)) $((PHP_MAJMIN_VERSION % 100))
+		;;
 esac
 UNNEEDED_PACKAGE_LINKS=''
 processCommandArguments "$@"
