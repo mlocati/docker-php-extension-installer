@@ -19,12 +19,32 @@ test-extensions-job-template: &test-extensions-job-template
 jobs:
   include:
     - <<: *test-extensions-job-template
-      name: Test extensions on Alpine Linux
-      env: DOCKER_DISTRO=alpine
+      name: Test extensions on Alpine 3.7
+      env: DOCKER_DISTRO=alpine3.7
 
     - <<: *test-extensions-job-template
-      name: Test extensions on Debian Linux
-      env: DOCKER_DISTRO=debian
+      name: Test extensions on Alpine 3.8
+      env: DOCKER_DISTRO=alpine3.8
+
+    - <<: *test-extensions-job-template
+      name: Test extensions on Alpine 3.9
+      env: DOCKER_DISTRO=alpine3.9
+
+    - <<: *test-extensions-job-template
+      name: Test extensions on Alpine 3.10
+      env: DOCKER_DISTRO=alpine3.10
+
+    - <<: *test-extensions-job-template
+      name: Test extensions on Debian 8 (jessie)
+      env: DOCKER_DISTRO=jessie
+
+    - <<: *test-extensions-job-template
+      name: Test extensions on Debian 9 (stretch)
+      env: DOCKER_DISTRO=stretch
+
+    - <<: *test-extensions-job-template
+      name: Test extensions on Debian 10 (buster)
+      env: DOCKER_DISTRO=buster
 
     - stage: Update docs
       name: Update README.md
