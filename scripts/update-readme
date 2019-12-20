@@ -3,12 +3,11 @@
 set -o errexit
 set -o nounset
 
-SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "${0}")" && pwd)"
-ROOT_DIR="$(dirname -- "${SCRIPTS_DIR}")"
-DATA_DIR="${ROOT_DIR}/data"
+SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+ROOT_DIR="$(dirname -- "$SCRIPTS_DIR")"
+DATA_DIR="$ROOT_DIR/data"
 
-. "${SCRIPTS_DIR}/common"
-
+. "$SCRIPTS_DIR/common"
 
 # Get the list of PHP extensions from the data file
 #
@@ -17,25 +16,24 @@ DATA_DIR="${ROOT_DIR}/data"
 #
 # Output:
 # the list of PHP extensions
-getExtensionList () {
+getExtensionList() {
 	getExtensionList_extensions=''
 	IFS='
 '
-	for getExtensionList_line in $(cat -- "${1}" | sort); do
+	for getExtensionList_line in $(cat -- "$1" | sort); do
 		getExtensionList_extension=''
 		IFS=' 	'
-		for getExtensionList_chunk in ${getExtensionList_line}; do
-			if test -z "${getExtensionList_extensions}"; then
-				getExtensionList_extensions="${getExtensionList_chunk}"
+		for getExtensionList_chunk in $getExtensionList_line; do
+			if test -z "$getExtensionList_extensions"; then
+				getExtensionList_extensions="$getExtensionList_chunk"
 			else
-				getExtensionList_extensions="${getExtensionList_extensions} ${getExtensionList_chunk}"
+				getExtensionList_extensions="$getExtensionList_extensions $getExtensionList_chunk"
 			fi
 			break
 		done
 	done
-	printf '%s' "${getExtensionList_extensions}"
+	printf '%s' "$getExtensionList_extensions"
 }
-
 
 # Get the list of PHP versions from the data file
 #
@@ -44,26 +42,25 @@ getExtensionList () {
 #
 # Output:
 # the list of PHP versions
-getVersionList () {
+getVersionList() {
 	getVersionList_versions=''
 	IFS='
 '
-	for getVersionList_line in $(cat -- "${1}" | sort); do
+	for getVersionList_line in $(cat -- "$1" | sort); do
 		getVersionList_extension=''
 		IFS=' 	'
-		for getVersionList_chunk in ${getVersionList_line}; do
-			if test -z "${getVersionList_extension}"; then
-				getVersionList_extension="${getVersionList_chunk}"
-			elif test -z "${getVersionList_versions}"; then
-				getVersionList_versions="${getVersionList_chunk}"
-			elif ! stringInList "${getVersionList_chunk}" "${getVersionList_versions}"; then
-				getVersionList_versions="${getVersionList_versions} ${getVersionList_chunk}"
+		for getVersionList_chunk in $getVersionList_line; do
+			if test -z "$getVersionList_extension"; then
+				getVersionList_extension="$getVersionList_chunk"
+			elif test -z "$getVersionList_versions"; then
+				getVersionList_versions="$getVersionList_chunk"
+			elif ! stringInList "$getVersionList_chunk" "$getVersionList_versions"; then
+				getVersionList_versions="$getVersionList_versions $getVersionList_chunk"
 			fi
 		done
 	done
-	sortVersionList "${getVersionList_versions}"
+	sortVersionList "$getVersionList_versions"
 }
-
 
 # Sort the list of PHP versions
 #
@@ -72,20 +69,19 @@ getVersionList () {
 #
 # Output:
 # the sorted list of PHP versions
-sortVersionList () {
+sortVersionList() {
 	sortVersionList_list=''
 	IFS='
 '
-	for sortVersionList_version in $(printf '%s' "${1}" | tr ' ' '\n' | sort -t '.' -k 1,1n -k 2,2n -k 3,3n); do
-		if test -z "${sortVersionList_list}"; then
-			sortVersionList_list="${sortVersionList_version}"
+	for sortVersionList_version in $(printf '%s' "$1" | tr ' ' '\n' | sort -t '.' -k 1,1n -k 2,2n -k 3,3n); do
+		if test -z "$sortVersionList_list"; then
+			sortVersionList_list="$sortVersionList_version"
 		else
-			sortVersionList_list="${sortVersionList_list} ${sortVersionList_version}"
+			sortVersionList_list="$sortVersionList_list $sortVersionList_version"
 		fi
 	done
-	printf '%s' "${sortVersionList_list}"
+	printf '%s' "$sortVersionList_list"
 }
-
 
 # Generate the markdown table with the supported PHP extensions
 #
@@ -94,41 +90,41 @@ sortVersionList () {
 #
 # Output:
 # the markdown table
-generateExtensionsTable () {
-	generateExtensionsTable_data=$(cat "${1}")
-	generateExtensionsTable_extensions="$(getExtensionList "${1}")"
-	generateExtensionsTable_versions="$(getVersionList "${1}")"
+generateExtensionsTable() {
+	generateExtensionsTable_data=$(cat "$1")
+	generateExtensionsTable_extensions="$(getExtensionList "$1")"
+	generateExtensionsTable_versions="$(getVersionList "$1")"
 	generateExtensionsTable_count=0
 	printf '| Extension |'
 	IFS=' '
-	for generateExtensionsTable_version in ${generateExtensionsTable_versions}; do
-		printf ' PHP %s |' "${generateExtensionsTable_version}"
+	for generateExtensionsTable_version in $generateExtensionsTable_versions; do
+		printf ' PHP %s |' "$generateExtensionsTable_version"
 	done
 	printf '\n'
 	printf '|:---:|'
-	for generateExtensionsTable_version in ${generateExtensionsTable_versions}; do
+	for generateExtensionsTable_version in $generateExtensionsTable_versions; do
 		printf -- ':---:|'
 	done
 	printf '\n'
 	IFS=' '
-	for generateExtensionsTable_extension in ${generateExtensionsTable_extensions}; do
+	for generateExtensionsTable_extension in $generateExtensionsTable_extensions; do
 		generateExtensionsTable_count=$((generateExtensionsTable_count + 1))
-		printf '| %s |' "${generateExtensionsTable_extension}"
+		printf '| %s |' "$generateExtensionsTable_extension"
 		IFS=' '
-		for generateExtensionsTable_version in ${generateExtensionsTable_versions}; do
+		for generateExtensionsTable_version in $generateExtensionsTable_versions; do
 			printf ' '
 			generateExtensionsTable_versionOk=''
 			IFS='
 '
-			for generateExtensionsTable_dataLine in ${generateExtensionsTable_data}; do
-				if stringInList "${generateExtensionsTable_extension}" "${generateExtensionsTable_dataLine}"; then
-					if stringInList "${generateExtensionsTable_version}" "${generateExtensionsTable_dataLine}"; then
+			for generateExtensionsTable_dataLine in $generateExtensionsTable_data; do
+				if stringInList "$generateExtensionsTable_extension" "$generateExtensionsTable_dataLine"; then
+					if stringInList "$generateExtensionsTable_version" "$generateExtensionsTable_dataLine"; then
 						generateExtensionsTable_versionOk='y'
 					fi
 					break
 				fi
 			done
-			if test -n "${generateExtensionsTable_versionOk}"; then
+			if test -n "$generateExtensionsTable_versionOk"; then
 				printf 'V'
 			fi
 			printf ' |'
@@ -139,7 +135,6 @@ generateExtensionsTable () {
 	printf '*Number of supported extensions: %s*\n' $generateExtensionsTable_count
 }
 
-
 # Generate the markdown table with the special requirements for the PHP extensions
 #
 # Arguments:
@@ -147,29 +142,28 @@ generateExtensionsTable () {
 #
 # Output:
 # the markdown table
-generateSpecialRequirementsTable () {
+generateSpecialRequirementsTable() {
 	generateSpecialRequirementsTable_started=''
 	IFS='
 '
-	for generateSpecialRequirementsTable_line in $(cat -- "${1}" | sort); do
-		if test -z "${generateSpecialRequirementsTable_started}"; then
+	for generateSpecialRequirementsTable_line in $(cat -- "$1" | sort); do
+		if test -z "$generateSpecialRequirementsTable_started"; then
 			printf '| Extension | Requirements |\n'
 			printf '|:---:|:---:|\n'
 			generateSpecialRequirementsTable_started='y'
 		fi
 		resetIFS
-		generateSpecialRequirementsTable_requirement="$(echo "${generateSpecialRequirementsTable_line}" | sed -E 's/^\s*\w+\s+//')"
-		case "${generateSpecialRequirementsTable_requirement}" in
+		generateSpecialRequirementsTable_requirement="$(echo "$generateSpecialRequirementsTable_line" | sed -E 's/^\s*\w+\s+//')"
+		case "$generateSpecialRequirementsTable_requirement" in
 			zts)
 				generateSpecialRequirementsTable_requirement='Requires images with PHP compiled with thread-safety enabled (`zts`).'
 				;;
 		esac
 		printf '| %s | %s |\n' \
-			"$(echo "${generateSpecialRequirementsTable_line}" | awk '{print $1;}')" \
-			"${generateSpecialRequirementsTable_requirement}"
+			"$(echo "$generateSpecialRequirementsTable_line" | awk '{print $1;}')" \
+			"$generateSpecialRequirementsTable_requirement"
 	done
 }
-
 
 # Generate the contents of README.md
 #
@@ -180,20 +174,20 @@ generateSpecialRequirementsTable () {
 #
 # Output:
 # the markdown table
-generateReadme () {
+generateReadme() {
 	generateReadme_ph_ExtensionsStart='<!-- START OF EXTENSIONS TABLE -->'
 	generateReadme_ph_ExtensionsEnd='<!-- END OF EXTENSIONS TABLE -->'
 	generateReadme_ph_SpecialStart='<!-- START OF SPECIAL REQUIREMENTS -->'
 	generateReadme_ph_SpecialEnd='<!-- END OF SPECIAL REQUIREMENTS -->'
 	generateReadme_skip=''
 	while IFS= read -r generateReadme_line; do
-		if test "${generateReadme_line}" = "${generateReadme_ph_ExtensionsEnd}" || test "${generateReadme_line}" = "${generateReadme_ph_SpecialEnd}"; then
+		if test "$generateReadme_line" = "$generateReadme_ph_ExtensionsEnd" || test "$generateReadme_line" = "$generateReadme_ph_SpecialEnd"; then
 			generateReadme_skip=''
 		fi
-		if test -z "${generateReadme_skip}"; then
-			printf '%s\n' "${generateReadme_line}"
+		if test -z "$generateReadme_skip"; then
+			printf '%s\n' "$generateReadme_line"
 		fi
-		if test "${generateReadme_line}" = "${generateReadme_ph_ExtensionsStart}"; then
+		if test "$generateReadme_line" = "$generateReadme_ph_ExtensionsStart"; then
 			generateReadme_skip='y'
 			printf '<!-- ########################################################### -->\n'
 			printf '<!-- #                                                         # -->\n'
@@ -202,8 +196,8 @@ generateReadme () {
 			printf '<!-- #  EDIT THE data/supported-extensions FILE INSTEAD        # -->\n'
 			printf '<!-- #                                                         # -->\n'
 			printf '<!-- ########################################################### -->\n'
-			generateExtensionsTable "${2}"
-		elif test "${generateReadme_line}" = "${generateReadme_ph_SpecialStart}"; then
+			generateExtensionsTable "$2"
+		elif test "$generateReadme_line" = "$generateReadme_ph_SpecialStart"; then
 			generateReadme_skip='y'
 			printf '<!-- ########################################################### -->\n'
 			printf '<!-- #                                                         # -->\n'
@@ -212,11 +206,11 @@ generateReadme () {
 			printf '<!-- #  EDIT THE data/special-requirements FILE INSTEAD        # -->\n'
 			printf '<!-- #                                                         # -->\n'
 			printf '<!-- ########################################################### -->\n'
-			generateSpecialRequirementsTable "${3}"
+			generateSpecialRequirementsTable "$3"
 		fi
-	done < "${1}"
-	printf '%s' "${generateReadme_line}"
+	done <"$1"
+	printf '%s' "$generateReadme_line"
 }
 
-NEW_README="$(generateReadme "${ROOT_DIR}/README.md" "${DATA_DIR}/supported-extensions" "${DATA_DIR}/special-requirements")"
-printf '%s\n' "${NEW_README}" > "${ROOT_DIR}/README.md"
+NEW_README="$(generateReadme "$ROOT_DIR/README.md" "$DATA_DIR/supported-extensions" "$DATA_DIR/special-requirements")"
+printf '%s\n' "$NEW_README" >"$ROOT_DIR/README.md"

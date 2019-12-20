@@ -9,19 +9,15 @@ UPDATE_README_COMMIT_AUTHOR_EMAIL='michele@locati.it'
 UPDATE_README_COMMIT_MESSAGE='[skip ci] Automatically update README.md'
 WATCHED_FILES='data/special-requirements data/supported-extensions scripts/common scripts/update-readme scripts/travisci-update-readme'
 
-SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "${0}")" && pwd)"
-. "${SCRIPTS_DIR}/common"
-
+SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+. "$SCRIPTS_DIR/common"
 
 echo 'Checking environment'
-if test -z "${TRAVIS_BUILD_DIR:-}" || test -z "${TRAVIS_BRANCH:-}" || test -z "${TRAVIS_EVENT_TYPE:-}" || test -z "${TRAVIS_REPO_SLUG:-}"
-then
+if test -z "${TRAVIS_BUILD_DIR:-}" || test -z "${TRAVIS_BRANCH:-}" || test -z "${TRAVIS_EVENT_TYPE:-}" || test -z "${TRAVIS_REPO_SLUG:-}"; then
 	echo 'Not in a TravisCI environment' >&2
 	exit 1
 fi
-if test -z "${GUTHUB_ACCESS_TOKEN:-}"
-then
-	
+if test -z "${GUTHUB_ACCESS_TOKEN:-}"; then
 	echo 'GitHub access token not set' >&2
 	# To create it:
 	#  - go to https://github.com/settings/tokens/new?scopes=repo
@@ -35,47 +31,43 @@ then
 	#        - secure: "encrypted string"
 	exit 1
 fi
-if test "${TRAVIS_EVENT_TYPE}" != 'push'
-then
+if test "$TRAVIS_EVENT_TYPE" != 'push'; then
 	echo 'This script should only be run in push builds' >&2
 	exit 1
 fi
 
-printf 'Checking-out branch %s\n' "${TRAVIS_BRANCH}"
-git checkout --force "${TRAVIS_BRANCH}"
+printf 'Checking-out branch %s\n' "$TRAVIS_BRANCH"
+git checkout --force "$TRAVIS_BRANCH"
 
-LAST_AUTO_UPDATED_IN="$(git -C "${TRAVIS_BUILD_DIR}" rev-list --max-count 1 --author "<${UPDATE_README_COMMIT_AUTHOR_EMAIL}>" --grep "${UPDATE_README_COMMIT_MESSAGE}" "${TRAVIS_BRANCH}")"
-if test -z "${LAST_AUTO_UPDATED_IN}"
-then
-	printf 'Rebuild of README.md enabled (no previous automatic refresh of it in branch %s)\n' "${TRAVIS_BRANCH}"
+LAST_AUTO_UPDATED_IN="$(git -C "$TRAVIS_BUILD_DIR" rev-list --max-count 1 --author "<$UPDATE_README_COMMIT_AUTHOR_EMAIL>" --grep "$UPDATE_README_COMMIT_MESSAGE" "$TRAVIS_BRANCH")"
+if test -z "$LAST_AUTO_UPDATED_IN"; then
+	printf 'Rebuild of README.md enabled (no previous automatic refresh of it in branch %s)\n' "$TRAVIS_BRANCH"
 else
-	MODIFIED_FILES_SINCE="$(git -C "${TRAVIS_BUILD_DIR}" diff --name-only "${LAST_AUTO_UPDATED_IN}...${TRAVIS_BRANCH}")"
-	if test -z "$(commonElements "${WATCHED_FILES}" "${MODIFIED_FILES_SINCE}")"
-	then
-		printf 'Rebuild of README.md not needed (no relevant files changed in branch %s since commit %s)\n' "${TRAVIS_BRANCH}" "${LAST_AUTO_UPDATED_IN}"
+	MODIFIED_FILES_SINCE="$(git -C "$TRAVIS_BUILD_DIR" diff --name-only "$LAST_AUTO_UPDATED_IN...$TRAVIS_BRANCH")"
+	if test -z "$(commonElements "$WATCHED_FILES" "$MODIFIED_FILES_SINCE")"; then
+		printf 'Rebuild of README.md not needed (no relevant files changed in branch %s since commit %s)\n' "$TRAVIS_BRANCH" "$LAST_AUTO_UPDATED_IN"
 		exit 0
 	fi
-	printf 'Rebuild of README.md enabled (relevant files changed in branch %s since commit %s)\n' "${TRAVIS_BRANCH}" "${LAST_AUTO_UPDATED_IN}"
+	printf 'Rebuild of README.md enabled (relevant files changed in branch %s since commit %s)\n' "$TRAVIS_BRANCH" "$LAST_AUTO_UPDATED_IN"
 fi
 
 echo 'Updating README.md'
-"${TRAVIS_BUILD_DIR}/scripts/update-readme"
-if test -z "$(git -C "${TRAVIS_BUILD_DIR}" ls-files -m | grep -E '^README\.md$')"
-then
+"$TRAVIS_BUILD_DIR/scripts/update-readme"
+if test -z "$(git -C "$TRAVIS_BUILD_DIR" ls-files -m | grep -E '^README\.md$')"; then
 	echo 'README.md has not been changed'
 	exit 0
 fi
 
-printf 'Adding %s remote\n' "${TRAVIS_REPO_SLUG}"
-git remote add deploy "https://${GUTHUB_ACCESS_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git"
+printf 'Adding %s remote\n' "$TRAVIS_REPO_SLUG"
+git remote add deploy "https://$GUTHUB_ACCESS_TOKEN@github.com/$TRAVIS_REPO_SLUG.git"
 
 echo 'Committing changes to README.md'
-git -C "${TRAVIS_BUILD_DIR}" config user.name "${UPDATE_README_COMMIT_AUTHOR_NAME}"
-git -C "${TRAVIS_BUILD_DIR}" config user.email "${UPDATE_README_COMMIT_AUTHOR_EMAIL}"
-git -C "${TRAVIS_BUILD_DIR}" add README.md
-git -C "${TRAVIS_BUILD_DIR}" commit -m "${UPDATE_README_COMMIT_MESSAGE}"
+git -C "$TRAVIS_BUILD_DIR" config user.name "$UPDATE_README_COMMIT_AUTHOR_NAME"
+git -C "$TRAVIS_BUILD_DIR" config user.email "$UPDATE_README_COMMIT_AUTHOR_EMAIL"
+git -C "$TRAVIS_BUILD_DIR" add README.md
+git -C "$TRAVIS_BUILD_DIR" commit -m "$UPDATE_README_COMMIT_MESSAGE"
 
-printf 'Pushing to %s\n' "${TRAVIS_REPO_SLUG}"
-git push deploy "${TRAVIS_BRANCH}"
+printf 'Pushing to %s\n' "$TRAVIS_REPO_SLUG"
+git push deploy "$TRAVIS_BRANCH"
 
 echo 'Done.'
