@@ -195,12 +195,15 @@ buildRequiredPackageLists () {
 			buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
 			;;
 		debian)
-			if test -n "$(apt-cache search libssl1.0 | grep -E ^libssl1\.0)"; then
-				# Debian 9, uses libssl1.0 instead of libssl, due to conflict with libssh-dev
-				buildRequiredPackageLists_libssldev='libssl1.0-dev'
-			else
-				buildRequiredPackageLists_libssldev='libssl-dev'
-			fi
+			case "$(getDistroVersion)" in
+				debian@9)
+					# Debian 9, uses libssl1.0 instead of libssl, due to conflict with libssh-dev
+					buildRequiredPackageLists_libssldev='libssl1.0-dev'
+					;;
+				*)
+					buildRequiredPackageLists_libssldev='libssl-dev'
+					;;
+			esac
 			;;
 	esac
 	while :; do
@@ -540,8 +543,16 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev libressl-dev zlib-dev"
 				;;
 			zip@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip4 libmbedtls1?"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev $buildRequiredPackageLists_libssldev libzip-dev libbz2-dev libmbedtls-dev zlib1g-dev"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip[0-9]$"
+				case "$(getDistroVersion)" in
+					debian@8)
+						;;
+					*)
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmbedtls1?"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmbedtls-dev"
+						;;
+				esac
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev $buildRequiredPackageLists_libssldev libzip-dev libbz2-dev zlib1g-dev"
 				;;
 		esac
 	done
