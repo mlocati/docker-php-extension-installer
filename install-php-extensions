@@ -193,6 +193,13 @@ buildRequiredPackageLists() {
 	case "$buildRequiredPackageLists_distroVersion" in
 		alpine@*)
 			buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
+			if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
+				buildRequiredPackageLists_libssl='libssl1.0'
+			elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')"; then
+				buildRequiredPackageLists_libssl='libressl2.7-libtls'
+			else
+				buildRequiredPackageLists_libssl=''
+			fi
 			;;
 		debian@9)
 			buildRequiredPackageLists_libssldev='libssl-dev'
@@ -285,10 +292,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmagickwand-dev"
 				;;
 			imap@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-client"
-				if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0"
-				fi
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-client $buildRequiredPackageLists_libssl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev libressl-dev"
 				;;
 			imap@debian)
@@ -340,19 +344,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmemcached-dev zlib1g-dev"
 				;;
 			mongo@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsasl libssl1.0"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsasl $buildRequiredPackageLists_libssl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libressl-dev cyrus-sasl-dev"
 				;;
 			mongo@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libsasl2-dev"
 				;;
 			mongodb@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl snappy"
-				if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.0"
-				elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')"; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libressl2.7-libtls"
-				fi
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl $buildRequiredPackageLists_libssl snappy"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev libressl-dev zlib-dev"
 				;;
 			mongodb@debian)
