@@ -118,7 +118,7 @@ processCommandArguments() {
 		if test $processCommandArguments_endArgs -eq 0; then
 			case "$1" in
 				--cleanup)
-					printf '### WARNING the --cleanup option is deprecated (we always cleanup everything) ###\n' "$1" >&2
+					printf '### WARNING the %s option is deprecated (we always cleanup everything) ###\n' "$1" >&2
 					processCommandArguments_skip=1
 					;;
 				--)
