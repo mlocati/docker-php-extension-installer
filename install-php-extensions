@@ -357,7 +357,7 @@ buildRequiredPackageLists () {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev libressl-dev zlib-dev"
 				;;
 			mongodb@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy1v5"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy[0-9](v[0-9])?$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev $buildRequiredPackageLists_libssldev zlib1g-dev"
 				;;
 			mssql@alpine)
