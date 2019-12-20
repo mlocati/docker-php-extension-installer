@@ -144,6 +144,10 @@ Some extension has special requirements:
 
 ## How to contribute
 
+### Formatting code
+
+Before submitting any pull request, be sure to execute the `lint` script in the `scripts` directory (or `lint.bat` on Windows).
+
 ### Adding support to a new PHP extension?
 
 1. change the `install-php-extensions` script
