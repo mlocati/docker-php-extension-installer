@@ -28,123 +28,29 @@ getDockerImageName() {
 			getDockerImageName_version="$2"
 			;;
 	esac
-	getDockerImageName_suffix='-cli'
+	getDockerImageName_suffix='cli'
 	getDockerImageName_reqs="$TRAVIS_BUILD_DIR/data/special-requirements"
 	if test -f "$getDockerImageName_reqs"; then
 		IFS=' '
 		for getDockerImageName_testExtension in $1; do
 			if test -n "$(cat "$getDockerImageName_reqs" | grep -E "^$getDockerImageName_testExtension[ \t]+zts[ \t]*$")"; then
-				getDockerImageName_suffix="-zts"
+				getDockerImageName_suffix='zts'
 			fi
 		done
 	fi
-	getDockerImageName_distro="-$DOCKER_DISTRO"
-	case "$DOCKER_DISTRO" in
-		alpine3.4)
-			# available for PHP from version 5.6 to version 7.1
-			case "$2" in
-				5.* | 7.0 | 7.1) ;;
-				*)
-					return
-					;;
-			esac
-			;;
-		alpine3.6)
-			# available for PHP 7.2
-			case "$2" in
-				7.2) ;;
-				*)
-					return
-					;;
-			esac
-			;;
-		alpine3.7)
-			# available for PHP from version 5.6 to version 7.2
-			# default Alpine one for PHP 7.0
-			case "$2" in
-				7.0)
-					#getDockerImageName_distro='-alpine'
-					;;
-				5.* | 7.1 | 7.2) ;;
-				*)
-					return
-					;;
-			esac
-			;;
-		alpine3.8)
-			# available for PHP from version 5.6 to version 7.3 (except PHP 7.0)
-			# default Alpine one for PHP 5.6
-			case "$2" in
-				5.6)
-					#getDockerImageName_distro='-alpine'
-					;;
-				5.* | 7.1 | 7.2 | 7.3) ;;
-				*)
-					return
-					;;
-			esac
-			;;
-		alpine3.9)
-			# available for PHP from version 7.1 to version 7.3
-			case "$2" in
-				7.1 | 7.2 | 7.3) ;;
-				*)
-					return
-					;;
-			esac
-			;;
-		alpine3.10)
-			# available for PHP from version 7.1
-			# default Alpine one for PHP 7.1 -> 7.4
-			case "$2" in
-				7.1 | 7.2 | 7.3 | 7.4)
-					#getDockerImageName_distro='-alpine'
-					;;
-				5.* | 7.0)
-					return
-					;;
-			esac
-			;;
-		jessie) # Debian 8
-			# available for PHP up to version 7.1
-			case "$2" in
-				5.* | 7.0 | 7.1) ;;
-				*)
-					return
-					;;
-			esac
-			;;
-		stretch) # Debian 9
-			# available for PHP up to version 7.3
-			# default one for PHP 5.6 -> 7.0
-			case "$2" in
-				5.* | 7.0)
-					#getDockerImageName_distro=''
-					;;
-				7.1 | 7.2 | 7.3) ;;
-				*)
-					return
-					;;
-			esac
-			;;
-		buster) # Debian 10
-			# available for PHP from version 7.1
-			# default one for PHP 7.1 -> 7.4
-			case "$2" in
-				7.1 | 7.2 | 7.3 | 7.4)
-					#getDockerImageName_distro=''
-					;;
-				5.* | 7.0)
-					return
-					;;
-			esac
-			;;
-		*)
-			printf 'Unrecognized value of DOCKER_DISTRO environment variable (%s)\n' "$DOCKER_DISTRO" >&2
-			return 1
-			;;
-	esac
-	printf 'php:%s%s%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$getDockerImageName_distro"
+	getDockerImageName_imageName="$(printf 'php:%s-%s-%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$DOCKER_DISTRO")"
+	if test -z "$(docker images -q "$getDockerImageName_imageName" 2>/dev/null)"; then
+		getDockerImageName_log="$(docker pull "$getDockerImageName_imageName" 2>&1 || true)"
+		if test -z "$(docker images -q "$getDockerImageName_imageName" 2>/dev/null)"; then
+			if test "${getDockerImageName_log#*manifest unknown}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*manifest for * not found}" != "$getDockerImageName_log"; then
+				true
+				return
+			fi
+			printf '%s\n' "$getDockerImageName_log" >&2
+			exit 1
+		fi
+	fi
+	printf '%s' "$getDockerImageName_imageName"
 }
 
 # Test an extension
@@ -163,6 +69,9 @@ testExtension() {
 		return 1
 	fi
 	testExtension_Image="$(getDockerImageName "$1" "$2")"
+	if test $? -ne 0; then
+		exit 1
+	fi
 	if test -z "$testExtension_Image"; then
 		printf ' - Docker image not available\n'
 		return 0
