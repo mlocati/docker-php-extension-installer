@@ -180,10 +180,6 @@ sortModulesToInstall() {
 # Set:
 #   PACKAGES_PERSISTENT
 #   PACKAGES_VOLATILE
-#
-# Return:
-#   0 (true): if we to install some package
-#   1 (false): if no package is required
 buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
@@ -555,7 +551,7 @@ buildRequiredPackageLists() {
 	PACKAGES_PERSISTENT=''
 	PACKAGES_VOLATILE=''
 	if test -z "$buildRequiredPackageLists_persistent$buildRequiredPackageLists_volatile"; then
-		return 0
+		return
 	fi
 	case "$buildRequiredPackageLists_distro" in
 		alpine)
@@ -1159,7 +1155,8 @@ fi
 
 sortModulesToInstall
 
-if buildRequiredPackageLists $PHP_MAJMIN_VERSION $PHP_MODULES_TO_INSTALL; then
+buildRequiredPackageLists $PHP_MAJMIN_VERSION $PHP_MODULES_TO_INSTALL
+if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
 	installRequiredPackages
 fi
 docker-php-source extract
