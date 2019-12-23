@@ -180,10 +180,6 @@ sortModulesToInstall() {
 # Set:
 #   PACKAGES_PERSISTENT
 #   PACKAGES_VOLATILE
-#
-# Return:
-#   0 (true): if we to install some package
-#   1 (false): if no package is required
 buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
@@ -202,7 +198,7 @@ buildRequiredPackageLists() {
 			fi
 			;;
 		debian@9)
-			buildRequiredPackageLists_libssldev='libssl-dev'
+			buildRequiredPackageLists_libssldev='libssl1.0-dev'
 			;;
 		debian@*)
 			buildRequiredPackageLists_libssldev='libssl([0-9]+(\.[0-9]+)*)?-dev$'
@@ -555,7 +551,7 @@ buildRequiredPackageLists() {
 	PACKAGES_PERSISTENT=''
 	PACKAGES_VOLATILE=''
 	if test -z "$buildRequiredPackageLists_persistent$buildRequiredPackageLists_volatile"; then
-		return 0
+		return
 	fi
 	case "$buildRequiredPackageLists_distro" in
 		alpine)
@@ -568,15 +564,13 @@ buildRequiredPackageLists() {
 	esac
 	if test -n "$buildRequiredPackageLists_persistent"; then
 		PACKAGES_PERSISTENT="$(expandPackagesToBeInstalled $buildRequiredPackageLists_persistent)"
-		if test -s "$IPE_ERRFILE"; then
-			cat "$IPE_ERRFILE" >&2
+		if test -s "$IPE_ERRFLAG_FILE"; then
 			exit 1
 		fi
 	fi
 	if test -n "$buildRequiredPackageLists_volatile"; then
 		buildRequiredPackageLists_packages="$(expandPackagesToBeInstalled $buildRequiredPackageLists_volatile)"
-		if test -s "$IPE_ERRFILE"; then
-			cat "$IPE_ERRFILE" >&2
+		if test -s "$IPE_ERRFLAG_FILE"; then
 			exit 1
 		fi
 		resetIFS
@@ -602,9 +596,10 @@ expandPackagesToBeInstalled() {
 		alpine)
 			expandPackagesToBeInstalled_log="$(apk add --simulate $@ 2>&1 || printf '\nERROR: apk failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^ERROR:')"; then
-				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >"$IPE_ERRFILE"
-				printf '%s ' "$@" >>"$IPE_ERRFILE"
-				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >>"$IPE_ERRFILE"
+				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
+				printf '%s ' "$@" >&2
+				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >&2
+				echo 'y' >"$IPE_ERRFLAG_FILE"
 				exit 1
 			fi
 			IFS='
@@ -619,9 +614,10 @@ expandPackagesToBeInstalled() {
 		debian)
 			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@ 2>&1 || printf '\nE: apt-get failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^E:')"; then
-				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >"$IPE_ERRFILE"
-				printf '%s ' "$@" >"$IPE_ERRFILE"
-				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >"$IPE_ERRFILE"
+				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
+				printf '%s ' "$@" >&2
+				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >&2
+				echo 'y' >"$IPE_ERRFLAG_FILE"
 				exit 1
 			fi
 			expandPackagesToBeInstalled_inNewPackages=0
@@ -1142,7 +1138,7 @@ cleanup() {
 
 resetIFS
 mkdir -p /tmp/src
-IPE_ERRFILE="$(mktemp -p /tmp/src)"
+IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 PHP_MAJMIN_VERSION=$(getPHPMajorMinor)
 case "$PHP_MAJMIN_VERSION" in
 	506 | 700 | 701 | 702 | 703 | 704) ;;
@@ -1159,7 +1155,8 @@ fi
 
 sortModulesToInstall
 
-if buildRequiredPackageLists $PHP_MAJMIN_VERSION $PHP_MODULES_TO_INSTALL; then
+buildRequiredPackageLists $PHP_MAJMIN_VERSION $PHP_MODULES_TO_INSTALL
+if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
 	installRequiredPackages
 fi
 docker-php-source extract
