@@ -435,7 +435,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librdkafka-dev"
 				;;
 			rdkafka@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librdkafka++1"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librdkafka\+*[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librdkafka-dev"
 				;;
 			recode@alpine)
@@ -994,7 +994,7 @@ installPECLModule() {
 					installPECLModule_tmp='librdkafka'
 					;;
 				debian)
-					installPECLModule_tmp='librdkafka++1'
+					installPECLModule_tmp='librdkafka*'
 					;;
 			esac
 			if test -n "$installPECLModule_tmp"; then
