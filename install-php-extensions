@@ -909,6 +909,11 @@ installPECLModule() {
 				installPECLModule_actual="$2-2.2.7"
 			fi
 			;;
+		mailparse)
+			if test $1 -lt 700; then
+				installPECLModule_actual="$2-2.1.6"
+			fi
+			;;
 		memcached)
 			if test $1 -lt 700; then
 				installPECLModule_actual="$2-2.2.0"
