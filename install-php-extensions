@@ -198,7 +198,7 @@ buildRequiredPackageLists() {
 			fi
 			;;
 		debian@9)
-			buildRequiredPackageLists_libssldev='libssl-dev'
+			buildRequiredPackageLists_libssldev='libssl1.0-dev'
 			;;
 		debian@*)
 			buildRequiredPackageLists_libssldev='libssl([0-9]+(\.[0-9]+)*)?-dev$'
