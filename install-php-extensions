@@ -188,18 +188,17 @@ buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
 	buildRequiredPackageLists_distro="$(getDistro)"
+	buildRequiredPackageLists_distroVersion="$(getDistroVersion)"
 	buildRequiredPackageLists_phpv=$1
-	case "$buildRequiredPackageLists_distro" in
-		alpine)
+	case "$buildRequiredPackageLists_distroVersion" in
+		alpine@*)
 			buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
 			;;
-		debian)
-			if test -n "$(apt-cache search libssl1.0 | grep -E ^libssl1\.0)"; then
-				# Debian 9, uses libssl1.0 instead of libssl, due to conflict with libssh-dev
-				buildRequiredPackageLists_libssldev='libssl1.0-dev'
-			else
-				buildRequiredPackageLists_libssldev='libssl-dev'
-			fi
+		debian@9)
+			buildRequiredPackageLists_libssldev='libssl-dev'
+			;;
+		debian@*)
+			buildRequiredPackageLists_libssldev='libssl([0-9]+(\.[0-9]+)*)?-dev$'
 			;;
 	esac
 	while :; do
@@ -357,7 +356,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev libressl-dev zlib-dev"
 				;;
 			mongodb@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy1v5"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy[0-9]+(v[0-9]+)?$ libicu[0-9]+$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev $buildRequiredPackageLists_libssldev zlib1g-dev"
 				;;
 			mssql@alpine)
@@ -540,8 +539,17 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev libressl-dev zlib-dev"
 				;;
 			zip@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip4 libmbedtls1?"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev $buildRequiredPackageLists_libssldev libzip-dev libbz2-dev libmbedtls-dev zlib1g-dev"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip[0-9]$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev $buildRequiredPackageLists_libssldev libzip-dev libbz2-dev zlib1g-dev"
+				case "$buildRequiredPackageLists_distroVersion" in
+					debian@8)
+						# Debian Jessie doesn't seem to provide libmbedtls
+						;;
+					*)
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmbedtls[0-9]*$"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmbedtls-dev"
+						;;
+				esac
 				;;
 		esac
 	done
