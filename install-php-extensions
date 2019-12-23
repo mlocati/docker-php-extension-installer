@@ -249,13 +249,13 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			gd@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfreetype6 libjpeg62-turbo libpng16-16 libxpm4"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfreetype6 libjpeg62-turbo libpng[0-9]+-[0-9]+$ libxpm4"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libfreetype6-dev libjpeg62-turbo-dev libpng-dev libxpm-dev"
 				if test $buildRequiredPackageLists_phpv -le 506; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libvpx?"
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libvpx[0-9]+$"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libvpx-dev"
 				else
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebp6"
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebp[0-9]+$"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
 				fi
 				;;
@@ -560,10 +560,19 @@ buildRequiredPackageLists() {
 	esac
 	if test -n "$buildRequiredPackageLists_persistent"; then
 		PACKAGES_PERSISTENT="$(expandPackagesToBeInstalled $buildRequiredPackageLists_persistent)"
+		if test -s "$IPE_ERRFILE"; then
+			cat "$IPE_ERRFILE" >&2
+			exit 1
+		fi
 	fi
 	if test -n "$buildRequiredPackageLists_volatile"; then
+		buildRequiredPackageLists_packages="$(expandPackagesToBeInstalled $buildRequiredPackageLists_volatile)"
+		if test -s "$IPE_ERRFILE"; then
+			cat "$IPE_ERRFILE" >&2
+			exit 1
+		fi
 		resetIFS
-		for buildRequiredPackageLists_package in $(expandPackagesToBeInstalled $buildRequiredPackageLists_volatile); do
+		for buildRequiredPackageLists_package in $buildRequiredPackageLists_packages; do
 			if ! stringInList "$buildRequiredPackageLists_package" "$PACKAGES_PERSISTENT"; then
 				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $buildRequiredPackageLists_package"
 			fi
@@ -585,9 +594,9 @@ expandPackagesToBeInstalled() {
 		alpine)
 			expandPackagesToBeInstalled_log="$(apk add --simulate $@ 2>&1 || printf '\nERROR: apk failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^ERROR:')"; then
-				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
-				printf '%s ' "$@" >&2
-				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >&2
+				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >"$IPE_ERRFILE"
+				printf '%s ' "$@" >>"$IPE_ERRFILE"
+				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >>"$IPE_ERRFILE"
 				exit 1
 			fi
 			IFS='
@@ -602,9 +611,9 @@ expandPackagesToBeInstalled() {
 		debian)
 			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@ 2>&1 || printf '\nE: apt-get failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^E:')"; then
-				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
-				printf '%s ' "$@" >&2
-				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >&2
+				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >"$IPE_ERRFILE"
+				printf '%s ' "$@" >"$IPE_ERRFILE"
+				printf '\n\nCOMMAND OUTPUT:\n%s\n' "$expandPackagesToBeInstalled_log" >"$IPE_ERRFILE"
 				exit 1
 			fi
 			expandPackagesToBeInstalled_inNewPackages=0
@@ -1120,6 +1129,8 @@ cleanup() {
 }
 
 resetIFS
+mkdir -p /tmp/src
+IPE_ERRFILE="$(mktemp -p /tmp/src)"
 PHP_MAJMIN_VERSION=$(getPHPMajorMinor)
 case "$PHP_MAJMIN_VERSION" in
 	506 | 700 | 701 | 702 | 703 | 704) ;;
