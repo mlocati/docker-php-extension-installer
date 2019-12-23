@@ -63,6 +63,7 @@ RUN install-php-extensions gd xdebug
 | interbase | V | V | V | V | V |  |
 | intl | V | V | V | V | V | V |
 | ldap | V | V | V | V | V | V |
+| mailparse | V | V | V | V | V | V |
 | mcrypt | V | V | V | V | V | V |
 | memcache | V | V | V | V | V | V |
 | memcached | V | V | V | V | V | V |
@@ -113,7 +114,7 @@ RUN install-php-extensions gd xdebug
 | yaml | V | V | V | V | V | V |
 | zip | V | V | V | V | V | V |
 
-*Number of supported extensions: 68*
+*Number of supported extensions: 69*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
