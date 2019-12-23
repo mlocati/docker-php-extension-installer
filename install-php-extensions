@@ -765,7 +765,11 @@ installBundledModule() {
 			esac
 			;;
 		ldap)
-			docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)
+			case "$(getDistro)" in
+				debian)
+					docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)
+					;;
+			esac
 			;;
 		mssql | pdo_dblib)
 			case "$1" in
