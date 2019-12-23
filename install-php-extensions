@@ -249,13 +249,13 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			gd@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfreetype6 libjpeg62-turbo libpng16-16 libxpm4"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfreetype6 libjpeg62-turbo libpng[0-9]+-[0-9]+$ libxpm4"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libfreetype6-dev libjpeg62-turbo-dev libpng-dev libxpm-dev"
 				if test $buildRequiredPackageLists_phpv -le 506; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libvpx?"
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libvpx[0-9]+$"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libvpx-dev"
 				else
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebp6"
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebp[0-9]+$"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
 				fi
 				;;
