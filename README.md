@@ -86,6 +86,7 @@ RUN install-php-extensions gd xdebug
 | pdo_pgsql | V | V | V | V | V | V |
 | pdo_sqlsrv |  | V | V | V | V | V |
 | pgsql | V | V | V | V | V | V |
+| propro | V | V | V | V | V | V |
 | protobuf | V | V | V | V | V | V |
 | pspell | V | V | V | V | V | V |
 | pthreads | V | V |  |  |  |  |
@@ -115,7 +116,7 @@ RUN install-php-extensions gd xdebug
 | yaml | V | V | V | V | V | V |
 | zip | V | V | V | V | V | V |
 
-*Number of supported extensions: 70*
+*Number of supported extensions: 71*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
