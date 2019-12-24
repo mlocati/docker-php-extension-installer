@@ -441,6 +441,35 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librecode0"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librecode-dev"
 				;;
+			redis@alpine)
+				if test $buildRequiredPackageLists_phpv -ge 700; then
+					case "$buildRequiredPackageLists_distroVersion" in
+						alpine@3.7)
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent zstd"
+							;;
+						*)
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent zstd-libs"
+							;;
+					esac
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zstd-dev"
+				fi
+				;;
+			redis@debian)
+				if test $buildRequiredPackageLists_phpv -ge 700; then
+					case "$buildRequiredPackageLists_distroVersion" in
+						debian@8)
+							## There's no APT package for libzstd
+							;;
+						debian@9)
+							## libzstd is too old (available: 1.1.2, required: 1.3.0+)
+							;;
+						*)
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzstd[0-9]*$"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzstd-dev"
+							;;
+					esac
+				fi
+				;;
 			snmp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent net-snmp-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile net-snmp-dev"
@@ -1007,11 +1036,31 @@ installPECLModule() {
 			fi
 			;;
 		redis)
+			# enable igbinary serializer support?
+			php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_stdin='yes\n' || installPECLModule_stdin='no\n'
+			# enable lzf compression support?
+			installPECLModule_stdin="${installPECLModule_stdin}yes\n"
 			if test $1 -le 506; then
 				installPECLModule_actual="$2-4.3.0"
+			else
+				installPECLModule_machine=$(gcc -dumpmachine)
+				if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$installPECLModule_machine/libzstd.so"; then
+					installPECLModule_zstdVersion=1.4.4
+					installPECLModule_zstdVersionMajor=$(echo $installPECLModule_zstdVersion | cut -d. -f1)
+					rm -rf /tmp/src/zstd
+					mv "$(getPackageSource https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-$installPECLModule_zstdVersion.tar.gz)" /tmp/src/zstd
+					cd /tmp/src/zstd
+					make V=0 -j$(nproc) lib
+					cp -f lib/libzstd.so "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion"
+					ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersionMajor"
+					ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so"
+					ln -sf /tmp/src/zstd/lib/zstd.h /usr/include/zstd.h
+					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/zstd.h"
+					cd - >/dev/null
+				fi
+				# enable zstd compression support?
+				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
 			fi
-			# enable-redis-igbinary? enable-redis-lzf?
-			php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_stdin='yes\nyes\n' || installPECLModule_stdin='no\nyes\n'
 			;;
 		solr)
 			if test $1 -le 506; then
