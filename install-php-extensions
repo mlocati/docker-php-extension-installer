@@ -1016,6 +1016,11 @@ installPECLModule() {
 				installPECLModule_actual="$2-2.0.10"
 			fi
 			;;
+		raphf)
+			if test $1 -lt 700; then
+				installPECLModule_actual="$2-1.1.2"
+			fi
+			;;
 		rdkafka)
 			installPECLModule_tmp=
 			case "$(getDistro)" in
