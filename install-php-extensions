@@ -1011,6 +1011,11 @@ installPECLModule() {
 				installPECLModule_actual="$2-5.7.0preview"
 			fi
 			;;
+		propro)
+			if test $1 -lt 700; then
+				installPECLModule_actual="$2-1.0.2"
+			fi
+			;;
 		pthreads)
 			if test $1 -lt 700; then
 				installPECLModule_actual="$2-2.0.10"
