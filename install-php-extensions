@@ -790,7 +790,7 @@ installBundledModule() {
 						make -s btyacc_binary gpre_boot libfbstatic libfbclient
 						cp gen/firebird/lib/libfbclient.so /usr/lib/
 						ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
-						cd -
+						cd - >/dev/null
 					fi
 					CFLAGS='-I/tmp/src/firebird/src/jrd -I/tmp/src/firebird/src/include -I/tmp/src/firebird/src/include/gen' docker-php-ext-configure $2
 					;;
@@ -821,7 +821,7 @@ installBundledModule() {
 					phpize
 					sed -ri 's@^ *test +"\$PHP_.*" *= *"no" *&& *PHP_.*=yes *$@#&@g' configure
 					./configure --with-unixODBC=shared,/usr
-					cd -
+					cd - >/dev/null
 					;;
 			esac
 			;;
@@ -904,7 +904,7 @@ installModuleFromSource() {
 	phpize
 	./configure $3 CFLAGS="${4:-}"
 	make -j$(nproc) install
-	cd --
+	cd - >/dev/null
 	docker-php-ext-enable "$1"
 }
 
@@ -990,7 +990,7 @@ installPECLModule() {
 				phpize
 				./configure
 				make install
-				cd -
+				cd - >/dev/null
 			fi
 			;;
 		parallel)
@@ -1227,7 +1227,7 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 				MODULE_SOURCE=https://github.com/krakjoe/cmark/archive/v1.0.0.tar.gz
 				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/0.28.3.tar.gz)"
 				make install
-				cd -
+				cd - >/dev/null
 				MODULE_SOURCE_CONFIGOPTIONS=--with-cmark
 				;;
 			igbinary)
