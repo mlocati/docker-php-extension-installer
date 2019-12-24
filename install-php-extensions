@@ -132,12 +132,20 @@ processCommandArguments() {
 			esac
 		fi
 		if test $processCommandArguments_skip -eq 0; then
-			if stringInList "$1" "$PHP_MODULES_TO_INSTALL"; then
-				printf '### WARNING Duplicated module name specified: %s ###\n' "$1" >&2
-			elif stringInList "$1" "$processCommandArguments_alreadyInstalled"; then
-				printf '### WARNING Module already installed: %s ###\n' "$1" >&2
+			case "$1" in
+				pecl_http)
+					processCommandArguments_name='http'
+					;;
+				*)
+					processCommandArguments_name=$1
+					;;
+			esac
+			if stringInList "$processCommandArguments_name" "$PHP_MODULES_TO_INSTALL"; then
+				printf '### WARNING Duplicated module name specified: %s ###\n' "$processCommandArguments_name" >&2
+			elif stringInList "$processCommandArguments_name" "$processCommandArguments_alreadyInstalled"; then
+				printf '### WARNING Module already installed: %s ###\n' "$processCommandArguments_name" >&2
 			else
-				PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL $1"
+				PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL $processCommandArguments_name"
 			fi
 		fi
 		shift
@@ -168,6 +176,17 @@ sortModulesToInstall() {
 		else
 			PHP_MODULES_TO_INSTALL="msgpack $PHP_MODULES_TO_INSTALL"
 		fi
+	fi
+	if stringInList 'http' "$PHP_MODULES_TO_INSTALL"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'http' "$PHP_MODULES_TO_INSTALL")"
+		sortModulesToInstall_alreadyInstalled="$(getPHPInstalledModules)"
+		if ! stringInList 'propro' "$PHP_MODULES_TO_INSTALL" && ! stringInList 'propro' "$sortModulesToInstall_alreadyInstalled"; then
+			PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL propro"
+		fi
+		if ! stringInList 'raphf' "$PHP_MODULES_TO_INSTALL" && ! stringInList 'raphf' "$sortModulesToInstall_alreadyInstalled"; then
+			PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL raphf"
+		fi
+		PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL http"
 	fi
 }
 
@@ -278,6 +297,27 @@ buildRequiredPackageLists() {
 				;;
 			grpc@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
+				;;
+			http@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libevent"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev curl-dev libevent-dev"
+				if test $buildRequiredPackageLists_phpv -le 506; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libidn"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libidn-dev"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libidn"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev libidn-dev"
+				fi
+				;;
+			http@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libevent[0-9\.\-]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev libgnutls28-dev libcurl4-gnutls-dev libevent-dev"
+				if test $buildRequiredPackageLists_phpv -le 506; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libidn1[0-9+]-dev$"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libicu[0-9]+$ libidn2-[0-9+]$"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libidn2-[0-9+]-dev$"
+				fi
 				;;
 			imagick@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent imagemagick"
@@ -485,7 +525,6 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
 			solr@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev libxml2-dev"
 				;;
 			solr@debian)
@@ -933,6 +972,20 @@ installPECLModule() {
 				installPECLModule_actual="$2-4.0.11"
 			fi
 			;;
+		http)
+			if test $1 -le 506; then
+				installPECLModule_actual="pecl_http-2.6.0"
+			else
+				installPECLModule_actual="pecl_http"
+				if ! test -e /usr/local/lib/libidnkit.so; then
+					installPECLModule_src="$(getPackageSource https://jprs.co.jp/idn/idnkit-2.3.tar.bz2)"
+					cd -- "$installPECLModule_src"
+					./configure
+					make -j$(nproc) install
+					cd - >/dev/null
+				fi
+			fi
+			;;
 		memcache)
 			if test $1 -lt 700; then
 				installPECLModule_actual="$2-2.2.7"
@@ -1122,7 +1175,15 @@ installPECLModule() {
 		fi
 		printf "$installPECLModule_stdin" | pecl install "$installPECLModule_actual"
 	fi
-	docker-php-ext-enable "$2"
+	case "$2" in
+		http)
+			# http must be loaded after raphf and propro
+			docker-php-ext-enable --ini-name "zzz-$2.ini" "$2"
+			;;
+		*)
+			docker-php-ext-enable "$2"
+			;;
+	esac
 }
 
 # Check if a string is in a list of space-separated string
