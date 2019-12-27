@@ -3,14 +3,28 @@
 set -o errexit
 set -o nounset
 
+SRC_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && cd .. && pwd)"
+cd "$SRC_DIR"
+rc=0
+
+echo '# Linting shell scripts'
 if ! docker --version >/dev/null 2>/dev/null; then
-	printf 'Docker is not installed, or it is not running\n' >&2
-	exit 1
+	echo 'Docker is not installed, or it is not running.' >&2
+	rc=1
+elif ! docker run --rm -v "$SRC_DIR:/src" -w /src --entrypoint /src/scripts/invoke-shfmt mvdan/shfmt:latest fix; then
+	echo 'ERROR!' >&2
+	rc=1
 fi
 
-SRC_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && cd .. pwd)"
-
-if ! docker run --rm -v "$SRC_DIR:/src" -w /src --entrypoint /src/scripts/invoke-shfmt mvdan/shfmt:latest fix; then
-	printf 'ERROR!' >&2
-	exit 1
+echo '# Linting PHP files'
+if ! composer --version >/dev/null 2>/dev/null; then
+	echo 'Composer is not installed.' >&2
+elif ! test -f ./vendor/autoload.php; then
+	echo 'Composer dependencies are not installed.' >&2
+	rc=1
+elif ! composer run-script lint; then
+	echo 'ERROR!' >&2
+	rc=1
 fi
+
+exit $rc
