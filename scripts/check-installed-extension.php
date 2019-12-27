@@ -5,6 +5,12 @@ $numTestedExtensions = 0;
 $nameMap = array(
     'opcache' => 'Zend OPcache',
 );
+$testsDir = __DIR__ . '/tests';
+function runTest($testFile)
+{
+    return include $testFile;
+}
+
 for ($index = 1, $count = isset($argv) ? count($argv) : 0; $index < $count; $index++) {
     $numTestedExtensions++;
     $rcThis = 1;
@@ -19,8 +25,24 @@ for ($index = 1, $count = isset($argv) ? count($argv) : 0; $index < $count; $ind
         if (!extension_loaded($extension)) {
             fprintf(STDERR, sprintf("Extension not loaded: %s\n", $extension));
         } else {
-            fprintf(STDOUT, sprintf("Extension correctly loaded: %s\n", $extension));
-            $rcThis = 0;
+            $testFile = "${testsDir}/${extension}.php";
+            if (is_file($testFile)) {
+                try {
+                    if (runTest($testFile) === true) {
+                        fprintf(STDOUT, sprintf("Extension tested successfully: %s\n", $extension));
+                        $rcThis = 0;    
+                    } else {
+                        fprintf(STDERR, sprintf("Extension test failed: %s\n", $extension));
+                    }
+                } catch (Exception $x) {
+                    fprintf(STDERR, sprintf("Extension test failed: %s (%s)\n", $extension, $x->getMessage()));
+                } catch (Throwable $x) {
+                    fprintf(STDERR, sprintf("Extension test failed: %s (%s)\n", $extension, $x->getMessage()));
+                }
+            } else {
+                fprintf(STDOUT, sprintf("Extension correctly loaded: %s\n", $extension));
+                $rcThis = 0;
+            }
         }
     }
     if ($rcThis !== 0) {
