@@ -3,7 +3,7 @@
 $imageWidth = 8;
 $imageHeight = 16;
 $image = imagecreatetruecolor($imageWidth, $imageHeight);
-$formats = array(
+$formats = [
     'gd2',
     'gif',
     'jpeg',
@@ -14,39 +14,40 @@ $formats = array(
     'xbm',
     'xpm',
     'gd',
-);
+];
 if (PHP_VERSION_ID >= 70200) {
-    $formats = array_merge($formats, array(
+    $formats = array_merge($formats, [
         'bmp',
-    ));
+    ]);
 }
 $tempFile = null;
 $image2 = null;
+
 try {
     foreach ($formats as $format) {
-        $loadFuntion = "imagecreatefrom${format}";
+        $loadFuntion = "imagecreatefrom{$format}";
         if (!function_exists($loadFuntion)) {
-            throw new Exception("$loadFuntion() function is missing");
+            throw new Exception("{$loadFuntion}() function is missing");
         }
         if ($format === 'xpm') {
             continue;
         }
-        $saveFuntion = "image${format}";
+        $saveFuntion = "image{$format}";
         if (!function_exists($saveFuntion)) {
-            throw new Exception("$saveFuntion() function is missing");
+            throw new Exception("{$saveFuntion}() function is missing");
         }
         $tempFile = tempnam(sys_get_temp_dir(), 'dpei');
         if ($saveFuntion($image, $tempFile) === false) {
-            throw new Exception("$saveFuntion() failed");
+            throw new Exception("{$saveFuntion}() failed");
         }
         if (!is_file($tempFile) || filesize($tempFile) < 1) {
-            throw new Exception("$saveFuntion() created an empty file");
+            throw new Exception("{$saveFuntion}() created an empty file");
         }
         $image2 = $loadFuntion($tempFile);
         unlink($tempFile);
         $tempFile = null;
         if (!is_resource($image2) || imagesx($image2) !== $imageWidth || imagesy($image2) !== $imageHeight) {
-            throw new Exception("$loadFuntion() failed");
+            throw new Exception("{$loadFuntion}() failed");
         }
         imagedestroy($image2);
     }
@@ -55,15 +56,16 @@ try {
     if (is_resource($image2)) {
         imagedestroy($image2);
     }
-    if($tempFile !== null) {
+    if ($tempFile !== null) {
         unlink($tempFile);
     }
 }
 
 if (!function_exists('imagefttext')) {
-    throw new Exception("imagefttext() function is missing");    
+    throw new Exception('imagefttext() function is missing');
 }
 if (!function_exists('imageantialias')) {
-    throw new Exception("imageantialias() function is missing");    
+    throw new Exception('imageantialias() function is missing');
 }
+
 return true;
