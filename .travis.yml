@@ -19,12 +19,20 @@ test-extensions-job-template: &test-extensions-job-template
 jobs:
   include:
     - stage: Pre-test checks
-      name: Check coding style
+      name: Check shell coding style
       if: type = pull_request
       language: go
       go: '1.13'
       before_script: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt
       script: ./scripts/invoke-shfmt check
+
+    - stage: Pre-test checks
+      name: Check PHP coding style
+      if: type = pull_request
+      language: php
+      php: '7.4'
+      install: composer install -a
+      script: composer run-script lint -- --dry-run --diff
 
     - <<: *test-extensions-job-template
       name: Test extensions on Alpine 3.7

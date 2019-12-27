@@ -1,0 +1,19 @@
+{
+    "name": "mlocati/docker-php-extension-installer",
+    "description": "Easily install PHP extension in Docker containers",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michele Locati",
+            "email": "michele@locati.it"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16"
+    },
+    "scripts": {
+        "lint": "php-cs-fixer fix --path-mode=intersection --config=.php_cs ."
+    }
+}

@@ -2,9 +2,9 @@
 
 $rc = 0;
 $numTestedExtensions = 0;
-$nameMap = array(
+$nameMap = [
     'opcache' => 'Zend OPcache',
-);
+];
 $testsDir = __DIR__ . '/tests';
 function runTest($testFile)
 {
@@ -25,12 +25,12 @@ for ($index = 1, $count = isset($argv) ? count($argv) : 0; $index < $count; $ind
         if (!extension_loaded($extension)) {
             fprintf(STDERR, sprintf("Extension not loaded: %s\n", $extension));
         } else {
-            $testFile = "${testsDir}/${extension}.php";
+            $testFile = "{$testsDir}/{$extension}.php";
             if (is_file($testFile)) {
                 try {
                     if (runTest($testFile) === true) {
                         fprintf(STDOUT, sprintf("Extension tested successfully: %s\n", $extension));
-                        $rcThis = 0;    
+                        $rcThis = 0;
                     } else {
                         fprintf(STDERR, sprintf("Extension test failed: %s\n", $extension));
                     }
