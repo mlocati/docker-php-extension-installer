@@ -55,6 +55,7 @@ RUN install-php-extensions gd xdebug
 | exif | V | V | V | V | V | V |
 | gd | V | V | V | V | V | V |
 | gettext | V | V | V | V | V | V |
+| gmagick | V | V | V | V | V | V |
 | gmp | V | V | V | V | V | V |
 | grpc | V | V | V | V | V | V |
 | http | V | V | V | V | V | V |
@@ -117,7 +118,7 @@ RUN install-php-extensions gd xdebug
 | yaml | V | V | V | V | V | V |
 | zip | V | V | V | V | V | V |
 
-*Number of supported extensions: 72*
+*Number of supported extensions: 73*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
