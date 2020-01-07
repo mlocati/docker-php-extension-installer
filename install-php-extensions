@@ -284,6 +284,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libintl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gettext-dev"
 				;;
+			gmagick@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent graphicsmagick"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile graphicsmagick-dev libtool"
+				;;
+			gmagick@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgraphicsmagick(-q16-)?[0-9]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgraphicsmagick1-dev"
+				;;
 			gmp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gmp"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gmp-dev"
@@ -970,6 +978,13 @@ installPECLModule() {
 		apcu)
 			if test $1 -le 506; then
 				installPECLModule_actual="$2-4.0.11"
+			fi
+			;;
+		gmagick)
+			if test $1 -le 506; then
+				installPECLModule_actual="$2-1.1.7RC3"
+			else
+				installPECLModule_actual="$2-beta"
 			fi
 			;;
 		http)
