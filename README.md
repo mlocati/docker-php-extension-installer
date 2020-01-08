@@ -4,14 +4,21 @@
 
 This repository contains a script that can be used to easily install a PHP extension inside the [official PHP Docker images](https://hub.docker.com/_/php/).
 
+The script will install all the required APT/APK packages; at the end of the script execution, the no-more needed packages will be removed so that the image will be much smaller.
+
 The script works both for Alpine and Debian Linux.
 
 
 ## Usage
 
-Here's a sample Dockerfile that installs the GD and xdedub extensions inside a docker image:
+You have two ways to use this script within your `Dockerfile`s: you can download the script on the fly, or you can grab it from the [`mlocati/php-extension-installer` Docker Hub image](https://hub.docker.com/r/mlocati/php-extension-installer).
+With the first method you are sure you'll always get the very latest version of the script, with the second method the process is faster since you'll use a local image.
 
-```
+For example, here are two `Dockerfile`s that install the GD and xdebug PHP extensions:
+
+### Downloading the script on the fly
+
+```Dockerfile
 FROM php:7.2-cli
 
 ADD https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions /usr/local/bin/
@@ -20,17 +27,15 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions gd xdebug
 ```
 
-Installation via COPY --from
+### Copying the script from a Docker image
 
-```
+```Dockerfile
 FROM php:7.2-cli
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 
 RUN install-php-extensions gd xdebug
 ```
-
-`install-php-extensions` will install all the required APT/APK packages; at the end of the script execution, the no-more needed packages will be removed.
 
 ## Supported PHP extensions
 
