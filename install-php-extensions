@@ -341,7 +341,15 @@ buildRequiredPackageLists() {
 				;;
 			imap@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-client2007e"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-client-dev libkrb5-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libkrb5-dev"
+				case "$buildRequiredPackageLists_distroVersion" in
+					debian@9)
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev comerr-dev krb5-multidev libc-client2007e libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 libkdb5-8 libpam0g-dev libssl-doc mlock"
+						;;
+					*)
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-client-dev"
+						;;
+				esac
 				;;
 			interbase@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev ncurses-dev"
@@ -822,6 +830,16 @@ installBundledModule() {
 			esac
 			;;
 		imap)
+			case "$(getDistroVersion)" in
+				debian@9)
+					installBundledModule_tmp="$(pwd)"
+					cd /tmp
+					apt-get download libc-client2007e-dev
+					dpkg -i --ignore-depends=libssl-dev libc-client2007e-dev*
+					rm libc-client2007e-dev*
+					cd "$installBundledModule_tmp"
+					;;
+			esac
 			PHP_OPENSSL=yes docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 			;;
 		interbase | pdo_firebird)
@@ -904,6 +922,15 @@ installBundledModule() {
 			;;
 	esac
 	docker-php-ext-install -j$(nproc) "$2"
+	case "$2" in
+		imap)
+			case "$(getDistroVersion)" in
+				debian@9)
+					dpkg -r libc-client2007e-dev
+					;;
+			esac
+			;;
+	esac
 }
 
 # Fetch a tar.gz file, extract it and returns the path of the extracted folder.
