@@ -23,6 +23,7 @@ shfmt $PARAMS \
 	scripts/common \
 	scripts/invoke-shfmt \
 	scripts/lint \
+	scripts/test-restore-apt \
 	scripts/travisci-test-extensions \
 	scripts/travisci-update-readme \
 	scripts/update-readme
