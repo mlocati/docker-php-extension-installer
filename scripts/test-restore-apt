@@ -5,6 +5,7 @@ set -o errexit
 set -o nounset
 
 apt-get update -qq
+apt-get upgrade -qqy
 apt-get install -qqy libssl-dev
 
 ./install-php-extensions zip
