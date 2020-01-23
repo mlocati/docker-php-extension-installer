@@ -199,6 +199,7 @@ sortModulesToInstall() {
 # Set:
 #   PACKAGES_PERSISTENT
 #   PACKAGES_VOLATILE
+#   PACKAGES_PREVIOUS
 buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
@@ -634,6 +635,7 @@ buildRequiredPackageLists() {
 	done
 	PACKAGES_PERSISTENT=''
 	PACKAGES_VOLATILE=''
+	PACKAGES_PREVIOUS=''
 	if test -z "$buildRequiredPackageLists_persistent$buildRequiredPackageLists_volatile"; then
 		return
 	fi
@@ -643,7 +645,6 @@ buildRequiredPackageLists() {
 			;;
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get update -q
-			DEBIAN_FRONTEND=noninteractive apt-get autoremove --purge -y -q
 			;;
 	esac
 	if test -n "$buildRequiredPackageLists_persistent"; then
@@ -664,6 +665,13 @@ buildRequiredPackageLists() {
 			fi
 		done
 		PACKAGES_VOLATILE="${PACKAGES_VOLATILE# }"
+	fi
+	if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
+		case "$buildRequiredPackageLists_distro" in
+			debian)
+				PACKAGES_PREVIOUS="$(dpkg --get-selections | grep -E '\sinstall$' | awk '{ print $1 }')"
+				;;
+		esac
 	fi
 }
 
@@ -1287,6 +1295,14 @@ cleanup() {
 				;;
 			debian)
 				DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y $PACKAGES_VOLATILE
+				;;
+		esac
+	fi
+	if test -n "$PACKAGES_PREVIOUS"; then
+		case "$cleanup_distro" in
+			debian)
+				printf '### RESTORING PREVIOUSLY INSTALLED PACKAGES ###\n'
+				DEBIAN_FRONTEND=noninteractive apt-get install -qqy $PACKAGES_PREVIOUS
 				;;
 		esac
 	fi
