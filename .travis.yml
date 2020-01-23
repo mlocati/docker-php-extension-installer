@@ -62,6 +62,10 @@ jobs:
       name: Test extensions on Debian 10 (buster)
       env: DOCKER_DISTRO=buster
 
+    - <<: *test-extensions-job-template
+      name: Test restoring previous packages
+      script: docker run --rm --volume "$TRAVIS_BUILD_DIR:/app" --workdir /app php:7.3-stretch ./scripts/test-restore-apt
+
     - stage: Update docs
       name: Update README.md
       if: branch = master AND type = push
