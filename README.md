@@ -61,7 +61,7 @@ RUN install-php-extensions gd xdebug
 | gd | V | V | V | V | V | V | V |
 | gettext | V | V | V | V | V | V | V |
 | gmagick |  | V | V | V | V | V | V |
-| gmp |  | V | V | V | V | V | V |
+| gmp | V | V | V | V | V | V | V |
 | grpc |  | V | V | V | V | V | V |
 | http |  | V | V | V | V | V | V |
 | igbinary |  | V | V | V | V | V | V |
@@ -121,7 +121,7 @@ RUN install-php-extensions gd xdebug
 | xmlrpc |  | V | V | V | V | V | V |
 | xsl |  | V | V | V | V | V | V |
 | yaml |  | V | V | V | V | V | V |
-| zip |  | V | V | V | V | V | V |
+| zip | V | V | V | V | V | V | V |
 
 *Number of supported extensions: 73*
 <!-- END OF EXTENSIONS TABLE -->
