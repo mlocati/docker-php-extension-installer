@@ -645,6 +645,7 @@ buildRequiredPackageLists() {
 			;;
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get update -q
+			DEBIAN_FRONTEND=noninteractive apt-get upgrade -qqy
 			;;
 	esac
 	if test -n "$buildRequiredPackageLists_persistent"; then
