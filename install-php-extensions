@@ -829,14 +829,12 @@ installBundledModule() {
 			fi
 			;;
 		gmp)
-			case "$1" in
-				506)
-					if ! test -f /usr/include/gmp.h; then
-						ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h
-						UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/gmp.h"
-					fi
-					;;
-			esac
+			if test $1 -le 506; then
+				if ! test -f /usr/include/gmp.h; then
+					ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h
+					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/gmp.h"
+				fi
+			fi
 			;;
 		imap)
 			case "$(getDistroVersion)" in
@@ -923,7 +921,9 @@ installBundledModule() {
 			esac
 			;;
 		zip)
-			if test $1 -le 703; then
+			if test $1 -le 505; then
+				docker-php-ext-configure zip
+			elif test $1 -le 703; then
 				docker-php-ext-configure zip --with-libzip
 			else
 				docker-php-ext-configure zip --with-zip
