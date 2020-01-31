@@ -39,6 +39,14 @@ getDockerImageName() {
 		done
 	fi
 	getDockerImageName_imageName="$(printf 'php:%s-%s-%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$DOCKER_DISTRO")"
+	case "$getDockerImageName_imageName" in
+		php:5.5-cli-jessie)
+			getDockerImageName_imageName='php:5.5-cli'
+			;;
+		php:5.5-zts-jessie)
+			getDockerImageName_imageName='php:5.5-zts'
+			;;
+	esac
 	if test -z "$(docker images -q "$getDockerImageName_imageName" 2>/dev/null)"; then
 		getDockerImageName_log="$(docker pull "$getDockerImageName_imageName" 2>&1 || true)"
 		if test -z "$(docker images -q "$getDockerImageName_imageName" 2>/dev/null)"; then

@@ -6,7 +6,7 @@ This repository contains a script that can be used to easily install a PHP exten
 
 The script will install all the required APT/APK packages; at the end of the script execution, the no-more needed packages will be removed so that the image will be much smaller.
 
-The script works both for Alpine and Debian Linux.
+Supported docker images are all the Alpine/Debian versions, except for PHP 5.5 where we only support Debian 8 (jessie) (that is, `php:5.5`, `php:5.5-apache`, `php:5.5-cli`, `php:5.5-fpm`, `php:5.5-zts`)
 
 
 ## Usage
