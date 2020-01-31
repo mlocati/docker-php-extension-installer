@@ -645,6 +645,7 @@ buildRequiredPackageLists() {
 			;;
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get update -q
+			DEBIAN_FRONTEND=noninteractive apt-get upgrade -qqy
 			;;
 	esac
 	if test -n "$buildRequiredPackageLists_persistent"; then
@@ -1324,7 +1325,7 @@ mkdir -p /tmp/src
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 PHP_MAJMIN_VERSION=$(getPHPMajorMinor)
 case "$PHP_MAJMIN_VERSION" in
-	506 | 700 | 701 | 702 | 703 | 704) ;;
+	505 | 506 | 700 | 701 | 702 | 703 | 704) ;;
 	*)
 		printf "### ERROR: Unsupported PHP version: %s.%s ###\n" $((PHP_MAJMIN_VERSION / 100)) $((PHP_MAJMIN_VERSION % 100))
 		;;
