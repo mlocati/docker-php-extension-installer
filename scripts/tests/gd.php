@@ -37,11 +37,20 @@ try {
             throw new Exception("{$saveFuntion}() function is missing");
         }
         $tempFile = tempnam(sys_get_temp_dir(), 'dpei');
+        ob_start();
         if ($saveFuntion($image, $tempFile) === false) {
             throw new Exception("{$saveFuntion}() failed");
         }
-        if (!is_file($tempFile) || filesize($tempFile) < 1) {
-            throw new Exception("{$saveFuntion}() created an empty file");
+        $contents = ob_get_contents();
+        ob_end_clean();
+        if (!is_file($tempFile)) {
+            throw new Exception("{$saveFuntion}() didn't create a file");
+        }
+        if (filesize($tempFile) < 1) {
+            if ($format !== 'xbm' || PHP_VERSION_ID >= 50600 || $contents === '') {
+                throw new Exception("{$saveFuntion}() created an empty file");
+            }
+            file_put_contents($tempFile, $contents);
         }
         $image2 = $loadFuntion($tempFile);
         unlink($tempFile);
