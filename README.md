@@ -47,81 +47,81 @@ RUN install-php-extensions gd xdebug
 <!-- #  EDIT THE data/supported-extensions FILE INSTEAD        # -->
 <!-- #                                                         # -->
 <!-- ########################################################### -->
-| Extension | PHP 5.6 | PHP 7.0 | PHP 7.1 | PHP 7.2 | PHP 7.3 | PHP 7.4 |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| amqp | V | V | V | V | V | V |
-| apcu | V | V | V | V | V | V |
-| bcmath | V | V | V | V | V | V |
-| bz2 | V | V | V | V | V | V |
-| calendar | V | V | V | V | V | V |
-| cmark |  | V | V | V | V | V |
-| dba | V | V | V | V | V | V |
-| enchant | V | V | V | V | V | V |
-| exif | V | V | V | V | V | V |
-| gd | V | V | V | V | V | V |
-| gettext | V | V | V | V | V | V |
-| gmagick | V | V | V | V | V | V |
-| gmp | V | V | V | V | V | V |
-| grpc | V | V | V | V | V | V |
-| http | V | V | V | V | V | V |
-| igbinary | V | V | V | V | V | V |
-| imagick | V | V | V | V | V | V |
-| imap | V | V | V | V | V | V |
-| interbase | V | V | V | V | V |  |
-| intl | V | V | V | V | V | V |
-| ldap | V | V | V | V | V | V |
-| mailparse | V | V | V | V | V | V |
-| mcrypt | V | V | V | V | V | V |
-| memcache | V | V | V | V | V | V |
-| memcached | V | V | V | V | V | V |
-| mongo | V |  |  |  |  |  |
-| mongodb | V | V | V | V | V | V |
-| msgpack | V | V | V | V | V | V |
-| mssql | V |  |  |  |  |  |
-| mysql | V |  |  |  |  |  |
-| mysqli | V | V | V | V | V | V |
-| odbc | V | V | V | V | V | V |
-| opcache | V | V | V | V | V | V |
-| opencensus |  | V | V | V | V | V |
-| parallel |  |  | V | V | V | V |
-| pcntl | V | V | V | V | V | V |
-| pcov |  | V | V | V | V | V |
-| pdo_dblib | V | V | V | V | V | V |
-| pdo_firebird | V | V | V | V | V | V |
-| pdo_mysql | V | V | V | V | V | V |
-| pdo_odbc | V | V | V | V | V | V |
-| pdo_pgsql | V | V | V | V | V | V |
-| pdo_sqlsrv |  | V | V | V | V | V |
-| pgsql | V | V | V | V | V | V |
-| propro | V | V | V | V | V | V |
-| protobuf | V | V | V | V | V | V |
-| pspell | V | V | V | V | V | V |
-| pthreads | V | V |  |  |  |  |
-| raphf | V | V | V | V | V | V |
-| rdkafka | V | V | V | V | V | V |
-| recode | V | V | V | V | V |  |
-| redis | V | V | V | V | V | V |
-| shmop | V | V | V | V | V | V |
-| snmp | V | V | V | V | V | V |
-| soap | V | V | V | V | V | V |
-| sockets | V | V | V | V | V | V |
-| solr | V | V | V | V | V | V |
-| sqlsrv |  | V | V | V | V | V |
-| ssh2 | V | V | V | V | V | V |
-| sybase_ct | V |  |  |  |  |  |
-| sysvmsg | V | V | V | V | V | V |
-| sysvsem | V | V | V | V | V | V |
-| sysvshm | V | V | V | V | V | V |
-| tidy | V | V | V | V | V | V |
-| timezonedb | V | V | V | V | V | V |
-| uopz | V | V | V | V | V | V |
-| uuid | V | V | V | V | V | V |
-| wddx | V | V | V | V | V |  |
-| xdebug | V | V | V | V | V | V |
-| xmlrpc | V | V | V | V | V | V |
-| xsl | V | V | V | V | V | V |
-| yaml | V | V | V | V | V | V |
-| zip | V | V | V | V | V | V |
+| Extension | PHP 5.5 | PHP 5.6 | PHP 7.0 | PHP 7.1 | PHP 7.2 | PHP 7.3 | PHP 7.4 |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| amqp | V | V | V | V | V | V | V |
+| apcu | V | V | V | V | V | V | V |
+| bcmath | V | V | V | V | V | V | V |
+| bz2 | V | V | V | V | V | V | V |
+| calendar | V | V | V | V | V | V | V |
+| cmark |  |  | V | V | V | V | V |
+| dba | V | V | V | V | V | V | V |
+| enchant | V | V | V | V | V | V | V |
+| exif | V | V | V | V | V | V | V |
+| gd | V | V | V | V | V | V | V |
+| gettext | V | V | V | V | V | V | V |
+| gmagick |  | V | V | V | V | V | V |
+| gmp |  | V | V | V | V | V | V |
+| grpc |  | V | V | V | V | V | V |
+| http |  | V | V | V | V | V | V |
+| igbinary |  | V | V | V | V | V | V |
+| imagick |  | V | V | V | V | V | V |
+| imap |  | V | V | V | V | V | V |
+| interbase |  | V | V | V | V | V |  |
+| intl |  | V | V | V | V | V | V |
+| ldap |  | V | V | V | V | V | V |
+| mailparse |  | V | V | V | V | V | V |
+| mcrypt |  | V | V | V | V | V | V |
+| memcache |  | V | V | V | V | V | V |
+| memcached |  | V | V | V | V | V | V |
+| mongo |  | V |  |  |  |  |  |
+| mongodb |  | V | V | V | V | V | V |
+| msgpack |  | V | V | V | V | V | V |
+| mssql |  | V |  |  |  |  |  |
+| mysql |  | V |  |  |  |  |  |
+| mysqli |  | V | V | V | V | V | V |
+| odbc |  | V | V | V | V | V | V |
+| opcache |  | V | V | V | V | V | V |
+| opencensus |  |  | V | V | V | V | V |
+| parallel |  |  |  | V | V | V | V |
+| pcntl |  | V | V | V | V | V | V |
+| pcov |  |  | V | V | V | V | V |
+| pdo_dblib |  | V | V | V | V | V | V |
+| pdo_firebird |  | V | V | V | V | V | V |
+| pdo_mysql |  | V | V | V | V | V | V |
+| pdo_odbc |  | V | V | V | V | V | V |
+| pdo_pgsql |  | V | V | V | V | V | V |
+| pdo_sqlsrv |  |  | V | V | V | V | V |
+| pgsql |  | V | V | V | V | V | V |
+| propro |  | V | V | V | V | V | V |
+| protobuf |  | V | V | V | V | V | V |
+| pspell |  | V | V | V | V | V | V |
+| pthreads |  | V | V |  |  |  |  |
+| raphf |  | V | V | V | V | V | V |
+| rdkafka |  | V | V | V | V | V | V |
+| recode |  | V | V | V | V | V |  |
+| redis |  | V | V | V | V | V | V |
+| shmop |  | V | V | V | V | V | V |
+| snmp |  | V | V | V | V | V | V |
+| soap |  | V | V | V | V | V | V |
+| sockets |  | V | V | V | V | V | V |
+| solr |  | V | V | V | V | V | V |
+| sqlsrv |  |  | V | V | V | V | V |
+| ssh2 |  | V | V | V | V | V | V |
+| sybase_ct |  | V |  |  |  |  |  |
+| sysvmsg |  | V | V | V | V | V | V |
+| sysvsem |  | V | V | V | V | V | V |
+| sysvshm |  | V | V | V | V | V | V |
+| tidy |  | V | V | V | V | V | V |
+| timezonedb |  | V | V | V | V | V | V |
+| uopz |  | V | V | V | V | V | V |
+| uuid |  | V | V | V | V | V | V |
+| wddx |  | V | V | V | V | V |  |
+| xdebug |  | V | V | V | V | V | V |
+| xmlrpc |  | V | V | V | V | V | V |
+| xsl |  | V | V | V | V | V | V |
+| yaml |  | V | V | V | V | V | V |
+| zip |  | V | V | V | V | V | V |
 
 *Number of supported extensions: 73*
 <!-- END OF EXTENSIONS TABLE -->
