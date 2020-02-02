@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# Let's set a sane environment
+set -o errexit
+set -o nounset
+
+UPDATE_README_COMMIT_AUTHOR_NAME='CI'
+UPDATE_README_COMMIT_AUTHOR_EMAIL='michele@locati.it'
+UPDATE_README_COMMIT_MESSAGE='[skip ci] Automatically update README.md'
+WATCHED_FILES='data/special-requirements data/supported-extensions scripts/common scripts/update-readme scripts/ci-update-readme'
+UPDATE_BRANCH='master'
+
+echo 'Checking environment'
+if test -z "${GITHUB_WORKSPACE:-}" || test -z "${GITHUB_REF:-}" || test -z "${GITHUB_EVENT_NAME:-}" || test -z "${GITHUB_REPOSITORY:-}"; then
+	echo 'Not in a GitHub Actions environment' >&2
+	exit 1
+fi
+if test "$GITHUB_EVENT_NAME" != 'push' || test "$GITHUB_REF" != "refs/heads/$UPDATE_BRANCH"; then
+	echo 'This script should only be run in push builds to %s' "$UPDATE_BRANCH" >&2
+	exit 1
+fi
+if test -z "${DEPLOY_KEY:-}"; then
+	echo 'GitHub deploy key not set' >&2
+	exit 1
+fi
+
+SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+. "$SCRIPTS_DIR/common"
+
+cd "$GITHUB_WORKSPACE"
+
+printf 'Checking-out branch %s\n' "$UPDATE_BRANCH"
+git checkout --force "$UPDATE_BRANCH"
+
+LAST_AUTO_UPDATED_IN="$(git rev-list --max-count 1 --author "<$UPDATE_README_COMMIT_AUTHOR_EMAIL>" --grep "$UPDATE_README_COMMIT_MESSAGE" "$UPDATE_BRANCH")"
+if test -z "$LAST_AUTO_UPDATED_IN"; then
+	printf 'Rebuild of README.md enabled (no previous automatic refresh of it in branch %s)\n' "$UPDATE_BRANCH"
+else
+	MODIFIED_FILES_SINCE="$(git diff --name-only "$LAST_AUTO_UPDATED_IN...$UPDATE_BRANCH")"
+	if test -z "$(commonElements "$WATCHED_FILES" "$MODIFIED_FILES_SINCE")"; then
+		printf 'Rebuild of README.md not needed (no relevant files changed in branch %s since commit %s)\n' "$UPDATE_BRANCH" "$LAST_AUTO_UPDATED_IN"
+		exit 0
+	fi
+	printf 'Rebuild of README.md enabled (relevant files changed in branch %s since commit %s)\n' "$UPDATE_BRANCH" "$LAST_AUTO_UPDATED_IN"
+fi
+
+echo 'Updating README.md'
+"$SCRIPTS_DIR/update-readme"
+if test -z "$(git ls-files -m | grep -E '^README\.md$')"; then
+	echo 'README.md has not been changed'
+	exit 0
+fi
+
+printf 'Initializing SSH'
+eval "$(ssh-agent)"
+printf '%s' "$DEPLOY_KEY" | tr -d '\r' | ssh-add - >/dev/null
+
+printf 'Adding %s remote\n' "$GITHUB_REPOSITORY"
+git remote add deploy "git@github.com/$GITHUB_REPOSITORY.git"
+
+echo 'Committing changes to README.md'
+git config user.name "$UPDATE_README_COMMIT_AUTHOR_NAME"
+git config user.email "$UPDATE_README_COMMIT_AUTHOR_EMAIL"
+git add README.md
+git commit -m "$UPDATE_README_COMMIT_MESSAGE"
+
+printf 'Pushing to %s\n' "$GITHUB_REPOSITORY"
+git push deploy "$UPDATE_BRANCH"
+
+echo 'Done.'

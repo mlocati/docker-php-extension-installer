@@ -1,0 +1,78 @@
+name: Test extensions
+
+on:
+  - pull_request
+
+jobs:
+  check_syntax_shell:
+    name: Check shell coding style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: "1.13"
+      - name: Install shfmt
+        run: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Check coding style
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          ./scripts/invoke-shfmt check
+  check_syntax_php:
+    name: Check PHP coding style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install PHP
+        uses: shivammathur/setup-php@v1
+        with:
+          php-version: "7.4"
+          tools: composer
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Install Composer dependencies
+        run: composer install -a
+      - name: Check coding style
+        run: composer run-script lint -- --dry-run --diff
+  test_extensions:
+    needs:
+      - check_syntax_shell
+      - check_syntax_php
+    strategy:
+      matrix:
+        distro:
+          - alpine3.7
+          - alpine3.8
+          - alpine3.9
+          - alpine3.10
+          - jessie
+          - stretch
+          - buster
+    name: Check on ${{ matrix.distro }}
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_DISTRO: ${{ matrix.distro }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Test extensions
+        run: ./scripts/ci-test-extensions "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+  test_restoring_packages:
+    name: Test restoring packages
+    needs:
+      - check_syntax_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.3-stretch ./scripts/test-restore-apt

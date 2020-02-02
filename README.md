@@ -1,4 +1,4 @@
-[![TravisCI Build Status](https://travis-ci.org/mlocati/docker-php-extension-installer.svg?branch=master)](https://travis-ci.org/mlocati/docker-php-extension-installer)
+![Test extensions](https://github.com/mlocati/docker-php-extension-installer/workflows/Test%20extensions/badge.svg)
 
 # Easy installation of PHP extensions in official PHP Docker images
 
