@@ -62,19 +62,19 @@ RUN install-php-extensions gd xdebug
 | gettext | V | V | V | V | V | V | V |
 | gmagick | V | V | V | V | V | V | V |
 | gmp | V | V | V | V | V | V | V |
-| grpc |  | V | V | V | V | V | V |
-| http |  | V | V | V | V | V | V |
-| igbinary |  | V | V | V | V | V | V |
-| imagick |  | V | V | V | V | V | V |
-| imap |  | V | V | V | V | V | V |
-| interbase |  | V | V | V | V | V |  |
-| intl |  | V | V | V | V | V | V |
-| ldap |  | V | V | V | V | V | V |
-| mailparse |  | V | V | V | V | V | V |
-| mcrypt |  | V | V | V | V | V | V |
-| memcache |  | V | V | V | V | V | V |
-| memcached |  | V | V | V | V | V | V |
-| mongo |  | V |  |  |  |  |  |
+| grpc | V | V | V | V | V | V | V |
+| http | V | V | V | V | V | V | V |
+| igbinary | V | V | V | V | V | V | V |
+| imagick | V | V | V | V | V | V | V |
+| imap | V | V | V | V | V | V | V |
+| interbase | V | V | V | V | V | V |  |
+| intl | V | V | V | V | V | V | V |
+| ldap | V | V | V | V | V | V | V |
+| mailparse | V | V | V | V | V | V | V |
+| mcrypt | V | V | V | V | V | V | V |
+| memcache | V | V | V | V | V | V | V |
+| memcached | V | V | V | V | V | V | V |
+| mongo | V | V |  |  |  |  |  |
 | mongodb |  | V | V | V | V | V | V |
 | msgpack |  | V | V | V | V | V | V |
 | mssql |  | V |  |  |  |  |  |
