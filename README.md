@@ -112,15 +112,15 @@ RUN install-php-extensions gd xdebug
 | sysvmsg |  | V | V | V | V | V | V |
 | sysvsem |  | V | V | V | V | V | V |
 | sysvshm |  | V | V | V | V | V | V |
-| tidy |  | V | V | V | V | V | V |
-| timezonedb |  | V | V | V | V | V | V |
-| uopz |  | V | V | V | V | V | V |
-| uuid |  | V | V | V | V | V | V |
-| wddx |  | V | V | V | V | V |  |
-| xdebug |  | V | V | V | V | V | V |
-| xmlrpc |  | V | V | V | V | V | V |
-| xsl |  | V | V | V | V | V | V |
-| yaml |  | V | V | V | V | V | V |
+| tidy | V | V | V | V | V | V | V |
+| timezonedb | V | V | V | V | V | V | V |
+| uopz | V | V | V | V | V | V | V |
+| uuid | V | V | V | V | V | V | V |
+| wddx | V | V | V | V | V | V |  |
+| xdebug | V | V | V | V | V | V | V |
+| xmlrpc | V | V | V | V | V | V | V |
+| xsl | V | V | V | V | V | V | V |
+| yaml | V | V | V | V | V | V | V |
 | zip | V | V | V | V | V | V | V |
 
 *Number of supported extensions: 73*
