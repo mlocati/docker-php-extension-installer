@@ -5,12 +5,23 @@ set -o errexit
 set -o nounset
 
 echo 'Checking environment'
-if test -z "${TRAVIS_BUILD_DIR:-}" || test -z "${TRAVIS_COMMIT_RANGE:-}" || test -z "${DOCKER_DISTRO:-}"; then
-	echo 'Not in a TravisCI environment' >&2
+if test -n "${GITHUB_WORKSPACE:-}" && test -n "${GITHUB_SHA:-}"; then
+	if test -z "${1:-}"; then
+		echo 'Missing commit range of the push event' >&2
+		exit 1
+	fi
+	CI_BUILD_DIR="$GITHUB_WORKSPACE"
+	CI_COMMIT_RANGE="$1"
+else
+	echo 'Not in a CI environment' >&2
+	exit 1
+fi
+if test -z "${DOCKER_DISTRO:-}"; then
+	echo 'DOCKER_DISTRO environment variable not set' >&2
 	exit 1
 fi
 
-. "$TRAVIS_BUILD_DIR/scripts/common"
+. "$CI_BUILD_DIR/scripts/common"
 
 ALREADY_TESTED_EXTENSIONS=''
 
@@ -29,7 +40,7 @@ getDockerImageName() {
 			;;
 	esac
 	getDockerImageName_suffix='cli'
-	getDockerImageName_reqs="$TRAVIS_BUILD_DIR/data/special-requirements"
+	getDockerImageName_reqs="$CI_BUILD_DIR/data/special-requirements"
 	if test -f "$getDockerImageName_reqs"; then
 		IFS=' '
 		for getDockerImageName_testExtension in $1; do
@@ -86,7 +97,7 @@ testExtension() {
 	fi
 	printf ' - Docker image: %s\n' "$testExtension_Image"
 	testExtension_out="$(mktemp)"
-	if $(docker run --rm --volume "$TRAVIS_BUILD_DIR:/app" --workdir /app "$testExtension_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtension_out" 2>&1); then
+	if $(docker run --rm --volume "$CI_BUILD_DIR:/app" --workdir /app "$testExtension_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtension_out" 2>&1); then
 		rm -rf "$testExtension_out"
 		printf ' - Passed\n'
 		return 0
@@ -192,7 +203,7 @@ getAllPHPVersionsForExtension() {
 				fi
 			fi
 		done
-	done <"$TRAVIS_BUILD_DIR/data/supported-extensions"
+	done <"$CI_BUILD_DIR/data/supported-extensions"
 	printf '%s' "$getAllPHPVersionsForExtension_result"
 }
 
@@ -211,7 +222,7 @@ testExtensionsFromMessage() {
 	testExtensionsFromMessage_result=0
 	TEST_EXTENSIONS=
 	FIRST_LINE=1
-	testExtensionsFromMessage_message="$(git -C "$TRAVIS_BUILD_DIR" log --pretty='format:%B' -n 1 "$1")"
+	testExtensionsFromMessage_message="$(git -C "$CI_BUILD_DIR" log --pretty='format:%B' -n 1 "$1")"
 	IFS='
 '
 	for COMMIT_LINE in $testExtensionsFromMessage_message; do
@@ -269,7 +280,7 @@ ADDED_EXTENSION_LINE=
 FOUND_ATAT=
 IFS='
 '
-for DIFF_LINE in $(git -C "$TRAVIS_BUILD_DIR" diff --no-indent-heuristic --minimal --no-color --word-diff=none -no-renames --unified=0 "$TRAVIS_COMMIT_RANGE" -- data/supported-extensions); do
+for DIFF_LINE in $(git -C "$CI_BUILD_DIR" diff --no-indent-heuristic --minimal --no-color --word-diff=none -no-renames --unified=0 "$CI_COMMIT_RANGE" -- data/supported-extensions); do
 	if test -n "$DIFF_LINE"; then
 		if test -z "$FOUND_ATAT"; then
 			if test -z "${DIFF_LINE##@@*}"; then
@@ -287,7 +298,7 @@ done
 
 IFS='
 '
-for COMMIT_HASH in $(git -C "$TRAVIS_BUILD_DIR" log --pretty='format:%H' "$TRAVIS_COMMIT_RANGE"); do
+for COMMIT_HASH in $(git -C "$CI_BUILD_DIR" log --pretty='format:%H' "$CI_COMMIT_RANGE"); do
 	if ! testExtensionsFromMessage "$COMMIT_HASH"; then
 		TESTS_RESULTS=1
 	fi
