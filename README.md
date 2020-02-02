@@ -60,7 +60,7 @@ RUN install-php-extensions gd xdebug
 | exif | V | V | V | V | V | V | V |
 | gd | V | V | V | V | V | V | V |
 | gettext | V | V | V | V | V | V | V |
-| gmagick |  | V | V | V | V | V | V |
+| gmagick | V | V | V | V | V | V | V |
 | gmp | V | V | V | V | V | V | V |
 | grpc |  | V | V | V | V | V | V |
 | http |  | V | V | V | V | V | V |
