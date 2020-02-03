@@ -76,27 +76,27 @@ RUN install-php-extensions gd xdebug
 | memcached | V | V | V | V | V | V | V |
 | mongo | V | V |  |  |  |  |  |
 | mongodb | V | V | V | V | V | V | V |
-| msgpack |  | V | V | V | V | V | V |
+| msgpack | V | V | V | V | V | V | V |
 | mssql | V | V |  |  |  |  |  |
-| mysql |  | V |  |  |  |  |  |
-| mysqli |  | V | V | V | V | V | V |
+| mysql | V | V |  |  |  |  |  |
+| mysqli | V | V | V | V | V | V | V |
 | odbc | V | V | V | V | V | V | V |
-| opcache |  | V | V | V | V | V | V |
+| opcache | V | V | V | V | V | V | V |
 | opencensus |  |  | V | V | V | V | V |
 | parallel |  |  |  | V | V | V | V |
-| pcntl |  | V | V | V | V | V | V |
+| pcntl | V | V | V | V | V | V | V |
 | pcov |  |  | V | V | V | V | V |
 | pdo_dblib | V | V | V | V | V | V | V |
-| pdo_firebird |  | V | V | V | V | V | V |
-| pdo_mysql |  | V | V | V | V | V | V |
-| pdo_odbc |  | V | V | V | V | V | V |
-| pdo_pgsql |  | V | V | V | V | V | V |
+| pdo_firebird | V | V | V | V | V | V | V |
+| pdo_mysql | V | V | V | V | V | V | V |
+| pdo_odbc | V | V | V | V | V | V | V |
+| pdo_pgsql | V | V | V | V | V | V | V |
 | pdo_sqlsrv |  |  | V | V | V | V | V |
-| pgsql |  | V | V | V | V | V | V |
-| propro |  | V | V | V | V | V | V |
-| protobuf |  | V | V | V | V | V | V |
-| pspell |  | V | V | V | V | V | V |
-| pthreads |  | V | V |  |  |  |  |
+| pgsql | V | V | V | V | V | V | V |
+| propro | V | V | V | V | V | V | V |
+| protobuf | V | V | V | V | V | V | V |
+| pspell | V | V | V | V | V | V | V |
+| pthreads | V | V | V |  |  |  |  |
 | raphf |  | V | V | V | V | V | V |
 | rdkafka | V | V | V | V | V | V | V |
 | recode |  | V | V | V | V | V |  |
