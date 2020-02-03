@@ -97,21 +97,21 @@ RUN install-php-extensions gd xdebug
 | protobuf | V | V | V | V | V | V | V |
 | pspell | V | V | V | V | V | V | V |
 | pthreads | V | V | V |  |  |  |  |
-| raphf |  | V | V | V | V | V | V |
+| raphf | V | V | V | V | V | V | V |
 | rdkafka | V | V | V | V | V | V | V |
-| recode |  | V | V | V | V | V |  |
-| redis |  | V | V | V | V | V | V |
-| shmop |  | V | V | V | V | V | V |
-| snmp |  | V | V | V | V | V | V |
-| soap |  | V | V | V | V | V | V |
-| sockets |  | V | V | V | V | V | V |
-| solr |  | V | V | V | V | V | V |
+| recode | V | V | V | V | V | V |  |
+| redis | V | V | V | V | V | V | V |
+| shmop | V | V | V | V | V | V | V |
+| snmp | V | V | V | V | V | V | V |
+| soap | V | V | V | V | V | V | V |
+| sockets | V | V | V | V | V | V | V |
+| solr | V | V | V | V | V | V | V |
 | sqlsrv |  |  | V | V | V | V | V |
-| ssh2 |  | V | V | V | V | V | V |
-| sybase_ct |  | V |  |  |  |  |  |
-| sysvmsg |  | V | V | V | V | V | V |
-| sysvsem |  | V | V | V | V | V | V |
-| sysvshm |  | V | V | V | V | V | V |
+| ssh2 | V | V | V | V | V | V | V |
+| sybase_ct | V | V |  |  |  |  |  |
+| sysvmsg | V | V | V | V | V | V | V |
+| sysvsem | V | V | V | V | V | V | V |
+| sysvshm | V | V | V | V | V | V | V |
 | tidy | V | V | V | V | V | V | V |
 | timezonedb | V | V | V | V | V | V | V |
 | uopz | V | V | V | V | V | V | V |
