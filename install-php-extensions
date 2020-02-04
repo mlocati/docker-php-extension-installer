@@ -251,6 +251,10 @@ buildRequiredPackageLists() {
 			cmark@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
 				;;
+			decimal@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmpdec2"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmpdec-dev"
+				;;
 			enchant@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent enchant"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile enchant-dev"
@@ -1011,6 +1015,18 @@ installPECLModule() {
 			if test $1 -le 506; then
 				installPECLModule_actual="$2-4.0.11"
 			fi
+			;;
+		decimal)
+			case "$(getDistro)" in
+				alpine)
+					installPECLModule_src="$(getPackageSource https://codeload.github.com/bematech/libmpdec/tar.gz/master)"
+					cd -- "$installPECLModule_src"
+					./configure CFLAGS='-w'
+					make -j$(nproc)
+					make install
+					cd - >/dev/null
+					;;
+			esac
 			;;
 		gmagick)
 			if test $1 -le 506; then
