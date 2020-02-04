@@ -56,6 +56,7 @@ RUN install-php-extensions gd xdebug
 | calendar | V | V | V | V | V | V | V |
 | cmark |  |  | V | V | V | V | V |
 | dba | V | V | V | V | V | V | V |
+| decimal |  |  | V | V | V | V | V |
 | enchant | V | V | V | V | V | V | V |
 | exif | V | V | V | V | V | V | V |
 | gd | V | V | V | V | V | V | V |
@@ -123,7 +124,7 @@ RUN install-php-extensions gd xdebug
 | yaml | V | V | V | V | V | V | V |
 | zip | V | V | V | V | V | V | V |
 
-*Number of supported extensions: 73*
+*Number of supported extensions: 74*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
