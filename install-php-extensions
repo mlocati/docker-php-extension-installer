@@ -212,7 +212,7 @@ buildRequiredPackageLists() {
 			if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
 				buildRequiredPackageLists_libssl='libssl1.0'
 			elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')"; then
-				buildRequiredPackageLists_libssl='libressl2.7-libtls'
+				buildRequiredPackageLists_libssl=$(apk search -q libressl*-libtls)
 			else
 				buildRequiredPackageLists_libssl=''
 			fi
