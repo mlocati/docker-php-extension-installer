@@ -306,7 +306,7 @@ buildRequiredPackageLists() {
 				;;
 			grpc@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev linux-headers"
 				;;
 			grpc@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
