@@ -206,6 +206,11 @@ buildRequiredPackageLists() {
 	buildRequiredPackageLists_distro="$(getDistro)"
 	buildRequiredPackageLists_distroVersion="$(getDistroVersion)"
 	buildRequiredPackageLists_phpv=$1
+	case "$buildRequiredPackageLists_distro" in
+		alpine)
+			apk update
+			;;
+	esac
 	case "$buildRequiredPackageLists_distroVersion" in
 		alpine@*)
 			buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
@@ -644,9 +649,6 @@ buildRequiredPackageLists() {
 		return
 	fi
 	case "$buildRequiredPackageLists_distro" in
-		alpine)
-			apk update
-			;;
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get update -q
 			;;
