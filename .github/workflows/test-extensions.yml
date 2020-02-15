@@ -12,7 +12,9 @@ jobs:
         run: set
       - name: GitHub variables
         run: |
+          printf 'github.event.pull_request.base.ref="%s"\n' "${{ github.event.pull_request.base.ref }}"
           printf 'github.event.pull_request.base.sha="%s"\n' "${{ github.event.pull_request.base.sha }}"
+          printf 'github.event.pull_request.head.ref="%s"\n' "${{ github.event.pull_request.head.ref }}"
           printf 'github.event.pull_request.head.sha="%s"\n' "${{ github.event.pull_request.head.sha }}"
   check_syntax_shell:
     name: Check shell coding style
