@@ -649,7 +649,6 @@ buildRequiredPackageLists() {
 			;;
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get update -q
-			DEBIAN_FRONTEND=noninteractive apt-get upgrade -qqy
 			;;
 	esac
 	if test -n "$buildRequiredPackageLists_persistent"; then
@@ -1324,7 +1323,7 @@ cleanup() {
 		case "$cleanup_distro" in
 			debian)
 				printf '### RESTORING PREVIOUSLY INSTALLED PACKAGES ###\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install -qqy $PACKAGES_PREVIOUS
+				DEBIAN_FRONTEND=noninteractive apt-get install --no-upgrade -qqy $PACKAGES_PREVIOUS
 				;;
 		esac
 	fi
