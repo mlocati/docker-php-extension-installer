@@ -206,13 +206,18 @@ buildRequiredPackageLists() {
 	buildRequiredPackageLists_distro="$(getDistro)"
 	buildRequiredPackageLists_distroVersion="$(getDistroVersion)"
 	buildRequiredPackageLists_phpv=$1
+	case "$buildRequiredPackageLists_distro" in
+		alpine)
+			apk update
+			;;
+	esac
 	case "$buildRequiredPackageLists_distroVersion" in
 		alpine@*)
 			buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
 			if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
 				buildRequiredPackageLists_libssl='libssl1.0'
 			elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')"; then
-				buildRequiredPackageLists_libssl='libressl2.7-libtls'
+				buildRequiredPackageLists_libssl=$(apk search -q libressl*-libtls)
 			else
 				buildRequiredPackageLists_libssl=''
 			fi
@@ -306,7 +311,7 @@ buildRequiredPackageLists() {
 				;;
 			grpc@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev linux-headers"
 				;;
 			grpc@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
@@ -644,9 +649,6 @@ buildRequiredPackageLists() {
 		return
 	fi
 	case "$buildRequiredPackageLists_distro" in
-		alpine)
-			apk update
-			;;
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get update -q
 			;;
@@ -1092,6 +1094,12 @@ installPECLModule() {
 		mongodb)
 			if test $1 -le 505; then
 				installPECLModule_actual="$2-1.5.5"
+			else
+				case "$(getDistro)" in
+					alpine)
+						installPECLModule_actual="$2-1.6.0"
+						;;
+				esac
 			fi
 			;;
 		msgpack)

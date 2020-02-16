@@ -50,6 +50,7 @@ jobs:
           - alpine3.8
           - alpine3.9
           - alpine3.10
+          - alpine3.11
           - jessie
           - stretch
           - buster
@@ -60,8 +61,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
       - name: Test extensions
         run: ./scripts/ci-test-extensions "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
   test_restoring_packages:
