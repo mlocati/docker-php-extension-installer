@@ -66,6 +66,7 @@ extractExtensionsFromData() {
 				fi
 			elif test -z "${extractExtensionsFromData_line##+*}"; then
 				extractExtensionsFromData_extension="${extractExtensionsFromData_line%% *}"
+				extractExtensionsFromData_extension="${extractExtensionsFromData_extension#+}"
 				if ! stringInList "$extractExtensionsFromData_extension" "$EXTENSIONS_TO_BE_TESTED"; then
 					EXTENSIONS_TO_BE_TESTED="$EXTENSIONS_TO_BE_TESTED $extractExtensionsFromData_extension"
 				fi
