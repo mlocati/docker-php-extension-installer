@@ -81,6 +81,7 @@ RUN install-php-extensions gd xdebug
 | mssql | V | V |  |  |  |  |  |
 | mysql | V | V |  |  |  |  |  |
 | mysqli | V | V | V | V | V | V | V |
+| oauth | V | V | V | V | V | V | V |
 | odbc | V | V | V | V | V | V | V |
 | opcache | V | V | V | V | V | V | V |
 | opencensus |  |  | V | V | V | V | V |
@@ -124,7 +125,7 @@ RUN install-php-extensions gd xdebug
 | yaml | V | V | V | V | V | V | V |
 | zip | V | V | V | V | V | V | V |
 
-*Number of supported extensions: 74*
+*Number of supported extensions: 75*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
