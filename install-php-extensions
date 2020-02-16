@@ -428,6 +428,16 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsybdb5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
+			oauth@alpine)
+				if test $buildRequiredPackageLists_phpv -ge 700; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
+				fi
+				;;
+			oauth@debian)
+				if test $buildRequiredPackageLists_phpv -ge 700; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+				fi
+				;;
 			odbc@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
@@ -1105,6 +1115,11 @@ installPECLModule() {
 		msgpack)
 			if test $1 -le 506; then
 				installPECLModule_actual="$2-0.5.7"
+			fi
+			;;
+		oauth)
+			if test $1 -le 506; then
+				installPECLModule_actual="$2-1.2.3"
 			fi
 			;;
 		opencensus)
