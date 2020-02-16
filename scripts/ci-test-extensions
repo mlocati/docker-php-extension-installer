@@ -4,26 +4,76 @@
 set -o errexit
 set -o nounset
 
-echo 'Checking environment'
-if test -n "${GITHUB_WORKSPACE:-}" && test -n "${GITHUB_SHA:-}"; then
-	if test -z "${1:-}"; then
-		echo 'Missing commit range of the push event' >&2
-		exit 1
-	fi
-	CI_BUILD_DIR="$GITHUB_WORKSPACE"
-	CI_COMMIT_RANGE="$1"
-else
-	echo 'Not in a CI environment' >&2
-	exit 1
-fi
-if test -z "${DOCKER_DISTRO:-}"; then
-	echo 'DOCKER_DISTRO environment variable not set' >&2
-	exit 1
-fi
+# Extract the extensions to be tested from commit messages
+#
+# Update: EXTENSIONS_TO_BE_TESTED
+# Set: STOP_EXTENSIONS_FOUND
+extractExtensionsFromCommits() {
+	STOP_EXTENSIONS_FOUND=0
+	IFS='
+'
+	for extractExtensionsFromCommits_hash in $(git -C "$CI_BUILD_DIR" log --pretty='format:%H' "$CI_COMMIT_RANGE"); do
+		extractExtensionsFromCommits_firstLine=1
+		extractExtensionsFromCommits_message="$(git -C "$CI_BUILD_DIR" log --pretty='format:%B' -n 1 "$extractExtensionsFromCommits_hash")"
+		IFS='
+'
+		for extractExtensionsFromCommits_messageLine in $extractExtensionsFromCommits_message; do
+			if test $extractExtensionsFromCommits_firstLine -eq 1; then
+				extractExtensionsFromCommits_firstLine=0
+			else
+				extractExtensionsFromCommits_testList=
+				case "$extractExtensionsFromCommits_messageLine" in
+					Test:*)
+						extractExtensionsFromCommits_testList=${extractExtensionsFromCommits_messageLine#Test:}
+						;;
+					TEST:*)
+						extractExtensionsFromCommits_testList=${extractExtensionsFromCommits_messageLine#TEST:}
+						;;
+					test:*)
+						extractExtensionsFromCommits_testList=${extractExtensionsFromCommits_messageLine#test:}
+						;;
+				esac
+				if test -n "$extractExtensionsFromCommits_testList"; then
+					IFS=' ,;'
+					for extractExtensionsFromCommits_extension in $extractExtensionsFromCommits_testList; do
+						if test $extractExtensionsFromCommits_extension = '-STOP-'; then
+							STOP_EXTENSIONS_FOUND=1
+							break 2
+						fi
+						if ! stringInList "$extractExtensionsFromCommits_extension" "$EXTENSIONS_TO_BE_TESTED"; then
+							EXTENSIONS_TO_BE_TESTED="$EXTENSIONS_TO_BE_TESTED $extractExtensionsFromCommits_extension"
+						fi
+					done
+				fi
+			fi
+		done
+	done
+	EXTENSIONS_TO_BE_TESTED="${EXTENSIONS_TO_BE_TESTED# }"
+}
 
-. "$CI_BUILD_DIR/scripts/common"
-
-ALREADY_TESTED_EXTENSIONS=''
+# Extract the extensions to be tested from changes in the data/supported-extensions file
+#
+# Update: EXTENSIONS_TO_BE_TESTED
+extractExtensionsFromData() {
+	IFS='
+'
+	extractExtensionsFromData_foundAt=
+	for extractExtensionsFromData_line in $(git -C "$CI_BUILD_DIR" diff --no-indent-heuristic --minimal --no-color --word-diff=none -no-renames --unified=0 "$CI_COMMIT_RANGE" -- data/supported-extensions); do
+		if test -n "$extractExtensionsFromData_line"; then
+			if test -z "$extractExtensionsFromData_foundAt"; then
+				if test -z "${extractExtensionsFromData_line##@@*}"; then
+					extractExtensionsFromData_foundAt=y
+				fi
+			elif test -z "${extractExtensionsFromData_line##+*}"; then
+				extractExtensionsFromData_extension="${extractExtensionsFromData_line%% *}"
+				if ! stringInList "$extractExtensionsFromData_extension" "$EXTENSIONS_TO_BE_TESTED"; then
+					EXTENSIONS_TO_BE_TESTED="$EXTENSIONS_TO_BE_TESTED $extractExtensionsFromData_extension"
+				fi
+			fi
+		fi
+	done
+	EXTENSIONS_TO_BE_TESTED="${EXTENSIONS_TO_BE_TESTED# }"
+}
 
 # Get the docker image ID for a PHP extension and a PHP version
 #
@@ -70,76 +120,6 @@ getDockerImageName() {
 		fi
 	fi
 	printf '%s' "$getDockerImageName_imageName"
-}
-
-# Test an extension
-#
-# Arguments:
-# $1: space-separated list with the names of the PHP extensions to be tested
-# $2: the PHP version
-#
-# Return:
-# 0 (true): if test passes
-# 1 (false): if test fails
-testExtension() {
-	printf 'PHP version: %s\n' "$2"
-	if test -n "$(printf '%s' "$2" | sed -E 's/^[0-9]+\.[0-9]+$//')"; then
-		printf '  INVALID PHP VERSION: %s\n' "$2" >&2
-		return 1
-	fi
-	testExtension_Image="$(getDockerImageName "$1" "$2")"
-	if test $? -ne 0; then
-		exit 1
-	fi
-	if test -z "$testExtension_Image"; then
-		printf ' - Docker image not available\n'
-		return 0
-	fi
-	printf ' - Docker image: %s\n' "$testExtension_Image"
-	testExtension_out="$(mktemp)"
-	if $(docker run --rm --volume "$CI_BUILD_DIR:/app" --workdir /app "$testExtension_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtension_out" 2>&1); then
-		rm -rf "$testExtension_out"
-		printf ' - Passed\n'
-		return 0
-	fi
-	printf ' - FAILED!\n' >&2
-	tail -n500 "$testExtension_out" >&2
-	rm -rf "$testExtension_out"
-	return 1
-}
-
-# Test a new extension line
-#
-# Arguments:
-# $1: the extension name
-# $@: the list of PHP versions
-#
-# Return:
-# 0 (true): if test passes
-# 1 (false): if test fails
-testNewExtensionLine() {
-	testNewExtensionLine_rc=0
-	if test $# -lt 2; then
-		printf 'Missing PHP version list for the new extension %s\n' "${1:-}"
-		testNewExtensionLine_rc=1
-	elif ! stringInList "$1" "$ALREADY_TESTED_EXTENSIONS"; then
-		printf '### TESTING NEW EXTENSION %s ###\n' "$1"
-		if test -n "$(printf '%s' "$1" | sed -E 's/^[a-z][a-z0-9\-\_\.]+$//')"; then
-			printf '   INVALID PHP EXTENSION NAME: %s\n' "$1" >&2
-			testNewExtensionLine_rc=1
-		else
-			ALREADY_TESTED_EXTENSIONS="$ALREADY_TESTED_EXTENSIONS $1"
-			testNewExtensionLine_extension="$1"
-			while test $# -ge 2; do
-				shift
-				testNewExtensionLine_phpVersion="$1"
-				if ! testExtension "$testNewExtensionLine_extension" "$1"; then
-					testNewExtensionLine_rc=1
-				fi
-			done
-		fi
-	fi
-	return $testNewExtensionLine_rc
 }
 
 # Get the list of all supported PHP versions
@@ -207,66 +187,23 @@ getAllPHPVersionsForExtension() {
 	printf '%s' "$getAllPHPVersionsForExtension_result"
 }
 
-# Test extensions by reading a commit message
+# Test extensions
 #
 # Arguments:
-# $1: the commit hash
-#
-# Set:
-# STOP_NEXT_COMMITS to 1 if we should skip next commits
+# $1: space-separated list with the names of the PHP extensions to be tested
 #
 # Return:
 # 0 (true): if test passes
 # 1 (false): if test fails
-testExtensionsFromMessage() {
+testExtension() {
 	testExtensionsFromMessage_result=0
-	TEST_EXTENSIONS=
-	FIRST_LINE=1
-	testExtensionsFromMessage_message="$(git -C "$CI_BUILD_DIR" log --pretty='format:%B' -n 1 "$1")"
-	IFS='
-'
-	for COMMIT_LINE in $testExtensionsFromMessage_message; do
-		if test $FIRST_LINE -eq 1; then
-			FIRST_LINE=0
-		else
-			TESTLIST=
-			case "$COMMIT_LINE" in
-				Test:*)
-					TESTLIST=${COMMIT_LINE#Test:}
-					;;
-				TEST:*)
-					TESTLIST=${COMMIT_LINE#TEST:}
-					;;
-				test:*)
-					TESTLIST=${COMMIT_LINE#test:}
-					;;
-			esac
-			if test -n "$TESTLIST"; then
-				IFS=' ,;'
-				for COMMIT_LINE_EXT in $TESTLIST; do
-					if test $COMMIT_LINE_EXT = '-STOP-'; then
-						STOP_NEXT_COMMITS=1
-					elif test -z "$TEST_EXTENSIONS"; then
-						TEST_EXTENSIONS=$COMMIT_LINE_EXT
-					else
-						if ! stringInList "$COMMIT_LINE_EXT" "$TEST_EXTENSIONS"; then
-							TEST_EXTENSIONS="$TEST_EXTENSIONS $COMMIT_LINE_EXT"
-						fi
-					fi
-				done
-			fi
-		fi
-		IFS=' '
-		for TEST_EXTENSION in $TEST_EXTENSIONS; do
-			if ! stringInList "$TEST_EXTENSION" "$ALREADY_TESTED_EXTENSIONS"; then
-				ALREADY_TESTED_EXTENSIONS="$ALREADY_TESTED_EXTENSIONS $TEST_EXTENSION"
-				TEST_EXTENSION="$(printf '%s' "$TEST_EXTENSION" | sed 's/\+/ /g')"
-				printf '### TESTING EXTENSION(S) %s ###\n' "$TEST_EXTENSION"
-				for TEST_PHPVERSION in $(getAllPHPVersionsForExtensions "$TEST_EXTENSION"); do
-					if ! testExtension "$TEST_EXTENSION" "$TEST_PHPVERSION"; then
-						testExtensionsFromMessage_result=1
-					fi
-				done
+	IFS=' '
+	for testExtension_extension in $1; do
+		testExtension_extension="$(printf '%s' "$testExtension_extension" | sed 's/\+/ /g')"
+		printf '### TESTING EXTENSION(S) %s ###\n' "$testExtension_extension"
+		for testExtension_phpVersion in $(getAllPHPVersionsForExtensions "$testExtension_extension"); do
+			if ! testExtensionFor "$testExtension_extension" "$testExtension_phpVersion"; then
+				testExtensionsFromMessage_result=1
 			fi
 		done
 	done
@@ -274,43 +211,83 @@ testExtensionsFromMessage() {
 	return $testExtensionsFromMessage_result
 }
 
-STOP_NEXT_COMMITS=0
-TESTS_RESULTS=0
-ADDED_EXTENSION_LINE=
-FOUND_ATAT=
-IFS='
-'
-for DIFF_LINE in $(git -C "$CI_BUILD_DIR" diff --no-indent-heuristic --minimal --no-color --word-diff=none -no-renames --unified=0 "$CI_COMMIT_RANGE" -- data/supported-extensions); do
-	if test -n "$DIFF_LINE"; then
-		if test -z "$FOUND_ATAT"; then
-			if test -z "${DIFF_LINE##@@*}"; then
-				FOUND_ATAT=y
-			fi
-		elif test -z "${DIFF_LINE##+*}"; then
-			resetIFS
-			ADDED_EXTENSION_LINE="${DIFF_LINE##+}"
-			if ! testNewExtensionLine $ADDED_EXTENSION_LINE; then
-				TESTS_RESULTS=1
-			fi
-		fi
+# Test extensions with specific PHP versions
+#
+# Arguments:
+# $1: space-separated list with the names of the PHP extensions to be tested
+# $2: the PHP version
+#
+# Return:
+# 0 (true): if test passes
+# 1 (false): if test fails
+testExtensionFor() {
+	printf 'PHP version: %s\n' "$2"
+	if test -n "$(printf '%s' "$2" | sed -E 's/^[0-9]+\.[0-9]+$//')"; then
+		printf '  INVALID PHP VERSION: %s\n' "$2" >&2
+		return 1
 	fi
-done
+	testExtensionFor_Image="$(getDockerImageName "$1" "$2")"
+	if test $? -ne 0; then
+		exit 1
+	fi
+	if test -z "$testExtensionFor_Image"; then
+		printf ' - Docker image not available\n'
+		return 0
+	fi
+	printf ' - Docker image: %s\n' "$testExtensionFor_Image"
+	testExtensionFor_out="$(mktemp)"
+	if $(docker run --rm --volume "$CI_BUILD_DIR:/app" --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1); then
+		rm -rf "$testExtensionFor_out"
+		printf ' - Passed\n'
+		return 0
+	fi
+	printf ' - FAILED!\n' >&2
+	cat "$testExtensionFor_out" >&2
+	rm -rf "$testExtensionFor_out"
+	return 1
+}
 
-IFS='
-'
-for COMMIT_HASH in $(git -C "$CI_BUILD_DIR" log --pretty='format:%H' "$CI_COMMIT_RANGE"); do
-	if ! testExtensionsFromMessage "$COMMIT_HASH"; then
-		TESTS_RESULTS=1
+echo 'Checking environment'
+if test -n "${GITHUB_WORKSPACE:-}" && test -n "${GITHUB_SHA:-}"; then
+	if test -z "${1:-}"; then
+		echo 'Missing commit range of the push event' >&2
+		exit 1
 	fi
-	if test $STOP_NEXT_COMMITS -eq 1; then
-		break
-	fi
-done
-
-if test $TESTS_RESULTS -ne 0; then
-	exit $TESTS_RESULTS
+	CI_BUILD_DIR="$GITHUB_WORKSPACE"
+	CI_COMMIT_RANGE="$1"
+else
+	echo 'Not in a CI environment' >&2
+	exit 1
+fi
+if test -z "${DOCKER_DISTRO:-}"; then
+	echo 'DOCKER_DISTRO environment variable not set' >&2
+	exit 1
 fi
 
-if test -z "$ADDED_EXTENSION_LINE"; then
-	echo 'No new extensions detected.'
+. "$CI_BUILD_DIR/scripts/common"
+
+EXTENSIONS_TO_BE_TESTED=''
+STOP_EXTENSIONS_FOUND=0
+
+extractExtensionsFromCommits
+if test $STOP_EXTENSIONS_FOUND -eq 0; then
+	extractExtensionsFromData
+fi
+
+if test -z "$EXTENSIONS_TO_BE_TESTED"; then
+	echo 'No extensions to be tested.'
+	exit 0
+fi
+
+printf '### EXTENSIONS TO BE TESTED: %s\n' "$EXTENSIONS_TO_BE_TESTED"
+SOME_TEST_FAILED=0
+IFS='
+'
+
+for EXTENSION_TO_BE_TESTED in "$EXTENSIONS_TO_BE_TESTED"; do
+	testExtension "$EXTENSION_TO_BE_TESTED" || SOME_TEST_FAILED=1
+done
+
+if test $SOME_TEST_FAILED -ne 0; then
+	exit 1
 fi
