@@ -1094,6 +1094,12 @@ installPECLModule() {
 		mongodb)
 			if test $1 -le 505; then
 				installPECLModule_actual="$2-1.5.5"
+			else
+				case "$(getDistro)" in
+					alpine)
+						installPECLModule_actual="$2-1.6.0"
+						;;
+				esac
 			fi
 			;;
 		msgpack)
