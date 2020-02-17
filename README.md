@@ -59,6 +59,7 @@ RUN install-php-extensions gd xdebug
 | decimal |  |  | V | V | V | V | V |
 | enchant | V | V | V | V | V | V | V |
 | exif | V | V | V | V | V | V | V |
+| ffi |  |  |  |  |  |  | V |
 | gd | V | V | V | V | V | V | V |
 | gettext | V | V | V | V | V | V | V |
 | gmagick | V | V | V | V | V | V | V |
@@ -125,7 +126,7 @@ RUN install-php-extensions gd xdebug
 | yaml | V | V | V | V | V | V | V |
 | zip | V | V | V | V | V | V | V |
 
-*Number of supported extensions: 75*
+*Number of supported extensions: 76*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
