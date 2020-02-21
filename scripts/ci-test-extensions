@@ -252,36 +252,49 @@ testExtensionFor() {
 }
 
 echo 'Checking environment'
-if test -n "${GITHUB_WORKSPACE:-}" && test -n "${GITHUB_SHA:-}"; then
-	if test -z "${1:-}"; then
-		echo 'Missing commit range of the push event' >&2
-		exit 1
-	fi
-	CI_BUILD_DIR="$GITHUB_WORKSPACE"
-	CI_COMMIT_RANGE="$1"
-else
+if test -z "${GITHUB_WORKSPACE:-}"; then
 	echo 'Not in a CI environment' >&2
 	exit 1
 fi
+CI_BUILD_DIR="$GITHUB_WORKSPACE"
 if test -z "${DOCKER_DISTRO:-}"; then
 	echo 'DOCKER_DISTRO environment variable not set' >&2
 	exit 1
 fi
 
-. "$CI_BUILD_DIR/scripts/common"
-
-EXTENSIONS_TO_BE_TESTED=''
-STOP_EXTENSIONS_FOUND=0
-
-extractExtensionsFromCommits
-if test $STOP_EXTENSIONS_FOUND -eq 0; then
-	extractExtensionsFromData
-fi
+case "${1:-}" in
+	from-commits)
+		if test -z "${2:-}"; then
+			echo 'Missing commit range of the push event' >&2
+			exit 1
+		fi
+		CI_COMMIT_RANGE="$2"
+		STOP_EXTENSIONS_FOUND=0
+		EXTENSIONS_TO_BE_TESTED=''
+		extractExtensionsFromCommits
+		if test $STOP_EXTENSIONS_FOUND -eq 0; then
+			extractExtensionsFromData
+		fi
+		;;
+	from-list)
+		EXTENSIONS_TO_BE_TESTED="${2:-}"
+		;;
+	*)
+		if test -z "${1:-}"; then
+			printf 'Missing source of extensions to be tested\n' >&2
+		else
+			printf '"%s" is an unknown source of extensions to be tested\n' "$1" >&2
+		fi
+		exit 1
+		;;
+esac
 
 if test -z "$EXTENSIONS_TO_BE_TESTED"; then
 	echo 'No extensions to be tested.'
 	exit 0
 fi
+
+. "$CI_BUILD_DIR/scripts/common"
 
 printf '### EXTENSIONS TO BE TESTED: %s\n' "$EXTENSIONS_TO_BE_TESTED"
 SOME_TEST_FAILED=0

@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Let's set a sane environment
+set -o errexit
+set -o nounset
+set -o noglob
+
+SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+. "$SCRIPTS_DIR/common"
+
+printf 'Downloading PECL feed... ' >&2
+XML="$(curl --fail  --silent --show-error --location https://pecl.php.net/feeds/latest.rss)"
+printf 'done.\n' >&2
+
+printf 'Formatting XML... ' >&2
+XML="$(printf '%s' "$XML" | tr -s ' \t\r\n' ' ' | sed -r 's# *<#\n<#g' | sed -r 's#>\n*#>\n#g' | tr -s '\n' '\n' | sed -r 's#^ +##g')"
+printf 'done.\n' >&2
+
+NUM_EXTENSIONS=0
+EXTENSIONS=''
+printf 'Detecting extension list... ' >&2
+IFS='
+'
+for XML_LINE in $XML; do
+	case "$XML_LINE" in
+		\<item\ *)
+			URL="$(printf '%s' "$XML_LINE" | sed -r 's#^.+ rdf:about\s*=\s*"##' | sed -r 's#".*$##')"
+			EXTENSION="$(printf '%s' "$URL" | sed -r 's#^.*[?%]package=##' | sed -r 's#&.*$##')"
+			if test -n "$EXTENSION" && ! stringInList "$EXTENSION" "$EXTENSIONS"; then
+				EXTENSIONS="$EXTENSIONS $EXTENSION"
+				NUM_EXTENSIONS=$((NUM_EXTENSIONS + 1))
+			fi
+			;;
+	esac
+done
+if test -z "$EXTENSIONS"; then
+	printf 'no extension found.\n' >&2
+else
+	EXTENSIONS="${EXTENSIONS# }"
+	printf '%d extension(s) found (%s)\n' $NUM_EXTENSIONS "$EXTENSIONS" >&2
+fi
+printf '%s' "$EXTENSIONS"

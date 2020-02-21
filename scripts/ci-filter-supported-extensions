@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Let's set a sane environment
+set -o errexit
+set -o nounset
+set -o noglob
+
+SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+. "$SCRIPTS_DIR/common"
+ROOT_DIR="$(dirname -- "$SCRIPTS_DIR")"
+DATA_DIR="$ROOT_DIR/data"
+
+EXTENSIONS_LIST="${1:-}"
+
+if test -z "$EXTENSIONS_LIST"; then
+	echo 'Extensions list not specified' >&2
+	exit 1
+fi
+
+ALL_SUPPORTED_EXTENSIONS="$(cat "$DATA_DIR/supported-extensions")"
+
+SUPPORTED_EXTENSIONS=''
+resetIFS
+for EXTENSION in $EXTENSIONS_LIST; do
+	printf 'Checking extension "%s"... ' "$EXTENSION" >&2
+	if printf '%s' "$ALL_SUPPORTED_EXTENSIONS" | grep -q "^$EXTENSION\s"; then
+		printf 'supported.\n' >&2
+		SUPPORTED_EXTENSIONS="$SUPPORTED_EXTENSIONS $EXTENSION"
+	else
+		printf 'not supported.\n' >&2
+	fi
+done
+
+printf '%s' "${SUPPORTED_EXTENSIONS# }"
