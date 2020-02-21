@@ -1,4 +1,5 @@
 ![Test extensions](https://github.com/mlocati/docker-php-extension-installer/workflows/Test%20extensions/badge.svg)
+![Test recent](https://github.com/mlocati/docker-php-extension-installer/workflows/Test%20recent/badge.svg)
 
 # Easy installation of PHP extensions in official PHP Docker images
 
