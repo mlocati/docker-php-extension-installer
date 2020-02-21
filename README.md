@@ -156,6 +156,16 @@ Some extension has special requirements:
 <!-- END OF SPECIAL REQUIREMENTS -->
 
 
+## Tests
+
+When submitting a pull request, a [GitHub Action](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/test-extensions.yml) is executed to check if affected PHP extensions actually work (see below).
+
+Furthermore, we also check that new versions of extensions in the PECL repository will still work.
+This is done on a scheduled basis with another [GitHub Action](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/test-recent-extensions.yml).  
+In case of failure, a message is sent to the [@DockerPhpExtensionInstallerBot](https://t.me/DockerPhpExtensionInstallerBot) Telegram bot.  
+Feel free to subscribe to it to receive failure notifications.
+
+
 ## How to contribute
 
 ### Formatting code
