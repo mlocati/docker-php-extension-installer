@@ -1,0 +1,58 @@
+name: Test recent
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+
+jobs:
+  determine_extension_list:
+    name: Determine extension list
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retrieve recently updated extensions
+        run: export RECENT_EXTENSIONS="$(./scripts/ci-retrieve-recent-extensions)"
+      - name: Filter supported extensions
+        run: |
+          if test -z "$RECENT_EXTENSIONS"; then
+            EXTENSIONS_TO_TEST=''
+          else
+            EXTENSIONS_TO_TEST="$(./scripts/ci-filter-supported-extensions "$RECENT_EXTENSIONS")"
+          fi
+          printf "$EXTENSIONS_TO_TEST" > extensions-to-test.txt
+      - name: Persist list of extensions to be tested
+        uses: actions/upload-artifact@v1
+        with:
+            name: extensions-to-test.txt
+            path: extensions-to-test.txt
+  test_extensions:
+    runs-on: ubuntu-latest
+    needs: determine_extension_list
+    strategy:
+      matrix:
+        distro:
+          - alpine3.7
+          - alpine3.8
+          - alpine3.9
+          - alpine3.10
+          - alpine3.11
+          - jessie
+          - stretch
+          - buster
+    name: Check on ${{ matrix.distro }}
+    env:
+      DOCKER_DISTRO: ${{ matrix.distro }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Loading list of extensions to be tested
+        uses: actions/download-artifact@v1
+        with:
+          name: extensions-to-test.txt
+      - name: Test extensions
+        run: |
+          EXTENSIONS_TO_TEST="$(cat extensions-to-test.txt)"
+          if test -z "$EXTENSIONS_TO_TEST"; then
+            echo 'No extensions to be tested'
+          else
+            ./scripts/ci-test-extensions from-list "$EXTENSIONS_TO_TEST"
+          fi

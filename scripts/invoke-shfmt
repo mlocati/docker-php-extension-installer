@@ -13,17 +13,19 @@ case "${1:-}" in
 		PARAMS="$PARAMS -w"
 		;;
 	*)
-		fprintf 'Syntax: %s <check|fix>' "$0" >&2
+		printf 'Syntax: %s <check|fix>' "$0" >&2
 		exit 1
 		;;
 esac
 
 shfmt $PARAMS \
 	install-php-extensions \
+	scripts/ci-filter-supported-extensions \
+	scripts/ci-retrieve-recent-extensions \
+	scripts/ci-test-extensions \
+	scripts/ci-update-readme \
 	scripts/common \
 	scripts/invoke-shfmt \
 	scripts/lint \
 	scripts/test-restore-apt \
-	scripts/ci-test-extensions \
-	scripts/ci-update-readme \
 	scripts/update-readme
