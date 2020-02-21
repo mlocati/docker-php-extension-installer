@@ -132,8 +132,44 @@ RUN install-php-extensions gd xdebug
 PS: the pre-installed PHP extensions are excluded from this list.
 You can list them with the following command (change `php:7.2-cli` to reflect the PHP version you are interested in):
 
-```sh
-docker run --rm -it php:7.2-cli php -m
+```
+$ docker run --rm php:7.2-cli php -m
+[PHP Modules]
+Core
+ctype
+curl
+date
+dom
+fileinfo
+filter
+ftp
+hash
+iconv
+json
+libxml
+mbstring
+mysqlnd
+openssl
+pcre
+PDO
+pdo_sqlite
+Phar
+posix
+readline
+Reflection
+session
+SimpleXML
+sodium
+SPL
+sqlite3
+standard
+tokenizer
+xml
+xmlreader
+xmlwriter
+zlib
+
+[Zend Modules]
 ```
 
 ## Special requirements
