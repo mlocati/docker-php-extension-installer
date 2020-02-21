@@ -49,82 +49,82 @@ RUN install-php-extensions gd xdebug
 <!-- ########################################################### -->
 | Extension | PHP 5.5 | PHP 5.6 | PHP 7.0 | PHP 7.1 | PHP 7.2 | PHP 7.3 | PHP 7.4 |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| amqp | V | V | V | V | V | V | V |
-| apcu | V | V | V | V | V | V | V |
-| bcmath | V | V | V | V | V | V | V |
-| bz2 | V | V | V | V | V | V | V |
-| calendar | V | V | V | V | V | V | V |
-| cmark |  |  | V | V | V | V | V |
-| dba | V | V | V | V | V | V | V |
-| decimal |  |  | V | V | V | V | V |
-| enchant | V | V | V | V | V | V | V |
-| exif | V | V | V | V | V | V | V |
-| ffi |  |  |  |  |  |  | V |
-| gd | V | V | V | V | V | V | V |
-| gettext | V | V | V | V | V | V | V |
-| gmagick | V | V | V | V | V | V | V |
-| gmp | V | V | V | V | V | V | V |
-| grpc | V | V | V | V | V | V | V |
-| http | V | V | V | V | V | V | V |
-| igbinary | V | V | V | V | V | V | V |
-| imagick | V | V | V | V | V | V | V |
-| imap | V | V | V | V | V | V | V |
-| interbase | V | V | V | V | V | V |  |
-| intl | V | V | V | V | V | V | V |
-| ldap | V | V | V | V | V | V | V |
-| mailparse | V | V | V | V | V | V | V |
-| mcrypt | V | V | V | V | V | V | V |
-| memcache | V | V | V | V | V | V | V |
-| memcached | V | V | V | V | V | V | V |
-| mongo | V | V |  |  |  |  |  |
-| mongodb | V | V | V | V | V | V | V |
-| msgpack | V | V | V | V | V | V | V |
-| mssql | V | V |  |  |  |  |  |
-| mysql | V | V |  |  |  |  |  |
-| mysqli | V | V | V | V | V | V | V |
-| oauth | V | V | V | V | V | V | V |
-| odbc | V | V | V | V | V | V | V |
-| opcache | V | V | V | V | V | V | V |
-| opencensus |  |  | V | V | V | V | V |
-| parallel |  |  |  | V | V | V | V |
-| pcntl | V | V | V | V | V | V | V |
-| pcov |  |  | V | V | V | V | V |
-| pdo_dblib | V | V | V | V | V | V | V |
-| pdo_firebird | V | V | V | V | V | V | V |
-| pdo_mysql | V | V | V | V | V | V | V |
-| pdo_odbc | V | V | V | V | V | V | V |
-| pdo_pgsql | V | V | V | V | V | V | V |
-| pdo_sqlsrv |  |  | V | V | V | V | V |
-| pgsql | V | V | V | V | V | V | V |
-| propro | V | V | V | V | V | V | V |
-| protobuf | V | V | V | V | V | V | V |
-| pspell | V | V | V | V | V | V | V |
-| pthreads | V | V | V |  |  |  |  |
-| raphf | V | V | V | V | V | V | V |
-| rdkafka | V | V | V | V | V | V | V |
-| recode | V | V | V | V | V | V |  |
-| redis | V | V | V | V | V | V | V |
-| shmop | V | V | V | V | V | V | V |
-| snmp | V | V | V | V | V | V | V |
-| soap | V | V | V | V | V | V | V |
-| sockets | V | V | V | V | V | V | V |
-| solr | V | V | V | V | V | V | V |
-| sqlsrv |  |  | V | V | V | V | V |
-| ssh2 | V | V | V | V | V | V | V |
-| sybase_ct | V | V |  |  |  |  |  |
-| sysvmsg | V | V | V | V | V | V | V |
-| sysvsem | V | V | V | V | V | V | V |
-| sysvshm | V | V | V | V | V | V | V |
-| tidy | V | V | V | V | V | V | V |
-| timezonedb | V | V | V | V | V | V | V |
-| uopz | V | V | V | V | V | V | V |
-| uuid | V | V | V | V | V | V | V |
-| wddx | V | V | V | V | V | V |  |
-| xdebug | V | V | V | V | V | V | V |
-| xmlrpc | V | V | V | V | V | V | V |
-| xsl | V | V | V | V | V | V | V |
-| yaml | V | V | V | V | V | V | V |
-| zip | V | V | V | V | V | V | V |
+| amqp | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| apcu | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| bcmath | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| bz2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| calendar | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| cmark |  |  | &check; | &check; | &check; | &check; | &check; |
+| dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| decimal |  |  | &check; | &check; | &check; | &check; | &check; |
+| enchant | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| ffi |  |  |  |  |  |  | &check; |
+| gd | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| gettext | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| gmagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| gmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| grpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| http | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| igbinary | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| imagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| imap | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| interbase | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| intl | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| ldap | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| mailparse | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| mcrypt | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| memcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| memcached | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| mongo | &check; | &check; |  |  |  |  |  |
+| mongodb | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| msgpack | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| mssql | &check; | &check; |  |  |  |  |  |
+| mysql | &check; | &check; |  |  |  |  |  |
+| mysqli | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| oauth | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| opcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| opencensus |  |  | &check; | &check; | &check; | &check; | &check; |
+| parallel |  |  |  | &check; | &check; | &check; | &check; |
+| pcntl | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| pcov |  |  | &check; | &check; | &check; | &check; | &check; |
+| pdo_dblib | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| pdo_firebird | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| pdo_mysql | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| pdo_odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| pdo_pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| pdo_sqlsrv |  |  | &check; | &check; | &check; | &check; | &check; |
+| pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| propro | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| protobuf | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| pspell | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| pthreads | &check; | &check; | &check; |  |  |  |  |
+| raphf | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| rdkafka | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| recode | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| shmop | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| snmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| soap | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| sockets | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| sqlsrv |  |  | &check; | &check; | &check; | &check; | &check; |
+| ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| sybase_ct | &check; | &check; |  |  |  |  |  |
+| sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| sysvsem | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| sysvshm | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| tidy | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| timezonedb | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| uopz | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| uuid | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| xmlrpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| xsl | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
 *Number of supported extensions: 76*
 <!-- END OF EXTENSIONS TABLE -->
