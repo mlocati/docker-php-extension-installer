@@ -27,7 +27,7 @@ for EXTENSION in $EXTENSIONS_LIST; do
 		printf 'supported.\n' >&2
 		SUPPORTED_EXTENSIONS="$SUPPORTED_EXTENSIONS $EXTENSION"
 	else
-		printf 'not supported.\n' >&2
+		printf 'NOT supported.\n' >&2
 	fi
 done
 
