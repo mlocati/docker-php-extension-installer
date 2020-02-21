@@ -125,7 +125,7 @@ generateExtensionsTable() {
 				fi
 			done
 			if test -n "$generateExtensionsTable_versionOk"; then
-				printf 'V'
+				printf '&check;'
 			fi
 			printf ' |'
 		done
