@@ -1,0 +1,18 @@
+name: Test sending notifications
+
+on:
+  repository_dispatch:
+    types:
+      - test-sample-notification
+
+jobs:
+  send_sampe_notification:
+    name: Send sample notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_TO }}
+          message: Sample notification from GitHub Action of https://github.com/mlocati/docker-php-extension-installer
