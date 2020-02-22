@@ -197,7 +197,7 @@ When submitting a pull request, a [GitHub Action](https://github.com/mlocati/doc
 
 Furthermore, we also check that new versions of extensions in the PECL repository will still work.
 This is done on a scheduled basis with another [GitHub Action](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/test-recent-extensions.yml).  
-In case of failure, a message is sent to the [@DockerPhpExtensionInstallerBot](https://t.me/DockerPhpExtensionInstallerBot) Telegram bot.  
+In case of failure, a message is sent to a [Telegram Channel](https://t.me/docker_php_extension_installer).  
 Feel free to subscribe to it to receive failure notifications.
 
 
