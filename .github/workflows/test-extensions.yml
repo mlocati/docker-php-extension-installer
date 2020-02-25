@@ -36,7 +36,7 @@ jobs:
         with:
           fetch-depth: 1
       - name: Install Composer dependencies
-        run: composer install -a
+        run: composer install --no-progress --classmap-authoritative
       - name: Check coding style
         run: composer run-script lint -- --dry-run --diff
   test_extensions:
