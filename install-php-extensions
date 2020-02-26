@@ -55,7 +55,7 @@ getDistroVersion() {
 # Output:
 #   The PHP numeric Major-Minor version
 getPHPMajorMinor() {
-	php -r '$v = explode(".", PHP_VERSION); echo $v[0] * 100 + $v[1];'
+	php-config --version | awk -F. '{print $1*100+$2}'
 }
 
 # Get the normalized list of already installed PHP modules
@@ -553,6 +553,10 @@ buildRequiredPackageLists() {
 					esac
 				fi
 				;;
+			snuffleupagus@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent pcre"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
+				;;
 			snmp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent net-snmp-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile net-snmp-dev"
@@ -1002,6 +1006,7 @@ installModuleFromSource() {
 	printf '### INSTALLING MODULE %s FROM SOURCE CODE ###\n' "$1"
 	installModuleFromSource_dir="$(getPackageSource "$2")"
 	cd "$installModuleFromSource_dir"
+	[ -d "$installModuleFromSource_dir"/src ] && cd src
 	phpize
 	./configure $3 CFLAGS="${4:-}"
 	make -j$(nproc) install
@@ -1412,6 +1417,12 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 				fi
 				MODULE_SOURCE_CONFIGOPTIONS=--enable-igbinary
 				MODULE_SOURCE_CFLAGS='-O2 -g'
+				;;
+			snuffleupagus)
+				MODULE_SOURCE="https://github.com/jvoisin/snuffleupagus/archive/v0.5.0.tar.gz"
+				MODULE_SOURCE_CONFIGOPTIONS=--enable-snuffleupagus
+				cd "$(getPackageSource https://github.com/jvoisin/snuffleupagus/archive/v0.5.0.tar.gz)"
+				cp -a config/default.rules /usr/local/etc/php/conf.d/snuffleupagus.rules
 				;;
 		esac
 		if test -n "$MODULE_SOURCE"; then
