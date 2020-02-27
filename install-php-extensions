@@ -1016,7 +1016,7 @@ installModuleFromSource() {
 		snuffleupagus) # otherwise php -m will be empty
 			printf '%s\n%s\n' 'extension=snuffleupagus.so' \
 				'sp.configuration_file=/usr/local/etc/php/conf.d/snuffleupagus.rules' \
-				> /usr/local/etc/php/conf.d/docker-php-ext-snuffleupagus.ini
+				>/usr/local/etc/php/conf.d/docker-php-ext-snuffleupagus.ini
 			;;
 	esac
 }
