@@ -1434,7 +1434,7 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 				MODULE_SOURCE_CFLAGS='-O2 -g'
 				;;
 			snuffleupagus)
-				MODULE_SOURCE="https://github.com/jvoisin/snuffleupagus/archive/v0.5.0.tar.gz"
+				MODULE_SOURCE="https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v0.5.0"
 				MODULE_SOURCE_CONFIGOPTIONS=--enable-snuffleupagus
 				;;
 		esac
