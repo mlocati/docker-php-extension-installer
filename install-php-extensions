@@ -1008,8 +1008,14 @@ getPackageSource() {
 installModuleFromSource() {
 	printf '### INSTALLING MODULE %s FROM SOURCE CODE ###\n' "$1"
 	installModuleFromSource_dir="$(getPackageSource "$2")"
-	cd "$installModuleFromSource_dir"
-	[ -d "$installModuleFromSource_dir"/src ] && cd src
+	case "$1" in
+		snuffleupagus)
+			cd "$installModuleFromSource_dir/src"
+			;;
+		*)
+			cd "$installModuleFromSource_dir"
+			;;
+	esac
 	phpize
 	./configure $3 CFLAGS="${4:-}"
 	make -j$(nproc) install
