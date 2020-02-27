@@ -55,7 +55,7 @@ getDistroVersion() {
 # Output:
 #   The PHP numeric Major-Minor version
 getPHPMajorMinor() {
-	php -r '$v = explode(".", PHP_VERSION); echo $v[0] * 100 + $v[1];'
+	php-config --version | awk -F. '{print $1*100+$2}'
 }
 
 # Get the normalized list of already installed PHP modules
@@ -553,6 +553,13 @@ buildRequiredPackageLists() {
 					esac
 				fi
 				;;
+			snuffleupagus@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent pcre"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
+				;;
+			snuffleupagus@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+				;;
 			snmp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent net-snmp-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile net-snmp-dev"
@@ -1001,12 +1008,25 @@ getPackageSource() {
 installModuleFromSource() {
 	printf '### INSTALLING MODULE %s FROM SOURCE CODE ###\n' "$1"
 	installModuleFromSource_dir="$(getPackageSource "$2")"
-	cd "$installModuleFromSource_dir"
+	case "$1" in
+		snuffleupagus)
+			cd "$installModuleFromSource_dir/src"
+			;;
+		*)
+			cd "$installModuleFromSource_dir"
+			;;
+	esac
 	phpize
 	./configure $3 CFLAGS="${4:-}"
 	make -j$(nproc) install
 	cd - >/dev/null
 	docker-php-ext-enable "$1"
+	case "$1" in
+		snuffleupagus)
+			cp -a "$installModuleFromSource_dir/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
+			printf 'sp.configuration_file=%s\n' "$PHP_INI_DIR/conf.d/snuffleupagus.rules" >>"$PHP_INI_DIR/conf.d/docker-php-ext-snuffleupagus.ini"
+			;;
+	esac
 }
 
 # Install a PECL PHP module given its handle
@@ -1412,6 +1432,10 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 				fi
 				MODULE_SOURCE_CONFIGOPTIONS=--enable-igbinary
 				MODULE_SOURCE_CFLAGS='-O2 -g'
+				;;
+			snuffleupagus)
+				MODULE_SOURCE="https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v0.5.0"
+				MODULE_SOURCE_CONFIGOPTIONS=--enable-snuffleupagus
 				;;
 		esac
 		if test -n "$MODULE_SOURCE"; then
