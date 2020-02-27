@@ -557,6 +557,10 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent pcre"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
 				;;
+			snuffleupagus@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpcre3"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+				;;
 			snmp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent net-snmp-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile net-snmp-dev"
