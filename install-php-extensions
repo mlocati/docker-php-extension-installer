@@ -1024,7 +1024,7 @@ installModuleFromSource() {
 	case "$1" in
 		snuffleupagus)
 			cp -a "$installModuleFromSource_dir/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
-			printf 'sp.configuration_file=%s\n' "$PHP_INI_DIR/conf.d/snuffleupagus.rules" >> "$PHP_INI_DIR/conf.d/docker-php-ext-snuffleupagus.ini"
+			printf 'sp.configuration_file=%s\n' "$PHP_INI_DIR/conf.d/snuffleupagus.rules" >>"$PHP_INI_DIR/conf.d/docker-php-ext-snuffleupagus.ini"
 			;;
 	esac
 }
