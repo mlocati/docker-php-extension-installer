@@ -106,6 +106,7 @@ RUN install-php-extensions gd xdebug
 | redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | shmop | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | snmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| snuffleupagus |  |  | &check; | &check; | &check; | &check; | &check; |
 | soap | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sockets | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -126,7 +127,7 @@ RUN install-php-extensions gd xdebug
 | yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 76*
+*Number of supported extensions: 77*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
