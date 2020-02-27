@@ -1023,6 +1023,7 @@ installModuleFromSource() {
 	docker-php-ext-enable "$1"
 	case "$1" in
 		snuffleupagus)
+			cp -a "$installModuleFromSource_dir/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
 			printf 'sp.configuration_file=%s\n' "$PHP_INI_DIR/conf.d/snuffleupagus.rules" >> "$PHP_INI_DIR/conf.d/docker-php-ext-snuffleupagus.ini"
 			;;
 	esac
@@ -1435,8 +1436,6 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 			snuffleupagus)
 				MODULE_SOURCE="https://github.com/jvoisin/snuffleupagus/archive/v0.5.0.tar.gz"
 				MODULE_SOURCE_CONFIGOPTIONS=--enable-snuffleupagus
-				cd "$(getPackageSource https://github.com/jvoisin/snuffleupagus/archive/v0.5.0.tar.gz)"
-				cp -a config/default.rules /usr/local/etc/php/conf.d/snuffleupagus.rules
 				;;
 		esac
 		if test -n "$MODULE_SOURCE"; then
