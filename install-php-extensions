@@ -1016,10 +1016,8 @@ installModuleFromSource() {
 	cd - >/dev/null
 	docker-php-ext-enable "$1"
 	case "$1" in
-		snuffleupagus) # otherwise php -m will be empty
-			printf '%s\n%s\n' 'extension=snuffleupagus.so' \
-				'sp.configuration_file=/usr/local/etc/php/conf.d/snuffleupagus.rules' \
-				>/usr/local/etc/php/conf.d/docker-php-ext-snuffleupagus.ini
+		snuffleupagus)
+			printf 'sp.configuration_file=%s\n' "$PHP_INI_DIR/conf.d/snuffleupagus.rules" >> "$PHP_INI_DIR/conf.d/docker-php-ext-snuffleupagus.ini"
 			;;
 	esac
 }
