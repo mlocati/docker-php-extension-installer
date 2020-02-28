@@ -18,44 +18,21 @@ resetIFS() {
 '
 }
 
-# Get the distribution name
-#
-# Output:
-#   alpine|debian
-getDistro() {
-	getDistro_os_id=''
-	if test -r /etc/os-release; then
-		getDistro_os_id="$(cat /etc/os-release | grep -E ^ID= | cut -d = -f 2)"
+# Set these variables:
+# - DISTRO containing distribution name (eg 'alpine', 'debian')
+# - DISTO_VERSION containing distribution name and its version(eg 'alpine@3.10', 'debian@9')
+setDistro() {
+	if ! test -r /etc/os-release; then
+		printf 'The file /etc/os-release is not readable\n' >&2
+		exit 1
 	fi
-	printf '%s' "$getDistro_os_id"
+	DISTRO="$(cat /etc/os-release | grep -E ^ID= | cut -d = -f 2)"
+	DISTRO_VERSION="$(printf '%s@%s' $DISTRO $(cat /etc/os-release | grep -E ^VERSION_ID= | cut -d = -f 2 | cut -d '"' -f 2 | cut -d . -f 1,2))"
 }
 
-# Get the distribution name and the version
-#
-# Example output:
-#   alpine@3.10
-#   debian@9
-getDistroVersion() {
-	getDistroVersion_distro="$(getDistro)"
-	if test -z "$getDistroVersion_distro"; then
-		return
-	fi
-	getDistroVersion_version=''
-	if test -r /etc/os-release; then
-		getDistroVersion_version="$(cat /etc/os-release | grep -E ^VERSION_ID= | cut -d = -f 2 | cut -d '"' -f 2 | cut -d . -f 1,2)"
-	fi
-	if test -z "$getDistroVersion_version"; then
-		return
-	fi
-	printf '%s@%s' "$getDistroVersion_distro" "$getDistroVersion_version"
-}
-
-# Get the PHP Major-Minor version as an integer value, in format MMmm (example: 506 for PHP 5.6.15)
-#
-# Output:
-#   The PHP numeric Major-Minor version
-getPHPMajorMinor() {
-	php-config --version | awk -F. '{print $1*100+$2}'
+# Set the PHP_MAJMIN_VERSION variable containing the PHP Major-Minor version as an integer value, in format MMmm (example: 506 for PHP 5.6.15)
+setPHPMajorMinor() {
+	PHP_MAJMIN_VERSION=$(php-config --version | awk -F. '{print $1*100+$2}')
 }
 
 # Get the normalized list of already installed PHP modules
@@ -203,15 +180,13 @@ sortModulesToInstall() {
 buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
-	buildRequiredPackageLists_distro="$(getDistro)"
-	buildRequiredPackageLists_distroVersion="$(getDistroVersion)"
 	buildRequiredPackageLists_phpv=$1
-	case "$buildRequiredPackageLists_distro" in
+	case "$DISTRO" in
 		alpine)
 			apk update
 			;;
 	esac
-	case "$buildRequiredPackageLists_distroVersion" in
+	case "$DISTRO_VERSION" in
 		alpine@*)
 			buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
 			if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
@@ -234,7 +209,7 @@ buildRequiredPackageLists() {
 			break
 		fi
 		shift
-		case "$1@$buildRequiredPackageLists_distro" in
+		case "$1@$DISTRO" in
 			amqp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent rabbitmq-c"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile rabbitmq-c-dev"
@@ -359,7 +334,7 @@ buildRequiredPackageLists() {
 			imap@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-client2007e"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libkrb5-dev"
-				case "$buildRequiredPackageLists_distroVersion" in
+				case "$DISTRO_VERSION" in
 					debian@9)
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev comerr-dev krb5-multidev libc-client2007e libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 libkdb5-8 libpam0g-dev libssl-doc mlock"
 						;;
@@ -526,7 +501,7 @@ buildRequiredPackageLists() {
 				;;
 			redis@alpine)
 				if test $buildRequiredPackageLists_phpv -ge 700; then
-					case "$buildRequiredPackageLists_distroVersion" in
+					case "$DISTRO_VERSION" in
 						alpine@3.7)
 							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent zstd"
 							;;
@@ -539,7 +514,7 @@ buildRequiredPackageLists() {
 				;;
 			redis@debian)
 				if test $buildRequiredPackageLists_phpv -ge 700; then
-					case "$buildRequiredPackageLists_distroVersion" in
+					case "$DISTRO_VERSION" in
 						debian@8)
 							## There's no APT package for libzstd
 							;;
@@ -654,7 +629,7 @@ buildRequiredPackageLists() {
 			zip@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip[0-9]$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev $buildRequiredPackageLists_libssldev libzip-dev libbz2-dev zlib1g-dev"
-				case "$buildRequiredPackageLists_distroVersion" in
+				case "$DISTRO_VERSION" in
 					debian@8)
 						# Debian Jessie doesn't seem to provide libmbedtls
 						;;
@@ -672,7 +647,7 @@ buildRequiredPackageLists() {
 	if test -z "$buildRequiredPackageLists_persistent$buildRequiredPackageLists_volatile"; then
 		return
 	fi
-	case "$buildRequiredPackageLists_distro" in
+	case "$DISTRO" in
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get update -q
 			;;
@@ -697,7 +672,7 @@ buildRequiredPackageLists() {
 		PACKAGES_VOLATILE="${PACKAGES_VOLATILE# }"
 	fi
 	if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
-		case "$buildRequiredPackageLists_distro" in
+		case "$DISTRO" in
 			debian)
 				PACKAGES_PREVIOUS="$(dpkg --get-selections | grep -E '\sinstall$' | awk '{ print $1 }')"
 				;;
@@ -714,7 +689,7 @@ buildRequiredPackageLists() {
 #   Space-separated list of every APT/APK packages that will be installed
 expandPackagesToBeInstalled() {
 	expandPackagesToBeInstalled_result=''
-	case "$(getDistro)" in
+	case "$DISTRO" in
 		alpine)
 			expandPackagesToBeInstalled_log="$(apk add --simulate $@ 2>&1 || printf '\nERROR: apk failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^ERROR:')"; then
@@ -776,7 +751,7 @@ installRequiredPackages() {
 	printf '# Packages to be kept after installation: %s\n' "$PACKAGES_PERSISTENT"
 	printf '# Packages to be used only for installation: %s\n' "$PACKAGES_VOLATILE"
 
-	case "$(getDistro)" in
+	case "$DISTRO" in
 		alpine)
 			apk add $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
@@ -799,7 +774,7 @@ installRequiredPackages() {
 #   1.2
 #   1.2.3
 getInstalledPackageVersion() {
-	case "$(getDistro)" in
+	case "$DISTRO" in
 		alpine)
 			apk info "$1" | head -n1 | cut -c $((${#1} + 2))- | grep -o -E '^[0-9]+(\.[0-9]+){0,2}'
 			;;
@@ -866,7 +841,7 @@ installBundledModule() {
 			fi
 			;;
 		imap)
-			case "$(getDistroVersion)" in
+			case "$DISTRO_VERSION" in
 				debian@9)
 					installBundledModule_tmp="$(pwd)"
 					cd /tmp
@@ -879,7 +854,7 @@ installBundledModule() {
 			PHP_OPENSSL=yes docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 			;;
 		interbase | pdo_firebird)
-			case "$(getDistro)" in
+			case "$DISTRO" in
 				alpine)
 					if ! test -d /tmp/src/firebird; then
 						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R2_5_9/Firebird-2.5.9.27139-0.tar.bz2)" /tmp/src/firebird
@@ -898,7 +873,7 @@ installBundledModule() {
 			esac
 			;;
 		ldap)
-			case "$(getDistro)" in
+			case "$DISTRO" in
 				debian)
 					docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)
 					;;
@@ -926,7 +901,7 @@ installBundledModule() {
 			docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr
 			;;
 		snmp)
-			case "$(getDistro)" in
+			case "$DISTRO" in
 				alpine)
 					mkdir -p -m 0755 /var/lib/net-snmp/mib_indexes
 					;;
@@ -936,7 +911,7 @@ installBundledModule() {
 			docker-php-ext-configure sybase_ct --with-sybase-ct=/usr
 			;;
 		tidy)
-			case "$(getDistro)" in
+			case "$DISTRO" in
 				alpine)
 					if ! test -f /usr/include/buffio.h; then
 						ln -s /usr/include/tidybuffio.h /usr/include/buffio.h
@@ -958,7 +933,7 @@ installBundledModule() {
 	docker-php-ext-install -j$(nproc) "$2"
 	case "$2" in
 		imap)
-			case "$(getDistroVersion)" in
+			case "$DISTRO_VERSION" in
 				debian@9)
 					dpkg -r libc-client2007e-dev
 					;;
@@ -1039,10 +1014,9 @@ installPECLModule() {
 	installPECLModule_actual="$2"
 	installPECLModule_stdin='\n'
 	installPECLModule_manuallyInstalled=0
-	installPECLModule_distroVersion="$(getDistroVersion)"
 	case "$2" in
 		amqp)
-			case "$installPECLModule_distroVersion" in
+			case "$DISTRO_VERSION" in
 				debian@8)
 					# in Debian Jessie we have librammitmq version 0.5.2
 					installPECLModule_actual="$2-1.9.3"
@@ -1055,7 +1029,7 @@ installPECLModule() {
 			fi
 			;;
 		decimal)
-			case "$(getDistro)" in
+			case "$DISTRO" in
 				alpine)
 					installPECLModule_src="$(getPackageSource https://codeload.github.com/bematech/libmpdec/tar.gz/master)"
 					cd -- "$installPECLModule_src"
@@ -1195,7 +1169,7 @@ installPECLModule() {
 				installPECLModule_actual="$2-3.0.5"
 			else
 				installPECLModule_tmp=
-				case "$(getDistro)" in
+				case "$DISTRO" in
 					alpine)
 						installPECLModule_tmp='librdkafka'
 						;;
@@ -1343,7 +1317,6 @@ removeStringFromList() {
 
 # Cleanup everything at the end of the execution
 cleanup() {
-	cleanup_distro="$(getDistro)"
 	if test -n "$UNNEEDED_PACKAGE_LINKS"; then
 		printf '### REMOVING UNNEEDED PACKAGE LINKS ###\n'
 		for cleanup_link in $UNNEEDED_PACKAGE_LINKS; do
@@ -1354,7 +1327,7 @@ cleanup() {
 	fi
 	if test -n "$PACKAGES_VOLATILE"; then
 		printf '### REMOVING UNNEEDED PACKAGES ###\n'
-		case "$cleanup_distro" in
+		case "$DISTRO" in
 			alpine)
 				apk del --purge $PACKAGES_VOLATILE
 				;;
@@ -1364,14 +1337,14 @@ cleanup() {
 		esac
 	fi
 	if test -n "$PACKAGES_PREVIOUS"; then
-		case "$cleanup_distro" in
+		case "$DISTRO" in
 			debian)
 				printf '### RESTORING PREVIOUSLY INSTALLED PACKAGES ###\n'
 				DEBIAN_FRONTEND=noninteractive apt-get install --no-upgrade -qqy $PACKAGES_PREVIOUS
 				;;
 		esac
 	fi
-	case "$cleanup_distro" in
+	case "$DISTRO" in
 		alpine)
 			rm -rf /var/cache/apk/*
 			;;
@@ -1387,7 +1360,8 @@ cleanup() {
 resetIFS
 mkdir -p /tmp/src
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
-PHP_MAJMIN_VERSION=$(getPHPMajorMinor)
+setDistro
+setPHPMajorMinor
 case "$PHP_MAJMIN_VERSION" in
 	505 | 506 | 700 | 701 | 702 | 703 | 704) ;;
 	*)
