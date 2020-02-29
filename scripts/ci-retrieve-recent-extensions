@@ -25,7 +25,7 @@ for XML_LINE in $XML; do
 	case "$XML_LINE" in
 		\<item\ *)
 			URL="$(printf '%s' "$XML_LINE" | sed -r 's#^.+ rdf:about\s*=\s*"##' | sed -r 's#".*$##')"
-			EXTENSION="$(printf '%s' "$URL" | sed -r 's#^.*[?&]package=##' | sed -r 's#&.*$##')"
+			EXTENSION="$(printf '%s' "$URL" | sed -r 's#^.*[?&]package=##' | sed -r 's#&.*$##' | tr '[:upper:]' '[:lower:]')"
 			if test -n "$EXTENSION" && ! stringInList "$EXTENSION" "$EXTENSIONS"; then
 				EXTENSIONS="$EXTENSIONS $EXTENSION"
 				NUM_EXTENSIONS=$((NUM_EXTENSIONS + 1))
