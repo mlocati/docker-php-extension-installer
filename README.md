@@ -116,6 +116,7 @@ RUN install-php-extensions gd xdebug
 | sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvsem | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvshm | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| tdlib |  |  |  |  |  | &check; | &check; |
 | tidy | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | timezonedb | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | uopz | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -127,7 +128,7 @@ RUN install-php-extensions gd xdebug
 | yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 77*
+*Number of supported extensions: 78*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
