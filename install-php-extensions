@@ -579,6 +579,13 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libct4"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
+			tdlib@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ $buildRequiredPackageLists_libssl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib-dev libressl-dev linux-headers readline-dev"
+				;;
+			tdlib@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib1g-dev $buildRequiredPackageLists_libssldev"
+				;;
 			tidy@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile tidyhtml-dev"
@@ -1226,6 +1233,23 @@ installPECLModule() {
 				# see https://bugs.php.net/bug.php?id=78560
 				installPECLModule_actual='https://pecl.php.net/get/ssh2'
 			fi
+			;;
+		tdlib)
+			if ! test -f /usr/lib/libphpcpp.so || ! test -f /usr/include/phpcpp.h; then
+				cd "$(getPackageSource https://codeload.github.com/CopernicaMarketingSoftware/PHP-CPP/tar.gz/444d1f90cf6b7f3cb5178fa0d0b5ab441b0389d0)"
+				make -j$(nproc)
+				make install
+				cd - >/dev/null
+			fi
+			installPECLModule_tmp="$(mktemp -p /tmp/src -d)"
+			git clone --depth=1 --recurse-submodules https://github.com/yaroslavche/phptdlib.git "$installPECLModule_tmp"
+			mkdir "$installPECLModule_tmp/build"
+			cd "$installPECLModule_tmp/build"
+			cmake -D USE_SHARED_PHPCPP:BOOL=ON ..
+			make
+			make install
+			rm "$PHP_INI_DIR/conf.d/tdlib.ini"
+			installPECLModule_manuallyInstalled=1
 			;;
 		uuid)
 			if test $1 -le 506; then
