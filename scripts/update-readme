@@ -87,6 +87,7 @@ sortVersionList() {
 #
 # Arguments:
 # $1: the path to the data file
+# $2: the path to the special requirements data file
 #
 # Output:
 # the markdown table
@@ -95,6 +96,11 @@ generateExtensionsTable() {
 	generateExtensionsTable_extensions="$(getExtensionList "$1")"
 	generateExtensionsTable_versions="$(getVersionList "$1")"
 	generateExtensionsTable_count=0
+	if test -f "$2"; then
+		generateExtensionsTable_specialReqExt=$(cat "$2" | cut -d' ' -f1)
+	else
+		generateExtensionsTable_specialReqExt=''
+	fi
 	printf '| Extension |'
 	IFS=' '
 	for generateExtensionsTable_version in $generateExtensionsTable_versions; do
@@ -109,7 +115,11 @@ generateExtensionsTable() {
 	IFS=' '
 	for generateExtensionsTable_extension in $generateExtensionsTable_extensions; do
 		generateExtensionsTable_count=$((generateExtensionsTable_count + 1))
-		printf '| %s |' "$generateExtensionsTable_extension"
+		printf '| %s' "$generateExtensionsTable_extension"
+		if stringInList "$generateExtensionsTable_extension" "$generateExtensionsTable_specialReqExt"; then
+			printf '[*](#special-requirements-for-%s)' "$generateExtensionsTable_extension"
+		fi
+		printf ' |'
 		IFS=' '
 		for generateExtensionsTable_version in $generateExtensionsTable_versions; do
 			printf ' '
@@ -178,7 +188,7 @@ generateSpecialRequirementsTable() {
 				printf '|---|---|\n'
 				generateSpecialRequirementsTable_started=1
 			fi
-			printf '| %s | %s |\n' "$generateSpecialRequirementsTable_extension" "$generateSpecialRequirementsTable_requirements"
+			printf '| <a name="special-requirements-for-%s"></a>%s | %s |\n' "$generateSpecialRequirementsTable_extension" "$generateSpecialRequirementsTable_extension" "$generateSpecialRequirementsTable_requirements"
 		fi
 	done
 }
@@ -214,7 +224,7 @@ generateReadme() {
 			printf '<!-- #  EDIT THE data/supported-extensions FILE INSTEAD        # -->\n'
 			printf '<!-- #                                                         # -->\n'
 			printf '<!-- ########################################################### -->\n'
-			generateExtensionsTable "$2"
+			generateExtensionsTable "$2" "$3"
 		elif test "$generateReadme_line" = "$generateReadme_ph_SpecialStart"; then
 			generateReadme_skip='y'
 			printf '<!-- ########################################################### -->\n'
