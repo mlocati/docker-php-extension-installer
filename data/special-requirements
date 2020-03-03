@@ -1,2 +1,3 @@
 parallel zts
 pthreads zts
+tdlib !alpine3.7 !jessie
