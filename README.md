@@ -87,7 +87,7 @@ RUN install-php-extensions gd xdebug
 | odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opencensus |  |  | &check; | &check; | &check; | &check; | &check; |
-| parallel |  |  |  | &check; | &check; | &check; | &check; |
+| parallel[*](#special-requirements-for-parallel) |  |  |  | &check; | &check; | &check; | &check; |
 | pcntl | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pcov |  |  | &check; | &check; | &check; | &check; | &check; |
 | pdo_dblib | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -100,7 +100,7 @@ RUN install-php-extensions gd xdebug
 | propro | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | protobuf | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pspell | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| pthreads | &check; | &check; | &check; |  |  |  |  |
+| pthreads[*](#special-requirements-for-pthreads) | &check; | &check; | &check; |  |  |  |  |
 | raphf | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | rdkafka | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | recode | &check; | &check; | &check; | &check; | &check; | &check; |  |
@@ -117,7 +117,7 @@ RUN install-php-extensions gd xdebug
 | sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvsem | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvshm | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| tdlib |  |  | &check; | &check; | &check; | &check; | &check; |
+| tdlib[*](#special-requirements-for-tdlib) |  |  | &check; | &check; | &check; | &check; | &check; |
 | tidy | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | timezonedb | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | uopz | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -189,9 +189,9 @@ Some extension has special requirements:
 <!-- ########################################################### -->
 | Extension | Requirements |
 |---|---|
-| parallel | Requires images with PHP compiled with thread-safety enabled (`zts`). |
-| pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
-| tdlib | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `jessie` docker images |
+| <a name="special-requirements-for-parallel"></a>parallel | Requires images with PHP compiled with thread-safety enabled (`zts`). |
+| <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
+| <a name="special-requirements-for-tdlib"></a>tdlib | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `jessie` docker images |
 <!-- END OF SPECIAL REQUIREMENTS -->
 
 
