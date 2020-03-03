@@ -1236,7 +1236,13 @@ installPECLModule() {
 			;;
 		tdlib)
 			if ! test -f /usr/lib/libphpcpp.so || ! test -f /usr/include/phpcpp.h; then
-				cd "$(getPackageSource https://codeload.github.com/CopernicaMarketingSoftware/PHP-CPP/tar.gz/444d1f90cf6b7f3cb5178fa0d0b5ab441b0389d0)"
+				if test $PHP_MAJMIN_VERSION -le 701; then
+					cd "$(getPackageSource https://codeload.github.com/CopernicaMarketingSoftware/PHP-CPP/tar.gz/v2.1.4)"
+				elif test $PHP_MAJMIN_VERSION -le 703; then
+					cd "$(getPackageSource https://codeload.github.com/CopernicaMarketingSoftware/PHP-CPP/tar.gz/v2.2.0)"
+				else
+					cd "$(getPackageSource https://codeload.github.com/CopernicaMarketingSoftware/PHP-CPP/tar.gz/444d1f90cf6b7f3cb5178fa0d0b5ab441b0389d0)"
+				fi
 				make -j$(nproc)
 				make install
 				cd - >/dev/null
