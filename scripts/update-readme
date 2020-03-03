@@ -143,25 +143,43 @@ generateExtensionsTable() {
 # Output:
 # the markdown table
 generateSpecialRequirementsTable() {
-	generateSpecialRequirementsTable_started=''
+	generateSpecialRequirementsTable_started=0
 	IFS='
 '
 	for generateSpecialRequirementsTable_line in $(cat -- "$1" | sort); do
-		if test -z "$generateSpecialRequirementsTable_started"; then
-			printf '| Extension | Requirements |\n'
-			printf '|:---:|:---:|\n'
-			generateSpecialRequirementsTable_started='y'
-		fi
 		resetIFS
-		generateSpecialRequirementsTable_requirement="$(echo "$generateSpecialRequirementsTable_line" | sed -E 's/^\s*\w+\s+//')"
-		case "$generateSpecialRequirementsTable_requirement" in
-			zts)
-				generateSpecialRequirementsTable_requirement='Requires images with PHP compiled with thread-safety enabled (`zts`).'
-				;;
-		esac
-		printf '| %s | %s |\n' \
-			"$(echo "$generateSpecialRequirementsTable_line" | awk '{print $1;}')" \
-			"$generateSpecialRequirementsTable_requirement"
+		generateSpecialRequirementsTable_index=0
+		for generateSpecialRequirementsTable_chunk in $generateSpecialRequirementsTable_line; do
+			if test $generateSpecialRequirementsTable_index -eq 0; then
+				generateSpecialRequirementsTable_extension="$generateSpecialRequirementsTable_chunk"
+			else
+				if test $generateSpecialRequirementsTable_index -eq 1; then
+					generateSpecialRequirementsTable_requirements=''
+				elif test $generateSpecialRequirementsTable_index -eq 2; then
+					generateSpecialRequirementsTable_requirements="$(printf -- '&bull; %s<br />&bull; ' "$generateSpecialRequirementsTable_requirements")"
+				else
+					generateSpecialRequirementsTable_requirements="$(printf '%s<br />&bull; ' "$generateSpecialRequirementsTable_requirements")"
+				fi
+				case "$generateSpecialRequirementsTable_chunk" in
+					zts)
+						generateSpecialRequirementsTable_chunk='Requires images with PHP compiled with thread-safety enabled (`zts`).'
+						;;
+					!*)
+						generateSpecialRequirementsTable_chunk="$(printf 'Not available in `%s` docker images' "${generateSpecialRequirementsTable_chunk#!}")"
+						;;
+				esac
+				generateSpecialRequirementsTable_requirements="$(printf '%s%s' "$generateSpecialRequirementsTable_requirements" "$generateSpecialRequirementsTable_chunk")"
+			fi
+			generateSpecialRequirementsTable_index=$((generateSpecialRequirementsTable_index + 1))
+		done
+		if test $generateSpecialRequirementsTable_index -gt 1; then
+			if test $generateSpecialRequirementsTable_started -eq 0; then
+				printf '| Extension | Requirements |\n'
+				printf '|---|---|\n'
+				generateSpecialRequirementsTable_started=1
+			fi
+			printf '| %s | %s |\n' "$generateSpecialRequirementsTable_extension" "$generateSpecialRequirementsTable_requirements"
+		fi
 	done
 }
 
