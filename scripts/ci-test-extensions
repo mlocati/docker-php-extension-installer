@@ -76,6 +76,29 @@ extractExtensionsFromData() {
 	EXTENSIONS_TO_BE_TESTED="${EXTENSIONS_TO_BE_TESTED# }"
 }
 
+# Remove from the EXTENSIONS_TO_BE_TESTED variable the extensions that are
+# not supported in the distro specified in the data/special-requirements file
+
+# Update: EXTENSIONS_TO_BE_TESTED
+filterUnsupportedExensionsForDistro() {
+	if test -z "$EXTENSIONS_TO_BE_TESTED"; then
+		return
+	fi
+	filterUnsupportedExensionsForDistro_reqs="$CI_BUILD_DIR/data/special-requirements"
+	if ! test -f "$filterUnsupportedExensionsForDistro_reqs"; then
+		return
+	fi
+	filterUnsupportedExensionsForDistro_filtered=''
+	for filterUnsupportedExensionsForDistro_extension in "$EXTENSIONS_TO_BE_TESTED"; do
+		if stringInList "!$DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
+			printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$DOCKER_DISTRO"
+		else
+			filterUnsupportedExensionsForDistro_filtered="$filterUnsupportedExensionsForDistro_filtered $filterUnsupportedExensionsForDistro_extension"
+		fi
+	done
+	EXTENSIONS_TO_BE_TESTED="${filterUnsupportedExensionsForDistro_filtered# }"
+}
+
 # Get the docker image ID for a PHP extension and a PHP version
 #
 # Arguments:
@@ -262,6 +285,8 @@ if test -z "${DOCKER_DISTRO:-}"; then
 	exit 1
 fi
 
+. "$CI_BUILD_DIR/scripts/common"
+
 case "${1:-}" in
 	from-commits)
 		if test -z "${2:-}"; then
@@ -289,12 +314,12 @@ case "${1:-}" in
 		;;
 esac
 
+filterUnsupportedExensionsForDistro
+
 if test -z "$EXTENSIONS_TO_BE_TESTED"; then
 	echo 'No extensions to be tested.'
 	exit 0
 fi
-
-. "$CI_BUILD_DIR/scripts/common"
 
 printf '### EXTENSIONS TO BE TESTED: %s\n' "$EXTENSIONS_TO_BE_TESTED"
 SOME_TEST_FAILED=0
