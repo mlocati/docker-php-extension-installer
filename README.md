@@ -117,7 +117,7 @@ RUN install-php-extensions gd xdebug
 | sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvsem | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvshm | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| tdlib |  |  |  |  |  | &check; | &check; |
+| tdlib |  |  | &check; | &check; | &check; | &check; | &check; |
 | tidy | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | timezonedb | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | uopz | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -191,6 +191,7 @@ Some extension has special requirements:
 |---|---|
 | parallel | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 | pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
+| tdlib | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `jessie` docker images |
 <!-- END OF SPECIAL REQUIREMENTS -->
 
 
