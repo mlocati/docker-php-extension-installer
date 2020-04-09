@@ -61,6 +61,7 @@ RUN install-php-extensions gd xdebug
 | enchant | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ffi |  |  |  |  |  |  | &check; |
+| swoole |  |  |  |  |  |  | &check; |
 | gd | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gettext | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gmagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -129,7 +130,7 @@ RUN install-php-extensions gd xdebug
 | yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 78*
+*Number of supported extensions: 79*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
