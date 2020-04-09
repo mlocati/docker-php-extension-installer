@@ -276,6 +276,9 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libintl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gettext-dev"
 				;;
+			swoole@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev m4 autoconf make gcc g++ linux-headers"
+				;;
 			gmagick@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent graphicsmagick"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile graphicsmagick-dev libtool"
