@@ -61,7 +61,7 @@ RUN install-php-extensions gd xdebug
 | enchant | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ffi |  |  |  |  |  |  | &check; |
-| swoole |  |  |  |  |  |  | &check; |
+| swoole | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gd | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gettext | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gmagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
