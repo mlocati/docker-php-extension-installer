@@ -1282,6 +1282,11 @@ installPECLModule() {
 				installPECLModule_actual="$2-5.0.2"
 			fi
 			;;
+		xhprof)
+			if test $1 -le 506; then
+				installPECLModule_actual="$2-0.9.4"
+			fi
+			;;
 		yaml)
 			if test $1 -lt 700; then
 				installPECLModule_actual="$2-1.3.1"
