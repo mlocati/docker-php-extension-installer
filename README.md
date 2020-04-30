@@ -124,12 +124,13 @@ RUN install-php-extensions gd xdebug
 | uuid | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xmlrpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xsl | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 78*
+*Number of supported extensions: 79*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
