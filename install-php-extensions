@@ -138,6 +138,14 @@ processCommandArguments() {
 # Output:
 #   Nothing
 sortModulesToInstall() {
+	if stringInList 'apcu_bc' "$PHP_MODULES_TO_INSTALL"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'apcu_bc' "$PHP_MODULES_TO_INSTALL")"
+		sortModulesToInstall_alreadyInstalled="$(getPHPInstalledModules)"
+		if ! stringInList 'apcu' "$PHP_MODULES_TO_INSTALL" && ! stringInList 'apcu' "$sortModulesToInstall_alreadyInstalled"; then
+			PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL apcu"
+		fi
+		PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL apcu_bc"
+	fi
 	if stringInList 'igbinary' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'igbinary' "$PHP_MODULES_TO_INSTALL")"
 		if test -z "$PHP_MODULES_TO_INSTALL"; then
@@ -1302,6 +1310,10 @@ installPECLModule() {
 		printf "$installPECLModule_stdin" | pecl install "$installPECLModule_actual"
 	fi
 	case "$2" in
+		apcu_bc)
+			# apcu_bc must be loaded after apcu
+			docker-php-ext-enable --ini-name "xx-php-ext-$2.ini" apc
+			;;
 		http)
 			# http must be loaded after raphf and propro
 			docker-php-ext-enable --ini-name "xx-php-ext-$2.ini" "$2"
