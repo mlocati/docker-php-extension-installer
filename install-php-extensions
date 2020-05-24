@@ -1304,7 +1304,11 @@ installPECLModule() {
 	case "$2" in
 		http)
 			# http must be loaded after raphf and propro
-			docker-php-ext-enable --ini-name "zzz-$2.ini" "$2"
+			docker-php-ext-enable --ini-name "xx-php-ext-$2.ini" "$2"
+			;;
+		memcached)
+			# memcached must be loaded after msgpack
+			docker-php-ext-enable --ini-name "xx-php-ext-$2.ini" "$2"
 			;;
 		*)
 			docker-php-ext-enable "$2"
