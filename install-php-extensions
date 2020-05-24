@@ -1443,7 +1443,7 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 				if test $PHP_MAJMIN_VERSION -lt 700; then
 					MODULE_SOURCE="https://github.com/igbinary/igbinary/archive/2.0.8.tar.gz"
 				else
-					MODULE_SOURCE="https://github.com/igbinary/igbinary/archive/3.0.1.tar.gz"
+					MODULE_SOURCE="https://github.com/igbinary/igbinary/archive/3.1.2.tar.gz"
 				fi
 				MODULE_SOURCE_CONFIGOPTIONS=--enable-igbinary
 				MODULE_SOURCE_CFLAGS='-O2 -g'
