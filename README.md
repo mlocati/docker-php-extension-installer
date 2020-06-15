@@ -52,6 +52,7 @@ RUN install-php-extensions gd xdebug
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | amqp | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | apcu | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| apcu_bc |  |  | &check; | &check; | &check; | &check; | &check; |
 | bcmath | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | bz2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | calendar | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -130,7 +131,7 @@ RUN install-php-extensions gd xdebug
 | yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 79*
+*Number of supported extensions: 80*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
