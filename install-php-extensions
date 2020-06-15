@@ -1068,6 +1068,11 @@ installPECLModule() {
 				fi
 			fi
 			;;
+		igbinary)
+			if test $1 -lt 700; then
+				installPECLModule_actual="$2-2.0.8"
+			fi
+			;;
 		memcache)
 			if test $1 -lt 700; then
 				installPECLModule_actual="$2-2.2.7"
@@ -1438,15 +1443,6 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 				make install
 				cd - >/dev/null
 				MODULE_SOURCE_CONFIGOPTIONS=--with-cmark
-				;;
-			igbinary)
-				if test $PHP_MAJMIN_VERSION -lt 700; then
-					MODULE_SOURCE="https://github.com/igbinary/igbinary/archive/2.0.8.tar.gz"
-				else
-					MODULE_SOURCE="https://github.com/igbinary/igbinary/archive/3.0.1.tar.gz"
-				fi
-				MODULE_SOURCE_CONFIGOPTIONS=--enable-igbinary
-				MODULE_SOURCE_CFLAGS='-O2 -g'
 				;;
 			snuffleupagus)
 				MODULE_SOURCE="https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v0.5.0"
