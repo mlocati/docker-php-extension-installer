@@ -4,6 +4,7 @@ $rc = 0;
 $numTestedExtensions = 0;
 $nameMap = [
     'opcache' => 'Zend OPcache',
+    'apcu_bc' => 'apc',
 ];
 $testsDir = __DIR__ . '/tests';
 function runTest($testFile)
