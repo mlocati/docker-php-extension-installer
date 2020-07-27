@@ -178,7 +178,6 @@ sortModulesToInstall() {
 # Get the required APT/APK packages for a specific PHP version and for the list of module handles
 #
 # Arguments:
-#   $1: the numeric PHP Major-Minor version
 #   $@: the PHP module handles
 #
 # Set:
@@ -188,7 +187,6 @@ sortModulesToInstall() {
 buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
-	buildRequiredPackageLists_phpv=$1
 	case "$DISTRO" in
 		alpine)
 			apk update
@@ -213,10 +211,9 @@ buildRequiredPackageLists() {
 			;;
 	esac
 	while :; do
-		if test $# -lt 2; then
+		if test $# -lt 1; then
 			break
 		fi
-		shift
 		case "$1@$DISTRO" in
 			amqp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent rabbitmq-c"
@@ -261,7 +258,7 @@ buildRequiredPackageLists() {
 			gd@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetype libjpeg-turbo libpng libxpm"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetype-dev libjpeg-turbo-dev libpng-dev libxpm-dev"
-				if test $buildRequiredPackageLists_phpv -le 506; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libvpx"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libvpx-dev"
 				else
@@ -272,7 +269,7 @@ buildRequiredPackageLists() {
 			gd@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfreetype6 libjpeg62-turbo libpng[0-9]+-[0-9]+$ libxpm4"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libfreetype6-dev libjpeg62-turbo-dev libpng-dev libxpm-dev"
-				if test $buildRequiredPackageLists_phpv -le 506; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libvpx[0-9]+$"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libvpx-dev"
 				else
@@ -309,7 +306,7 @@ buildRequiredPackageLists() {
 			http@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libevent"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev curl-dev libevent-dev"
-				if test $buildRequiredPackageLists_phpv -le 506; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libidn"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libidn-dev"
 				else
@@ -320,7 +317,7 @@ buildRequiredPackageLists() {
 			http@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libevent[0-9\.\-]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev libgnutls28-dev libcurl4-gnutls-dev libevent-dev"
-				if test $buildRequiredPackageLists_phpv -le 506; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libidn1[0-9+]-dev$"
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libicu[0-9]+$ libidn2-[0-9+]$"
@@ -419,12 +416,12 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
 			oauth@alpine)
-				if test $buildRequiredPackageLists_phpv -ge 700; then
+				if test $PHP_MAJMIN_VERSION -ge 700; then
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
 				fi
 				;;
 			oauth@debian)
-				if test $buildRequiredPackageLists_phpv -ge 700; then
+				if test $PHP_MAJMIN_VERSION -ge 700; then
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
 				fi
 				;;
@@ -508,7 +505,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librecode-dev"
 				;;
 			redis@alpine)
-				if test $buildRequiredPackageLists_phpv -ge 700; then
+				if test $PHP_MAJMIN_VERSION -ge 700; then
 					case "$DISTRO_VERSION" in
 						alpine@3.7)
 							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent zstd"
@@ -521,7 +518,7 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			redis@debian)
-				if test $buildRequiredPackageLists_phpv -ge 700; then
+				if test $PHP_MAJMIN_VERSION -ge 700; then
 					case "$DISTRO_VERSION" in
 						debian@8)
 							## There's no APT package for libzstd
@@ -654,7 +651,12 @@ buildRequiredPackageLists() {
 						;;
 				esac
 				;;
+			zookeeper@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzookeeper-mt2"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzookeeper-mt-dev"
+				;;
 		esac
+		shift
 	done
 	PACKAGES_PERSISTENT=''
 	PACKAGES_VOLATILE=''
@@ -825,8 +827,7 @@ compareVersions() {
 # Install a bundled PHP module given its handle
 #
 # Arguments:
-#   $1: the numeric PHP Major-Minor version
-#   $2: the handle of the PHP module
+#   $1: the handle of the PHP module
 #
 # Set:
 #   UNNEEDED_PACKAGE_LINKS
@@ -834,21 +835,21 @@ compareVersions() {
 # Output:
 #   Nothing
 installBundledModule() {
-	printf '### INSTALLING BUNDLED MODULE %s ###\n' "$2"
-	case "$2" in
+	printf '### INSTALLING BUNDLED MODULE %s ###\n' "$1"
+	case "$1" in
 		gd)
-			if test $1 -le 506; then
+			if test $PHP_MAJMIN_VERSION -le 506; then
 				docker-php-ext-configure gd --with-gd --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --enable-gd-native-ttf --with-vpx-dir
-			elif test $1 -le 701; then
+			elif test $PHP_MAJMIN_VERSION -le 701; then
 				docker-php-ext-configure gd --with-gd --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --enable-gd-native-ttf --with-webp-dir
-			elif test $1 -le 703; then
+			elif test $PHP_MAJMIN_VERSION -le 703; then
 				docker-php-ext-configure gd --with-gd --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --with-webp-dir
 			else
 				docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype
 			fi
 			;;
 		gmp)
-			if test $1 -le 506; then
+			if test $PHP_MAJMIN_VERSION -le 506; then
 				if ! test -f /usr/include/gmp.h; then
 					ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h
 					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/gmp.h"
@@ -883,7 +884,7 @@ installBundledModule() {
 						ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
 						cd - >/dev/null
 					fi
-					CFLAGS='-I/tmp/src/firebird/src/jrd -I/tmp/src/firebird/src/include -I/tmp/src/firebird/src/include/gen' docker-php-ext-configure $2
+					CFLAGS='-I/tmp/src/firebird/src/jrd -I/tmp/src/firebird/src/include -I/tmp/src/firebird/src/include/gen' docker-php-ext-configure $1
 					;;
 			esac
 			;;
@@ -895,7 +896,7 @@ installBundledModule() {
 			esac
 			;;
 		mssql | pdo_dblib)
-			if test $1 -le 704; then
+			if test $PHP_MAJMIN_VERSION -le 704; then
 				if ! test -f /usr/lib/libsybdb.so; then
 					ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
 					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/lib/libsybdb.so"
@@ -903,7 +904,7 @@ installBundledModule() {
 			fi
 			;;
 		odbc)
-			if test $1 -le 704; then
+			if test $PHP_MAJMIN_VERSION -le 704; then
 				docker-php-source extract
 				cd /usr/src/php/ext/odbc
 				phpize
@@ -936,17 +937,17 @@ installBundledModule() {
 			esac
 			;;
 		zip)
-			if test $1 -le 505; then
+			if test $PHP_MAJMIN_VERSION -le 505; then
 				docker-php-ext-configure zip
-			elif test $1 -le 703; then
+			elif test $PHP_MAJMIN_VERSION -le 703; then
 				docker-php-ext-configure zip --with-libzip
 			else
 				docker-php-ext-configure zip --with-zip
 			fi
 			;;
 	esac
-	docker-php-ext-install -j$(nproc) "$2"
-	case "$2" in
+	docker-php-ext-install -j$(nproc) "$1"
+	case "$1" in
 		imap)
 			case "$DISTRO_VERSION" in
 				debian@9)
@@ -1022,25 +1023,24 @@ installModuleFromSource() {
 # Install a PECL PHP module given its handle
 #
 # Arguments:
-#   $1: the numeric PHP Major-Minor version
-#   $2: the handle of the PHP module
+#   $1: the handle of the PHP module
 installPECLModule() {
-	printf '### INSTALLING PECL MODULE %s ###\n' "$2"
-	installPECLModule_actual="$2"
+	printf '### INSTALLING PECL MODULE %s ###\n' "$1"
+	installPECLModule_actual="$1"
 	installPECLModule_stdin='\n'
 	installPECLModule_manuallyInstalled=0
-	case "$2" in
+	case "$1" in
 		amqp)
 			case "$DISTRO_VERSION" in
 				debian@8)
 					# in Debian Jessie we have librammitmq version 0.5.2
-					installPECLModule_actual="$2-1.9.3"
+					installPECLModule_actual="$1-1.9.3"
 					;;
 			esac
 			;;
 		apcu)
-			if test $1 -le 506; then
-				installPECLModule_actual="$2-4.0.11"
+			if test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-4.0.11"
 			fi
 			;;
 		decimal)
@@ -1056,14 +1056,14 @@ installPECLModule() {
 			esac
 			;;
 		gmagick)
-			if test $1 -le 506; then
-				installPECLModule_actual="$2-1.1.7RC3"
+			if test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-1.1.7RC3"
 			else
-				installPECLModule_actual="$2-beta"
+				installPECLModule_actual="$1-beta"
 			fi
 			;;
 		http)
-			if test $1 -le 506; then
+			if test $PHP_MAJMIN_VERSION -le 506; then
 				installPECLModule_actual="pecl_http-2.6.0"
 			else
 				installPECLModule_actual="pecl_http"
@@ -1077,23 +1077,23 @@ installPECLModule() {
 			fi
 			;;
 		igbinary)
-			if test $1 -lt 700; then
-				installPECLModule_actual="$2-2.0.8"
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-2.0.8"
 			fi
 			;;
 		memcache)
-			if test $1 -lt 700; then
-				installPECLModule_actual="$2-2.2.7"
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-2.2.7"
 			fi
 			;;
 		mailparse)
-			if test $1 -lt 700; then
-				installPECLModule_actual="$2-2.1.6"
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-2.1.6"
 			fi
 			;;
 		memcached)
-			if test $1 -lt 700; then
-				installPECLModule_actual="$2-2.2.0"
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-2.2.0"
 				# --with-libmemcached-dir (default: no)      Set the path to libmemcached install prefix
 			else
 				installPECLModule_stdin=''
@@ -1123,23 +1123,23 @@ installPECLModule() {
 			installPECLModule_stdin="${installPECLModule_stdin}yes\n"
 			;;
 		mongodb)
-			if test $1 -le 505; then
-				installPECLModule_actual="$2-1.5.5"
+			if test $PHP_MAJMIN_VERSION -le 505; then
+				installPECLModule_actual="$1-1.5.5"
 			fi
 			;;
 		msgpack)
-			if test $1 -le 506; then
-				installPECLModule_actual="$2-0.5.7"
+			if test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-0.5.7"
 			fi
 			;;
 		oauth)
-			if test $1 -le 506; then
-				installPECLModule_actual="$2-1.2.3"
+			if test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-1.2.3"
 			fi
 			;;
 		opencensus)
-			if test $1 -le 702; then
-				installPECLModule_actual="$2-alpha"
+			if test $PHP_MAJMIN_VERSION -le 702; then
+				installPECLModule_actual="$1-alpha"
 			else
 				installPECLModule_manuallyInstalled=1
 				installPECLModule_src="$(getPackageSource https://pecl.php.net/get/opencensus)"
@@ -1152,41 +1152,41 @@ installPECLModule() {
 			fi
 			;;
 		parallel)
-			if test $1 -le 701; then
-				installPECLModule_actual="$2-0.8.3"
+			if test $PHP_MAJMIN_VERSION -le 701; then
+				installPECLModule_actual="$1-0.8.3"
 			fi
 			;;
 		pcov)
-			if test $1 -lt 701; then
-				installPECLModule_actual="$2-0.9.0"
+			if test $PHP_MAJMIN_VERSION -lt 701; then
+				installPECLModule_actual="$1-0.9.0"
 			fi
 			;;
 		pdo_sqlsrv | sqlsrv)
 			# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
-			if test $1 -le 700; then
-				installPECLModule_actual="$2-5.3.0"
-			elif test $1 -le 701; then
-				installPECLModule_actual="$2-5.6.1"
+			if test $PHP_MAJMIN_VERSION -le 700; then
+				installPECLModule_actual="$1-5.3.0"
+			elif test $PHP_MAJMIN_VERSION -le 701; then
+				installPECLModule_actual="$1-5.6.1"
 			fi
 			;;
 		propro)
-			if test $1 -lt 700; then
-				installPECLModule_actual="$2-1.0.2"
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-1.0.2"
 			fi
 			;;
 		pthreads)
-			if test $1 -lt 700; then
-				installPECLModule_actual="$2-2.0.10"
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-2.0.10"
 			fi
 			;;
 		raphf)
-			if test $1 -lt 700; then
-				installPECLModule_actual="$2-1.1.2"
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-1.1.2"
 			fi
 			;;
 		rdkafka)
-			if test $1 -le 505; then
-				installPECLModule_actual="$2-3.0.5"
+			if test $PHP_MAJMIN_VERSION -le 505; then
+				installPECLModule_actual="$1-3.0.5"
 			else
 				installPECLModule_tmp=
 				case "$DISTRO" in
@@ -1201,7 +1201,7 @@ installPECLModule() {
 					installPECLModule_tmp="$(getInstalledPackageVersion "$installPECLModule_tmp")"
 					if test -n "$installPECLModule_tmp"; then
 						if test $(compareVersions "$installPECLModule_tmp" '0.11.0') -lt 0; then
-							installPECLModule_actual="$2-3.1.3"
+							installPECLModule_actual="$1-3.1.3"
 						fi
 					fi
 				fi
@@ -1212,8 +1212,8 @@ installPECLModule() {
 			php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_stdin='yes\n' || installPECLModule_stdin='no\n'
 			# enable lzf compression support?
 			installPECLModule_stdin="${installPECLModule_stdin}yes\n"
-			if test $1 -le 506; then
-				installPECLModule_actual="$2-4.3.0"
+			if test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-4.3.0"
 			else
 				installPECLModule_machine=$(gcc -dumpmachine)
 				if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$installPECLModule_machine/libzstd.so"; then
@@ -1235,13 +1235,13 @@ installPECLModule() {
 			fi
 			;;
 		solr)
-			if test $1 -le 506; then
-				installPECLModule_actual="$2-2.4.0"
+			if test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-2.4.0"
 			fi
 			;;
 		ssh2)
-			if test $1 -le 506; then
-				installPECLModule_actual="$2-0.13"
+			if test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-0.13"
 			else
 				# see https://bugs.php.net/bug.php?id=78560
 				installPECLModule_actual='https://pecl.php.net/get/ssh2'
@@ -1271,64 +1271,83 @@ installPECLModule() {
 			installPECLModule_manuallyInstalled=1
 			;;
 		uuid)
-			if test $1 -le 506; then
-				installPECLModule_actual="$2-1.0.5"
+			if test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-1.0.5"
 			fi
 			;;
 		xdebug)
-			if test $1 -le 500; then
-				installPECLModule_actual="$2-2.0.5"
-			elif test $1 -le 503; then
-				installPECLModule_actual="$2-2.2.7"
-			elif test $1 -le 504; then
-				installPECLModule_actual="$2-2.4.1"
-			elif test $1 -le 506; then
-				installPECLModule_actual="$2-2.5.5"
-			elif test $1 -le 700; then
-				installPECLModule_actual="$2-2.6.1"
+			if test $PHP_MAJMIN_VERSION -le 500; then
+				installPECLModule_actual="$1-2.0.5"
+			elif test $PHP_MAJMIN_VERSION -le 503; then
+				installPECLModule_actual="$1-2.2.7"
+			elif test $PHP_MAJMIN_VERSION -le 504; then
+				installPECLModule_actual="$1-2.4.1"
+			elif test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-2.5.5"
+			elif test $PHP_MAJMIN_VERSION -le 700; then
+				installPECLModule_actual="$1-2.6.1"
 			fi
 			;;
 		uopz)
-			if test $1 -lt 700; then
-				installPECLModule_actual="$2-2.0.7"
-			elif test $1 -lt 701; then
-				installPECLModule_actual="$2-5.0.2"
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-2.0.7"
+			elif test $PHP_MAJMIN_VERSION -lt 701; then
+				installPECLModule_actual="$1-5.0.2"
 			fi
 			;;
 		xhprof)
-			if test $1 -le 506; then
-				installPECLModule_actual="$2-0.9.4"
+			if test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-0.9.4"
 			fi
 			;;
 		yaml)
-			if test $1 -lt 700; then
-				installPECLModule_actual="$2-1.3.1"
-			elif test $1 -lt 701; then
-				installPECLModule_actual="$2-2.0.4"
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-1.3.1"
+			elif test $PHP_MAJMIN_VERSION -lt 701; then
+				installPECLModule_actual="$1-2.0.4"
+			fi
+			;;
+		zookeeper)
+			case "$DISTRO" in
+				alpine)
+					if ! test -f /usr/local/include/zookeeper/zookeeper.h; then
+						installPECLModule_src="$(getPackageSource https://downloads.apache.org/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz)"
+						cd -- "$installPECLModule_src/zookeeper-client/zookeeper-client-c"
+						./configure --without-cppunit
+						make -j$(nproc) CFLAGS='-Wno-stringop-truncation -Wno-format-overflow'
+						make install
+						cd - >/dev/null
+					fi
+					;;
+			esac
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				installPECLModule_actual="$1-0.5.0"
+			elif test $PHP_MAJMIN_VERSION -gt 702; then
+				installPECLModule_actual="$1-0.7.2"
 			fi
 			;;
 	esac
 	if test $installPECLModule_manuallyInstalled -eq 0; then
-		if test "$2" != "$installPECLModule_actual"; then
+		if test "$1" != "$installPECLModule_actual"; then
 			printf '  (installing version %s)\n' "$installPECLModule_actual"
 		fi
 		printf "$installPECLModule_stdin" | pecl install "$installPECLModule_actual"
 	fi
-	case "$2" in
+	case "$1" in
 		apcu_bc)
 			# apcu_bc must be loaded after apcu
-			docker-php-ext-enable --ini-name "xx-php-ext-$2.ini" apc
+			docker-php-ext-enable --ini-name "xx-php-ext-$1.ini" apc
 			;;
 		http)
 			# http must be loaded after raphf and propro
-			docker-php-ext-enable --ini-name "xx-php-ext-$2.ini" "$2"
+			docker-php-ext-enable --ini-name "xx-php-ext-$1.ini" "$1"
 			;;
 		memcached)
 			# memcached must be loaded after msgpack
-			docker-php-ext-enable --ini-name "xx-php-ext-$2.ini" "$2"
+			docker-php-ext-enable --ini-name "xx-php-ext-$1.ini" "$1"
 			;;
 		*)
-			docker-php-ext-enable "$2"
+			docker-php-ext-enable "$1"
 			;;
 	esac
 }
@@ -1435,7 +1454,7 @@ fi
 
 sortModulesToInstall
 
-buildRequiredPackageLists $PHP_MAJMIN_VERSION $PHP_MODULES_TO_INSTALL
+buildRequiredPackageLists $PHP_MODULES_TO_INSTALL
 if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
 	installRequiredPackages
 fi
@@ -1443,7 +1462,7 @@ docker-php-source extract
 BUNDLED_MODULES="$(find /usr/src/php/ext -mindepth 2 -maxdepth 2 -type f -name 'config.m4' | xargs -n1 dirname | xargs -n1 basename | xargs)"
 for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 	if stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
-		installBundledModule $PHP_MAJMIN_VERSION "$PHP_MODULE_TO_INSTALL"
+		installBundledModule "$PHP_MODULE_TO_INSTALL"
 	else
 		MODULE_SOURCE=''
 		MODULE_SOURCE_CONFIGOPTIONS=''
@@ -1464,7 +1483,7 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 		if test -n "$MODULE_SOURCE"; then
 			installModuleFromSource "$PHP_MODULE_TO_INSTALL" "$MODULE_SOURCE" "$MODULE_SOURCE_CONFIGOPTIONS" "$MODULE_SOURCE_CFLAGS"
 		else
-			installPECLModule $PHP_MAJMIN_VERSION "$PHP_MODULE_TO_INSTALL"
+			installPECLModule "$PHP_MODULE_TO_INSTALL"
 		fi
 	fi
 done
