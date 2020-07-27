@@ -130,8 +130,9 @@ RUN install-php-extensions gd xdebug
 | xsl | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 80*
+*Number of supported extensions: 81*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
