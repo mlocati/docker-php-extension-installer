@@ -651,11 +651,6 @@ buildRequiredPackageLists() {
 						;;
 				esac
 				;;
-			zookeeper@alpine)
-				if ! test -f /usr/local/include/zookeeper/zookeeper.h; then
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile automake libtool libressl-dev apache-ant openjdk8"
-				fi
-				;;
 			zookeeper@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzookeeper-mt2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzookeeper-mt-dev"
@@ -1317,9 +1312,6 @@ installPECLModule() {
 				alpine)
 					if ! test -f /usr/local/include/zookeeper/zookeeper.h; then
 						installPECLModule_src="$(getPackageSource https://downloads.apache.org/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz)"
-						cd -- "$installPECLModule_src"
-						ant ivy-retrieve compile_jute
-						cd - >/dev/null
 						cd -- "$installPECLModule_src/zookeeper-client/zookeeper-client-c"
 						./configure --without-cppunit
 						make -j$(nproc)
