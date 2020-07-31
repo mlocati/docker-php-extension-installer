@@ -1125,6 +1125,8 @@ installPECLModule() {
 		mongodb)
 			if test $PHP_MAJMIN_VERSION -le 505; then
 				installPECLModule_actual="$1-1.5.5"
+			elif test $PHP_MAJMIN_VERSION -le 506; then
+				installPECLModule_actual="$1-1.7.5"
 			fi
 			;;
 		msgpack)
@@ -1331,6 +1333,7 @@ installPECLModule() {
 		if test "$1" != "$installPECLModule_actual"; then
 			printf '  (installing version %s)\n' "$installPECLModule_actual"
 		fi
+		pecl channel-update pecl.php.net || true
 		printf "$installPECLModule_stdin" | pecl install "$installPECLModule_actual"
 	fi
 	case "$1" in
