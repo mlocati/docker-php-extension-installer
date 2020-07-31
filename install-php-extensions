@@ -1331,6 +1331,7 @@ installPECLModule() {
 		if test "$1" != "$installPECLModule_actual"; then
 			printf '  (installing version %s)\n' "$installPECLModule_actual"
 		fi
+		pecl channel-update pecl.php.net || true
 		printf "$installPECLModule_stdin" | pecl install "$installPECLModule_actual"
 	fi
 	case "$1" in
