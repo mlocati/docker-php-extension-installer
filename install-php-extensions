@@ -909,6 +909,7 @@ installBundledModule() {
 				cd /usr/src/php/ext/odbc
 				phpize
 				sed -ri 's@^ *test +"\$PHP_.*" *= *"no" *&& *PHP_.*=yes *$@#&@g' configure
+				chmod +x ./configure
 				./configure --with-unixODBC=shared,/usr
 				cd - >/dev/null
 			fi
