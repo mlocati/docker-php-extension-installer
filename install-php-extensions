@@ -1339,7 +1339,7 @@ installPECLModule() {
 			printf '  (installing version %s)\n' "$installPECLModule_actual"
 		fi
 		pecl channel-update pecl.php.net || true
-		printf "$installPECLModule_stdin" | pecl install "$installPECLModule_actual"
+		printf "$installPECLModule_stdin" | MAKE="make -j$(nproc)" pecl install "$installPECLModule_actual"
 	fi
 	case "$1" in
 		apcu_bc)
