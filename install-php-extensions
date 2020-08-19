@@ -759,6 +759,23 @@ expandPackagesToBeInstalled() {
 	printf '%s' "${expandPackagesToBeInstalled_result# }"
 }
 
+# Retrieve the number of processors to be used when compiling an extension
+#
+# Arguments:
+#   $1: the handle of the PHP extension to be compiled
+# Output:
+#   The number of processors to be used
+getCompilationProcessorCount() {
+	case "$1" in
+		amqp | bcmath | bz2 | calendar | exif | gd | gettext | grpc | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | redis | soap | sockets | tidy | xdebug | xsl | yaml | zip)
+			nproc
+			;;
+		*)
+			echo 1
+			;;
+	esac
+}
+
 # Install the required APT/APK packages
 #
 # Arguments:
@@ -1339,7 +1356,7 @@ installPECLModule() {
 			printf '  (installing version %s)\n' "$installPECLModule_actual"
 		fi
 		pecl channel-update pecl.php.net || true
-		printf "$installPECLModule_stdin" | pecl install "$installPECLModule_actual"
+		printf "$installPECLModule_stdin" | MAKE="make -j$(getCompilationProcessorCount $1)" pecl install "$installPECLModule_actual"
 	fi
 	case "$1" in
 		apcu_bc)
