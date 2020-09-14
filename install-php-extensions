@@ -349,7 +349,7 @@ buildRequiredPackageLists() {
 				esac
 				;;
 			interbase@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev ncurses-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev libtool ncurses-dev zlib-dev"
 				;;
 			interbase@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
@@ -442,7 +442,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
 			pdo_firebird@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev ncurses-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev libtool ncurses-dev zlib-dev"
 				;;
 			pdo_firebird@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
@@ -890,13 +890,11 @@ installBundledModule() {
 			case "$DISTRO" in
 				alpine)
 					if ! test -d /tmp/src/firebird; then
-						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R2_5_9/Firebird-2.5.9.27139-0.tar.bz2)" /tmp/src/firebird
+						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R3_0_6/Firebird-3.0.6.33328-0.tar.bz2)" /tmp/src/firebird
 						cd /tmp/src/firebird
-						#Patch rwlock.h (this has been fixed in later release of firebird 3.x)
-						sed -i '194s/.*/#if 0/' src/common/classes/rwlock.h
-						./configure --with-system-icu
+						./configure --with-builtin-tommath
 						# -j option can't be used: make targets must be compiled sequentially
-						make -s btyacc_binary gpre_boot libfbstatic libfbclient
+						make -s
 						cp gen/firebird/lib/libfbclient.so /usr/lib/
 						ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
 						cd - >/dev/null
