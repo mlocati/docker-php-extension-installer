@@ -157,6 +157,10 @@ getDockerImageName() {
 # Outputs:
 # the space-separated list of supported PHP versions
 getAllPHPVersionsForExtensions() {
+	if test -n "${PHP_VERSION_TO_TEST:-}"; then
+		echo "$PHP_VERSION_TO_TEST"
+		return
+	fi
 	getAllPHPVersionsForExtensions_result=''
 	IFS=' '
 	for getAllPHPVersionsForExtensions_extension in $1; do
