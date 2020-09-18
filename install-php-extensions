@@ -1355,8 +1355,7 @@ installPECLModule() {
 		if test "$1" != "$installPECLModule_actual"; then
 			printf '  (installing version %s)\n' "$installPECLModule_actual"
 		fi
-		pecl channel-update pecl.php.net || true
-		printf "$installPECLModule_stdin" | MAKE="make -j$(getCompilationProcessorCount $1)" pecl install "$installPECLModule_actual"
+		printf "$installPECLModule_stdin" | MAKE="make -j$(getCompilationProcessorCount $1)" $PECL_COMMAND "$installPECLModule_actual"
 	fi
 	case "$1" in
 		apcu_bc)
@@ -1375,6 +1374,27 @@ installPECLModule() {
 			docker-php-ext-enable "$1"
 			;;
 	esac
+}
+
+# Installs pickle to use instead of pecl
+# and add the zip extension that it requires, making sure its installed first
+installPickle() {
+	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
+		if ! stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
+			if test $PHP_MAJMIN_VERSION -lt 800; then
+				pecl channel-update pecl.php.net || true
+				PECL_COMMAND="pecl install"
+				return
+			fi
+			curl -L -f https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
+			chmod +x /tmp/pickle
+			if ! stringInList 'zip' "$(getPHPInstalledModules)"; then
+				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
+			fi
+			PECL_COMMAND="/tmp/pickle install --defaults"
+			return
+		fi
+	done
 }
 
 # Check if a string is in a list of space-separated string
@@ -1457,6 +1477,7 @@ cleanup() {
 	docker-php-source delete
 	rm -rf /tmp/pear
 	rm -rf /tmp/src
+	rm -rf /tmp/pickle
 }
 
 resetIFS
@@ -1465,7 +1486,7 @@ IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 setDistro
 setPHPMajorMinor
 case "$PHP_MAJMIN_VERSION" in
-	505 | 506 | 700 | 701 | 702 | 703 | 704) ;;
+	505 | 506 | 700 | 701 | 702 | 703 | 704 | 800) ;;
 	*)
 		printf "### ERROR: Unsupported PHP version: %s.%s ###\n" $((PHP_MAJMIN_VERSION / 100)) $((PHP_MAJMIN_VERSION % 100))
 		;;
@@ -1479,12 +1500,14 @@ fi
 
 sortModulesToInstall
 
+docker-php-source extract
+BUNDLED_MODULES="$(find /usr/src/php/ext -mindepth 2 -maxdepth 2 -type f -name 'config.m4' | xargs -n1 dirname | xargs -n1 basename | xargs)"
+installPickle
+
 buildRequiredPackageLists $PHP_MODULES_TO_INSTALL
 if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
 	installRequiredPackages
 fi
-docker-php-source extract
-BUNDLED_MODULES="$(find /usr/src/php/ext -mindepth 2 -maxdepth 2 -type f -name 'config.m4' | xargs -n1 dirname | xargs -n1 basename | xargs)"
 for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 	if stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
 		installBundledModule "$PHP_MODULE_TO_INSTALL"
