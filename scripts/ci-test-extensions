@@ -211,7 +211,22 @@ getAllPHPVersionsForExtension() {
 			fi
 		done
 	done <"$CI_BUILD_DIR/data/supported-extensions"
-	printf '%s' "$getAllPHPVersionsForExtension_result"
+
+	filterUnsupportedExensionsForDistro_reqs="$CI_BUILD_DIR/data/special-requirements"
+	if test -f "$filterUnsupportedExensionsForDistro_reqs"; then
+		getAllPHPVersionsForExtension_filtered_result=''
+		for getAllPHPVersionsForExtension_result_filter in $getAllPHPVersionsForExtension_result; do
+			if stringInList "!$getAllPHPVersionsForExtension_result_filter-$DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$1[ \t]")"; then
+				printf 'Note: extension "%s" is not supported for distro "%s" using php "%s"\n' "$1" "$DOCKER_DISTRO" "$getAllPHPVersionsForExtension_result_filter" >/dev/stderr
+			else
+				getAllPHPVersionsForExtension_filtered_result="$getAllPHPVersionsForExtension_filtered_result $getAllPHPVersionsForExtension_result_filter"
+			fi
+		done
+	else
+		getAllPHPVersionsForExtension_filtered_result="$getAllPHPVersionsForExtension_result"
+	fi
+
+	printf '%s' "${getAllPHPVersionsForExtension_filtered_result# }"
 }
 
 # Test extensions
