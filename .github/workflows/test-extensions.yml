@@ -51,6 +51,7 @@ jobs:
           - alpine3.9
           - alpine3.10
           - alpine3.11
+          - alpine3.12
           - jessie
           - stretch
           - buster
