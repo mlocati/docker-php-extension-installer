@@ -55,7 +55,7 @@ try {
         $image2 = $loadFuntion($tempFile);
         unlink($tempFile);
         $tempFile = null;
-        if (!is_resource($image2) || imagesx($image2) !== $imageWidth || imagesy($image2) !== $imageHeight) {
+        if (!(is_resource($image2) || is_object($image2)) || imagesx($image2) !== $imageWidth || imagesy($image2) !== $imageHeight) {
             throw new Exception("{$loadFuntion}() failed");
         }
         imagedestroy($image2);
