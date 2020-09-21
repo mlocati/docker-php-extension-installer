@@ -1239,30 +1239,43 @@ installPECLModule() {
 			fi
 			;;
 		redis)
-			# enable igbinary serializer support?
-			php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_stdin='yes\n' || installPECLModule_stdin='no\n'
-			# enable lzf compression support?
-			installPECLModule_stdin="${installPECLModule_stdin}yes\n"
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-4.3.0"
+			if test $PHP_MAJMIN_VERSION -ge 800; then
+				installPECLModule_src="$(getPackageSource https://codeload.github.com/phpredis/phpredis/tar.gz/develop)"
+				cd -- "$installPECLModule_src"
+				installPECLModule_cmd='./configure'
+				php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_cmd="$installPECLModule_cmd --enable-redis-igbinary"
+				phpize
+				$installPECLModule_cmd
+				make -j$(nproc)
+				make install
+				cd - >/dev/null
+				installPECLModule_manuallyInstalled=1
 			else
-				installPECLModule_machine=$(gcc -dumpmachine)
-				if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$installPECLModule_machine/libzstd.so"; then
-					installPECLModule_zstdVersion=1.4.4
-					installPECLModule_zstdVersionMajor=$(echo $installPECLModule_zstdVersion | cut -d. -f1)
-					rm -rf /tmp/src/zstd
-					mv "$(getPackageSource https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-$installPECLModule_zstdVersion.tar.gz)" /tmp/src/zstd
-					cd /tmp/src/zstd
-					make V=0 -j$(nproc) lib
-					cp -f lib/libzstd.so "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion"
-					ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersionMajor"
-					ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so"
-					ln -sf /tmp/src/zstd/lib/zstd.h /usr/include/zstd.h
-					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/zstd.h"
-					cd - >/dev/null
-				fi
-				# enable zstd compression support?
+				# enable igbinary serializer support?
+				php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_stdin='yes\n' || installPECLModule_stdin='no\n'
+				# enable lzf compression support?
 				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_actual="$1-4.3.0"
+				else
+					installPECLModule_machine=$(gcc -dumpmachine)
+					if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$installPECLModule_machine/libzstd.so"; then
+						installPECLModule_zstdVersion=1.4.4
+						installPECLModule_zstdVersionMajor=$(echo $installPECLModule_zstdVersion | cut -d. -f1)
+						rm -rf /tmp/src/zstd
+						mv "$(getPackageSource https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-$installPECLModule_zstdVersion.tar.gz)" /tmp/src/zstd
+						cd /tmp/src/zstd
+						make V=0 -j$(nproc) lib
+						cp -f lib/libzstd.so "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion"
+						ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersionMajor"
+						ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so"
+						ln -sf /tmp/src/zstd/lib/zstd.h /usr/include/zstd.h
+						UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/zstd.h"
+						cd - >/dev/null
+					fi
+					# enable zstd compression support?
+					installPECLModule_stdin="${installPECLModule_stdin}yes\n"
+				fi
 			fi
 			;;
 		solr)
