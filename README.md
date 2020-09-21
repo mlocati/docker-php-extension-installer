@@ -124,7 +124,7 @@ RUN install-php-extensions gd xdebug
 | uopz | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | uuid | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
-| xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | xmlrpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | xsl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
