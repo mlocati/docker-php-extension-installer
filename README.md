@@ -105,7 +105,7 @@ RUN install-php-extensions gd xdebug
 | raphf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | rdkafka | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | recode | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
-| redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | shmop | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | snmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | snuffleupagus |  |  | &check; | &check; | &check; | &check; | &check; |  |
