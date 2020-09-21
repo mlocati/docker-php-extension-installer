@@ -1317,6 +1317,15 @@ installPECLModule() {
 				installPECLModule_actual="$1-2.5.5"
 			elif test $PHP_MAJMIN_VERSION -le 700; then
 				installPECLModule_actual="$1-2.6.1"
+			elif test $PHP_MAJMIN_VERSION -ge 800; then
+				installPECLModule_src="$(getPackageSource https://codeload.github.com/xdebug/xdebug/tar.gz/master)"
+				cd -- "$installPECLModule_src"
+				phpize
+				./configure --enable-xdebug
+				make -j$(nproc)
+				make install
+				cd - >/dev/null
+				installPECLModule_manuallyInstalled=1
 			fi
 			;;
 		uopz)
