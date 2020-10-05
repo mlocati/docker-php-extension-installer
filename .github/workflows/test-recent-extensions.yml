@@ -2,7 +2,7 @@ name: Test recent
 
 on:
   schedule:
-    - cron: "0 */12 * * *"
+    - cron: "0 12 * * *"
   repository_dispatch:
     types:
       - test-recent
