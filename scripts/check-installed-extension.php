@@ -10,7 +10,7 @@ $testsDir = __DIR__ . '/tests';
 function runTest($testFile)
 {
     $rc = -1;
-    passthru($testFile, $rc);
+    passthru(escapeshellarg($testFile) . ' ' . PHP_VERSION_ID, $rc);
 
     return $rc === 0;
 }
