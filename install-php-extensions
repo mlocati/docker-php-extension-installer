@@ -42,6 +42,34 @@ setPHPMajorMinor() {
 	PHP_MAJMIN_VERSION=$(php-config --version | awk -F. '{print $1*100+$2}')
 }
 
+# Normalize the name of a PHP extension
+#
+# Arguments:
+#   $1: the name of the module to be normalized
+#
+# Output:
+#   The normalized module name
+normalizePHPModuleName() {
+	normalizePHPModuleName_name="$1"
+	case "$normalizePHPModuleName_name" in
+		*A* | *B* | *C* | *D* | *E* | *F* | *G* | *H* | *I* | *J* | *K* | *L* | *M* | *N* | *O* | *P* | *Q* | *R* | *S* | *T* | *U* | *V* | *W* | *X* | *Y* | *Z*)
+			normalizePHPModuleName_name="$(LC_CTYPE=C printf '%s' "$normalizePHPModuleName_name" | tr '[:upper:]' '[:lower:]')"
+			;;
+	esac
+	case "$normalizePHPModuleName_name" in
+		pecl_http)
+			normalizePHPModuleName_name='http'
+			;;
+		zend\ opcache)
+			normalizePHPModuleName_name='opcache'
+			;;
+		*\ *)
+			printf '### WARNING Unrecognized module name: %s ###\n' "$1" >&2
+			;;
+	esac
+	printf '%s' "$normalizePHPModuleName_name"
+}
+
 # Set these variables:
 # - PHP_PREINSTALLED_MODULES the normalized list of PHP modules installed before running this script
 setPHPPreinstalledModules() {
@@ -55,24 +83,13 @@ setPHPPreinstalledModules() {
 			\[Zend\ Modules\])
 				break
 				;;
-			Core | PDO | PDO_* | Phar | Reflection | SimpleXML | SPL | SQLite | Xdebug)
-				getPHPInstalledModules_moduleNormalized=$(LC_CTYPE=C printf '%s' "$getPHPInstalledModules_module" | tr '[:upper:]' '[:lower:]')
-				;;
-			Zend\ OPcache)
-				getPHPInstalledModules_moduleNormalized='opcache'
-				;;
-			*\ * | *A* | *B* | *C* | *D* | *E* | *F* | *G* | *H* | *I* | *J* | *K* | *L* | *M* | *N* | *O* | *P* | *Q* | *R* | *S* | *T* | *U* | *V* | *W* | *X* | *Y* | *Z*)
-				printf '### WARNING Unrecognized module name: %s ###\n' "$getPHPInstalledModules_module" >&2
-				;;
 			*)
-				getPHPInstalledModules_moduleNormalized="$getPHPInstalledModules_module"
+				getPHPInstalledModules_moduleNormalized="$(normalizePHPModuleName "$getPHPInstalledModules_module")"
+				if ! stringInList "$getPHPInstalledModules_moduleNormalized" "$PHP_PREINSTALLED_MODULES"; then
+					PHP_PREINSTALLED_MODULES="$PHP_PREINSTALLED_MODULES $getPHPInstalledModules_moduleNormalized"
+				fi
 				;;
 		esac
-		if test -n "$getPHPInstalledModules_moduleNormalized"; then
-			if ! stringInList "$getPHPInstalledModules_moduleNormalized" "$PHP_PREINSTALLED_MODULES"; then
-				PHP_PREINSTALLED_MODULES="$PHP_PREINSTALLED_MODULES $getPHPInstalledModules_moduleNormalized"
-			fi
-		fi
 	done
 	resetIFS
 	PHP_PREINSTALLED_MODULES="${PHP_PREINSTALLED_MODULES# }"
@@ -113,14 +130,7 @@ processCommandArguments() {
 			esac
 		fi
 		if test $processCommandArguments_skip -eq 0; then
-			case "$1" in
-				pecl_http)
-					processCommandArguments_name='http'
-					;;
-				*)
-					processCommandArguments_name=$1
-					;;
-			esac
+			processCommandArguments_name="$(normalizePHPModuleName "$1")"
 			if stringInList "$processCommandArguments_name" "$PHP_MODULES_TO_INSTALL"; then
 				printf '### WARNING Duplicated module name specified: %s ###\n' "$processCommandArguments_name" >&2
 			elif stringInList "$processCommandArguments_name" "$PHP_PREINSTALLED_MODULES"; then
