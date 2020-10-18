@@ -137,6 +137,33 @@ processCommandArguments() {
 	PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL# }"
 }
 
+# Add a module that's required by another module
+#
+# Arguments:
+#   $1: module that requires another module
+#   $2: the required module
+#
+# Update:
+#   PHP_MODULES_TO_INSTALL
+#
+# Output:
+#   Nothing
+checkRequiredModule() {
+	if ! stringInList "$1" "$PHP_MODULES_TO_INSTALL"; then
+		return
+	fi
+	checkRequiredModule_alreadyInstalled="$(getPHPInstalledModules)"
+	if stringInList "$2" "$checkRequiredModule_alreadyInstalled"; then
+		return
+	fi
+	PHP_MODULES_TO_INSTALL="$(removeStringFromList "$1" "$PHP_MODULES_TO_INSTALL")"
+	if ! stringInList "$2" "$PHP_MODULES_TO_INSTALL"; then
+		PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL $2"
+		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL# }"
+	fi
+	PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL $1"
+}
+
 # Sort the modules to be installed, in order to fix dependencies
 #
 # Update:
@@ -145,40 +172,22 @@ processCommandArguments() {
 # Output:
 #   Nothing
 sortModulesToInstall() {
-	if stringInList 'apcu_bc' "$PHP_MODULES_TO_INSTALL"; then
-		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'apcu_bc' "$PHP_MODULES_TO_INSTALL")"
-		sortModulesToInstall_alreadyInstalled="$(getPHPInstalledModules)"
-		if ! stringInList 'apcu' "$PHP_MODULES_TO_INSTALL" && ! stringInList 'apcu' "$sortModulesToInstall_alreadyInstalled"; then
-			PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL apcu"
-		fi
-		PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL apcu_bc"
-	fi
+	# apcu_bc requires apcu
+	checkRequiredModule 'apcu_bc' 'apcu'
+	# http requires propro and raphf
+	checkRequiredModule 'http' 'propro'
+	checkRequiredModule 'http' 'raphf'
+	# Some module installation may use igbinary if available: move it before other modules
 	if stringInList 'igbinary' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'igbinary' "$PHP_MODULES_TO_INSTALL")"
-		if test -z "$PHP_MODULES_TO_INSTALL"; then
-			PHP_MODULES_TO_INSTALL='igbinary'
-		else
-			PHP_MODULES_TO_INSTALL="igbinary $PHP_MODULES_TO_INSTALL"
-		fi
+		PHP_MODULES_TO_INSTALL="igbinary $PHP_MODULES_TO_INSTALL"
+		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
 	fi
+	# Some module installation may use msgpack if available: move it before other modules
 	if stringInList 'msgpack' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'msgpack' "$PHP_MODULES_TO_INSTALL")"
-		if test -z "$PHP_MODULES_TO_INSTALL"; then
-			PHP_MODULES_TO_INSTALL='msgpack'
-		else
-			PHP_MODULES_TO_INSTALL="msgpack $PHP_MODULES_TO_INSTALL"
-		fi
-	fi
-	if stringInList 'http' "$PHP_MODULES_TO_INSTALL"; then
-		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'http' "$PHP_MODULES_TO_INSTALL")"
-		sortModulesToInstall_alreadyInstalled="$(getPHPInstalledModules)"
-		if ! stringInList 'propro' "$PHP_MODULES_TO_INSTALL" && ! stringInList 'propro' "$sortModulesToInstall_alreadyInstalled"; then
-			PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL propro"
-		fi
-		if ! stringInList 'raphf' "$PHP_MODULES_TO_INSTALL" && ! stringInList 'raphf' "$sortModulesToInstall_alreadyInstalled"; then
-			PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL raphf"
-		fi
-		PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL http"
+		PHP_MODULES_TO_INSTALL="msgpack $PHP_MODULES_TO_INSTALL"
+		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
 	fi
 }
 
