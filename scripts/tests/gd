@@ -1,4 +1,20 @@
+#!/usr/bin/env php
 <?php
+
+set_error_handler(
+    static function ($errno, $errstr, $errfile, $errline) {
+        $msg = "Error {$errno}: {$errstr}\n";
+        if ($errfile) {
+            $msg .= "File: {$errfile}\n";
+            if ($errline) {
+                $msg .= "Line: {$errline}\n";
+            }
+        }
+        fwrite(STDERR, $msg);
+        exit(1);
+    },
+    -1
+);
 
 $imageWidth = 8;
 $imageHeight = 16;
@@ -60,6 +76,19 @@ try {
         }
         imagedestroy($image2);
     }
+    if (!function_exists('imagefttext')) {
+        throw new Exception('imagefttext() function is missing');
+    }
+    if (!function_exists('imageantialias')) {
+        throw new Exception('imageantialias() function is missing');
+    }
+    $rc = 0;
+} catch (Exception $x) {
+    $rc = 1;
+    fwrite(STDERR, $x->getMessage());
+} catch (Throwable $x) {
+    $rc = 1;
+    fwrite(STDERR, $x->getMessage());
 } finally {
     imagedestroy($image);
     if (is_resource($image2)) {
@@ -69,12 +98,4 @@ try {
         unlink($tempFile);
     }
 }
-
-if (!function_exists('imagefttext')) {
-    throw new Exception('imagefttext() function is missing');
-}
-if (!function_exists('imageantialias')) {
-    throw new Exception('imageantialias() function is missing');
-}
-
-return true;
+exit($rc);
