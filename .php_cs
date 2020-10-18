@@ -325,5 +325,6 @@ return PhpCsFixer\Config::create()
         ->exclude('vendor')
         ->in(__DIR__)
         ->name('.php_cs')
+        ->append(glob(__DIR__ . '/scripts/tests/*'))
     )
 ;

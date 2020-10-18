@@ -9,7 +9,10 @@ $nameMap = [
 $testsDir = __DIR__ . '/tests';
 function runTest($testFile)
 {
-    return include $testFile;
+    $rc = -1;
+    passthru($testFile, $rc);
+
+    return $rc === 0;
 }
 
 for ($index = 1, $count = isset($argv) ? count($argv) : 0; $index < $count; $index++) {
@@ -26,7 +29,7 @@ for ($index = 1, $count = isset($argv) ? count($argv) : 0; $index < $count; $ind
         if (!extension_loaded($extension)) {
             fprintf(STDERR, sprintf("Extension not loaded: %s\n", $extension));
         } else {
-            $testFile = "{$testsDir}/{$extension}.php";
+            $testFile = "{$testsDir}/{$extension}";
             if (is_file($testFile)) {
                 try {
                     if (runTest($testFile) === true) {
