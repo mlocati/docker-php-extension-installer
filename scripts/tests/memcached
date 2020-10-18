@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -o errexit
+set -o nounset
+
+rc=0
+MODULE_CONFIGURATION="$(php --ri memcached)"
+if test $1 -ge 70000; then
+	if php --ri igbinary >/dev/null 2>/dev/null; then
+		if test -z "$(printf '%s' "$MODULE_CONFIGURATION" | grep 'igbinary support => yes')"; then
+			echo 'igbinary support has NOT been enabled!' >&2
+			rc=1
+		fi
+	fi
+	if php --ri msgpack >/dev/null 2>/dev/null; then
+		if test -z "$(printf '%s' "$MODULE_CONFIGURATION" | grep 'msgpack support => yes')"; then
+			echo 'msgpack support has NOT been enabled!' >&2
+			rc=1
+		fi
+	fi
+fi
+exit $rc

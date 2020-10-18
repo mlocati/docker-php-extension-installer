@@ -1071,7 +1071,7 @@ installModuleFromSource() {
 installPECLModule() {
 	printf '### INSTALLING PECL MODULE %s ###\n' "$1"
 	installPECLModule_actual="$1"
-	installPECLModule_stdin='\n'
+	rm -rf "$CONFIGURE_FILE"
 	installPECLModule_manuallyInstalled=0
 	case "$1" in
 		amqp)
@@ -1136,35 +1136,40 @@ installPECLModule() {
 			fi
 			;;
 		memcached)
+			# Set the path to libmemcached install prefix
+			addConfigureOption 'with-libmemcached-dir' 'no'
 			if test $PHP_MAJMIN_VERSION -lt 700; then
 				installPECLModule_actual="$1-2.2.0"
-				# --with-libmemcached-dir (default: no)      Set the path to libmemcached install prefix
 			else
-				installPECLModule_stdin=''
-				# --with-libmemcached-dir (default: no)      Set the path to libmemcached install prefix
-				installPECLModule_stdin="${installPECLModule_stdin}\n"
-				# --with-zlib-dir (default: no)              Set the path to ZLIB install prefix
-				installPECLModule_stdin="${installPECLModule_stdin}\n"
-				# --with-system-fastlz (default: no)         Use system FastLZ library
-				installPECLModule_stdin="${installPECLModule_stdin}no\n"
-				# --enable-memcached-igbinary (default: no)  Enable memcached igbinary serializer support
-				php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_stdin="${installPECLModule_stdin}yes\n" || installPECLModule_stdin="${installPECLModule_stdin}no\n"
-				# --enable-memcached-msgpack (default: no)   Enable memcached msgpack serializer support
-				php --ri msgpack >/dev/null 2>/dev/null && installPECLModule_stdin="${installPECLModule_stdin}yes\n" || installPECLModule_stdin="${installPECLModule_stdin}no\n"
-				# --enable-memcached-json (default: no)      Enable memcached json serializer support
-				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
-				# --enable-memcached-protocol (default: no)  Enable memcached protocol support
-				installPECLModule_stdin="${installPECLModule_stdin}no\n" # https://github.com/php-memcached-dev/php-memcached/issues/418#issuecomment-449587972
-				# --enable-memcached-sasl (default: yes)     Enable memcached sasl support
-				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
-				# --enable-memcached-session (default: yes)  Enable memcached session handler support
-				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
+				# Set the path to ZLIB install prefix
+				addConfigureOption 'with-zlib-dir' 'no'
+				# Use system FastLZ library
+				addConfigureOption 'with-system-fastlz' 'no'
+				# Enable memcached igbinary serializer support
+				if php --ri igbinary >/dev/null 2>/dev/null; then
+					addConfigureOption 'enable-memcached-igbinary' 'yes'
+				else
+					addConfigureOption 'enable-memcached-igbinary' 'no'
+				fi
+				# Enable memcached msgpack serializer support
+				if php --ri msgpack >/dev/null 2>/dev/null; then
+					addConfigureOption 'enable-memcached-msgpack' 'yes'
+				else
+					addConfigureOption 'enable-memcached-msgpack' 'no'
+				fi
+				# Enable memcached json serializer support
+				addConfigureOption 'enable-memcached-json' 'yes'
+				# Enable memcached protocol support
+				addConfigureOption 'enable-memcached-protocol' 'no' # https://github.com/php-memcached-dev/php-memcached/issues/418#issuecomment-449587972
+				# Enable memcached sasl support
+				addConfigureOption 'enable-memcached-sasl' 'yes'
+				# Enable memcached session handler support
+				addConfigureOption 'enable-memcached-session' 'yes'
 			fi
 			;;
 		mongo)
-			installPECLModule_stdin=''
-			# --with-mongo-sasl (default: no)      Build with Cyrus SASL (MongoDB Enterprise Authentication) support?
-			installPECLModule_stdin="${installPECLModule_stdin}yes\n"
+			# Build with Cyrus SASL (MongoDB Enterprise Authentication) support?
+			addConfigureOption '-with-mongo-sasl' 'yes'
 			;;
 		mongodb)
 			if test $PHP_MAJMIN_VERSION -le 505; then
@@ -1271,10 +1276,14 @@ installPECLModule() {
 				cd - >/dev/null
 				installPECLModule_manuallyInstalled=1
 			else
-				# enable igbinary serializer support?
-				php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_stdin='yes\n' || installPECLModule_stdin='no\n'
-				# enable lzf compression support?
-				installPECLModule_stdin="${installPECLModule_stdin}yes\n"
+				# Enable igbinary serializer support?
+				if php --ri igbinary >/dev/null 2>/dev/null; then
+					addConfigureOption 'enable-redis-igbinary' 'yes'
+				else
+					addConfigureOption 'enable-redis-igbinary' 'no'
+				fi
+				# Enable lzf compression support?
+				addConfigureOption 'enable-redis-lzf' 'yes'
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installPECLModule_actual="$1-4.3.0"
 				else
@@ -1293,8 +1302,8 @@ installPECLModule() {
 						UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/zstd.h"
 						cd - >/dev/null
 					fi
-					# enable zstd compression support?
-					installPECLModule_stdin="${installPECLModule_stdin}yes\n"
+					# Enable zstd compression support?
+					addConfigureOption 'enable-redis-zstd' 'yes'
 				fi
 			fi
 			;;
@@ -1404,7 +1413,7 @@ installPECLModule() {
 		if test "$1" != "$installPECLModule_actual"; then
 			printf '  (installing version %s)\n' "$installPECLModule_actual"
 		fi
-		printf "$installPECLModule_stdin" | MAKE="make -j$(getCompilationProcessorCount $1)" $PECL_COMMAND "$installPECLModule_actual"
+		installPeclPackage "$installPECLModule_actual"
 	fi
 	case "$1" in
 		apcu_bc)
@@ -1425,25 +1434,58 @@ installPECLModule() {
 	esac
 }
 
-# Installs pickle to use instead of pecl
-# and add the zip extension that it requires, making sure its installed first
-installPickle() {
+# Configure the PECL package installed
+# If we'll use pickle, the zip extension will be added to PHP_MODULES_TO_INSTALL
+#
+# Updates:
+#   PHP_MODULES_TO_INSTALL
+# Sets:
+#   USE_PICKLE
+configureInstaller() {
+	USE_PICKLE=0
 	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 		if ! stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
 			if test $PHP_MAJMIN_VERSION -lt 800; then
 				pecl channel-update pecl.php.net || true
-				PECL_COMMAND="pecl install"
 				return
 			fi
-			curl -L -f https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
+			curl -sSL https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
 			chmod +x /tmp/pickle
 			if ! stringInList 'zip' "$PHP_PREINSTALLED_MODULES"; then
 				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
 			fi
-			PECL_COMMAND="/tmp/pickle install --defaults"
+			USE_PICKLE=1
 			return
 		fi
 	done
+}
+
+# Add a configure option for the pecl/pickle install command
+#
+# Arguments:
+#   $1: the option name
+#   $2: the option value
+addConfigureOption() {
+	if test $USE_PICKLE -eq 0; then
+		printf -- '%s\n' "$2" >>"$CONFIGURE_FILE"
+	else
+		printf -- '--%s=%s\n' "$1" "$2" >>"$CONFIGURE_FILE"
+	fi
+}
+
+# Actually installs a PECL package
+#
+# Arguments:
+#   $1: the package to be installed
+installPeclPackage() {
+	if ! test -f "$CONFIGURE_FILE"; then
+		printf '\n' >"$CONFIGURE_FILE"
+	fi
+	if test $USE_PICKLE -eq 0; then
+		cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" pecl install "$1"
+	else
+		MAKE="make -j$(getCompilationProcessorCount $1)" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --with-configure-options "$CONFIGURE_FILE" -- "$1"
+	fi
 }
 
 # Check if a string is in a list of space-separated string
@@ -1527,11 +1569,15 @@ cleanup() {
 	rm -rf /tmp/pear
 	rm -rf /tmp/src
 	rm -rf /tmp/pickle
+	rm -rf /tmp/pickle.tmp
+	rm -rf "$CONFIGURE_FILE"
 }
 
 resetIFS
 mkdir -p /tmp/src
+mkdir -p /tmp/pickle.tmp
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
+CONFIGURE_FILE=/tmp/configure-options
 setDistro
 setPHPMajorMinor
 setPHPPreinstalledModules
@@ -1552,7 +1598,7 @@ sortModulesToInstall
 
 docker-php-source extract
 BUNDLED_MODULES="$(find /usr/src/php/ext -mindepth 2 -maxdepth 2 -type f -name 'config.m4' | xargs -n1 dirname | xargs -n1 basename | xargs)"
-installPickle
+configureInstaller
 
 buildRequiredPackageLists $PHP_MODULES_TO_INSTALL
 if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
