@@ -245,7 +245,7 @@ testExtension() {
 	testExtensionsFromMessage_result=0
 	IFS=' '
 	for testExtension_extension in $1; do
-		testExtension_extension="$(printf '%s' "$testExtension_extension" | sed 's/\+/ /g')"
+		testExtension_extension="$(printf '%s' "$testExtension_extension" | sed -E 's/\+/ /g')"
 		printf '### TESTING EXTENSION(S) %s ###\n' "$testExtension_extension"
 		for testExtension_phpVersion in $(getAllPHPVersionsForExtensions "$testExtension_extension"); do
 			if ! testExtensionFor "$testExtension_extension" "$testExtension_phpVersion"; then
