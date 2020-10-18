@@ -42,12 +42,10 @@ setPHPMajorMinor() {
 	PHP_MAJMIN_VERSION=$(php-config --version | awk -F. '{print $1*100+$2}')
 }
 
-# Get the normalized list of already installed PHP modules
-#
-# Output:
-#   Space-separated list of module handles
-getPHPInstalledModules() {
-	getPHPInstalledModules_result=''
+# Set these variables:
+# - PHP_PREINSTALLED_MODULES the normalized list of PHP modules installed before running this script
+setPHPPreinstalledModules() {
+	PHP_PREINSTALLED_MODULES=''
 	IFS='
 '
 	for getPHPInstalledModules_module in $(php -m); do
@@ -71,13 +69,13 @@ getPHPInstalledModules() {
 				;;
 		esac
 		if test -n "$getPHPInstalledModules_moduleNormalized"; then
-			if ! stringInList "$getPHPInstalledModules_moduleNormalized" "$getPHPInstalledModules_result"; then
-				getPHPInstalledModules_result="$getPHPInstalledModules_result $getPHPInstalledModules_moduleNormalized"
+			if ! stringInList "$getPHPInstalledModules_moduleNormalized" "$PHP_PREINSTALLED_MODULES"; then
+				PHP_PREINSTALLED_MODULES="$PHP_PREINSTALLED_MODULES $getPHPInstalledModules_moduleNormalized"
 			fi
 		fi
 	done
 	resetIFS
-	printf '%s' "${getPHPInstalledModules_result# }"
+	PHP_PREINSTALLED_MODULES="${PHP_PREINSTALLED_MODULES# }"
 }
 
 # Get the handles of the modules to be installed
@@ -91,7 +89,6 @@ getPHPInstalledModules() {
 # Output:
 #   Nothing
 processCommandArguments() {
-	processCommandArguments_alreadyInstalled="$(getPHPInstalledModules)"
 	processCommandArguments_endArgs=0
 	PHP_MODULES_TO_INSTALL=''
 	while :; do
@@ -126,7 +123,7 @@ processCommandArguments() {
 			esac
 			if stringInList "$processCommandArguments_name" "$PHP_MODULES_TO_INSTALL"; then
 				printf '### WARNING Duplicated module name specified: %s ###\n' "$processCommandArguments_name" >&2
-			elif stringInList "$processCommandArguments_name" "$processCommandArguments_alreadyInstalled"; then
+			elif stringInList "$processCommandArguments_name" "$PHP_PREINSTALLED_MODULES"; then
 				printf '### WARNING Module already installed: %s ###\n' "$processCommandArguments_name" >&2
 			else
 				PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL $processCommandArguments_name"
@@ -152,8 +149,7 @@ checkRequiredModule() {
 	if ! stringInList "$1" "$PHP_MODULES_TO_INSTALL"; then
 		return
 	fi
-	checkRequiredModule_alreadyInstalled="$(getPHPInstalledModules)"
-	if stringInList "$2" "$checkRequiredModule_alreadyInstalled"; then
+	if stringInList "$2" "$PHP_PREINSTALLED_MODULES"; then
 		return
 	fi
 	PHP_MODULES_TO_INSTALL="$(removeStringFromList "$1" "$PHP_MODULES_TO_INSTALL")"
@@ -1431,7 +1427,7 @@ installPickle() {
 			fi
 			curl -L -f https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
 			chmod +x /tmp/pickle
-			if ! stringInList 'zip' "$(getPHPInstalledModules)"; then
+			if ! stringInList 'zip' "$PHP_PREINSTALLED_MODULES"; then
 				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
 			fi
 			PECL_COMMAND="/tmp/pickle install --defaults"
@@ -1528,6 +1524,7 @@ mkdir -p /tmp/src
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 setDistro
 setPHPMajorMinor
+setPHPPreinstalledModules
 case "$PHP_MAJMIN_VERSION" in
 	505 | 506 | 700 | 701 | 702 | 703 | 704 | 800) ;;
 	*)
