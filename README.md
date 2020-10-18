@@ -52,7 +52,7 @@ RUN install-php-extensions gd xdebug
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | amqp | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | apcu | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| apcu_bc |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
+| apcu_bc |  |  | &check; | &check; | &check; | &check; | &check; |  |
 | bcmath | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | bz2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | calendar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
