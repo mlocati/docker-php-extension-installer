@@ -1435,7 +1435,7 @@ installPickle() {
 				PECL_COMMAND="pecl install"
 				return
 			fi
-			curl -L -f https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
+			curl -sSL https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
 			chmod +x /tmp/pickle
 			if ! stringInList 'zip' "$PHP_PREINSTALLED_MODULES"; then
 				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
