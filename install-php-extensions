@@ -786,6 +786,21 @@ expandPackagesToBeInstalled() {
 	printf '%s' "${expandPackagesToBeInstalled_result# }"
 }
 
+# Retrieve the number of available cores (alternative to nproc if not available)
+# Output:
+#   The number of processor cores available
+getProcessorCount() {
+	if command -v nproc >/dev/null 2>&1; then
+		nproc
+	else
+		getProcessorCount_tmp=$(cat /proc/cpuinfo | grep -E '^processor\s*:\s*\d+$' | wc -l)
+		if test $getProcessorCount_tmp -ge 1; then
+			echo $getProcessorCount_tmp
+		else
+			echo 1
+		fi
+	fi
+}
 # Retrieve the number of processors to be used when compiling an extension
 #
 # Arguments:
@@ -795,7 +810,7 @@ expandPackagesToBeInstalled() {
 getCompilationProcessorCount() {
 	case "$1" in
 		amqp | bcmath | bz2 | calendar | exif | gd | gettext | grpc | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | redis | soap | sockets | tidy | xdebug | xsl | yaml | zip)
-			nproc
+			getProcessorCount
 			;;
 		*)
 			echo 1
@@ -990,7 +1005,7 @@ installBundledModule() {
 			fi
 			;;
 	esac
-	docker-php-ext-install -j$(nproc) "$1"
+	docker-php-ext-install -j$(getProcessorCount) "$1"
 	case "$1" in
 		imap)
 			case "$DISTRO_VERSION" in
@@ -1053,7 +1068,7 @@ installModuleFromSource() {
 	esac
 	phpize
 	./configure $3 CFLAGS="${4:-}"
-	make -j$(nproc) install
+	make -j$(getProcessorCount) install
 	cd - >/dev/null
 	docker-php-ext-enable "$1"
 	case "$1" in
@@ -1093,7 +1108,7 @@ installPECLModule() {
 					installPECLModule_src="$(getPackageSource https://codeload.github.com/bematech/libmpdec/tar.gz/master)"
 					cd -- "$installPECLModule_src"
 					./configure CFLAGS='-w'
-					make -j$(nproc)
+					make -j$(getProcessorCount)
 					make install
 					cd - >/dev/null
 					;;
@@ -1115,7 +1130,7 @@ installPECLModule() {
 					installPECLModule_src="$(getPackageSource https://jprs.co.jp/idn/idnkit-2.3.tar.bz2)"
 					cd -- "$installPECLModule_src"
 					./configure
-					make -j$(nproc) install
+					make -j$(getProcessorCount) install
 					cd - >/dev/null
 				fi
 			fi
@@ -1271,7 +1286,7 @@ installPECLModule() {
 				php --ri igbinary >/dev/null 2>/dev/null && installPECLModule_cmd="$installPECLModule_cmd --enable-redis-igbinary"
 				phpize
 				$installPECLModule_cmd
-				make -j$(nproc)
+				make -j$(getProcessorCount)
 				make install
 				cd - >/dev/null
 				installPECLModule_manuallyInstalled=1
@@ -1294,7 +1309,7 @@ installPECLModule() {
 						rm -rf /tmp/src/zstd
 						mv "$(getPackageSource https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-$installPECLModule_zstdVersion.tar.gz)" /tmp/src/zstd
 						cd /tmp/src/zstd
-						make V=0 -j$(nproc) lib
+						make V=0 -j$(getProcessorCount) lib
 						cp -f lib/libzstd.so "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion"
 						ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersionMajor"
 						ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so"
@@ -1329,7 +1344,7 @@ installPECLModule() {
 				else
 					cd "$(getPackageSource https://codeload.github.com/CopernicaMarketingSoftware/PHP-CPP/tar.gz/444d1f90cf6b7f3cb5178fa0d0b5ab441b0389d0)"
 				fi
-				make -j$(nproc)
+				make -j$(getProcessorCount)
 				make install
 				cd - >/dev/null
 			fi
@@ -1364,7 +1379,7 @@ installPECLModule() {
 				cd -- "$installPECLModule_src"
 				phpize
 				./configure --enable-xdebug
-				make -j$(nproc)
+				make -j$(getProcessorCount)
 				make install
 				cd - >/dev/null
 				installPECLModule_manuallyInstalled=1
@@ -1396,7 +1411,7 @@ installPECLModule() {
 						installPECLModule_src="$(getPackageSource https://downloads.apache.org/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz)"
 						cd -- "$installPECLModule_src/zookeeper-client/zookeeper-client-c"
 						./configure --without-cppunit
-						make -j$(nproc) CFLAGS='-Wno-stringop-truncation -Wno-format-overflow'
+						make -j$(getProcessorCount) CFLAGS='-Wno-stringop-truncation -Wno-format-overflow'
 						make install
 						cd - >/dev/null
 					fi
