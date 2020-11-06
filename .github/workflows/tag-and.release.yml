@@ -92,7 +92,7 @@ jobs:
         if: github.event_name == 'create' && github.event.ref_type == 'tag'
         run: |
           VERSIONTAG_THIS="${GITHUB_REF#refs/tags/}"
-          if "$VERSIONTAG_THIS" = "$VERSIONTAG_LAST"; then
+          if test "$VERSIONTAG_THIS" = "$VERSIONTAG_LAST"; then
             if printf '%s' "$VERSIONTAG_THIS" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
               printf 'Tag %s is version-like\n' "$VERSIONTAG_THIS"
             else
