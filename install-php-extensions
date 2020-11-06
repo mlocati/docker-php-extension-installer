@@ -2,7 +2,7 @@
 
 # This script wraps docker-php-ext-install, properly configuring the system.
 #
-# Copyright (c) Michele Locati, 2018
+# Copyright (c) Michele Locati, 2018-2020
 #
 # Source: https://github.com/mlocati/docker-php-extension-installer
 #
