@@ -54,6 +54,9 @@ jobs:
           if test -z "$VERSIONTAG_LAST"; then
             printf 'We need to create the first version tag\n'
             VERSIONTAG_THIS=1.0.0
+          elif test "$GITHUB_SHA" = "$(git rev-list -n 1 "refs/tags/$VERSIONTAG_LAST")"; then
+            printf 'Another action should already take care of creating the release\n'
+            VERSIONTAG_THIS=
           else
             CREATE_TAG=n
             for CHANGED_FILE in $(git diff --name-only "refs/tags/$VERSIONTAG_LAST" HEAD); do
