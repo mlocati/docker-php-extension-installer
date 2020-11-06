@@ -1,0 +1,132 @@
+name: Create tag and release
+
+on:
+  push:
+    branches:
+      - master
+  create:
+    tags:
+      - "*"
+
+jobs:
+  create-and-release:
+    runs-on: ubuntu-latest
+    env:
+      VERSIONTAG_THIS: ""
+    steps:
+      - name: Sleep for a while after a push
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: juliangruber/sleep-action@v1
+        with:
+          time: 30s
+      - name: Checkout
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'create' && github.event.ref_type == 'tag')
+        uses: actions/checkout@v2
+        with:
+          ref: master
+          fetch-depth: 0
+      - name: Looking for the recent version tags
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'create' && github.event.ref_type == 'tag')
+        run: |
+          TAGS="$(git tag --list --sort=-version:refname)"
+          VERSIONTAG_LAST=
+          VERSIONTAG_PENULTIMATE=
+          for TAG in $(git tag --list --sort=-version:refname); do
+            if printf '%s' "$TAG" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              if test -z "$VERSIONTAG_LAST"; then
+                VERSIONTAG_LAST="$TAG"
+              else
+                VERSIONTAG_PENULTIMATE="$TAG"
+                break
+              fi
+            fi
+          done
+          if test -z "$VERSIONTAG_LAST"; then
+            printf 'Most recent version tag: <none>\n'
+          else
+            printf 'Most recent version tag: %s\n' "$VERSIONTAG_LAST"
+          fi
+          printf 'VERSIONTAG_LAST=%s\n' "$VERSIONTAG_LAST" >> "$GITHUB_ENV"
+          printf 'VERSIONTAG_PENULTIMATE=%s\n' "$VERSIONTAG_PENULTIMATE" >> "$GITHUB_ENV"
+      - name: Checking if we need to create a version tag after a push
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          if test -z "$VERSIONTAG_LAST"; then
+            printf 'We need to create the first version tag\n'
+            VERSIONTAG_THIS=1.0.0
+          else
+            CREATE_TAG=n
+            for CHANGED_FILE in $(git diff --name-only "refs/tags/$VERSIONTAG_LAST" HEAD); do
+              case "$CHANGED_FILE" in
+                install-php-extensions)
+                  CREATE_TAG=y
+                  ;;
+              esac
+            done
+            if test "$CREATE_TAG" = 'y'; then
+              VERSIONTAG_THIS="${VERSIONTAG_LAST%.*}.$((${VERSIONTAG_LAST##*.}+1))"
+              printf 'We need to create new version tag %s since relevant files changed\n' "$VERSIONTAG_THIS"
+            else
+              VERSIONTAG_THIS=
+              printf 'We do not need to create a new version tag since no relevant files changed\n'
+            fi
+          fi
+          printf 'VERSIONTAG_THIS=%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
+          printf 'VERSIONTAG_PREVIOUS=%s\n' "$VERSIONTAG_LAST" >> "$GITHUB_ENV"
+      - name: Create version tag after a push in the local repository
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && env.VERSIONTAG_THIS != ''
+        run: git tag -- "$VERSIONTAG_THIS"
+      - name: Create version tag after a push in the remote repository
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && env.VERSIONTAG_THIS != ''
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${process.env.VERSIONTAG_THIS}`,
+              sha: context.sha
+            })
+      - name: Check format of received tag
+        if: github.event_name == 'create' && github.event.ref_type == 'tag'
+        run: |
+          VERSIONTAG_THIS="${GITHUB_REF#refs/tags/}"
+          if "$VERSIONTAG_THIS" = "$VERSIONTAG_LAST"; then
+            if printf '%s' "$VERSIONTAG_THIS" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              printf 'Tag %s is version-like\n' "$VERSIONTAG_THIS"
+            else
+              printf 'Tag %s is not version-like\n' "$VERSIONTAG_THIS"
+              VERSIONTAG_THIS=
+            fi
+          else
+              printf 'Last created tag %s is not %\n' "$VERSIONTAG_THIS" "$VERSIONTAG_LAST"
+              VERSIONTAG_THIS=
+          fi
+          printf 'VERSIONTAG_THIS=%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
+          printf 'VERSIONTAG_PREVIOUS=%s\n' "$VERSIONTAG_PENULTIMATE" >> "$GITHUB_ENV"
+      - name: Extract release notes
+        if: env.VERSIONTAG_THIS != ''
+        run: |
+          printf 'Generating release notes for tag %s\n' "$VERSIONTAG_THIS"
+          if test -z "$VERSIONTAG_PREVIOUS"; then
+            echo 'No previous tag found'
+            RELEASE_NOTES='First version'
+          else
+            printf 'Generating release notes for commits between %s and %s\n' "$VERSIONTAG_PREVIOUS" "$VERSIONTAG_THIS"
+            RELEASE_NOTES="$(git log --format='- %s' --no-merges --reverse "refs/tags/$VERSIONTAG_PREVIOUS...refs/tags/$VERSIONTAG_THIS" -- ./install-php-extensions)"
+          fi
+          printf 'Release notes:\n%s\n' "$RELEASE_NOTES"
+          printf 'RELEASE_NAME=v%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
+          printf 'RELEASE_NOTES<<EOF\n%s\nEOF\n' "$RELEASE_NOTES" >> "$GITHUB_ENV"
+      - name: Create release
+        if: env.VERSIONTAG_THIS != ''
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSIONTAG_THIS }}
+          release_name: ${{ env.RELEASE_NAME }}
+          body: ${{ env.RELEASE_NOTES }}
+          draft: false
+          prerelease: false
