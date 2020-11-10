@@ -801,6 +801,18 @@ getProcessorCount() {
 		fi
 	fi
 }
+
+# Get the build target tripled
+# Output:
+#   The target triplet (eg x86_64-linux-gnu, i686-linux-gnu, i386-linux-gnu, ...)
+getTargetTriplet() {
+	getTargetTriplet_tmp="$(gcc -print-multiarch 2>/dev/null || true)"
+	if test -z "$getTargetTriplet_tmp"; then
+		getTargetTriplet_tmp="$(gcc -dumpmachine 2>/dev/null || true)"
+	fi
+	printf '%s' "$getTargetTriplet_tmp"
+}
+
 # Retrieve the number of processors to be used when compiling an extension
 #
 # Arguments:
@@ -950,7 +962,7 @@ installBundledModule() {
 		ldap)
 			case "$DISTRO" in
 				debian)
-					docker-php-ext-configure ldap --with-libdir=lib/$(gcc -dumpmachine)
+					docker-php-ext-configure ldap --with-libdir=lib/$(getTargetTriplet)
 					;;
 			esac
 			;;
@@ -1302,7 +1314,7 @@ installPECLModule() {
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installPECLModule_actual="$1-4.3.0"
 				else
-					installPECLModule_machine=$(gcc -dumpmachine)
+					installPECLModule_machine=$(getTargetTriplet)
 					if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$installPECLModule_machine/libzstd.so"; then
 						installPECLModule_zstdVersion=1.4.4
 						installPECLModule_zstdVersionMajor=$(echo $installPECLModule_zstdVersion | cut -d. -f1)
