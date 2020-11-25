@@ -1386,8 +1386,11 @@ installPECLModule() {
 				installPECLModule_actual="$1-2.5.5"
 			elif test $PHP_MAJMIN_VERSION -le 700; then
 				installPECLModule_actual="$1-2.6.1"
+			elif test $PHP_MAJMIN_VERSION -le 701; then
+				installPECLModule_actual="$1-2.9.8"
 			elif test $PHP_MAJMIN_VERSION -ge 800; then
-				installPECLModule_src="$(getPackageSource https://codeload.github.com/xdebug/xdebug/tar.gz/master)"
+				# Workaround for picke problem - see https://github.com/FriendsOfPHP/pickle/issues/188 and https://github.com/FriendsOfPHP/pickle/issues/191
+				installPECLModule_src="$(getPackageSource https://codeload.github.com/xdebug/xdebug/tar.gz/3.0.0)"
 				cd -- "$installPECLModule_src"
 				phpize
 				./configure --enable-xdebug
