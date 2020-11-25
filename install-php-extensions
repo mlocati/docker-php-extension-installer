@@ -434,6 +434,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy[0-9]+(v[0-9]+)?$ libicu[0-9]+$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev $buildRequiredPackageLists_libssldev zlib1g-dev"
 				;;
+			mosquitto@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent mosquitto-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile mosquitto-dev"
+				;;
+			mosquitto@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmosquitto1"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmosquitto-dev"
+				;;
 			mssql@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
@@ -1204,6 +1212,9 @@ installPECLModule() {
 			elif test $PHP_MAJMIN_VERSION -le 506; then
 				installPECLModule_actual="$1-1.7.5"
 			fi
+			;;
+		mosquitto)
+			installPECLModule_actual="$1-0.4.0"
 			;;
 		msgpack)
 			if test $PHP_MAJMIN_VERSION -le 506; then
