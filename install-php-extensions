@@ -1082,7 +1082,7 @@ installModuleFromSource() {
 	./configure $3 CFLAGS="${4:-}"
 	make -j$(getProcessorCount) install
 	cd - >/dev/null
-	docker-php-ext-enable "$1"
+	docker-php-ext-enable "${1%-*}"
 	case "$1" in
 		snuffleupagus)
 			cp -a "$installModuleFromSource_dir/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
@@ -1448,18 +1448,18 @@ installPECLModule() {
 	case "$1" in
 		apcu_bc)
 			# apcu_bc must be loaded after apcu
-			docker-php-ext-enable --ini-name "xx-php-ext-$1.ini" apc
+			docker-php-ext-enable --ini-name "xx-php-ext-${1%-*}.ini" apc
 			;;
 		http)
 			# http must be loaded after raphf and propro
-			docker-php-ext-enable --ini-name "xx-php-ext-$1.ini" "$1"
+			docker-php-ext-enable --ini-name "xx-php-ext-${1%-*}.ini" "${1%-*}"
 			;;
 		memcached)
 			# memcached must be loaded after msgpack
-			docker-php-ext-enable --ini-name "xx-php-ext-$1.ini" "$1"
+			docker-php-ext-enable --ini-name "xx-php-ext-${1%-*}.ini" "${1%-*}"
 			;;
 		*)
-			docker-php-ext-enable "$1"
+			docker-php-ext-enable "${1%-*}"
 			;;
 	esac
 }
