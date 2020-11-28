@@ -80,6 +80,7 @@ RUN install-php-extensions gd xdebug
 | memcached | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mongo | &check; | &check; |  |  |  |  |  |  |
 | mongodb | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| mosquitto | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | msgpack | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | mssql | &check; | &check; |  |  |  |  |  |  |
 | mysql | &check; | &check; |  |  |  |  |  |  |
@@ -132,7 +133,7 @@ RUN install-php-extensions gd xdebug
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 81*
+*Number of supported extensions: 82*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
