@@ -1341,8 +1341,7 @@ installPECLModule() {
 			if test $PHP_MAJMIN_VERSION -le 506; then
 				installPECLModule_actual="$1-0.13"
 			else
-				# see https://bugs.php.net/bug.php?id=78560
-				installPECLModule_actual='https://pecl.php.net/get/ssh2'
+				installPECLModule_actual="$1-1.2"
 			fi
 			;;
 		tdlib)
