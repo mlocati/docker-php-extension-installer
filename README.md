@@ -9,7 +9,6 @@ The script will install all the required APT/APK packages; at the end of the scr
 Supported docker images are all the Alpine/Debian versions, except for PHP 5.5 where we only support Debian 8 (jessie) (that is, `php:5.5`, `php:5.5-apache`, `php:5.5-cli`, `php:5.5-fpm`, `php:5.5-zts`).
 See also the notes in the [Special requirements](#special-requirements) section.
 
-
 ## Usage
 
 You have two ways to use this script within your `Dockerfile`s: you can download the script on the fly, or you can grab it from the [`mlocati/php-extension-installer` Docker Hub image](https://hub.docker.com/r/mlocati/php-extension-installer).
@@ -36,6 +35,15 @@ FROM php:7.2-cli
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 
 RUN install-php-extensions gd xdebug
+```
+
+### Installing a specific version of an extension
+
+Simply append `-<version>` to the module name.
+For example:
+
+```sh
+install-php-extensions xdebug-2.9.7
 ```
 
 ## Supported PHP extensions
@@ -199,7 +207,6 @@ Some extension has special requirements:
 | <a name="special-requirements-for-tdlib"></a>tdlib | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `jessie` docker images |
 <!-- END OF SPECIAL REQUIREMENTS -->
 
-
 ## Tests
 
 When submitting a pull request, a [GitHub Action](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/test-extensions.yml) is executed to check if affected PHP extensions actually work (see below).
@@ -208,7 +215,6 @@ Furthermore, we also check that new versions of extensions in the PECL repositor
 This is done on a scheduled basis with another [GitHub Action](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/test-recent-extensions.yml).  
 In case of failure, a message is sent to a [Telegram Channel](https://t.me/docker_php_extension_installer).  
 Feel free to subscribe to it to receive failure notifications.
-
 
 ## How to contribute
 
@@ -265,7 +271,6 @@ Test: gd, zip, -STOP-
 ```
 
 See [this pull request](https://github.com/mlocati/docker-php-extension-installer/pull/43) for an example.
-
 
 ## Do you want to really say thank you?
 

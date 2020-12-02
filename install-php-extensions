@@ -70,6 +70,51 @@ normalizePHPModuleName() {
 	printf '%s' "$normalizePHPModuleName_name"
 }
 
+# Parse a module name (and optionally version) as received via command arguments, extracting the version and normalizing it
+# Example:
+#   xdebug-2.9.8
+#
+# Arguments:
+#   $1: the name of the module to be normalized
+#
+# Set these variables:
+# - PROCESSED_PHP_MODULE_ARGUMENT
+#
+# Optionally set these variables:
+# - PHP_WANTEDMODULEVERSION_<...> (where <...> is the normalized module name)
+#
+# Output:
+#   Nothing
+processPHPMuduleArgument() {
+	PROCESSED_PHP_MODULE_ARGUMENT="${1%%-*}"
+	if test -n "$PROCESSED_PHP_MODULE_ARGUMENT" && test "$PROCESSED_PHP_MODULE_ARGUMENT" != "$1"; then
+		processPHPMuduleArgument_version="${1#*-}"
+	else
+		processPHPMuduleArgument_version=''
+	fi
+	PROCESSED_PHP_MODULE_ARGUMENT="$(normalizePHPModuleName "$PROCESSED_PHP_MODULE_ARGUMENT")"
+	if test -n "$processPHPMuduleArgument_version"; then
+		if printf '%s' "$PROCESSED_PHP_MODULE_ARGUMENT" | grep -Eq '^[a-zA-Z0-9_]+$'; then
+			eval PHP_WANTEDMODULEVERSION_$PROCESSED_PHP_MODULE_ARGUMENT="$processPHPMuduleArgument_version"
+		else
+			printf 'Unable to parse the following module name:\n%s\n' "$PROCESSED_PHP_MODULE_ARGUMENT" >&2
+		fi
+	fi
+}
+
+# Get the wanted PHP module version, as specified in the command line arguments.
+#
+# Arguments:
+#   $1: the name of the module to be normalized
+#
+# Output:
+#   The wanted version (if any)
+getWantedPHPModuleVersion() {
+	if printf '%s' "$1" | grep -Eq '^[a-zA-Z0-9_]+$'; then
+		eval printf '%s' "\${PHP_WANTEDMODULEVERSION_$1:-}"
+	fi
+}
+
 # Set these variables:
 # - PHP_PREINSTALLED_MODULES the normalized list of PHP modules installed before running this script
 setPHPPreinstalledModules() {
@@ -130,7 +175,8 @@ processCommandArguments() {
 			esac
 		fi
 		if test $processCommandArguments_skip -eq 0; then
-			processCommandArguments_name="$(normalizePHPModuleName "$1")"
+			processPHPMuduleArgument "$1"
+			processCommandArguments_name="$PROCESSED_PHP_MODULE_ARGUMENT"
 			if stringInList "$processCommandArguments_name" "$PHP_MODULES_TO_INSTALL"; then
 				printf '### WARNING Duplicated module name specified: %s ###\n' "$processCommandArguments_name" >&2
 			elif stringInList "$processCommandArguments_name" "$PHP_PREINSTALLED_MODULES"; then
@@ -915,6 +961,9 @@ compareVersions() {
 #   Nothing
 installBundledModule() {
 	printf '### INSTALLING BUNDLED MODULE %s ###\n' "$1"
+	if test -n "$(getWantedPHPModuleVersion "$1")"; then
+		printf '### WARNING the module "%s" is bundled with PHP, you can NOT specify a version for it\n' "$1" >&2
+	fi
 	case "$1" in
 		gd)
 			if test $PHP_MAJMIN_VERSION -le 506; then
@@ -1104,22 +1153,27 @@ installModuleFromSource() {
 # Arguments:
 #   $1: the handle of the PHP module
 installPECLModule() {
-	printf '### INSTALLING PECL MODULE %s ###\n' "$1"
-	installPECLModule_actual="$1"
+	installPECLModule_module="$1"
+	printf '### INSTALLING PECL MODULE %s ###\n' "$installPECLModule_module"
+	installPECLModule_version="$(getWantedPHPModuleVersion "$installPECLModule_module")"
 	rm -rf "$CONFIGURE_FILE"
 	installPECLModule_manuallyInstalled=0
-	case "$1" in
+	case "$installPECLModule_module" in
 		amqp)
 			case "$DISTRO_VERSION" in
 				debian@8)
-					# in Debian Jessie we have librammitmq version 0.5.2
-					installPECLModule_actual="$1-1.9.3"
+					if test -z "$installPECLModule_version"; then
+						# in Debian Jessie we have librammitmq version 0.5.2
+						installPECLModule_version=1.9.3
+					fi
 					;;
 			esac
 			;;
 		apcu)
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-4.0.11"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=4.0.11
+				fi
 			fi
 			;;
 		decimal)
@@ -1135,17 +1189,22 @@ installPECLModule() {
 			esac
 			;;
 		gmagick)
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-1.1.7RC3"
-			else
-				installPECLModule_actual="$1-beta"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=1.1.7RC3
+				else
+					installPECLModule_version=beta
+				fi
 			fi
 			;;
 		http)
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="pecl_http-2.6.0"
-			else
-				installPECLModule_actual="pecl_http"
+			installPECLModule_module=pecl_http
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=2.6.0
+				fi
+			fi
+			if test $PHP_MAJMIN_VERSION -ge 700; then
 				if ! test -e /usr/local/lib/libidnkit.so; then
 					installPECLModule_src="$(getPackageSource https://jprs.co.jp/idn/idnkit-2.3.tar.bz2)"
 					cd -- "$installPECLModule_src"
@@ -1156,26 +1215,35 @@ installPECLModule() {
 			fi
 			;;
 		igbinary)
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-2.0.8"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=2.0.8
+				fi
 			fi
 			;;
 		memcache)
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-2.2.7"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=2.2.7
+				fi
 			fi
 			;;
 		mailparse)
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-2.1.6"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=2.1.6
+				fi
 			fi
 			;;
 		memcached)
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=2.2.0
+				fi
+			fi
 			# Set the path to libmemcached install prefix
 			addConfigureOption 'with-libmemcached-dir' 'no'
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-2.2.0"
-			else
+			if test -z "$installPECLModule_version" || test $(compareVersions "$installPECLModule_version" '3.0.0') -ge 0; then
 				# Set the path to ZLIB install prefix
 				addConfigureOption 'with-zlib-dir' 'no'
 				# Use system FastLZ library
@@ -1207,31 +1275,45 @@ installPECLModule() {
 			addConfigureOption '-with-mongo-sasl' 'yes'
 			;;
 		mongodb)
-			if test $PHP_MAJMIN_VERSION -le 505; then
-				installPECLModule_actual="$1-1.5.5"
-			elif test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-1.7.5"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 505; then
+					installPECLModule_version=1.5.5
+				elif test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=1.7.5
+				fi
 			fi
 			;;
 		mosquitto)
-			installPECLModule_actual="$1-0.4.0"
+			if test -z "$installPECLModule_version"; then
+				installPECLModule_version=0.4.0
+			fi
 			;;
 		msgpack)
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-0.5.7"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=0.5.7
+				fi
 			fi
 			;;
 		oauth)
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-1.2.3"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=1.2.3
+				fi
 			fi
 			;;
 		opencensus)
 			if test $PHP_MAJMIN_VERSION -le 702; then
-				installPECLModule_actual="$1-alpha"
+				if test -z "$installPECLModule_version"; then
+					installPECLModule_version=alpha
+				fi
 			else
 				installPECLModule_manuallyInstalled=1
-				installPECLModule_src="$(getPackageSource https://pecl.php.net/get/opencensus)"
+				if test -z "$installPECLModule_version"; then
+					installPECLModule_src="$(getPackageSource https://pecl.php.net/get/opencensus)"
+				else
+					installPECLModule_src="$(getPackageSource https://pecl.php.net/get/opencensus-$installPECLModule_version)"
+				fi
 				cd "$installPECLModule_src"/opencensus-*
 				find . -name '*.c' -type f -exec sed -i 's/\bZVAL_DESTRUCTOR\b/zval_dtor/g' {} +
 				phpize
@@ -1241,67 +1323,90 @@ installPECLModule() {
 			fi
 			;;
 		parallel)
-			if test $PHP_MAJMIN_VERSION -le 701; then
-				installPECLModule_actual="$1-0.8.3"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 701; then
+					installPECLModule_version=0.8.3
+				fi
 			fi
 			;;
 		pcov)
-			if test $PHP_MAJMIN_VERSION -lt 701; then
-				installPECLModule_actual="$1-0.9.0"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 701; then
+					installPECLModule_version=0.9.0
+				fi
 			fi
 			;;
 		pdo_sqlsrv | sqlsrv)
-			# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
-			if test $PHP_MAJMIN_VERSION -le 700; then
-				installPECLModule_actual="$1-5.3.0"
-			elif test $PHP_MAJMIN_VERSION -le 701; then
-				installPECLModule_actual="$1-5.6.1"
+			if test -z "$installPECLModule_version"; then
+				# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
+				if test $PHP_MAJMIN_VERSION -le 700; then
+					installPECLModule_version=5.3.0
+				elif test $PHP_MAJMIN_VERSION -le 701; then
+					installPECLModule_version=5.6.1
+				fi
 			fi
 			;;
 		propro)
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-1.0.2"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=1.0.2
+				fi
 			fi
 			;;
 		protobuf)
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-3.12.4"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=3.12.4
+				else
+					installPECLModule_version=3.13.0
+				fi
 			fi
 			;;
 		pthreads)
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-2.0.10"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=2.0.10
+				fi
 			fi
 			;;
 		raphf)
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-1.1.2"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=1.1.2
+				fi
 			fi
 			;;
 		rdkafka)
-			if test $PHP_MAJMIN_VERSION -le 505; then
-				installPECLModule_actual="$1-3.0.5"
-			else
-				installPECLModule_tmp=
-				case "$DISTRO" in
-					alpine)
-						installPECLModule_tmp='librdkafka'
-						;;
-					debian)
-						installPECLModule_tmp='librdkafka*'
-						;;
-				esac
-				if test -n "$installPECLModule_tmp"; then
-					installPECLModule_tmp="$(getInstalledPackageVersion "$installPECLModule_tmp")"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 505; then
+					installPECLModule_version=3.0.5
+				else
+					installPECLModule_tmp=
+					case "$DISTRO" in
+						alpine)
+							installPECLModule_tmp='librdkafka'
+							;;
+						debian)
+							installPECLModule_tmp='librdkafka*'
+							;;
+					esac
 					if test -n "$installPECLModule_tmp"; then
-						if test $(compareVersions "$installPECLModule_tmp" '0.11.0') -lt 0; then
-							installPECLModule_actual="$1-3.1.3"
+						installPECLModule_tmp="$(getInstalledPackageVersion "$installPECLModule_tmp")"
+						if test -n "$installPECLModule_tmp"; then
+							if test $(compareVersions "$installPECLModule_tmp" '0.11.0') -lt 0; then
+								installPECLModule_version=3.1.3
+							fi
 						fi
 					fi
 				fi
 			fi
 			;;
 		redis)
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=4.3.0
+				fi
+			fi
 			# Enable igbinary serializer support?
 			if php --ri igbinary >/dev/null 2>/dev/null; then
 				addConfigureOption 'enable-redis-igbinary' 'yes'
@@ -1310,9 +1415,7 @@ installPECLModule() {
 			fi
 			# Enable lzf compression support?
 			addConfigureOption 'enable-redis-lzf' 'yes'
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-4.3.0"
-			else
+			if test -z "$installPECLModule_version" || test $(compareVersions "$installPECLModule_version" '5.0.0') -ge 0; then
 				installPECLModule_machine=$(getTargetTriplet)
 				if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$installPECLModule_machine/libzstd.so"; then
 					installPECLModule_zstdVersion=1.4.4
@@ -1333,15 +1436,19 @@ installPECLModule() {
 			fi
 			;;
 		solr)
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-2.4.0"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=2.4.0
+				fi
 			fi
 			;;
 		ssh2)
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-0.13"
-			else
-				installPECLModule_actual="$1-1.2"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=0.13
+				else
+					installPECLModule_version=1.2
+				fi
 			fi
 			;;
 		tdlib)
@@ -1368,26 +1475,34 @@ installPECLModule() {
 			installPECLModule_manuallyInstalled=1
 			;;
 		uuid)
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-1.0.5"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=1.0.5
+				fi
 			fi
 			;;
 		xdebug)
-			if test $PHP_MAJMIN_VERSION -le 500; then
-				installPECLModule_actual="$1-2.0.5"
-			elif test $PHP_MAJMIN_VERSION -le 503; then
-				installPECLModule_actual="$1-2.2.7"
-			elif test $PHP_MAJMIN_VERSION -le 504; then
-				installPECLModule_actual="$1-2.4.1"
-			elif test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-2.5.5"
-			elif test $PHP_MAJMIN_VERSION -le 700; then
-				installPECLModule_actual="$1-2.6.1"
-			elif test $PHP_MAJMIN_VERSION -le 701; then
-				installPECLModule_actual="$1-2.9.8"
-			elif test $PHP_MAJMIN_VERSION -ge 800; then
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 500; then
+					installPECLModule_version=2.0.5
+				elif test $PHP_MAJMIN_VERSION -le 503; then
+					installPECLModule_version=2.2.7
+				elif test $PHP_MAJMIN_VERSION -le 504; then
+					installPECLModule_version=2.4.1
+				elif test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=2.5.5
+				elif test $PHP_MAJMIN_VERSION -le 700; then
+					installPECLModule_version=2.6.1
+				elif test $PHP_MAJMIN_VERSION -le 701; then
+					installPECLModule_version=2.9.8
+				fi
+			fi
+			if test $PHP_MAJMIN_VERSION -ge 800; then
 				# Workaround for picke problem - see https://github.com/FriendsOfPHP/pickle/issues/188 and https://github.com/FriendsOfPHP/pickle/issues/191
-				installPECLModule_src="$(getPackageSource https://codeload.github.com/xdebug/xdebug/tar.gz/3.0.0)"
+				if test -z "$installPECLModule_version"; then
+					installPECLModule_version=3.0.0
+				fi
+				installPECLModule_src="$(getPackageSource https://codeload.github.com/xdebug/xdebug/tar.gz/$installPECLModule_version)"
 				cd -- "$installPECLModule_src"
 				phpize
 				./configure --enable-xdebug
@@ -1398,22 +1513,28 @@ installPECLModule() {
 			fi
 			;;
 		uopz)
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-2.0.7"
-			elif test $PHP_MAJMIN_VERSION -lt 701; then
-				installPECLModule_actual="$1-5.0.2"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=2.0.7
+				elif test $PHP_MAJMIN_VERSION -lt 701; then
+					installPECLModule_version=5.0.2
+				fi
 			fi
 			;;
 		xhprof)
-			if test $PHP_MAJMIN_VERSION -le 506; then
-				installPECLModule_actual="$1-0.9.4"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=0.9.4
+				fi
 			fi
 			;;
 		yaml)
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-1.3.1"
-			elif test $PHP_MAJMIN_VERSION -lt 701; then
-				installPECLModule_actual="$1-2.0.4"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=1.3.1
+				elif test $PHP_MAJMIN_VERSION -lt 701; then
+					installPECLModule_version=2.0.4
+				fi
 			fi
 			;;
 		zookeeper)
@@ -1429,34 +1550,36 @@ installPECLModule() {
 					fi
 					;;
 			esac
-			if test $PHP_MAJMIN_VERSION -lt 700; then
-				installPECLModule_actual="$1-0.5.0"
-			elif test $PHP_MAJMIN_VERSION -gt 702; then
-				installPECLModule_actual="$1-0.7.2"
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installPECLModule_version=0.5.0
+				elif test $PHP_MAJMIN_VERSION -gt 702; then
+					installPECLModule_version=0.7.2
+				fi
 			fi
 			;;
 	esac
 	if test $installPECLModule_manuallyInstalled -eq 0; then
-		if test "$1" != "$installPECLModule_actual"; then
-			printf '  (installing version %s)\n' "$installPECLModule_actual"
+		if test -n "$installPECLModule_version"; then
+			printf '  (installing version %s)\n' "$installPECLModule_version"
 		fi
-		installPeclPackage "$installPECLModule_actual"
+		installPeclPackage "$installPECLModule_module" "$installPECLModule_version"
 	fi
-	case "$1" in
+	case "$installPECLModule_module" in
 		apcu_bc)
 			# apcu_bc must be loaded after apcu
-			docker-php-ext-enable --ini-name "xx-php-ext-$1.ini" apc
+			docker-php-ext-enable --ini-name "xx-php-ext-$installPECLModule_module.ini" apc
 			;;
-		http)
+		pecl_http)
 			# http must be loaded after raphf and propro
-			docker-php-ext-enable --ini-name "xx-php-ext-$1.ini" "$1"
+			docker-php-ext-enable --ini-name "xx-php-ext-http.ini" http
 			;;
 		memcached)
 			# memcached must be loaded after msgpack
-			docker-php-ext-enable --ini-name "xx-php-ext-$1.ini" "$1"
+			docker-php-ext-enable --ini-name "xx-php-ext-$installPECLModule_module.ini" "$installPECLModule_module"
 			;;
 		*)
-			docker-php-ext-enable "$1"
+			docker-php-ext-enable "$installPECLModule_module"
 			;;
 	esac
 }
@@ -1504,14 +1627,20 @@ addConfigureOption() {
 #
 # Arguments:
 #   $1: the package to be installed
+#   $2: the package version to be installed (optional)
 installPeclPackage() {
+	if test -z "${2:-}"; then
+		installPeclPackage_fullname="$1"
+	else
+		installPeclPackage_fullname="$1-$2"
+	fi
 	if ! test -f "$CONFIGURE_FILE"; then
 		printf '\n' >"$CONFIGURE_FILE"
 	fi
 	if test $USE_PICKLE -eq 0; then
-		cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" pecl install "$1"
+		cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" pecl install "$installPeclPackage_fullname"
 	else
-		MAKE="make -j$(getCompilationProcessorCount $1)" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --with-configure-options "$CONFIGURE_FILE" -- "$1"
+		MAKE="make -j$(getCompilationProcessorCount $1)" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --with-configure-options "$CONFIGURE_FILE" -- "$installPeclPackage_fullname"
 	fi
 }
 
@@ -1640,14 +1769,22 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 		MODULE_SOURCE_CFLAGS=''
 		case "$PHP_MODULE_TO_INSTALL" in
 			cmark)
-				MODULE_SOURCE=https://github.com/krakjoe/cmark/archive/v1.0.0.tar.gz
+				MODULE_VERSION="$(getWantedPHPModuleVersion "$PHP_MODULE_TO_INSTALL")"
+				if test -z "$MODULE_VERSION"; then
+					MODULE_VERSION='1.0.0'
+				fi
+				MODULE_SOURCE=https://github.com/krakjoe/cmark/archive/v$MODULE_VERSION.tar.gz
 				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/0.28.3.tar.gz)"
 				make install
 				cd - >/dev/null
 				MODULE_SOURCE_CONFIGOPTIONS=--with-cmark
 				;;
 			snuffleupagus)
-				MODULE_SOURCE="https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v0.5.0"
+				MODULE_VERSION="$(getWantedPHPModuleVersion "$PHP_MODULE_TO_INSTALL")"
+				if test -z "$MODULE_VERSION"; then
+					MODULE_VERSION='0.5.0'
+				fi
+				MODULE_SOURCE=https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$MODULE_VERSION
 				MODULE_SOURCE_CONFIGOPTIONS=--enable-snuffleupagus
 				;;
 		esac

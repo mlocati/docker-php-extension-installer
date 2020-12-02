@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Let's set a sane environment
+set -o errexit
+set -o nounset
+
+WANTED_VERSION="${1:-}"
+INSTALLME=xdebug
+if test -n "$WANTED_VERSION"; then
+    INSTALLME="$INSTALLME-$1"
+fi
+
+./install-php-extensions "$INSTALLME"
+
+INSTALLED_VERSION="$(php --ri xdebug | grep -Ei 'Version\s*=>\s*' | sed -E 's/^.*?=>\s*//')"
+if test -z "$WANTED_VERSION"; then
+    echo 'Installing the default version worked'
+elif test "$WANTED_VERSION" = "$INSTALLED_VERSION"; then
+    printf 'Installing specific version %s worked\n' "$WANTED_VERSION"
+else
+    printf 'We wanted to install version %s, but we installed %s\n' "$WANTED_VERSION" "$INSTALLED_VERSION" >&2
+    exit 1
+fi
