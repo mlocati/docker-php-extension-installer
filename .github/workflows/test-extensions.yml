@@ -76,3 +76,21 @@ jobs:
         with:
           fetch-depth: 1
       - run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.3-stretch ./scripts/test-restore-apt
+  test_custom_version:
+    name: Test installing specific versions
+    needs:
+      - check_syntax_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        xdebug_version:
+          - ''
+          - 2.9.8
+          - 3.0.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.4-alpine ./scripts/test-installversion "${{ matrix.xdebug_version }}"
