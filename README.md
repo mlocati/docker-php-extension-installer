@@ -74,7 +74,7 @@ install-php-extensions xdebug-2.9.7
 | gettext | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gmagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | gmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| grpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| grpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | http | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | igbinary | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | imagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
