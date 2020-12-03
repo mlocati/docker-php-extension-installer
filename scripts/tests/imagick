@@ -1,0 +1,34 @@
+#!/usr/bin/env php
+<?php
+
+set_error_handler(
+    static function ($errno, $errstr, $errfile, $errline) {
+        $msg = "Error {$errno}: {$errstr}\n";
+        if ($errfile) {
+            $msg .= "File: {$errfile}\n";
+            if ($errline) {
+                $msg .= "Line: {$errline}\n";
+            }
+        }
+        fwrite(STDERR, $msg);
+        exit(1);
+    },
+    -1
+);
+
+$requiredFormats = array_map('strtoupper', [
+    'BMP',
+    'GIF',
+    'JPG',
+    'PNG',
+    'SVG',
+    'TIFF',
+]);
+$supportedFormats = array_map('strtoupper', Imagick::queryFormats());
+$missingFormats = array_diff($requiredFormats, $supportedFormats);
+if ($missingFormats !== []) {
+    sort($missingFormats);
+    fwrite(STDERR, "Imagick does NOT support these formats:\n- " . implode("\n- ", $missingFormats) . "\n");
+    exit(1);
+}
+echo "Imagick supports at least these formats:\n- ", implode("\n- ", $requiredFormats), "\n";
