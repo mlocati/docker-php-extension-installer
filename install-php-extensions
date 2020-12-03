@@ -1197,6 +1197,13 @@ installPECLModule() {
 				fi
 			fi
 			;;
+		grpc)
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=1.33.1
+				fi
+			fi
+			;;
 		http)
 			installPECLModule_module=pecl_http
 			if test -z "$installPECLModule_version"; then
