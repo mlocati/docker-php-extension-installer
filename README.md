@@ -87,7 +87,7 @@ install-php-extensions xdebug-2.9.7
 | memcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | memcached | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mongo | &check; | &check; |  |  |  |  |  |  |
-| mongodb | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| mongodb | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mosquitto | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | msgpack | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | mssql | &check; | &check; |  |  |  |  |  |  |
