@@ -1237,6 +1237,8 @@ installPECLModule() {
 			if test -z "$installPECLModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
 					installPECLModule_version=2.2.7
+				elif test $PHP_MAJMIN_VERSION -lt 800; then
+					installPECLModule_version=4.0.5.2
 				fi
 			fi
 			;;
