@@ -1514,7 +1514,7 @@ installPECLModule() {
 			if test $PHP_MAJMIN_VERSION -ge 800; then
 				# Workaround for picke problem - see https://github.com/FriendsOfPHP/pickle/issues/188 and https://github.com/FriendsOfPHP/pickle/issues/191
 				if test -z "$installPECLModule_version"; then
-					installPECLModule_version=3.0.0
+					installPECLModule_version=3.0.1
 				fi
 				installPECLModule_src="$(getPackageSource https://codeload.github.com/xdebug/xdebug/tar.gz/$installPECLModule_version)"
 				cd -- "$installPECLModule_src"
