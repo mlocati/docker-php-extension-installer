@@ -732,6 +732,11 @@ buildRequiredPackageLists() {
 						;;
 				esac
 				;;
+			zookeeper@alpine)
+				if ! test -f /usr/local/include/zookeeper/zookeeper.h; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile apache-ant automake libtool openjdk8"
+				fi
+				;;
 			zookeeper@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzookeeper-mt2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzookeeper-mt-dev"
@@ -1550,8 +1555,17 @@ installPECLModule() {
 			case "$DISTRO" in
 				alpine)
 					if ! test -f /usr/local/include/zookeeper/zookeeper.h; then
-						installPECLModule_src="$(getPackageSource https://downloads.apache.org/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz)"
+						installPECLModule_tmp="$(curl -L -s -S -f https://downloads.apache.org/zookeeper/stable | sed -E 's/["<>]/\n/g' | grep -E '^(apache-)?zookeeper-[0-9]+\.[0-9]+\.[0-9]+\.(tar\.gz|tgz)$' | head -n1)"
+						if test -z "$installPECLModule_tmp"; then
+							echo 'Failed to detect the zookeeper library URL' >&2
+							exit 1
+						fi
+						installPECLModule_src="$(getPackageSource https://downloads.apache.org/zookeeper/stable/$installPECLModule_tmp)"
+						cd -- "$installPECLModule_src"
+						ant compile_jute
+						cd - >/dev/null
 						cd -- "$installPECLModule_src/zookeeper-client/zookeeper-client-c"
+						autoreconf -if
 						./configure --without-cppunit
 						make -j$(getProcessorCount) CFLAGS='-Wno-stringop-truncation -Wno-format-overflow'
 						make install
