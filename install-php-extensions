@@ -1029,11 +1029,9 @@ installBundledModule() {
 			esac
 			;;
 		mssql | pdo_dblib)
-			if test $PHP_MAJMIN_VERSION -le 704; then
-				if ! test -f /usr/lib/libsybdb.so; then
-					ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
-					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/lib/libsybdb.so"
-				fi
+			if ! test -f /usr/lib/libsybdb.so; then
+				ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
+				UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/lib/libsybdb.so"
 			fi
 			;;
 		odbc)
