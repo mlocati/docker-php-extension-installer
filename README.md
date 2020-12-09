@@ -94,7 +94,7 @@ install-php-extensions xdebug-2.9.7
 | mysql | &check; | &check; |  |  |  |  |  |  |
 | mysqli | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | oauth | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opencensus |  |  | &check; | &check; | &check; | &check; | &check; |  |
 | parallel[*](#special-requirements-for-parallel) |  |  |  | &check; | &check; | &check; | &check; |  |
