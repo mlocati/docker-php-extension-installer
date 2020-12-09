@@ -1,4 +1,4 @@
-name: Create tag and release
+name: Update README and create release
 
 on:
   push:
@@ -7,6 +7,9 @@ on:
   create:
     tags:
       - "*"
+  repository_dispatch:
+    types:
+      - readme-release
 
 jobs:
   create-and-release:
@@ -14,19 +17,36 @@ jobs:
     env:
       VERSIONTAG_THIS: ""
     steps:
-      - name: Sleep for a while after a push
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: juliangruber/sleep-action@v1
-        with:
-          time: 30s
       - name: Checkout
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'create' && github.event.ref_type == 'tag')
+        if: >
+          (github.event_name == 'push' && github.ref == 'refs/heads/master')
+          || (github.event_name == 'create' && github.event.ref_type == 'tag')
+          || github.event_name == 'repository_dispatch'
         uses: actions/checkout@v2
         with:
           ref: master
           fetch-depth: 0
+      - name: Update README
+        if: >
+          (github.event_name == 'push' && github.ref == 'refs/heads/master')
+          || github.event_name == 'repository_dispatch'
+        run: |
+          ./scripts/update-readme
+          if ! git ls-files -m | grep -qE '^README\.md$'; then
+            echo 'README.md has not been changed'
+          else
+            echo 'README.md has been updated'
+            git config user.name 'Michele Locati'
+            git config user.email 'michele@locati.it'
+            git add README.md
+            git commit -m '[skip ci] Automatically update README.md'
+            git push
+          fi
       - name: Looking for the recent version tags
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'create' && github.event.ref_type == 'tag')
+        if: >
+          (github.event_name == 'push' && github.ref == 'refs/heads/master')
+          || (github.event_name == 'create' && github.event.ref_type == 'tag')
+          || github.event_name == 'repository_dispatch'
         run: |
           TAGS="$(git tag --list --sort=-version:refname)"
           VERSIONTAG_LAST=
@@ -51,12 +71,12 @@ jobs:
       - name: Checking if we need to create a version tag after a push
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
+          VERSIONTAG_THIS=
           if test -z "$VERSIONTAG_LAST"; then
             printf 'We need to create the first version tag\n'
             VERSIONTAG_THIS=1.0.0
-          elif test "$GITHUB_SHA" = "$(git rev-list -n 1 "refs/tags/$VERSIONTAG_LAST")"; then
+          elif test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "refs/tags/$VERSIONTAG_LAST")"; then
             printf 'Another action should already take care of creating the release\n'
-            VERSIONTAG_THIS=
           else
             CREATE_TAG=n
             for CHANGED_FILE in $(git diff --name-only "refs/tags/$VERSIONTAG_LAST" HEAD); do
@@ -70,17 +90,24 @@ jobs:
               VERSIONTAG_THIS="${VERSIONTAG_LAST%.*}.$((${VERSIONTAG_LAST##*.}+1))"
               printf 'We need to create new version tag %s since relevant files changed\n' "$VERSIONTAG_THIS"
             else
-              VERSIONTAG_THIS=
               printf 'We do not need to create a new version tag since no relevant files changed\n'
             fi
           fi
           printf 'VERSIONTAG_THIS=%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
           printf 'VERSIONTAG_PREVIOUS=%s\n' "$VERSIONTAG_LAST" >> "$GITHUB_ENV"
+      - name: Sleep for a while before creating a tag
+        if: env.VERSIONTAG_THIS != ''
+        uses: juliangruber/sleep-action@v1
+        with:
+          time: 30s
       - name: Create version tag after a push in the local repository
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && env.VERSIONTAG_THIS != ''
-        run: git tag -- "$VERSIONTAG_THIS"
+        id: create_tag
+        if: env.VERSIONTAG_THIS != ''
+        run: |
+          git tag -- "$VERSIONTAG_THIS"
+          echo "::set-output name=tag_sha::$(git rev-parse HEAD)"
       - name: Create version tag after a push in the remote repository
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && env.VERSIONTAG_THIS != ''
+        if: env.VERSIONTAG_THIS != ''
         uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -89,7 +116,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: `refs/tags/${process.env.VERSIONTAG_THIS}`,
-              sha: context.sha
+              sha: steps.create_tag.outputs.tag_sha
             })
       - name: Check format of received tag
         if: github.event_name == 'create' && github.event.ref_type == 'tag'
