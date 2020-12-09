@@ -101,11 +101,10 @@ jobs:
         with:
           time: 30s
       - name: Create version tag after a push in the local repository
-        id: create_tag
         if: env.VERSIONTAG_THIS != ''
         run: |
           git tag -- "$VERSIONTAG_THIS"
-          echo "::set-output name=tag_sha::$(git rev-parse HEAD)"
+          printf 'VERSIONTAG_THIS_SHA=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Create version tag after a push in the remote repository
         if: env.VERSIONTAG_THIS != ''
         uses: actions/github-script@v3
@@ -116,7 +115,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: `refs/tags/${process.env.VERSIONTAG_THIS}`,
-              sha: steps.create_tag.outputs.tag_sha
+              sha: process.env.VERSIONTAG_THIS_SHA
             })
       - name: Check format of received tag
         if: github.event_name == 'create' && github.event.ref_type == 'tag'
