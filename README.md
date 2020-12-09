@@ -83,17 +83,17 @@ install-php-extensions xdebug-2.9.7
 | intl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ldap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mailparse | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| mcrypt | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| mcrypt | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | memcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | memcached | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mongo | &check; | &check; |  |  |  |  |  |  |
 | mongodb | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mosquitto | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
-| msgpack | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| msgpack | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mssql | &check; | &check; |  |  |  |  |  |  |
 | mysql | &check; | &check; |  |  |  |  |  |  |
 | mysqli | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| oauth | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| oauth | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | opcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opencensus |  |  | &check; | &check; | &check; | &check; | &check; |  |
@@ -137,7 +137,7 @@ install-php-extensions xdebug-2.9.7
 | xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | xmlrpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | xsl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
