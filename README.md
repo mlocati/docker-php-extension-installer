@@ -100,7 +100,7 @@ install-php-extensions xdebug-2.9.7
 | parallel[*](#special-requirements-for-parallel) |  |  |  | &check; | &check; | &check; | &check; |  |
 | pcntl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pcov |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
-| pdo_dblib | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| pdo_dblib | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_firebird | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_mysql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
