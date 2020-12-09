@@ -23,7 +23,6 @@ shfmt $PARAMS \
 	scripts/ci-filter-supported-extensions \
 	scripts/ci-retrieve-recent-extensions \
 	scripts/ci-test-extensions \
-	scripts/ci-update-readme \
 	scripts/common \
 	scripts/invoke-shfmt \
 	scripts/lint \
