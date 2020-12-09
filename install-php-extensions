@@ -1035,14 +1035,12 @@ installBundledModule() {
 			fi
 			;;
 		odbc)
-			if test $PHP_MAJMIN_VERSION -le 704; then
-				docker-php-source extract
-				cd /usr/src/php/ext/odbc
-				phpize
-				sed -ri 's@^ *test +"\$PHP_.*" *= *"no" *&& *PHP_.*=yes *$@#&@g' configure
-				./configure --with-unixODBC=shared,/usr
-				cd - >/dev/null
-			fi
+			docker-php-source extract
+			cd /usr/src/php/ext/odbc
+			phpize
+			sed -ri 's@^ *test +"\$PHP_.*" *= *"no" *&& *PHP_.*=yes *$@#&@g' configure
+			./configure --with-unixODBC=shared,/usr
+			cd - >/dev/null
 			;;
 		pdo_odbc)
 			docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr
