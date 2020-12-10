@@ -4,6 +4,20 @@ on:
   - pull_request
 
 jobs:
+  check_syntax_data:
+    name: Check data syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Check order supported extensions list
+        run: |
+          sort -o data/supported-extensions.sorted data/supported-extensions
+          if ! DIFF="$(diff -u data/supported-extensions data/supported-extensions.sorted)"; then
+            printf 'The order of extensions in data/supported-extensions is wrong.\nThe list of required changes is:\n\n%s\n' "$DIFF" >&2
+            exit 1
+          fi
+          rm data/supported-extensions.sorted
   check_syntax_shell:
     name: Check shell coding style
     runs-on: ubuntu-latest
@@ -41,6 +55,7 @@ jobs:
         run: composer run-script lint -- --dry-run --diff
   test_extensions:
     needs:
+      - check_syntax_data
       - check_syntax_shell
       - check_syntax_php
     strategy:
@@ -67,6 +82,7 @@ jobs:
   test_restoring_packages:
     name: Test restoring packages
     needs:
+      - check_syntax_data
       - check_syntax_shell
       - check_syntax_php
     runs-on: ubuntu-latest
@@ -79,6 +95,7 @@ jobs:
   test_custom_version:
     name: Test installing specific versions
     needs:
+      - check_syntax_data
       - check_syntax_shell
       - check_syntax_php
     runs-on: ubuntu-latest
