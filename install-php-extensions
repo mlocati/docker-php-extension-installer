@@ -42,6 +42,14 @@ setPHPMajorMinor() {
 	PHP_MAJMIN_VERSION=$(php-config --version | awk -F. '{print $1*100+$2}')
 }
 
+# Get the directory containing the compiled PHP extensions
+#
+# Output:
+#   The absolute path of the extensions dir
+getPHPExtensionsDir() {
+	php -i | grep -E '^extension_dir' | head -n1 | tr -s '[:space:]*=>[:space:]*' '|' | cut -d'|' -f2
+}
+
 # Normalize the name of a PHP extension
 #
 # Arguments:
@@ -57,6 +65,9 @@ normalizePHPModuleName() {
 			;;
 	esac
 	case "$normalizePHPModuleName_name" in
+		ioncube | ioncube\ loader)
+			normalizePHPModuleName_name='ioncube_loader'
+			;;
 		pecl_http)
 			normalizePHPModuleName_name='http'
 			;;
@@ -1229,6 +1240,20 @@ installPECLModule() {
 				fi
 			fi
 			;;
+		ioncube_loader)
+			installPECLModule_src='https://downloads.ioncube.com/loader_downloads/'
+			if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
+				installPECLModule_src="${installPECLModule_src}ioncube_loaders_lin_x86.tar.gz"
+			else
+				installPECLModule_src="${installPECLModule_src}ioncube_loaders_lin_x86-64.tar.gz"
+			fi
+			printf 'Downloading ionCube Loader... '
+			installPECLModule_src="$(getPackageSource $installPECLModule_src)"
+			echo 'done.'
+			installPECLModule_so=$(php -r "printf('ioncube_loader_lin_%s.%s%s.so', PHP_MAJOR_VERSION, PHP_MINOR_VERSION, ZEND_THREAD_SAFE ? '_ts' : '');")
+			cp "$installPECLModule_src/$installPECLModule_so" "$(getPHPExtensionsDir)/$installPECLModule_module.so"
+			installPECLModule_manuallyInstalled=1
+			;;
 		memcache)
 			if test -z "$installPECLModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
@@ -1590,6 +1615,14 @@ installPECLModule() {
 		apcu_bc)
 			# apcu_bc must be loaded after apcu
 			docker-php-ext-enable --ini-name "xx-php-ext-$installPECLModule_module.ini" apc
+			;;
+		ioncube_loader)
+			# On PHP 5.5, docker-php-ext-enable fails to detect that ionCube Loader is a Zend Extension
+			if test $PHP_MAJMIN_VERSION -le 505; then
+				printf 'zend_extension=%s/%s.so\n' "$(getPHPExtensionsDir)" "$installPECLModule_module" >"$PHP_INI_DIR/conf.d/docker-php-ext-$installPECLModule_module.ini"
+			else
+				docker-php-ext-enable "$installPECLModule_module"
+			fi
 			;;
 		pecl_http)
 			# http must be loaded after raphf and propro
