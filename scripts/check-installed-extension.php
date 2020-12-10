@@ -5,6 +5,7 @@ $numTestedExtensions = 0;
 $nameMap = [
     'opcache' => 'Zend OPcache',
     'apcu_bc' => 'apc',
+    'ioncube_loader' => 'ionCube Loader',
 ];
 $testsDir = __DIR__ . '/tests';
 function runTest($testFile)
@@ -29,7 +30,7 @@ for ($index = 1, $count = isset($argv) ? count($argv) : 0; $index < $count; $ind
         if (!extension_loaded($extension)) {
             fprintf(STDERR, sprintf("Extension not loaded: %s\n", $extension));
         } else {
-            $testFile = "{$testsDir}/{$extension}";
+            $testFile = "{$testsDir}/{$extensionLowerCase}";
             if (is_file($testFile)) {
                 try {
                     if (runTest($testFile) === true) {
