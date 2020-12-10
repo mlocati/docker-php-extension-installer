@@ -85,6 +85,7 @@ install-php-extensions xdebug-2.9.7
 | ioncube_loader | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | ldap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mailparse | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| maxminddb |  |  |  |  | &check; | &check; | &check; | &check; |
 | mcrypt | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | memcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | memcached | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -143,7 +144,7 @@ install-php-extensions xdebug-2.9.7
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 84*
+*Number of supported extensions: 85*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
