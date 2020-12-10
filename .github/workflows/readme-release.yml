@@ -149,6 +149,7 @@ jobs:
           printf 'RELEASE_NAME=v%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
           printf 'RELEASE_NOTES<<EOF\n%s\nEOF\n' "$RELEASE_NOTES" >> "$GITHUB_ENV"
       - name: Create release
+        id: create_release
         if: env.VERSIONTAG_THIS != ''
         uses: actions/create-release@v1
         env:
@@ -159,3 +160,13 @@ jobs:
           body: ${{ env.RELEASE_NOTES }}
           draft: true
           prerelease: false
+      - name: Upload release asset
+        if: env.VERSIONTAG_THIS != ''
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./install-php-extensions
+          asset_name: install-php-extensions
+          asset_content_type: application/octet-stream

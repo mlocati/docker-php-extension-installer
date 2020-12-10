@@ -21,7 +21,7 @@ For example, here are two `Dockerfile`s that install the GD and xdebug PHP exten
 ```Dockerfile
 FROM php:7.2-cli
 
-ADD https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions /usr/local/bin/
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions gd xdebug
@@ -32,7 +32,7 @@ RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
 ```Dockerfile
 FROM php:7.2-cli
 
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 RUN install-php-extensions gd xdebug
 ```
