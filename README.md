@@ -82,6 +82,7 @@ install-php-extensions xdebug-2.9.7
 | imap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | interbase | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | intl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| ioncube_loader | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | ldap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mailparse | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mcrypt | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -142,7 +143,7 @@ install-php-extensions xdebug-2.9.7
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 83*
+*Number of supported extensions: 84*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
