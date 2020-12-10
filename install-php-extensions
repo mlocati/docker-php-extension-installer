@@ -454,6 +454,14 @@ buildRequiredPackageLists() {
 			ldap@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libldap2-dev"
 				;;
+			maxminddb@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmaxminddb"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmaxminddb-dev"
+				;;
+			maxminddb@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmaxminddb[0-9]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmaxminddb-dev"
+				;;
 			mcrypt@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmcrypt"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmcrypt-dev"
