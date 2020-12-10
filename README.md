@@ -68,6 +68,7 @@ install-php-extensions xdebug-2.9.7
 | dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | decimal |  |  | &check; | &check; | &check; | &check; | &check; |  |
 | enchant[*](#special-requirements-for-enchant) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ffi |  |  |  |  |  |  | &check; | &check; |
 | gd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -141,7 +142,7 @@ install-php-extensions xdebug-2.9.7
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 82*
+*Number of supported extensions: 83*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
