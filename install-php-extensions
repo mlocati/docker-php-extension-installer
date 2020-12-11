@@ -533,6 +533,13 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
+			oci8@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio libnsl"
+				;;
+			oci8@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio[0-9]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_persistent unzip"
+				;;
 			pdo_dblib@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
@@ -973,6 +980,63 @@ compareVersions() {
 	fi
 }
 
+# Install Oracle Instant Client & SDK
+installOracleInstantClient() {
+	if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
+		installOracleInstantClient_client=client
+		if test "$DISTRO" = 'alpine'; then
+			# I couldn't find a way to install libresolv.so on Linux - let's use an old version that doesn't require it
+			installOracleInstantClient_version='11.2'
+			installOracleInstantClient_ic=https://raw.githubusercontent.com/pwnlabs/oracle-instantclient/master/instantclient-basic-linux-$installOracleInstantClient_version.0.4.0.zip
+			installOracleInstantClient_sdk=https://raw.githubusercontent.com/pwnlabs/oracle-instantclient/master/instantclient-sdk-linux-$installOracleInstantClient_version.0.4.0.zip
+		else
+			installOracleInstantClient_version='19.9'
+			installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-basic-linux-$installOracleInstantClient_version.0.0.0dbru.zip
+			installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-sdk-linux-$installOracleInstantClient_version.0.0.0dbru.zip
+		fi
+	else
+		installOracleInstantClient_client=client64
+		if test "$DISTRO" = 'alpine'; then
+			# I couldn't find a way to install libresolv.so on Linux - let's use an old version that doesn't require it
+			installOracleInstantClient_version='11.2'
+			installOracleInstantClient_ic=https://raw.githubusercontent.com/pwnlabs/oracle-instantclient/master/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.4.0.zip
+			installOracleInstantClient_sdk=https://raw.githubusercontent.com/pwnlabs/oracle-instantclient/master/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.4.0.zip
+		else
+			installOracleInstantClient_version='21.1'
+			installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.0.0.zip
+			installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.0.0.zip
+		fi
+	fi
+	installOracleInstantClient_major=${installOracleInstantClient_version%.*}
+	if ! test -d /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib; then
+		printf 'Downloading Oracle Instant Client v%s... ' "$installOracleInstantClient_version"
+		installOracleInstantClient_src="$(getPackageSource $installOracleInstantClient_ic)"
+		mkdir -p /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client
+		mv "$installOracleInstantClient_src" "/usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib"
+		if test -e /usr/lib/oracle/$installOracleInstantClient_major/client64/lib/libclntsh.so.$installOracleInstantClient_major.1 && ! test -e /usr/lib/oracle/$installOracleInstantClient_major/client64/lib/libclntsh.so; then
+			ln -s /usr/lib/oracle/$installOracleInstantClient_major/client64/lib/libclntsh.so.$installOracleInstantClient_major.1 /usr/lib/oracle/$installOracleInstantClient_major/client64/lib/libclntsh.so
+		fi
+		echo 'done.'
+	fi
+	if test "$DISTRO" = 'alpine' && test -e /usr/lib/libnsl.so.2 && ! test -e /usr/lib/libnsl.so.1; then
+		ln -s /usr/lib/libnsl.so.2 /usr/lib/libnsl.so.1
+	fi
+	if test -e /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib/libnnz21.so && ! test -e /usr/lib/libnnz21.so; then
+		ln -s /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib/libnnz21.so /usr/lib/
+	fi
+	if test -e /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib/libclntshcore.so.$installOracleInstantClient_version && ! test -e /usr/lib/libclntshcore.so.$installOracleInstantClient_version; then
+		ln -s /usr/lib/oracle/21/client64/lib/libclntshcore.so.$installOracleInstantClient_version /usr/lib/
+	fi
+	if ! test -e /usr/include/oracle/*/$installOracleInstantClient_client; then
+		printf 'Downloading Oracle Instant SDK v%s... ' "$installOracleInstantClient_version"
+		installOracleInstantClient_src="$(getPackageSource $installOracleInstantClient_sdk)"
+		mkdir -p /usr/include/oracle/$installOracleInstantClient_major
+		ln -s "$installOracleInstantClient_src/sdk/include" "/usr/include/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client"
+		UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client"
+		echo 'done.'
+	fi
+}
+
 # Install a bundled PHP module given its handle
 #
 # Arguments:
@@ -1061,6 +1125,9 @@ installBundledModule() {
 			./configure --with-unixODBC=shared,/usr
 			cd - >/dev/null
 			;;
+		oci8)
+			installOracleInstantClient
+			;;
 		pdo_odbc)
 			docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr
 			;;
@@ -1119,7 +1186,7 @@ getPackageSource() {
 	curl -sSLf -o "$getPackageSource_tempFile" "$1"
 	getPackageSource_tempDir=$(mktemp -p /tmp/src -d)
 	cd "$getPackageSource_tempDir"
-	tar -xzf "$getPackageSource_tempFile" 2>/dev/null || tar -xf "$getPackageSource_tempFile"
+	tar -xzf "$getPackageSource_tempFile" 2>/dev/null || tar -xf "$getPackageSource_tempFile" 2>/dev/null || unzip -q "$getPackageSource_tempFile"
 	cd - >/dev/null
 	unlink "$getPackageSource_tempFile"
 	getPackageSource_outDir=''
