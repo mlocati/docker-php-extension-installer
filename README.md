@@ -97,6 +97,7 @@ install-php-extensions xdebug-2.9.7
 | mysql | &check; | &check; |  |  |  |  |  |  |
 | mysqli | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | oauth | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| oci8 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opencensus |  |  | &check; | &check; | &check; | &check; | &check; |  |
@@ -144,7 +145,7 @@ install-php-extensions xdebug-2.9.7
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 85*
+*Number of supported extensions: 86*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
