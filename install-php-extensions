@@ -1116,7 +1116,7 @@ installBundledModule() {
 getPackageSource() {
 	mkdir -p /tmp/src
 	getPackageSource_tempFile=$(mktemp -p /tmp/src)
-	curl -L -s -S -o "$getPackageSource_tempFile" "$1"
+	curl -sSLf -o "$getPackageSource_tempFile" "$1"
 	getPackageSource_tempDir=$(mktemp -p /tmp/src -d)
 	cd "$getPackageSource_tempDir"
 	tar -xzf "$getPackageSource_tempFile" 2>/dev/null || tar -xf "$getPackageSource_tempFile"
@@ -1586,7 +1586,7 @@ installPECLModule() {
 			case "$DISTRO" in
 				alpine)
 					if ! test -f /usr/local/include/zookeeper/zookeeper.h; then
-						installPECLModule_tmp="$(curl -L -s -S -f https://downloads.apache.org/zookeeper/stable | sed -E 's/["<>]/\n/g' | grep -E '^(apache-)?zookeeper-[0-9]+\.[0-9]+\.[0-9]+\.(tar\.gz|tgz)$' | head -n1)"
+						installPECLModule_tmp="$(curl -sSLf https://downloads.apache.org/zookeeper/stable | sed -E 's/["<>]/\n/g' | grep -E '^(apache-)?zookeeper-[0-9]+\.[0-9]+\.[0-9]+\.(tar\.gz|tgz)$' | head -n1)"
 						if test -z "$installPECLModule_tmp"; then
 							echo 'Failed to detect the zookeeper library URL' >&2
 							exit 1
@@ -1661,7 +1661,7 @@ configureInstaller() {
 				pecl channel-update pecl.php.net || true
 				return
 			fi
-			curl -sSL https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
+			curl -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
 			chmod +x /tmp/pickle
 			if ! stringInList 'zip' "$PHP_PREINSTALLED_MODULES"; then
 				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
