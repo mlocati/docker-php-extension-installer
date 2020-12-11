@@ -109,7 +109,7 @@ filterUnsupportedExensionsForDistro() {
 # the full docker image ID
 getDockerImageName() {
 	case "$2" in
-		8.0)
+		8.1)
 			getDockerImageName_version="$2-rc"
 			;;
 		*)
