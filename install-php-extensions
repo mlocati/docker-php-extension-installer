@@ -259,6 +259,12 @@ sortModulesToInstall() {
 		PHP_MODULES_TO_INSTALL="msgpack $PHP_MODULES_TO_INSTALL"
 		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
 	fi
+	# Some module installation may use socket if available: move it before other modules
+	if stringInList 'socket' "$PHP_MODULES_TO_INSTALL"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'socket' "$PHP_MODULES_TO_INSTALL")"
+		PHP_MODULES_TO_INSTALL="socket $PHP_MODULES_TO_INSTALL"
+		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
+	fi
 	# In any case, first of all, we need to install composer
 	if stringInList '@composer' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList '@composer' "$PHP_MODULES_TO_INSTALL")"
@@ -712,6 +718,23 @@ buildRequiredPackageLists() {
 				;;
 			ssh2@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-1-dev"
+				;;
+			swoole@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs libstdc++"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev linux-headers"
+				case "$DISTRO_VERSION" in
+					alpine@3.7 | alpine@3.8)
+						# I can assure you I tried very hard to enable openssl in these Alpine versions...
+						;;
+					*)
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libressl-dev"
+						;;
+				esac
+				;;
+			swoole@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libpq-dev"
 				;;
 			sybase_ct@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
@@ -1295,6 +1318,7 @@ installPECLModule() {
 	installPECLModule_version="$(getWantedPHPModuleVersion "$installPECLModule_module")"
 	rm -rf "$CONFIGURE_FILE"
 	installPECLModule_manuallyInstalled=0
+	installPECLModule_cppflags=''
 	case "$installPECLModule_module" in
 		amqp)
 			case "$DISTRO_VERSION" in
@@ -1612,6 +1636,123 @@ installPECLModule() {
 				fi
 			fi
 			;;
+		swoole)
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 502; then
+					installPECLModule_version=1.6.10
+				elif test $PHP_MAJMIN_VERSION -le 504; then
+					installPECLModule_version=2.0.4
+				elif test $PHP_MAJMIN_VERSION -le 506; then
+					installPECLModule_version=2.0.11
+				elif test $PHP_MAJMIN_VERSION -le 700; then
+					installPECLModule_version=4.3.6
+				fi
+			fi
+			if php --ri sockets >/dev/null 2>/dev/null; then
+				installPECLModule_sockets=yes
+			else
+				installPECLModule_sockets=no
+			fi
+			case "$DISTRO_VERSION" in
+				alpine@3.7 | alpine@3.8)
+					# I can assure you I tried very hard to enable openssl in these Alpine versions...
+					installPECLModule_openssl=no
+					;;
+				*)
+					installPECLModule_openssl=yes
+					;;
+			esac
+			if test -z "$installPECLModule_version" || test $(compareVersions "$installPECLModule_version" 4.4.0) -ge 0; then
+				# enable sockets supports?
+				addConfigureOption enable-sockets $installPECLModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installPECLModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+			elif test $(compareVersions "$installPECLModule_version" 4.2.11) -ge 0; then
+				#enable sockets supports?
+				addConfigureOption enable-sockets $installPECLModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installPECLModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable postgresql coroutine client support?
+				addConfigureOption enable-coroutine-postgresql yes
+			elif test $(compareVersions "$installPECLModule_version" 4.2.7) -ge 0; then
+				#enable sockets supports?
+				addConfigureOption enable-sockets $installPECLModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installPECLModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable postgresql coroutine client support?
+				addConfigureOption enable-coroutine-postgresql yes
+				# enable kernel debug/trace log? (it will degrade performance)
+				addConfigureOption enable-debug-log no
+			elif test $(compareVersions "$installPECLModule_version" 4.2.6) -ge 0; then
+				# enable debug/trace log support?
+				addConfigureOption enable-debug-log no
+				#enable sockets supports?
+				addConfigureOption enable-sockets $installPECLModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installPECLModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable postgresql coroutine client support?
+				addConfigureOption enable-coroutine-postgresql yes
+			elif test $(compareVersions "$installPECLModule_version" 4.2.0) -ge 0; then
+				# enable debug/trace log support?
+				addConfigureOption enable-debug-log no
+				#enable sockets supports?
+				addConfigureOption enable-sockets $installPECLModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installPECLModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable async-redis support?
+				addConfigureOption enable-async-redis yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable postgresql coroutine client support?
+				addConfigureOption enable-coroutine-postgresql yes
+			elif test $(compareVersions "$installPECLModule_version" 2.1.2) -ge 0; then
+				# enable debug/trace log support?
+				addConfigureOption enable-swoole-debug no
+				#enable sockets supports?
+				addConfigureOption enable-sockets $installPECLModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installPECLModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable async-redis support?
+				addConfigureOption enable-async-redis yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable postgresql coroutine client support?
+				addConfigureOption enable-coroutine-postgresql yes
+			elif test $(compareVersions "$installPECLModule_version" 1.10.4) -ge 0 && test $(compareVersions "$installPECLModule_version" 1.10.5) -le 0; then
+				# enable debug/trace log support?
+				addConfigureOption enable-swoole-debug no
+				#enable sockets supports?
+				addConfigureOption enable-sockets $installPECLModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installPECLModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable async-redis support?
+				addConfigureOption enable-async-redis yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+			fi
+			;;
 		tdlib)
 			if ! test -f /usr/lib/libphpcpp.so || ! test -f /usr/include/phpcpp.h; then
 				if test $PHP_MAJMIN_VERSION -le 701; then
@@ -1719,7 +1860,7 @@ installPECLModule() {
 		if test -n "$installPECLModule_version"; then
 			printf '  (installing version %s)\n' "$installPECLModule_version"
 		fi
-		installPeclPackage "$installPECLModule_module" "$installPECLModule_version"
+		installPeclPackage "$installPECLModule_module" "$installPECLModule_version" "$installPECLModule_cppflags"
 	fi
 	case "$installPECLModule_module" in
 		apcu_bc)
@@ -1769,7 +1910,7 @@ configureInstaller() {
 			if ! stringInList 'zip' "$PHP_PREINSTALLED_MODULES"; then
 				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
 			fi
-			if anyStringInList 'xdebug' "$PHP_MODULES_TO_INSTALL"; then
+			if anyStringInList 'swoole xdebug' "$PHP_MODULES_TO_INSTALL"; then
 				USE_PICKLE=2
 			else
 				curl -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
@@ -1820,6 +1961,7 @@ addConfigureOption() {
 # Arguments:
 #   $1: the package to be installed
 #   $2: the package version to be installed (optional)
+#   $3: the value of the CPPFLAGS variable
 installPeclPackage() {
 	if ! test -f "$CONFIGURE_FILE"; then
 		printf '\n' >"$CONFIGURE_FILE"
@@ -1830,14 +1972,14 @@ installPeclPackage() {
 		else
 			installPeclPackage_fullname="$1-$2"
 		fi
-		cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" pecl install "$installPeclPackage_fullname"
+		cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" pecl install "$installPeclPackage_fullname"
 	else
 		if test -z "${2:-}"; then
 			installPeclPackage_fullname="$1"
 		else
 			installPeclPackage_fullname="$1@$2"
 		fi
-		MAKE="make -j$(getCompilationProcessorCount $1)" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --with-configure-options "$CONFIGURE_FILE" -- "$installPeclPackage_fullname"
+		MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --with-configure-options "$CONFIGURE_FILE" -- "$installPeclPackage_fullname"
 	fi
 }
 
