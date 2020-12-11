@@ -46,9 +46,7 @@ jobs:
           php-version: "7.4"
           tools: composer
       - name: Checkout
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v2
       - name: Install Composer dependencies
         run: composer install --no-progress --classmap-authoritative
       - name: Check coding style
