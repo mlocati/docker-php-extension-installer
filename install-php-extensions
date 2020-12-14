@@ -534,11 +534,15 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
 			oci8@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio libnsl"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio libc6-compat libnsl"
+				if test $DISTRO_MAJMIN_VERSION -le 307; then
+					# The unzip tool of Alpine 3.7 can't extract symlinks from ZIP archives: let's use bsdtar instead
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libarchive-tools"
+				fi
 				;;
 			oci8@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio[0-9]*$"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_persistent unzip"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unzip"
 				;;
 			pdo_dblib@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
@@ -984,57 +988,56 @@ compareVersions() {
 installOracleInstantClient() {
 	if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
 		installOracleInstantClient_client=client
-		if test "$DISTRO" = 'alpine'; then
-			# I couldn't find a way to install libresolv.so on Linux - let's use an old version that doesn't require it
-			installOracleInstantClient_version='11.2'
-			installOracleInstantClient_ic=https://raw.githubusercontent.com/pwnlabs/oracle-instantclient/master/instantclient-basic-linux-$installOracleInstantClient_version.0.4.0.zip
-			installOracleInstantClient_sdk=https://raw.githubusercontent.com/pwnlabs/oracle-instantclient/master/instantclient-sdk-linux-$installOracleInstantClient_version.0.4.0.zip
-		else
-			installOracleInstantClient_version='19.9'
-			installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-basic-linux-$installOracleInstantClient_version.0.0.0dbru.zip
-			installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-sdk-linux-$installOracleInstantClient_version.0.0.0dbru.zip
-		fi
+		installOracleInstantClient_version='19.9'
+		installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-basic-linux-$installOracleInstantClient_version.0.0.0dbru.zip
+		installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-sdk-linux-$installOracleInstantClient_version.0.0.0dbru.zip
 	else
 		installOracleInstantClient_client=client64
-		if test "$DISTRO" = 'alpine'; then
-			# I couldn't find a way to install libresolv.so on Linux - let's use an old version that doesn't require it
-			installOracleInstantClient_version='11.2'
-			installOracleInstantClient_ic=https://raw.githubusercontent.com/pwnlabs/oracle-instantclient/master/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.4.0.zip
-			installOracleInstantClient_sdk=https://raw.githubusercontent.com/pwnlabs/oracle-instantclient/master/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.4.0.zip
-		else
-			installOracleInstantClient_version='21.1'
-			installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.0.0.zip
-			installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.0.0.zip
-		fi
+		installOracleInstantClient_version='21.1'
+		installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.0.0.zip
+		installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.0.0.zip
 	fi
-	installOracleInstantClient_major=${installOracleInstantClient_version%.*}
-	if ! test -d /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib; then
+	if ! test -e "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"; then
 		printf 'Downloading Oracle Instant Client v%s... ' "$installOracleInstantClient_version"
 		installOracleInstantClient_src="$(getPackageSource $installOracleInstantClient_ic)"
-		mkdir -p /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client
-		mv "$installOracleInstantClient_src" "/usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib"
-		if test -e /usr/lib/oracle/$installOracleInstantClient_major/client64/lib/libclntsh.so.$installOracleInstantClient_major.1 && ! test -e /usr/lib/oracle/$installOracleInstantClient_major/client64/lib/libclntsh.so; then
-			ln -s /usr/lib/oracle/$installOracleInstantClient_major/client64/lib/libclntsh.so.$installOracleInstantClient_major.1 /usr/lib/oracle/$installOracleInstantClient_major/client64/lib/libclntsh.so
-		fi
+		mkdir -p "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client"
+		mv "$installOracleInstantClient_src" "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"
 		echo 'done.'
 	fi
-	if test "$DISTRO" = 'alpine' && test -e /usr/lib/libnsl.so.2 && ! test -e /usr/lib/libnsl.so.1; then
-		ln -s /usr/lib/libnsl.so.2 /usr/lib/libnsl.so.1
-	fi
-	if test -e /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib/libnnz21.so && ! test -e /usr/lib/libnnz21.so; then
-		ln -s /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib/libnnz21.so /usr/lib/
-	fi
-	if test -e /usr/lib/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client/lib/libclntshcore.so.$installOracleInstantClient_version && ! test -e /usr/lib/libclntshcore.so.$installOracleInstantClient_version; then
-		ln -s /usr/lib/oracle/21/client64/lib/libclntshcore.so.$installOracleInstantClient_version /usr/lib/
-	fi
-	if ! test -e /usr/include/oracle/*/$installOracleInstantClient_client; then
+	if ! test -e "/usr/include/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client"; then
 		printf 'Downloading Oracle Instant SDK v%s... ' "$installOracleInstantClient_version"
 		installOracleInstantClient_src="$(getPackageSource $installOracleInstantClient_sdk)"
-		mkdir -p /usr/include/oracle/$installOracleInstantClient_major
-		ln -s "$installOracleInstantClient_src/sdk/include" "/usr/include/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client"
-		UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/oracle/$installOracleInstantClient_major/$installOracleInstantClient_client"
+		mkdir -p "/usr/include/oracle/$installOracleInstantClient_version"
+		ln -s "$installOracleInstantClient_src/sdk/include" "/usr/include/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client"
+		UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS '/usr/include/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client'"
 		echo 'done.'
 	fi
+	case "$DISTRO" in
+		alpine)
+			if ! test -e /usr/lib/libresolv.so.2 && test -e /lib/libc.so.6; then
+				ln -s /lib/libc.so.6 /usr/lib/libresolv.so.2
+			fi
+			installOracleInstantClient_arch=$(getTargetTriplet)
+			installOracleInstantClient_ldconf=/etc/ld-musl-${installOracleInstantClient_arch%-alpine-linux-musl}.path
+			if test -e "$installOracleInstantClient_ldconf"; then
+				if ! cat "$installOracleInstantClient_ldconf" | grep -q "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"; then
+					cat "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" | awk -v suffix=":/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" '{print NR==1 ? $0suffix : $0}' >"/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"
+				fi
+			else
+				if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
+					echo "/lib:/usr/local/lib:/usr/lib:/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" >"$installOracleInstantClient_ldconf"
+				else
+					echo "/lib64:/lib:/usr/local/lib:/usr/lib:/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" >"$installOracleInstantClient_ldconf"
+				fi
+			fi
+			;;
+		debian)
+			if ! test -e /etc/ld.so.conf.d/oracle-instantclient.conf; then
+				echo "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" >/etc/ld.so.conf.d/oracle-instantclient.conf
+				ldconfig
+			fi
+			;;
+	esac
 }
 
 # Install a bundled PHP module given its handle
@@ -1186,7 +1189,13 @@ getPackageSource() {
 	curl -sSLf -o "$getPackageSource_tempFile" "$1"
 	getPackageSource_tempDir=$(mktemp -p /tmp/src -d)
 	cd "$getPackageSource_tempDir"
-	tar -xzf "$getPackageSource_tempFile" 2>/dev/null || tar -xf "$getPackageSource_tempFile" 2>/dev/null || unzip -q "$getPackageSource_tempFile"
+	tar -xzf "$getPackageSource_tempFile" 2>/dev/null || tar -xf "$getPackageSource_tempFile" 2>/dev/null || (
+		if command -v bsdtar >/dev/null; then
+			bsdtar -xf "$getPackageSource_tempFile"
+		else
+			unzip -q "$getPackageSource_tempFile"
+		fi
+	)
 	cd - >/dev/null
 	unlink "$getPackageSource_tempFile"
 	getPackageSource_outDir=''
