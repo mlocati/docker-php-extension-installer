@@ -1067,7 +1067,7 @@ installBundledModule() {
 		gmp)
 			if test $PHP_MAJMIN_VERSION -le 506; then
 				if ! test -f /usr/include/gmp.h; then
-					ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h
+					ln -s /usr/include/$TARGET_TRIPLET/gmp.h /usr/include/gmp.h
 					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/gmp.h"
 				fi
 			fi
@@ -1113,7 +1113,7 @@ installBundledModule() {
 			;;
 		mssql | pdo_dblib)
 			if ! test -f /usr/lib/libsybdb.so; then
-				ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
+				ln -s /usr/lib/$TARGET_TRIPLET/libsybdb.so /usr/lib/libsybdb.so
 				UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/lib/libsybdb.so"
 			fi
 			;;
