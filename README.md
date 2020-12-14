@@ -75,6 +75,7 @@ install-php-extensions xdebug-2.9.7
 | gettext | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gmagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | gmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| gnupg | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | grpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | http | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | igbinary | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -145,7 +146,7 @@ install-php-extensions xdebug-2.9.7
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 86*
+*Number of supported extensions: 87*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
