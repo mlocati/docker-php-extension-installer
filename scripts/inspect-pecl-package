@@ -104,7 +104,12 @@ function inspectPackageVersion(string $package, string $version): PackageVersion
             mkdir($extractedDir);
 
             try {
-                $archive->extractTo($extractedDir, 'package.xml');
+                try {
+                    $archive->extractTo($extractedDir, 'package2.xml');
+                    rename("{$extractedDir}/package2.xml", "{$extractedDir}/package.xml");
+                } catch (PharException $x) {
+                    $archive->extractTo($extractedDir, 'package.xml');
+                }
 
                 try {
                     $dom = new DOMDocument();
@@ -113,16 +118,21 @@ function inspectPackageVersion(string $package, string $version): PackageVersion
                     }
                     $xpath = new DOMXPath($dom);
                     $xpath->registerNamespace('v2', 'http://pear.php.net/dtd/package-2.0');
-                    if ($xpath->query('/v2:package/v2:dependencies')->count() !== 1) {
+                    if ($xpath->query('/v2:package/v2:dependencies')->count() === 1) {
+                        $ns = 'v2:';
+                    } elseif ($xpath->query('/package/release/version')->count() === 1) {
+                        $ns = '';
+                    } else {
                         throw new RuntimeException('Unsupported namespace');
                     }
-                    $maxPHPVersionNodes = $xpath->query('/v2:package/v2:dependencies/v2:required/v2:php/v2:max');
+                    $minPHPVersionNodes = $xpath->query("/{$ns}package/{$ns}dependencies/{$ns}required/{$ns}php/{$ns}min");
+                    $maxPHPVersionNodes = $xpath->query("/{$ns}package/{$ns}dependencies/{$ns}required/{$ns}php/{$ns}max");
                     $info = new PackageVersion(
                         $version,
-                        $xpath->query('/v2:package/v2:dependencies/v2:required/v2:php/v2:min')[0]->nodeValue,
+                        $minPHPVersionNodes->count() === 0 ? '' : $minPHPVersionNodes[0]->nodeValue,
                         $maxPHPVersionNodes->count() === 0 ? '' : $maxPHPVersionNodes[0]->nodeValue
                     );
-                    foreach ($xpath->query('/v2:package/v2:extsrcrelease/v2:configureoption') as $configureOptionNode) {
+                    foreach ($xpath->query("/{$ns}package/{$ns}extsrcrelease/{$ns}configureoption") as $configureOptionNode) {
                         $info->addConfigureOption(new PackageConfigureOption(
                             $configureOptionNode->getAttribute('name'),
                             $configureOptionNode->getAttribute('prompt'),
