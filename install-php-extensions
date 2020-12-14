@@ -891,15 +891,13 @@ getProcessorCount() {
 	fi
 }
 
-# Get the build target tripled
-# Output:
-#   The target triplet (eg x86_64-linux-gnu, i686-linux-gnu, i386-linux-gnu, ...)
-getTargetTriplet() {
-	getTargetTriplet_tmp="$(gcc -print-multiarch 2>/dev/null || true)"
-	if test -z "$getTargetTriplet_tmp"; then
-		getTargetTriplet_tmp="$(gcc -dumpmachine 2>/dev/null || true)"
+# Set these variables:
+# - TARGET_TRIPLET the build target tripled (eg 'x86_64-linux-gnu', 'x86_64-alpine-linux-musl')
+setTargetTriplet() {
+	TARGET_TRIPLET="$(gcc -print-multiarch 2>/dev/null || true)"
+	if test -z "$TARGET_TRIPLET"; then
+		TARGET_TRIPLET="$(gcc -dumpmachine)"
 	fi
-	printf '%s' "$getTargetTriplet_tmp"
 }
 
 # Retrieve the number of processors to be used when compiling an extension
@@ -1017,8 +1015,7 @@ installOracleInstantClient() {
 			if ! test -e /usr/lib/libresolv.so.2 && test -e /lib/libc.so.6; then
 				ln -s /lib/libc.so.6 /usr/lib/libresolv.so.2
 			fi
-			installOracleInstantClient_arch=$(getTargetTriplet)
-			installOracleInstantClient_ldconf=/etc/ld-musl-${installOracleInstantClient_arch%-alpine-linux-musl}.path
+			installOracleInstantClient_ldconf=/etc/ld-musl-${TARGET_TRIPLET%-alpine-linux-musl}.path
 			if test -e "$installOracleInstantClient_ldconf"; then
 				if ! cat "$installOracleInstantClient_ldconf" | grep -q "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"; then
 					cat "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" | awk -v suffix=":/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" '{print NR==1 ? $0suffix : $0}' >"/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"
@@ -1070,7 +1067,7 @@ installBundledModule() {
 		gmp)
 			if test $PHP_MAJMIN_VERSION -le 506; then
 				if ! test -f /usr/include/gmp.h; then
-					ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h
+					ln -s /usr/include/$TARGET_TRIPLET/gmp.h /usr/include/gmp.h
 					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/gmp.h"
 				fi
 			fi
@@ -1110,13 +1107,13 @@ installBundledModule() {
 		ldap)
 			case "$DISTRO" in
 				debian)
-					docker-php-ext-configure ldap --with-libdir=lib/$(getTargetTriplet)
+					docker-php-ext-configure ldap --with-libdir=lib/$TARGET_TRIPLET
 					;;
 			esac
 			;;
 		mssql | pdo_dblib)
 			if ! test -f /usr/lib/libsybdb.so; then
-				ln -s /usr/lib/x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so
+				ln -s /usr/lib/$TARGET_TRIPLET/libsybdb.so /usr/lib/libsybdb.so
 				UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/lib/libsybdb.so"
 			fi
 			;;
@@ -1537,17 +1534,16 @@ installPECLModule() {
 			# Enable lzf compression support?
 			addConfigureOption 'enable-redis-lzf' 'yes'
 			if test -z "$installPECLModule_version" || test $(compareVersions "$installPECLModule_version" '5.0.0') -ge 0; then
-				installPECLModule_machine=$(getTargetTriplet)
-				if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$installPECLModule_machine/libzstd.so"; then
+				if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$TARGET_TRIPLET/libzstd.so"; then
 					installPECLModule_zstdVersion=1.4.4
 					installPECLModule_zstdVersionMajor=$(echo $installPECLModule_zstdVersion | cut -d. -f1)
 					rm -rf /tmp/src/zstd
 					mv "$(getPackageSource https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-$installPECLModule_zstdVersion.tar.gz)" /tmp/src/zstd
 					cd /tmp/src/zstd
 					make V=0 -j$(getProcessorCount) lib
-					cp -f lib/libzstd.so "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion"
-					ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersionMajor"
-					ln -sf "/usr/lib/$installPECLModule_machine/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$installPECLModule_machine/libzstd.so"
+					cp -f lib/libzstd.so "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installPECLModule_zstdVersion"
+					ln -sf "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installPECLModule_zstdVersionMajor"
+					ln -sf "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$TARGET_TRIPLET/libzstd.so"
 					ln -sf /tmp/src/zstd/lib/zstd.h /usr/include/zstd.h
 					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/zstd.h"
 					cd - >/dev/null
@@ -1898,6 +1894,7 @@ buildRequiredPackageLists $PHP_MODULES_TO_INSTALL
 if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
 	installRequiredPackages
 fi
+setTargetTriplet
 for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 	if stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
 		installBundledModule "$PHP_MODULE_TO_INSTALL"
