@@ -380,6 +380,14 @@ buildRequiredPackageLists() {
 			gmp@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgmp-dev"
 				;;
+			gnupg@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_volatile gpgme"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gpgme-dev"
+				;;
+			gnupg@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_volatile libgpgme[0-9]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgpgme[0-9]*-dev"
+				;;
 			grpc@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev linux-headers"
