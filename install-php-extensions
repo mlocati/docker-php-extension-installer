@@ -263,6 +263,7 @@ sortModulesToInstall() {
 #   PACKAGES_PERSISTENT
 #   PACKAGES_VOLATILE
 #   PACKAGES_PREVIOUS
+#   INSTALL_OPENSSL
 buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
@@ -271,22 +272,10 @@ buildRequiredPackageLists() {
 			apk update
 			;;
 	esac
+	INSTALL_OPENSSL=n
 	case "$DISTRO_VERSION" in
 		alpine@*)
 			buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
-			if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
-				buildRequiredPackageLists_libssl='libssl1.0'
-			elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')"; then
-				buildRequiredPackageLists_libssl=$(apk search -q libressl*-libtls)
-			else
-				buildRequiredPackageLists_libssl=''
-			fi
-			;;
-		debian@9)
-			buildRequiredPackageLists_libssldev='libssl1.0-dev'
-			;;
-		debian@*)
-			buildRequiredPackageLists_libssldev='libssl([0-9]+(\.[0-9]+)*)?-dev$'
 			;;
 	esac
 	while :; do
@@ -425,15 +414,17 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmagickwand-dev"
 				;;
 			imap@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-client $buildRequiredPackageLists_libssl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev libressl-dev"
+				INSTALL_OPENSSL=y
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-client"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev"
 				;;
 			imap@debian)
+				INSTALL_OPENSSL=y
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-client2007e"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libkrb5-dev"
 				case "$DISTRO_VERSION" in
 					debian@9)
-						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev comerr-dev krb5-multidev libc-client2007e libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 libkdb5-8 libpam0g-dev libssl-doc mlock"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile comerr-dev krb5-multidev libc-client2007e libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 libkdb5-8 libpam0g-dev mlock"
 						;;
 					*)
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-client-dev"
@@ -493,19 +484,23 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmemcached-dev zlib1g-dev"
 				;;
 			mongo@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsasl $buildRequiredPackageLists_libssl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libressl-dev cyrus-sasl-dev"
+				INSTALL_OPENSSL=y
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsasl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cyrus-sasl-dev"
 				;;
 			mongo@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libsasl2-dev"
+				INSTALL_OPENSSL=y
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsasl2-dev"
 				;;
 			mongodb@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl $buildRequiredPackageLists_libssl snappy"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev libressl-dev zlib-dev"
+				INSTALL_OPENSSL=y
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl snappy"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev zlib-dev"
 				;;
 			mongodb@debian)
+				INSTALL_OPENSSL=y
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy[0-9]+(v[0-9]+)?$ libicu[0-9]+$"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev $buildRequiredPackageLists_libssldev zlib1g-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev zlib1g-dev"
 				;;
 			mosquitto@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent mosquitto-libs"
@@ -704,11 +699,13 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
 			tdlib@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ $buildRequiredPackageLists_libssl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib-dev libressl-dev linux-headers readline-dev"
+				INSTALL_OPENSSL=y
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib-dev linux-headers readline-dev"
 				;;
 			tdlib@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib1g-dev $buildRequiredPackageLists_libssldev"
+				INSTALL_OPENSSL=y
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib1g-dev"
 				;;
 			tidy@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml-libs"
@@ -754,12 +751,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libyaml-dev"
 				;;
 			zip@alpine)
+				INSTALL_OPENSSL=y
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev libressl-dev zlib-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev zlib-dev"
 				;;
 			zip@debian)
+				INSTALL_OPENSSL=y
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip[0-9]$"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev $buildRequiredPackageLists_libssldev libzip-dev libbz2-dev zlib1g-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev libbz2-dev zlib1g-dev"
 				case "$DISTRO_VERSION" in
 					debian@8)
 						# Debian Jessie doesn't seem to provide libmbedtls
@@ -782,6 +781,13 @@ buildRequiredPackageLists() {
 		esac
 		shift
 	done
+	if test "$INSTALL_OPENSSL" = y; then
+		case "$DISTRO" in
+			alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile linux-headers"
+				;;
+		esac
+	fi
 	PACKAGES_PERSISTENT=''
 	PACKAGES_VOLATILE=''
 	PACKAGES_PREVIOUS=''
@@ -940,6 +946,30 @@ installRequiredPackages() {
 			;;
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get install -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
+			;;
+	esac
+}
+
+# Install OpenSSL from source
+installOpenSSL() {
+	if test -e /usr/local/include/openssl/bio.h; then
+		return
+	fi
+	installOpenSSL_version=1.1.1i
+	printf '### INSTALLING OpenSSL v%s ###\n' "$installOpenSSL_version"
+	printf 'Downloading... '
+	installOracleInstantClient_src="$(getPackageSource "https://www.openssl.org/source/openssl-$installOpenSSL_version.tar.gz")"
+	printf 'done.\n'
+	cd "$installOracleInstantClient_src"
+	./config no-tests
+	printf '*** Compiling\n'
+	make -s -j$(getProcessorCount)
+	make -s -j$(getProcessorCount) install_sw
+	make -s -j$(getProcessorCount) install_ssldirs
+	cd - >/dev/null
+	case "$DISTRO" in
+		debian)
+			ldconfig
 			;;
 	esac
 }
@@ -1901,6 +1931,9 @@ configureInstaller
 buildRequiredPackageLists $PHP_MODULES_TO_INSTALL
 if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
 	installRequiredPackages
+fi
+if test "$INSTALL_OPENSSL" = y; then
+	installOpenSSL
 fi
 setTargetTriplet
 for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
