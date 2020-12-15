@@ -21,35 +21,51 @@ try {
         echo "Syntax: {$argv[0]} <extension>\n";
         exit(in_array('-h', $argv, true) || in_array('--help', $argv, true) ? 0 : 1);
     }
+    define('TMP_DIR', __DIR__ . '/tmp');
+    if (!is_dir(TMP_DIR)) {
+        mkdir(TMP_DIR);
+    }
+
+    echo "# FETCHING DATA\n";
     echo 'Retrieving package versions... ';
     $versions = listPackageVersions($argv[1]);
     $numVersions = count($versions);
     echo "done.\n";
-    $data = [];
-    $lastData = null;
+    $versionInfos = [];
     $versionCount = 0;
     foreach ($versions as $version) {
         $versionCount++;
         echo "Inspecting version {$version} [{$versionCount}/{$numVersions}]... ";
-        $versionData = inspectPackageVersion($argv[1], $version);
-        if ($lastData !== null && $lastData->isCompatibleWith($versionData)) {
-            $lastData->addVersion($versionData->getVersion());
-        } else {
-            $data[] = $lastData = new PackageVersionCombined($versionData);
-        }
+        $versionInfos[] = inspectPackageVersion($argv[1], $version);
         echo "done.\n";
     }
-    foreach ($data as $info) {
-        echo '## Versions: ', implode(', ', $info->getVersions()), "\n";
-        echo 'Min PHP version: ', $info->getMinPHPVersion(), "\n";
-        echo 'Max PHP version: ', $info->getMaxPHPVersion(), "\n";
-        foreach ($info->getConfigureOptions() as $configureOptionIndex => $configureOption) {
-            echo 'Option ', $configureOptionIndex + 1, ': ', $configureOption->getName(), ' "', $configureOption->getPrompt(), '"';
-            if ($configureOption->getDefault() !== null) {
-                echo ' [', $configureOption->getDefault(), ']';
+    echo "# PHP VERSION COMPATIBILITY LIST\n";
+    $instance = null;
+    foreach ($versionInfos as $versionInfo) {
+        if ($instance === null || !$instance->isCompatibleWith($versionInfo)) {
+            if ($instance !== null) {
+                echo $instance, "\n";
             }
-            echo "\n";
+            $instance = new CompatiblePHPVersions($versionInfo->getMinPHPVersion(), $versionInfo->getMaxPHPVersion());
         }
+        $instance->addVersion($versionInfo->getVersion());
+    }
+    if ($instance !== null) {
+        echo $instance, "\n";
+    }
+    echo "# CONFIGURATION OPTIONS\n";
+    $instance = null;
+    foreach ($versionInfos as $versionInfo) {
+        if ($instance === null || !$instance->isCompatibleWith($versionInfo)) {
+            if ($instance !== null) {
+                echo $instance, "\n";
+            }
+            $instance = new CompatibleConfigurationOptions($versionInfo->getConfigureOptions());
+        }
+        $instance->addVersion($versionInfo->getVersion());
+    }
+    if ($instance !== null) {
+        echo $instance, "\n";
     }
 } catch (RuntimeException $x) {
     echo $x->getMessage(), "\n";
@@ -61,6 +77,12 @@ try {
  */
 function listPackageVersions(string $package): array
 {
+    $cachedDir = TMP_DIR;
+    $cachedFile = "{$cachedDir}/{$package}.xml";
+    if (is_file($cachedFile) && filemtime($cachedFile) > (time() - 1800)) {
+        return listPackageVersionsXml($package, file_get_contents($cachedFile));
+    }
+
     try {
         $xml = file_get_contents("https://pecl.php.net/rest/r/{$package}/allreleases.xml");
     } catch (RuntimeException $x) {
@@ -70,6 +92,17 @@ function listPackageVersions(string $package): array
 
         throw $x;
     }
+    $versions = listPackageVersionsXml($package, $xml);
+    if (!is_dir($cachedDir)) {
+        mkdir($cachedDir, 0777, true);
+    }
+    file_put_contents($cachedFile, $xml);
+
+    return $versions;
+}
+
+function listPackageVersionsXml(string $package, string $xml): array
+{
     $dom = new DOMDocument();
     if (!$dom->loadXML($xml)) {
         throw new RuntimeException('Failed to parse the downloaded XML data.');
@@ -89,8 +122,13 @@ function listPackageVersions(string $package): array
     return $versions;
 }
 
-function inspectPackageVersion(string $package, string $version): PackageVersion
+function inspectPackageVersion(string $package, string $version): PackageVersionInfo
 {
+    $cachedDir = TMP_DIR . "/{$package}";
+    $cachedFile = "{$cachedDir}/{$version}.xml";
+    if (is_file($cachedFile)) {
+        return inspectPackageVersionXml($package, $version, $cachedFile);
+    }
     $tgzFile = tempnam(sys_get_temp_dir(), 'dpx');
 
     try {
@@ -112,33 +150,11 @@ function inspectPackageVersion(string $package, string $version): PackageVersion
                 }
 
                 try {
-                    $dom = new DOMDocument();
-                    if (!$dom->loadXML(file_get_contents("{$extractedDir}/package.xml"))) {
-                        throw new RuntimeException('Failed to parse the downloaded package.xml file.');
+                    $info = inspectPackageVersionXml($package, $version, "{$extractedDir}/package.xml");
+                    if (!is_dir($cachedDir)) {
+                        mkdir($cachedDir, 0777, true);
                     }
-                    $xpath = new DOMXPath($dom);
-                    $xpath->registerNamespace('v2', 'http://pear.php.net/dtd/package-2.0');
-                    if ($xpath->query('/v2:package/v2:dependencies')->count() === 1) {
-                        $ns = 'v2:';
-                    } elseif ($xpath->query('/package/release/version')->count() === 1) {
-                        $ns = '';
-                    } else {
-                        throw new RuntimeException('Unsupported namespace');
-                    }
-                    $minPHPVersionNodes = $xpath->query("/{$ns}package/{$ns}dependencies/{$ns}required/{$ns}php/{$ns}min");
-                    $maxPHPVersionNodes = $xpath->query("/{$ns}package/{$ns}dependencies/{$ns}required/{$ns}php/{$ns}max");
-                    $info = new PackageVersion(
-                        $version,
-                        $minPHPVersionNodes->count() === 0 ? '' : $minPHPVersionNodes[0]->nodeValue,
-                        $maxPHPVersionNodes->count() === 0 ? '' : $maxPHPVersionNodes[0]->nodeValue
-                    );
-                    foreach ($xpath->query("/{$ns}package/{$ns}extsrcrelease/{$ns}configureoption") as $configureOptionNode) {
-                        $info->addConfigureOption(new PackageConfigureOption(
-                            $configureOptionNode->getAttribute('name'),
-                            $configureOptionNode->getAttribute('prompt'),
-                            $configureOptionNode->hasAttribute('default') ? $configureOptionNode->getAttribute('default') : null
-                        ));
-                    }
+                    copy("{$extractedDir}/package.xml", $cachedFile);
                 } finally {
                     unlink("{$extractedDir}/package.xml");
                 }
@@ -155,16 +171,56 @@ function inspectPackageVersion(string $package, string $version): PackageVersion
     return $info;
 }
 
-abstract class PackageInfo
+function inspectPackageVersionXml(string $package, string $version, string $xmlFile): PackageVersionInfo
 {
+    $dom = new DOMDocument();
+    if (!$dom->loadXML(file_get_contents($xmlFile))) {
+        throw new RuntimeException("Failed to parse the downloaded package.xml file located at {$xmlFile}.");
+    }
+    $xpath = new DOMXPath($dom);
+    $xpath->registerNamespace('v2', 'http://pear.php.net/dtd/package-2.0');
+    if ($xpath->query('/v2:package/v2:dependencies')->count() === 1) {
+        $ns = 'v2:';
+    } elseif ($xpath->query('/package/release/version')->count() === 1) {
+        $ns = '';
+    } else {
+        throw new RuntimeException('Unsupported namespace');
+    }
+    $minPHPVersionNodes = $xpath->query("/{$ns}package/{$ns}dependencies/{$ns}required/{$ns}php/{$ns}min");
+    $maxPHPVersionNodes = $xpath->query("/{$ns}package/{$ns}dependencies/{$ns}required/{$ns}php/{$ns}max");
+    $info = new PackageVersionInfo(
+        $version,
+        $minPHPVersionNodes->count() === 0 ? '' : $minPHPVersionNodes[0]->nodeValue,
+        $maxPHPVersionNodes->count() === 0 ? '' : $maxPHPVersionNodes[0]->nodeValue
+    );
+    foreach ($xpath->query("/{$ns}package/{$ns}extsrcrelease/{$ns}configureoption") as $configureOptionNode) {
+        $info->addConfigureOption(new PackageConfigureOption(
+            $configureOptionNode->getAttribute('name'),
+            $configureOptionNode->getAttribute('prompt'),
+            $configureOptionNode->hasAttribute('default') ? $configureOptionNode->getAttribute('default') : null
+        ));
+    }
+
+    return $info;
+}
+
+class PackageVersionInfo
+{
+    private string $version;
     private string $minPHPVersion;
     private string $maxPHPVersion;
     private array $configureOptions = [];
 
-    protected function __construct(string $minPHPVersion, string $maxPHPVersion = '')
+    public function __construct(string $version, string $minPHPVersion, string $maxPHPVersion = '')
     {
+        $this->version = $version;
         $this->minPHPVersion = $minPHPVersion;
         $this->maxPHPVersion = $maxPHPVersion;
+    }
+
+    public function getVersion(): string
+    {
+        return $this->version;
     }
 
     public function getMinPHPVersion(): string
@@ -188,18 +244,6 @@ abstract class PackageInfo
     }
 
     /**
-     * @param PackageConfigureOption[] $value
-     *
-     * @return $this
-     */
-    public function setConfigureOptions(array $value): self
-    {
-        $this->configureOptions = $value;
-
-        return $this;
-    }
-
-    /**
      * @return PackageConfigureOption[]
      */
     public function getConfigureOptions(): array
@@ -208,31 +252,76 @@ abstract class PackageInfo
     }
 }
 
-class PackageVersion extends PackageInfo
+class PackageConfigureOption
 {
-    private string $version;
+    private string $name;
+    private string $prompt;
+    private ?string $default;
 
-    public function __construct(string $version, string $minPHPVersion, string $maxPHPVersion = '')
+    public function __construct(string $name, string $prompt, ?string $default = null)
     {
-        parent::__construct($minPHPVersion, $maxPHPVersion);
-        $this->version = $version;
+        $this->name = $name;
+        $this->prompt = $prompt;
+        $this->default = $default;
     }
 
-    public function getVersion(): string
+    public function __toString(): string
     {
-        return $this->version;
+        $result = "{$this->getName()} \"{$this->getPrompt()}\"";
+        if ($this->getDefault() !== null) {
+            $result .= " [{$this->getDefault()}]";
+        }
+
+        return $result;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getPrompt(): string
+    {
+        return $this->prompt;
+    }
+
+    public function getDefault(): ?string
+    {
+        return $this->default;
     }
 }
 
-class PackageVersionCombined extends PackageInfo
+class CompatiblePHPVersions
 {
+    private string $minPHPVersion;
+    private string $maxPHPVersion;
     private array $versions = [];
 
-    public function __construct(PackageInfo $info)
+    public function __construct(string $minPHPVersion, string $maxPHPVersion)
     {
-        parent::__construct($info->getMinPHPVersion(), $info->getMaxPHPVersion());
-        $this->setConfigureOptions($info->getConfigureOptions());
-        $this->addVersion($info->getVersion());
+        $this->minPHPVersion = $minPHPVersion;
+        $this->maxPHPVersion = $maxPHPVersion;
+    }
+
+    public function __toString(): string
+    {
+        $versions = $this->getVersions();
+
+        return implode("\n", [
+            "- Package versions: {$versions[0]}" . (isset($versions[1]) ? ' -> ' . $versions[count($versions) - 1] : ''),
+            "  - Min PHP version: {$this->getMinPHPVersion()}",
+            "  - Max PHP version: {$this->getMaxPHPVersion()}",
+        ]);
+    }
+
+    public function getMinPHPVersion(): string
+    {
+        return $this->minPHPVersion;
+    }
+
+    public function getMaxPHPVersion(): string
+    {
+        return $this->maxPHPVersion;
     }
 
     /**
@@ -253,40 +342,71 @@ class PackageVersionCombined extends PackageInfo
         return $this->versions;
     }
 
-    public function isCompatibleWith(PackageInfo $info): bool
+    public function isCompatibleWith(PackageVersionInfo $info): bool
     {
-        return $this->getMinPHPVersion() === $info->getMinPHPVersion()
-            && $this->getMaxPHPVersion() === $info->getMaxPHPVersion()
-            && $this->getConfigureOptions() == $info->getConfigureOptions()
-        ;
+        return $this->getMinPHPVersion() === $info->getMinPHPVersion() && $this->getMaxPHPVersion() === $info->getMaxPHPVersion();
     }
 }
 
-class PackageConfigureOption
+class CompatibleConfigurationOptions
 {
-    private string $name;
-    private string $prompt;
-    private ?string $default;
+    /**
+     * @var PackageConfigureOption[]
+     */
+    private array $configureOptions = [];
+    private array $versions = [];
 
-    public function __construct(string $name, string $prompt, ?string $default = null)
+    public function __construct(array $configureOptions)
     {
-        $this->name = $name;
-        $this->prompt = $prompt;
-        $this->default = $default;
+        $this->configureOptions = $configureOptions;
     }
 
-    public function getName(): string
+    public function __toString(): string
     {
-        return $this->name;
+        $versions = $this->getVersions();
+        $lines = [
+            "- Package versions: {$versions[0]}" . (isset($versions[1]) ? ' -> ' . $versions[count($versions) - 1] : ''),
+        ];
+        $options = $this->getConfigureOptions();
+        if ($options === []) {
+            $lines[] = '  <no options>';
+        } else {
+            foreach ($options as $index => $option) {
+                $lines[] = $index + 1 . ') ' . (string) $option;
+            }
+        }
+
+        return implode("\n", $lines);
     }
 
-    public function getPrompt(): string
+    /**
+     * @return PackageConfigureOption[]
+     */
+    public function getConfigureOptions(): array
     {
-        return $this->prompt;
+        return $this->configureOptions;
     }
 
-    public function getDefault(): ?string
+    /**
+     * @return $this
+     */
+    public function addVersion(string $value): self
     {
-        return $this->default;
+        $this->versions[] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getVersions(): array
+    {
+        return $this->versions;
+    }
+
+    public function isCompatibleWith(PackageVersionInfo $info): bool
+    {
+        return $this->getConfigureOptions() == $info->getConfigureOptions();
     }
 }
