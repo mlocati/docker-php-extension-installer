@@ -89,13 +89,15 @@ filterUnsupportedExensionsForDistro() {
 		return
 	fi
 	filterUnsupportedExensionsForDistro_filtered=''
-	for filterUnsupportedExensionsForDistro_extension in "$EXTENSIONS_TO_BE_TESTED"; do
+	IFS=' '
+	for filterUnsupportedExensionsForDistro_extension in $EXTENSIONS_TO_BE_TESTED; do
 		if stringInList "!$DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
 			printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$DOCKER_DISTRO"
 		else
 			filterUnsupportedExensionsForDistro_filtered="$filterUnsupportedExensionsForDistro_filtered $filterUnsupportedExensionsForDistro_extension"
 		fi
 	done
+	resetIFS
 	EXTENSIONS_TO_BE_TESTED="${filterUnsupportedExensionsForDistro_filtered# }"
 }
 
