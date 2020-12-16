@@ -287,7 +287,7 @@ buildRequiredPackageLists() {
 	case "$DISTRO_VERSION" in
 		alpine@*)
 			if test $# -gt 1 || test "${1:-}" != '@composer'; then
-				buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 			fi
 			if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
 				buildRequiredPackageLists_libssl='libssl1.0'
@@ -304,6 +304,9 @@ buildRequiredPackageLists() {
 			buildRequiredPackageLists_libssldev='libssl([0-9]+(\.[0-9]+)*)?-dev$'
 			;;
 	esac
+	if test $USE_PICKLE -gt 1; then
+		buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git"
+	fi
 	while :; do
 		if test $# -lt 1; then
 			break
@@ -1655,20 +1658,6 @@ installPECLModule() {
 					installPECLModule_version=2.9.8
 				fi
 			fi
-			if test $PHP_MAJMIN_VERSION -ge 800; then
-				# Workaround for picke problem - see https://github.com/FriendsOfPHP/pickle/issues/188 and https://github.com/FriendsOfPHP/pickle/issues/191
-				if test -z "$installPECLModule_version"; then
-					installPECLModule_version=3.0.1
-				fi
-				installPECLModule_src="$(getPackageSource https://codeload.github.com/xdebug/xdebug/tar.gz/$installPECLModule_version)"
-				cd -- "$installPECLModule_src"
-				phpize
-				./configure --enable-xdebug
-				make -j$(getProcessorCount)
-				make install
-				cd - >/dev/null
-				installPECLModule_manuallyInstalled=1
-			fi
 			;;
 		uopz)
 			if test -z "$installPECLModule_version"; then
@@ -1777,15 +1766,40 @@ configureInstaller() {
 				pecl channel-update pecl.php.net || true
 				return
 			fi
-			curl -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
-			chmod +x /tmp/pickle
 			if ! stringInList 'zip' "$PHP_PREINSTALLED_MODULES"; then
 				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
 			fi
-			USE_PICKLE=1
+			if anyStringInList 'xdebug' "$PHP_MODULES_TO_INSTALL"; then
+				USE_PICKLE=2
+			else
+				curl -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
+				chmod +x /tmp/pickle
+				USE_PICKLE=1
+			fi
 			return
 		fi
 	done
+}
+
+buildPickle() {
+	printf '### BUILDING PICKLE ###\n'
+	buildPickle_tempDir="$(mktemp -p /tmp/src -d)"
+	cd -- "$buildPickle_tempDir"
+	printf 'Downloading... '
+	git clone --quiet --depth 1 https://github.com/FriendsOfPHP/pickle.git .
+	git tag 0.7.0
+	printf 'done.\n'
+	printf 'Installing composer... '
+	curl -sSLf https://getcomposer.org/installer | php -- --quiet --install-dir=. --filename=composer --1
+	printf 'done.\n'
+	printf 'Installing composer dependencies... '
+	./composer install --no-dev --no-progress --no-suggest --optimize-autoloader --ignore-platform-reqs --quiet
+	printf 'done.\n'
+	printf 'Building... '
+	php -d phar.readonly=0 box.phar build
+	mv pickle.phar /tmp/pickle
+	printf 'done.\n'
+	cd - >/dev/null
 }
 
 # Add a configure option for the pecl/pickle install command
@@ -1807,17 +1821,22 @@ addConfigureOption() {
 #   $1: the package to be installed
 #   $2: the package version to be installed (optional)
 installPeclPackage() {
-	if test -z "${2:-}"; then
-		installPeclPackage_fullname="$1"
-	else
-		installPeclPackage_fullname="$1-$2"
-	fi
 	if ! test -f "$CONFIGURE_FILE"; then
 		printf '\n' >"$CONFIGURE_FILE"
 	fi
 	if test $USE_PICKLE -eq 0; then
+		if test -z "${2:-}"; then
+			installPeclPackage_fullname="$1"
+		else
+			installPeclPackage_fullname="$1-$2"
+		fi
 		cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" pecl install "$installPeclPackage_fullname"
 	else
+		if test -z "${2:-}"; then
+			installPeclPackage_fullname="$1"
+		else
+			installPeclPackage_fullname="$1@$2"
+		fi
 		MAKE="make -j$(getCompilationProcessorCount $1)" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --with-configure-options "$CONFIGURE_FILE" -- "$installPeclPackage_fullname"
 	fi
 }
@@ -1834,6 +1853,24 @@ installPeclPackage() {
 stringInList() {
 	for stringInList_listItem in $2; do
 		if test "$1" = "$stringInList_listItem"; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+# Check if at least one item in a list is in another list
+#
+# Arguments:
+#   $1: the space-separated list of items to be searched
+#   $2: the space-separated list of reference items
+#
+# Return:
+#   0 (true): at least one of the items in $1 is in $2
+#   1 (false): otherwise
+anyStringInList() {
+	for anyStringInList in $1; do
+		if stringInList "$1" "$2"; then
 			return 0
 		fi
 	done
@@ -1940,6 +1977,9 @@ if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
 fi
 if test "$PHP_MODULES_TO_INSTALL" != '@composer'; then
 	setTargetTriplet
+fi
+if test $USE_PICKLE -gt 1; then
+	buildPickle
 fi
 for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 	if test "$PHP_MODULE_TO_INSTALL" = '@composer'; then
