@@ -18,6 +18,12 @@ jobs:
             exit 1
           fi
           rm data/supported-extensions.sorted
+          sort -o data/special-requirements.sorted data/special-requirements
+          if ! DIFF="$(diff -u data/special-requirements data/special-requirements.sorted)"; then
+            printf 'The order of extensions in data/special-requirements is wrong.\nThe list of required changes is:\n\n%s\n' "$DIFF" >&2
+            exit 1
+          fi
+          rm data/special-requirements.sorted
   check_syntax_shell:
     name: Check shell coding style
     runs-on: ubuntu-latest
