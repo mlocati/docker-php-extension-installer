@@ -46,6 +46,21 @@ For example:
 install-php-extensions xdebug-2.9.7
 ```
 
+### Installing composer
+
+You can also install [composer](https://getcomposer.org/), and you also can specify a major version of it, or a full version.
+
+Examples:
+
+```sh
+# Install the latest version
+install-php-extensions @composer
+# Install the latest 1.x version
+install-php-extensions @composer-1
+# Install a specific version
+install-php-extensions @composer-2.0.2
+```
+
 ## Supported PHP extensions
 
 <!-- START OF EXTENSIONS TABLE -->
