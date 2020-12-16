@@ -143,6 +143,7 @@ install-php-extensions @composer-2.0.2
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sqlsrv |  |  | &check; | &check; | &check; | &check; | &check; |  |
 | ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| swoole | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sybase_ct | &check; | &check; |  |  |  |  |  |  |
 | sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvsem | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -161,7 +162,7 @@ install-php-extensions @composer-2.0.2
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 87*
+*Number of supported extensions: 88*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
