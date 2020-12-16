@@ -107,6 +107,8 @@ processPHPMuduleArgument() {
 	if test -n "$processPHPMuduleArgument_version"; then
 		if printf '%s' "$PROCESSED_PHP_MODULE_ARGUMENT" | grep -Eq '^[a-zA-Z0-9_]+$'; then
 			eval PHP_WANTEDMODULEVERSION_$PROCESSED_PHP_MODULE_ARGUMENT="$processPHPMuduleArgument_version"
+		elif printf '%s' "$PROCESSED_PHP_MODULE_ARGUMENT" | grep -Eq '^@[a-zA-Z0-9_]+$'; then
+			eval PHP_WANTEDMODULEVERSION__${PROCESSED_PHP_MODULE_ARGUMENT#@}="$processPHPMuduleArgument_version"
 		else
 			printf 'Unable to parse the following module name:\n%s\n' "$PROCESSED_PHP_MODULE_ARGUMENT" >&2
 		fi
@@ -123,6 +125,8 @@ processPHPMuduleArgument() {
 getWantedPHPModuleVersion() {
 	if printf '%s' "$1" | grep -Eq '^[a-zA-Z0-9_]+$'; then
 		eval printf '%s' "\${PHP_WANTEDMODULEVERSION_$1:-}"
+	elif printf '%s' "$1" | grep -Eq '^@[a-zA-Z0-9_]+$'; then
+		eval printf '%s' "\${PHP_WANTEDMODULEVERSION__${1#@}:-}"
 	fi
 }
 
@@ -147,6 +151,9 @@ setPHPPreinstalledModules() {
 				;;
 		esac
 	done
+	if command -v composer >/dev/null; then
+		PHP_PREINSTALLED_MODULES="$PHP_PREINSTALLED_MODULES @composer"
+	fi
 	resetIFS
 	PHP_PREINSTALLED_MODULES="${PHP_PREINSTALLED_MODULES# }"
 }
@@ -252,6 +259,12 @@ sortModulesToInstall() {
 		PHP_MODULES_TO_INSTALL="msgpack $PHP_MODULES_TO_INSTALL"
 		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
 	fi
+	# In any case, first of all, we need to install composer
+	if stringInList '@composer' "$PHP_MODULES_TO_INSTALL"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList '@composer' "$PHP_MODULES_TO_INSTALL")"
+		PHP_MODULES_TO_INSTALL="@composer $PHP_MODULES_TO_INSTALL"
+		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
+	fi
 }
 
 # Get the required APT/APK packages for a specific PHP version and for the list of module handles
@@ -273,7 +286,9 @@ buildRequiredPackageLists() {
 	esac
 	case "$DISTRO_VERSION" in
 		alpine@*)
-			buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
+			if test $# -gt 1 || test "${1:-}" != '@composer'; then
+				buildRequiredPackageLists_volatile="$PHPIZE_DEPS"
+			fi
 			if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
 				buildRequiredPackageLists_libssl='libssl1.0'
 			elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')"; then
@@ -1045,6 +1060,24 @@ installOracleInstantClient() {
 	esac
 }
 
+# Install Composer
+installComposer() {
+	installComposer_version="$(getWantedPHPModuleVersion @composer)"
+	if test -z "$installComposer_version"; then
+		installComposer_fullname=composer
+		installComposer_flags=''
+	else
+		installComposer_fullname="$(printf 'composer v%s' "$installComposer_version")"
+		if printf '%s' "$installComposer_version" | grep -Eq '^[0-9]+$'; then
+			installComposer_flags="--$installComposer_version"
+		else
+			installComposer_flags="--version=$installComposer_version"
+		fi
+	fi
+	printf '### INSTALLING %s ###\n' "$installComposer_fullname"
+	curl -sSLf https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer $installComposer_flags
+}
+
 # Install a bundled PHP module given its handle
 #
 # Arguments:
@@ -1736,6 +1769,9 @@ installPECLModule() {
 configureInstaller() {
 	USE_PICKLE=0
 	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
+		if test "${PHP_MODULE_TO_INSTALL#@}" != "$PHP_MODULE_TO_INSTALL"; then
+			continue
+		fi
 		if ! stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
 			if test $PHP_MAJMIN_VERSION -lt 800; then
 				pecl channel-update pecl.php.net || true
@@ -1902,9 +1938,13 @@ buildRequiredPackageLists $PHP_MODULES_TO_INSTALL
 if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
 	installRequiredPackages
 fi
-setTargetTriplet
+if test "$PHP_MODULES_TO_INSTALL" != '@composer'; then
+	setTargetTriplet
+fi
 for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
-	if stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
+	if test "$PHP_MODULE_TO_INSTALL" = '@composer'; then
+		installComposer
+	elif stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
 		installBundledModule "$PHP_MODULE_TO_INSTALL"
 	else
 		MODULE_SOURCE=''

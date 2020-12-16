@@ -109,3 +109,22 @@ jobs:
         with:
           fetch-depth: 1
       - run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.4-alpine ./scripts/test-installversion "${{ matrix.xdebug_version }}"
+  test_composer:
+    name: Test installing composer
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        composer_version:
+          - ''
+          - '1'
+          - '2.0.1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: |
+          docker run --rm --volume "$(pwd):/app" --workdir /app php:7.4-alpine ./scripts/test-installcomposer "${{ matrix.composer_version }}"
+
