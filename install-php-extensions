@@ -339,6 +339,16 @@ buildRequiredPackageLists() {
 			cmark@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
 				;;
+			dba@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent db"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile db-dev"
+				;;
+			dba@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libdb5.3-dev"
+				if test $PHP_MAJMIN_VERSION -le 505; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile patch"
+				fi
+				;;
 			decimal@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmpdec2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmpdec-dev"
@@ -1120,6 +1130,26 @@ installBundledModule() {
 		printf '### WARNING the module "%s" is bundled with PHP, you can NOT specify a version for it\n' "$1" >&2
 	fi
 	case "$1" in
+		dba)
+			if test -e /usr/lib/$TARGET_TRIPLET/libdb-5.3.so && ! test -e /usr/lib/libdb-5.3.so; then
+				ln -s /usr/lib/$TARGET_TRIPLET/libdb-5.3.so /usr/lib/
+			fi
+			if test $PHP_MAJMIN_VERSION -le 505; then
+				docker-php-source extract
+				patch /usr/src/php/ext/dba/config.m4 <<EOF
+@@ -362,7 +362,7 @@
+       break
+     fi
+   done
+-  PHP_DBA_DB_CHECK(4, db-5.1 db-5.0 db-4.8 db-4.7 db-4.6 db-4.5 db-4.4 db-4.3 db-4.2 db-4.1 db-4.0 db-4 db4 db, [(void)db_create((DB**)0, (DB_ENV*)0, 0)])
++  PHP_DBA_DB_CHECK(4, db-5.3 db-5.1 db-5.0 db-4.8 db-4.7 db-4.6 db-4.5 db-4.4 db-4.3 db-4.2 db-4.1 db-4.0 db-4 db4 db, [(void)db_create((DB**)0, (DB_ENV*)0, 0)])
+ fi
+ PHP_DBA_STD_RESULT(db4,Berkeley DB4)
+ 
+EOF
+			fi
+			docker-php-ext-configure dba --with-db4
+			;;
 		gd)
 			if test $PHP_MAJMIN_VERSION -le 506; then
 				docker-php-ext-configure gd --with-gd --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --enable-gd-native-ttf --with-vpx-dir
