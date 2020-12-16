@@ -1869,8 +1869,8 @@ stringInList() {
 #   0 (true): at least one of the items in $1 is in $2
 #   1 (false): otherwise
 anyStringInList() {
-	for anyStringInList in $1; do
-		if stringInList "$1" "$2"; then
+	for anyStringInList_item in $1; do
+		if stringInList "$anyStringInList_item" "$2"; then
 			return 0
 		fi
 	done
