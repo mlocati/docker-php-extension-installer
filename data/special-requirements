@@ -1,4 +1,4 @@
+enchant !7.2-alpine3.12 !7.3-alpine3.12 !7.4-alpine3.12
 parallel zts
 pthreads zts
 tdlib !alpine3.7 !jessie
-enchant !7.2-alpine3.12 !7.3-alpine3.12 !7.4-alpine3.12
