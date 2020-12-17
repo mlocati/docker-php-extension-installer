@@ -1307,37 +1307,6 @@ getPackageSource() {
 	fi
 }
 
-# Install a PHP module given its handle from source code
-#
-# Arguments:
-#   $1: the handle of the PHP module
-#   $2: the URL of the module source code
-#   $3: the options of the configure command
-#   $4: the value of CFLAGS
-installModuleFromSource() {
-	printf '### INSTALLING MODULE %s FROM SOURCE CODE ###\n' "$1"
-	installModuleFromSource_dir="$(getPackageSource "$2")"
-	case "$1" in
-		snuffleupagus)
-			cd "$installModuleFromSource_dir/src"
-			;;
-		*)
-			cd "$installModuleFromSource_dir"
-			;;
-	esac
-	phpize
-	./configure $3 CFLAGS="${4:-}"
-	make -j$(getProcessorCount) install
-	cd - >/dev/null
-	docker-php-ext-enable "$1"
-	case "$1" in
-		snuffleupagus)
-			cp -a "$installModuleFromSource_dir/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
-			printf 'sp.configuration_file=%s\n' "$PHP_INI_DIR/conf.d/snuffleupagus.rules" >>"$PHP_INI_DIR/conf.d/docker-php-ext-snuffleupagus.ini"
-			;;
-	esac
-}
-
 # Install a PECL PHP module given its handle
 #
 # Arguments:
@@ -1664,6 +1633,19 @@ installPECLModule() {
 				addConfigureOption 'enable-redis-zstd' 'yes'
 			fi
 			;;
+		snuffleupagus)
+			if test -z "$installPECLModule_version"; then
+				installPECLModule_version=0.6.0
+			fi
+			installPECLModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v0.6.0)"
+			cd "$installPECLModule_src/src"
+			phpize
+			./configure --enable-snuffleupagus
+			make -j$(getProcessorCount) install
+			cd - >/dev/null
+			cp -a "$installPECLModule_src/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
+			installPECLModule_manuallyInstalled=1
+			;;
 		solr)
 			if test -z "$installPECLModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
@@ -1927,6 +1909,10 @@ installPECLModule() {
 			# memcached must be loaded after msgpack
 			docker-php-ext-enable --ini-name "xx-php-ext-$installPECLModule_module.ini" "$installPECLModule_module"
 			;;
+		snuffleupagus)
+			docker-php-ext-enable "$installPECLModule_module"
+			printf 'sp.configuration_file=%s\n' "$PHP_INI_DIR/conf.d/snuffleupagus.rules" >>"$PHP_INI_DIR/conf.d/docker-php-ext-snuffleupagus.ini"
+			;;
 		*)
 			docker-php-ext-enable "$installPECLModule_module"
 			;;
@@ -2173,24 +2159,7 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 	elif stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
 		installBundledModule "$PHP_MODULE_TO_INSTALL"
 	else
-		MODULE_SOURCE=''
-		MODULE_SOURCE_CONFIGOPTIONS=''
-		MODULE_SOURCE_CFLAGS=''
-		case "$PHP_MODULE_TO_INSTALL" in
-			snuffleupagus)
-				MODULE_VERSION="$(getWantedPHPModuleVersion "$PHP_MODULE_TO_INSTALL")"
-				if test -z "$MODULE_VERSION"; then
-					MODULE_VERSION='0.5.0'
-				fi
-				MODULE_SOURCE=https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$MODULE_VERSION
-				MODULE_SOURCE_CONFIGOPTIONS=--enable-snuffleupagus
-				;;
-		esac
-		if test -n "$MODULE_SOURCE"; then
-			installModuleFromSource "$PHP_MODULE_TO_INSTALL" "$MODULE_SOURCE" "$MODULE_SOURCE_CONFIGOPTIONS" "$MODULE_SOURCE_CFLAGS"
-		else
-			installPECLModule "$PHP_MODULE_TO_INSTALL"
-		fi
+		installPECLModule "$PHP_MODULE_TO_INSTALL"
 	fi
 done
 cleanup
