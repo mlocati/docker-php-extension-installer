@@ -1402,6 +1402,26 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		imagick)
+			if test $PHP_MAJMIN_VERSION -ge 800; then
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=132a11fd26675db9eb9f0e9a3e2887c161875206
+				fi
+				if test "${installRemoteModule_version%.*}" = "$installRemoteModule_version"; then
+					installRemoteModule_displayVersion="$installRemoteModule_version"
+				else
+					installRemoteModule_displayVersion="git--master-$installRemoteModule_version"
+				fi
+				installRemoteModule_src="$(getPackageSource https://codeload.github.com/Imagick/imagick/tar.gz/$installRemoteModule_version)"
+				cd -- "$installRemoteModule_src"
+				sed -Ei "s/^([ \t]*#define[ \t]+PHP_IMAGICK_VERSION[ \t]+\")@PACKAGE_VERSION@(\")/\1git--master-$installRemoteModule_displayVersion\2/" php_imagick.h
+				phpize
+				./configure
+				make -j$(getProcessorCount)
+				make install
+				installRemoteModule_manuallyInstalled=1
+			fi
+			;;
 		ioncube_loader)
 			installRemoteModule_src='https://downloads.ioncube.com/loader_downloads/'
 			if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
@@ -1930,6 +1950,9 @@ configureInstaller() {
 	USE_PICKLE=0
 	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 		if test "${PHP_MODULE_TO_INSTALL#@}" != "$PHP_MODULE_TO_INSTALL"; then
+			continue
+		fi
+		if test "$PHP_MODULE_TO_INSTALL" = 'imagick' && test $PHP_MAJMIN_VERSION -ge 800; then
 			continue
 		fi
 		if ! stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
