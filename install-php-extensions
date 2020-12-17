@@ -1367,6 +1367,20 @@ installPECLModule() {
 				fi
 			fi
 			;;
+		cmark)
+			if test -z "$installPECLModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 701; then
+					installPECLModule_version=1.1.0
+				fi
+			fi
+			if ! test -e /usr/local/lib/libcmark.so && ! test -e /usr/lib/libcmark.so && ! test -e /usr/lib64/libcmark.so && ! test -e /lib/libcmark.so; then
+				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/0.29.0.tar.gz)"
+				make -s -j$(getProcessorCount) cmake_build
+				make -s -j$(getProcessorCount) install
+				cd - >/dev/null
+				ldconfig || true
+			fi
+			;;
 		decimal)
 			case "$DISTRO" in
 				alpine)
@@ -2163,17 +2177,6 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 		MODULE_SOURCE_CONFIGOPTIONS=''
 		MODULE_SOURCE_CFLAGS=''
 		case "$PHP_MODULE_TO_INSTALL" in
-			cmark)
-				MODULE_VERSION="$(getWantedPHPModuleVersion "$PHP_MODULE_TO_INSTALL")"
-				if test -z "$MODULE_VERSION"; then
-					MODULE_VERSION='1.0.0'
-				fi
-				MODULE_SOURCE=https://github.com/krakjoe/cmark/archive/v$MODULE_VERSION.tar.gz
-				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/0.28.3.tar.gz)"
-				make install
-				cd - >/dev/null
-				MODULE_SOURCE_CONFIGOPTIONS=--with-cmark
-				;;
 			snuffleupagus)
 				MODULE_VERSION="$(getWantedPHPModuleVersion "$PHP_MODULE_TO_INSTALL")"
 				if test -z "$MODULE_VERSION"; then
