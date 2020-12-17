@@ -94,7 +94,7 @@ install-php-extensions @composer-2.0.2
 | grpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | http | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | igbinary | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| imagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| imagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | imap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | interbase | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | intl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
