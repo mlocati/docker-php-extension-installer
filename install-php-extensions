@@ -1351,14 +1351,14 @@ installPECLModule() {
 	installPECLModule_cppflags=''
 	case "$installPECLModule_module" in
 		amqp)
-			case "$DISTRO_VERSION" in
-				debian@8)
-					if test -z "$installPECLModule_version"; then
-						# in Debian Jessie we have librammitmq version 0.5.2
-						installPECLModule_version=1.9.3
-					fi
-					;;
-			esac
+			if test -z "$installPECLModule_version"; then
+				if test "$DISTRO_VERSION" = debian@8; then
+					# in Debian Jessie we have librammitmq version 0.5.2
+					installPECLModule_version=1.9.3
+				elif test $PHP_MAJMIN_VERSION -le 505; then
+					installPECLModule_version=1.9.4
+				fi
+			fi
 			;;
 		apcu)
 			if test -z "$installPECLModule_version"; then
