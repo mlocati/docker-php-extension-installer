@@ -1307,39 +1307,39 @@ getPackageSource() {
 	fi
 }
 
-# Install a PECL PHP module given its handle
+# Install a PECL/remote PHP module given its handle
 #
 # Arguments:
 #   $1: the handle of the PHP module
-installPECLModule() {
-	installPECLModule_module="$1"
-	printf '### INSTALLING PECL MODULE %s ###\n' "$installPECLModule_module"
-	installPECLModule_version="$(getWantedPHPModuleVersion "$installPECLModule_module")"
+installRemoteModule() {
+	installRemoteModule_module="$1"
+	printf '### INSTALLING REMOTE MODULE %s ###\n' "$installRemoteModule_module"
+	installRemoteModule_version="$(getWantedPHPModuleVersion "$installRemoteModule_module")"
 	rm -rf "$CONFIGURE_FILE"
-	installPECLModule_manuallyInstalled=0
-	installPECLModule_cppflags=''
-	case "$installPECLModule_module" in
+	installRemoteModule_manuallyInstalled=0
+	installRemoteModule_cppflags=''
+	case "$installRemoteModule_module" in
 		amqp)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test "$DISTRO_VERSION" = debian@8; then
 					# in Debian Jessie we have librammitmq version 0.5.2
-					installPECLModule_version=1.9.3
+					installRemoteModule_version=1.9.3
 				elif test $PHP_MAJMIN_VERSION -le 505; then
-					installPECLModule_version=1.9.4
+					installRemoteModule_version=1.9.4
 				fi
 			fi
 			;;
 		apcu)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=4.0.11
+					installRemoteModule_version=4.0.11
 				fi
 			fi
 			;;
 		cmark)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 701; then
-					installPECLModule_version=1.1.0
+					installRemoteModule_version=1.1.0
 				fi
 			fi
 			if ! test -e /usr/local/lib/libcmark.so && ! test -e /usr/lib/libcmark.so && ! test -e /usr/lib64/libcmark.so && ! test -e /lib/libcmark.so; then
@@ -1353,8 +1353,8 @@ installPECLModule() {
 		decimal)
 			case "$DISTRO" in
 				alpine)
-					installPECLModule_src="$(getPackageSource https://codeload.github.com/bematech/libmpdec/tar.gz/master)"
-					cd -- "$installPECLModule_src"
+					installRemoteModule_src="$(getPackageSource https://codeload.github.com/bematech/libmpdec/tar.gz/master)"
+					cd -- "$installRemoteModule_src"
 					./configure CFLAGS='-w'
 					make -j$(getProcessorCount)
 					make install
@@ -1363,32 +1363,32 @@ installPECLModule() {
 			esac
 			;;
 		gmagick)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=1.1.7RC3
+					installRemoteModule_version=1.1.7RC3
 				else
-					installPECLModule_version=beta
+					installRemoteModule_version=beta
 				fi
 			fi
 			;;
 		grpc)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=1.33.1
+					installRemoteModule_version=1.33.1
 				fi
 			fi
 			;;
 		http)
-			installPECLModule_module=pecl_http
-			if test -z "$installPECLModule_version"; then
+			installRemoteModule_module=pecl_http
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=2.6.0
+					installRemoteModule_version=2.6.0
 				fi
 			fi
 			if test $PHP_MAJMIN_VERSION -ge 700; then
 				if ! test -e /usr/local/lib/libidnkit.so; then
-					installPECLModule_src="$(getPackageSource https://jprs.co.jp/idn/idnkit-2.3.tar.bz2)"
-					cd -- "$installPECLModule_src"
+					installRemoteModule_src="$(getPackageSource https://jprs.co.jp/idn/idnkit-2.3.tar.bz2)"
+					cd -- "$installRemoteModule_src"
 					./configure
 					make -j$(getProcessorCount) install
 					cd - >/dev/null
@@ -1396,51 +1396,51 @@ installPECLModule() {
 			fi
 			;;
 		igbinary)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=2.0.8
+					installRemoteModule_version=2.0.8
 				fi
 			fi
 			;;
 		ioncube_loader)
-			installPECLModule_src='https://downloads.ioncube.com/loader_downloads/'
+			installRemoteModule_src='https://downloads.ioncube.com/loader_downloads/'
 			if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
-				installPECLModule_src="${installPECLModule_src}ioncube_loaders_lin_x86.tar.gz"
+				installRemoteModule_src="${installRemoteModule_src}ioncube_loaders_lin_x86.tar.gz"
 			else
-				installPECLModule_src="${installPECLModule_src}ioncube_loaders_lin_x86-64.tar.gz"
+				installRemoteModule_src="${installRemoteModule_src}ioncube_loaders_lin_x86-64.tar.gz"
 			fi
 			printf 'Downloading ionCube Loader... '
-			installPECLModule_src="$(getPackageSource $installPECLModule_src)"
+			installRemoteModule_src="$(getPackageSource $installRemoteModule_src)"
 			echo 'done.'
-			installPECLModule_so=$(php -r "printf('ioncube_loader_lin_%s.%s%s.so', PHP_MAJOR_VERSION, PHP_MINOR_VERSION, ZEND_THREAD_SAFE ? '_ts' : '');")
-			cp "$installPECLModule_src/$installPECLModule_so" "$(getPHPExtensionsDir)/$installPECLModule_module.so"
-			installPECLModule_manuallyInstalled=1
+			installRemoteModule_so=$(php -r "printf('ioncube_loader_lin_%s.%s%s.so', PHP_MAJOR_VERSION, PHP_MINOR_VERSION, ZEND_THREAD_SAFE ? '_ts' : '');")
+			cp "$installRemoteModule_src/$installRemoteModule_so" "$(getPHPExtensionsDir)/$installRemoteModule_module.so"
+			installRemoteModule_manuallyInstalled=1
 			;;
 		memcache)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=2.2.7
+					installRemoteModule_version=2.2.7
 				elif test $PHP_MAJMIN_VERSION -lt 800; then
-					installPECLModule_version=4.0.5.2
+					installRemoteModule_version=4.0.5.2
 				fi
 			fi
 			;;
 		mailparse)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=2.1.6
+					installRemoteModule_version=2.1.6
 				fi
 			fi
 			;;
 		memcached)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=2.2.0
+					installRemoteModule_version=2.2.0
 				fi
 			fi
 			# Set the path to libmemcached install prefix
 			addConfigureOption 'with-libmemcached-dir' 'no'
-			if test -z "$installPECLModule_version" || test $(compareVersions "$installPECLModule_version" '3.0.0') -ge 0; then
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '3.0.0') -ge 0; then
 				# Set the path to ZLIB install prefix
 				addConfigureOption 'with-zlib-dir' 'no'
 				# Use system FastLZ library
@@ -1472,48 +1472,48 @@ installPECLModule() {
 			addConfigureOption '-with-mongo-sasl' 'yes'
 			;;
 		mongodb)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 505; then
-					installPECLModule_version=1.5.5
+					installRemoteModule_version=1.5.5
 				elif test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=1.7.5
+					installRemoteModule_version=1.7.5
 				elif test $PHP_MAJMIN_VERSION -le 800; then
-					installPECLModule_version=1.9.0
+					installRemoteModule_version=1.9.0
 				fi
 			fi
 			;;
 		mosquitto)
-			if test -z "$installPECLModule_version"; then
-				installPECLModule_version=0.4.0
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=0.4.0
 			fi
 			;;
 		msgpack)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=0.5.7
+					installRemoteModule_version=0.5.7
 				fi
 			fi
 			;;
 		oauth)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=1.2.3
+					installRemoteModule_version=1.2.3
 				fi
 			fi
 			;;
 		opencensus)
 			if test $PHP_MAJMIN_VERSION -le 702; then
-				if test -z "$installPECLModule_version"; then
-					installPECLModule_version=alpha
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=alpha
 				fi
 			else
-				installPECLModule_manuallyInstalled=1
-				if test -z "$installPECLModule_version"; then
-					installPECLModule_src="$(getPackageSource https://pecl.php.net/get/opencensus)"
+				installRemoteModule_manuallyInstalled=1
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_src="$(getPackageSource https://pecl.php.net/get/opencensus)"
 				else
-					installPECLModule_src="$(getPackageSource https://pecl.php.net/get/opencensus-$installPECLModule_version)"
+					installRemoteModule_src="$(getPackageSource https://pecl.php.net/get/opencensus-$installRemoteModule_version)"
 				fi
-				cd "$installPECLModule_src"/opencensus-*
+				cd "$installRemoteModule_src"/opencensus-*
 				find . -name '*.c' -type f -exec sed -i 's/\bZVAL_DESTRUCTOR\b/zval_dtor/g' {} +
 				phpize
 				./configure
@@ -1522,78 +1522,78 @@ installPECLModule() {
 			fi
 			;;
 		parallel)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 701; then
-					installPECLModule_version=0.8.3
+					installRemoteModule_version=0.8.3
 				fi
 			fi
 			;;
 		pcov)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 701; then
-					installPECLModule_version=0.9.0
+					installRemoteModule_version=0.9.0
 				fi
 			fi
 			;;
 		pdo_sqlsrv | sqlsrv)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
 				if test $PHP_MAJMIN_VERSION -le 700; then
-					installPECLModule_version=5.3.0
+					installRemoteModule_version=5.3.0
 				elif test $PHP_MAJMIN_VERSION -le 701; then
-					installPECLModule_version=5.6.1
+					installRemoteModule_version=5.6.1
 				fi
 			fi
 			;;
 		propro)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=1.0.2
+					installRemoteModule_version=1.0.2
 				fi
 			fi
 			;;
 		protobuf)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=3.12.4
+					installRemoteModule_version=3.12.4
 				else
-					installPECLModule_version=3.13.0
+					installRemoteModule_version=3.13.0
 				fi
 			fi
 			;;
 		pthreads)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=2.0.10
+					installRemoteModule_version=2.0.10
 				fi
 			fi
 			;;
 		raphf)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=1.1.2
+					installRemoteModule_version=1.1.2
 				fi
 			fi
 			;;
 		rdkafka)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 505; then
-					installPECLModule_version=3.0.5
+					installRemoteModule_version=3.0.5
 				else
-					installPECLModule_tmp=
+					installRemoteModule_tmp=
 					case "$DISTRO" in
 						alpine)
-							installPECLModule_tmp='librdkafka'
+							installRemoteModule_tmp='librdkafka'
 							;;
 						debian)
-							installPECLModule_tmp='librdkafka*'
+							installRemoteModule_tmp='librdkafka*'
 							;;
 					esac
-					if test -n "$installPECLModule_tmp"; then
-						installPECLModule_tmp="$(getInstalledPackageVersion "$installPECLModule_tmp")"
-						if test -n "$installPECLModule_tmp"; then
-							if test $(compareVersions "$installPECLModule_tmp" '0.11.0') -lt 0; then
-								installPECLModule_version=3.1.3
+					if test -n "$installRemoteModule_tmp"; then
+						installRemoteModule_tmp="$(getInstalledPackageVersion "$installRemoteModule_tmp")"
+						if test -n "$installRemoteModule_tmp"; then
+							if test $(compareVersions "$installRemoteModule_tmp" '0.11.0') -lt 0; then
+								installRemoteModule_version=3.1.3
 							fi
 						fi
 					fi
@@ -1601,9 +1601,9 @@ installPECLModule() {
 			fi
 			;;
 		redis)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=4.3.0
+					installRemoteModule_version=4.3.0
 				fi
 			fi
 			# Enable igbinary serializer support?
@@ -1614,17 +1614,17 @@ installPECLModule() {
 			fi
 			# Enable lzf compression support?
 			addConfigureOption 'enable-redis-lzf' 'yes'
-			if test -z "$installPECLModule_version" || test $(compareVersions "$installPECLModule_version" '5.0.0') -ge 0; then
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '5.0.0') -ge 0; then
 				if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$TARGET_TRIPLET/libzstd.so"; then
-					installPECLModule_zstdVersion=1.4.4
-					installPECLModule_zstdVersionMajor=$(echo $installPECLModule_zstdVersion | cut -d. -f1)
+					installRemoteModule_zstdVersion=1.4.4
+					installRemoteModule_zstdVersionMajor=$(echo $installRemoteModule_zstdVersion | cut -d. -f1)
 					rm -rf /tmp/src/zstd
-					mv "$(getPackageSource https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-$installPECLModule_zstdVersion.tar.gz)" /tmp/src/zstd
+					mv "$(getPackageSource https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-$installRemoteModule_zstdVersion.tar.gz)" /tmp/src/zstd
 					cd /tmp/src/zstd
 					make V=0 -j$(getProcessorCount) lib
-					cp -f lib/libzstd.so "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installPECLModule_zstdVersion"
-					ln -sf "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installPECLModule_zstdVersionMajor"
-					ln -sf "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installPECLModule_zstdVersion" "/usr/lib/$TARGET_TRIPLET/libzstd.so"
+					cp -f lib/libzstd.so "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installRemoteModule_zstdVersion"
+					ln -sf "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installRemoteModule_zstdVersion" "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installRemoteModule_zstdVersionMajor"
+					ln -sf "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installRemoteModule_zstdVersion" "/usr/lib/$TARGET_TRIPLET/libzstd.so"
 					ln -sf /tmp/src/zstd/lib/zstd.h /usr/include/zstd.h
 					UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS /usr/include/zstd.h"
 					cd - >/dev/null
@@ -1634,85 +1634,85 @@ installPECLModule() {
 			fi
 			;;
 		snuffleupagus)
-			if test -z "$installPECLModule_version"; then
-				installPECLModule_version=0.6.0
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=0.6.0
 			fi
-			installPECLModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v0.6.0)"
-			cd "$installPECLModule_src/src"
+			installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v0.6.0)"
+			cd "$installRemoteModule_src/src"
 			phpize
 			./configure --enable-snuffleupagus
 			make -j$(getProcessorCount) install
 			cd - >/dev/null
-			cp -a "$installPECLModule_src/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
-			installPECLModule_manuallyInstalled=1
+			cp -a "$installRemoteModule_src/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
+			installRemoteModule_manuallyInstalled=1
 			;;
 		solr)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=2.4.0
+					installRemoteModule_version=2.4.0
 				fi
 			fi
 			;;
 		ssh2)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=0.13
+					installRemoteModule_version=0.13
 				else
-					installPECLModule_version=1.2
+					installRemoteModule_version=1.2
 				fi
 			fi
 			;;
 		swoole)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 502; then
-					installPECLModule_version=1.6.10
+					installRemoteModule_version=1.6.10
 				elif test $PHP_MAJMIN_VERSION -le 504; then
-					installPECLModule_version=2.0.4
+					installRemoteModule_version=2.0.4
 				elif test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=2.0.11
+					installRemoteModule_version=2.0.11
 				elif test $PHP_MAJMIN_VERSION -le 700; then
-					installPECLModule_version=4.3.6
+					installRemoteModule_version=4.3.6
 				fi
 			fi
 			if php --ri sockets >/dev/null 2>/dev/null; then
-				installPECLModule_sockets=yes
+				installRemoteModule_sockets=yes
 			else
-				installPECLModule_sockets=no
+				installRemoteModule_sockets=no
 			fi
 			case "$DISTRO_VERSION" in
 				alpine@3.7 | alpine@3.8)
 					# I can assure you I tried very hard to enable openssl in these Alpine versions...
-					installPECLModule_openssl=no
+					installRemoteModule_openssl=no
 					;;
 				*)
-					installPECLModule_openssl=yes
+					installRemoteModule_openssl=yes
 					;;
 			esac
-			if test -z "$installPECLModule_version" || test $(compareVersions "$installPECLModule_version" 4.4.0) -ge 0; then
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.4.0) -ge 0; then
 				# enable sockets supports?
-				addConfigureOption enable-sockets $installPECLModule_sockets
+				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
-				addConfigureOption enable-openssl $installPECLModule_openssl
+				addConfigureOption enable-openssl $installRemoteModule_openssl
 				# enable http2 support?
 				addConfigureOption enable-http2 yes
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
-			elif test $(compareVersions "$installPECLModule_version" 4.2.11) -ge 0; then
+			elif test $(compareVersions "$installRemoteModule_version" 4.2.11) -ge 0; then
 				#enable sockets supports?
-				addConfigureOption enable-sockets $installPECLModule_sockets
+				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
-				addConfigureOption enable-openssl $installPECLModule_openssl
+				addConfigureOption enable-openssl $installRemoteModule_openssl
 				# enable http2 support?
 				addConfigureOption enable-http2 yes
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 				# enable postgresql coroutine client support?
 				addConfigureOption enable-coroutine-postgresql yes
-			elif test $(compareVersions "$installPECLModule_version" 4.2.7) -ge 0; then
+			elif test $(compareVersions "$installRemoteModule_version" 4.2.7) -ge 0; then
 				#enable sockets supports?
-				addConfigureOption enable-sockets $installPECLModule_sockets
+				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
-				addConfigureOption enable-openssl $installPECLModule_openssl
+				addConfigureOption enable-openssl $installRemoteModule_openssl
 				# enable http2 support?
 				addConfigureOption enable-http2 yes
 				# enable mysqlnd support?
@@ -1721,26 +1721,26 @@ installPECLModule() {
 				addConfigureOption enable-coroutine-postgresql yes
 				# enable kernel debug/trace log? (it will degrade performance)
 				addConfigureOption enable-debug-log no
-			elif test $(compareVersions "$installPECLModule_version" 4.2.6) -ge 0; then
+			elif test $(compareVersions "$installRemoteModule_version" 4.2.6) -ge 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-debug-log no
 				#enable sockets supports?
-				addConfigureOption enable-sockets $installPECLModule_sockets
+				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
-				addConfigureOption enable-openssl $installPECLModule_openssl
+				addConfigureOption enable-openssl $installRemoteModule_openssl
 				# enable http2 support?
 				addConfigureOption enable-http2 yes
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 				# enable postgresql coroutine client support?
 				addConfigureOption enable-coroutine-postgresql yes
-			elif test $(compareVersions "$installPECLModule_version" 4.2.0) -ge 0; then
+			elif test $(compareVersions "$installRemoteModule_version" 4.2.0) -ge 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-debug-log no
 				#enable sockets supports?
-				addConfigureOption enable-sockets $installPECLModule_sockets
+				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
-				addConfigureOption enable-openssl $installPECLModule_openssl
+				addConfigureOption enable-openssl $installRemoteModule_openssl
 				# enable http2 support?
 				addConfigureOption enable-http2 yes
 				# enable async-redis support?
@@ -1749,13 +1749,13 @@ installPECLModule() {
 				addConfigureOption enable-mysqlnd yes
 				# enable postgresql coroutine client support?
 				addConfigureOption enable-coroutine-postgresql yes
-			elif test $(compareVersions "$installPECLModule_version" 2.1.2) -ge 0; then
+			elif test $(compareVersions "$installRemoteModule_version" 2.1.2) -ge 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-swoole-debug no
 				#enable sockets supports?
-				addConfigureOption enable-sockets $installPECLModule_sockets
+				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
-				addConfigureOption enable-openssl $installPECLModule_openssl
+				addConfigureOption enable-openssl $installRemoteModule_openssl
 				# enable http2 support?
 				addConfigureOption enable-http2 yes
 				# enable async-redis support?
@@ -1764,13 +1764,13 @@ installPECLModule() {
 				addConfigureOption enable-mysqlnd yes
 				# enable postgresql coroutine client support?
 				addConfigureOption enable-coroutine-postgresql yes
-			elif test $(compareVersions "$installPECLModule_version" 1.10.4) -ge 0 && test $(compareVersions "$installPECLModule_version" 1.10.5) -le 0; then
+			elif test $(compareVersions "$installRemoteModule_version" 1.10.4) -ge 0 && test $(compareVersions "$installRemoteModule_version" 1.10.5) -le 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-swoole-debug no
 				#enable sockets supports?
-				addConfigureOption enable-sockets $installPECLModule_sockets
+				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
-				addConfigureOption enable-openssl $installPECLModule_openssl
+				addConfigureOption enable-openssl $installRemoteModule_openssl
 				# enable http2 support?
 				addConfigureOption enable-http2 yes
 				# enable async-redis support?
@@ -1792,62 +1792,62 @@ installPECLModule() {
 				make install
 				cd - >/dev/null
 			fi
-			installPECLModule_tmp="$(mktemp -p /tmp/src -d)"
-			git clone --depth=1 --recurse-submodules https://github.com/yaroslavche/phptdlib.git "$installPECLModule_tmp"
-			mkdir "$installPECLModule_tmp/build"
-			cd "$installPECLModule_tmp/build"
+			installRemoteModule_tmp="$(mktemp -p /tmp/src -d)"
+			git clone --depth=1 --recurse-submodules https://github.com/yaroslavche/phptdlib.git "$installRemoteModule_tmp"
+			mkdir "$installRemoteModule_tmp/build"
+			cd "$installRemoteModule_tmp/build"
 			cmake -D USE_SHARED_PHPCPP:BOOL=ON ..
 			make
 			make install
 			rm "$PHP_INI_DIR/conf.d/tdlib.ini"
-			installPECLModule_manuallyInstalled=1
+			installRemoteModule_manuallyInstalled=1
 			;;
 		uuid)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=1.0.5
+					installRemoteModule_version=1.0.5
 				fi
 			fi
 			;;
 		xdebug)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 500; then
-					installPECLModule_version=2.0.5
+					installRemoteModule_version=2.0.5
 				elif test $PHP_MAJMIN_VERSION -le 503; then
-					installPECLModule_version=2.2.7
+					installRemoteModule_version=2.2.7
 				elif test $PHP_MAJMIN_VERSION -le 504; then
-					installPECLModule_version=2.4.1
+					installRemoteModule_version=2.4.1
 				elif test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=2.5.5
+					installRemoteModule_version=2.5.5
 				elif test $PHP_MAJMIN_VERSION -le 700; then
-					installPECLModule_version=2.6.1
+					installRemoteModule_version=2.6.1
 				elif test $PHP_MAJMIN_VERSION -le 701; then
-					installPECLModule_version=2.9.8
+					installRemoteModule_version=2.9.8
 				fi
 			fi
 			;;
 		uopz)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=2.0.7
+					installRemoteModule_version=2.0.7
 				elif test $PHP_MAJMIN_VERSION -lt 701; then
-					installPECLModule_version=5.0.2
+					installRemoteModule_version=5.0.2
 				fi
 			fi
 			;;
 		xhprof)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
-					installPECLModule_version=0.9.4
+					installRemoteModule_version=0.9.4
 				fi
 			fi
 			;;
 		yaml)
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=1.3.1
+					installRemoteModule_version=1.3.1
 				elif test $PHP_MAJMIN_VERSION -lt 701; then
-					installPECLModule_version=2.0.4
+					installRemoteModule_version=2.0.4
 				fi
 			fi
 			;;
@@ -1855,16 +1855,16 @@ installPECLModule() {
 			case "$DISTRO" in
 				alpine)
 					if ! test -f /usr/local/include/zookeeper/zookeeper.h; then
-						installPECLModule_tmp="$(curl -sSLf https://downloads.apache.org/zookeeper/stable | sed -E 's/["<>]/\n/g' | grep -E '^(apache-)?zookeeper-[0-9]+\.[0-9]+\.[0-9]+\.(tar\.gz|tgz)$' | head -n1)"
-						if test -z "$installPECLModule_tmp"; then
+						installRemoteModule_tmp="$(curl -sSLf https://downloads.apache.org/zookeeper/stable | sed -E 's/["<>]/\n/g' | grep -E '^(apache-)?zookeeper-[0-9]+\.[0-9]+\.[0-9]+\.(tar\.gz|tgz)$' | head -n1)"
+						if test -z "$installRemoteModule_tmp"; then
 							echo 'Failed to detect the zookeeper library URL' >&2
 							exit 1
 						fi
-						installPECLModule_src="$(getPackageSource https://downloads.apache.org/zookeeper/stable/$installPECLModule_tmp)"
-						cd -- "$installPECLModule_src"
+						installRemoteModule_src="$(getPackageSource https://downloads.apache.org/zookeeper/stable/$installRemoteModule_tmp)"
+						cd -- "$installRemoteModule_src"
 						ant compile_jute
 						cd - >/dev/null
-						cd -- "$installPECLModule_src/zookeeper-client/zookeeper-client-c"
+						cd -- "$installRemoteModule_src/zookeeper-client/zookeeper-client-c"
 						autoreconf -if
 						./configure --without-cppunit
 						make -j$(getProcessorCount) CFLAGS='-Wno-stringop-truncation -Wno-format-overflow'
@@ -1873,32 +1873,32 @@ installPECLModule() {
 					fi
 					;;
 			esac
-			if test -z "$installPECLModule_version"; then
+			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installPECLModule_version=0.5.0
+					installRemoteModule_version=0.5.0
 				elif test $PHP_MAJMIN_VERSION -gt 702; then
-					installPECLModule_version=0.7.2
+					installRemoteModule_version=0.7.2
 				fi
 			fi
 			;;
 	esac
-	if test $installPECLModule_manuallyInstalled -eq 0; then
-		if test -n "$installPECLModule_version"; then
-			printf '  (installing version %s)\n' "$installPECLModule_version"
+	if test $installRemoteModule_manuallyInstalled -eq 0; then
+		if test -n "$installRemoteModule_version"; then
+			printf '  (installing version %s)\n' "$installRemoteModule_version"
 		fi
-		installPeclPackage "$installPECLModule_module" "$installPECLModule_version" "$installPECLModule_cppflags"
+		installPeclPackage "$installRemoteModule_module" "$installRemoteModule_version" "$installRemoteModule_cppflags"
 	fi
-	case "$installPECLModule_module" in
+	case "$installRemoteModule_module" in
 		apcu_bc)
 			# apcu_bc must be loaded after apcu
-			docker-php-ext-enable --ini-name "xx-php-ext-$installPECLModule_module.ini" apc
+			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" apc
 			;;
 		ioncube_loader)
 			# On PHP 5.5, docker-php-ext-enable fails to detect that ionCube Loader is a Zend Extension
 			if test $PHP_MAJMIN_VERSION -le 505; then
-				printf 'zend_extension=%s/%s.so\n' "$(getPHPExtensionsDir)" "$installPECLModule_module" >"$PHP_INI_DIR/conf.d/docker-php-ext-$installPECLModule_module.ini"
+				printf 'zend_extension=%s/%s.so\n' "$(getPHPExtensionsDir)" "$installRemoteModule_module" >"$PHP_INI_DIR/conf.d/docker-php-ext-$installRemoteModule_module.ini"
 			else
-				docker-php-ext-enable "$installPECLModule_module"
+				docker-php-ext-enable "$installRemoteModule_module"
 			fi
 			;;
 		pecl_http)
@@ -1907,14 +1907,14 @@ installPECLModule() {
 			;;
 		memcached)
 			# memcached must be loaded after msgpack
-			docker-php-ext-enable --ini-name "xx-php-ext-$installPECLModule_module.ini" "$installPECLModule_module"
+			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" "$installRemoteModule_module"
 			;;
 		snuffleupagus)
-			docker-php-ext-enable "$installPECLModule_module"
+			docker-php-ext-enable "$installRemoteModule_module"
 			printf 'sp.configuration_file=%s\n' "$PHP_INI_DIR/conf.d/snuffleupagus.rules" >>"$PHP_INI_DIR/conf.d/docker-php-ext-snuffleupagus.ini"
 			;;
 		*)
-			docker-php-ext-enable "$installPECLModule_module"
+			docker-php-ext-enable "$installRemoteModule_module"
 			;;
 	esac
 }
@@ -2159,7 +2159,7 @@ for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 	elif stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
 		installBundledModule "$PHP_MODULE_TO_INSTALL"
 	else
-		installPECLModule "$PHP_MODULE_TO_INSTALL"
+		installRemoteModule "$PHP_MODULE_TO_INSTALL"
 	fi
 done
 cleanup
