@@ -73,7 +73,7 @@ install-php-extensions @composer-2.0.2
 <!-- ########################################################### -->
 | Extension | PHP 5.5 | PHP 5.6 | PHP 7.0 | PHP 7.1 | PHP 7.2 | PHP 7.3 | PHP 7.4 | PHP 8.0 |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| amqp | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| amqp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | apcu | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | apcu_bc |  |  | &check; | &check; | &check; | &check; | &check; |  |
 | bcmath | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
