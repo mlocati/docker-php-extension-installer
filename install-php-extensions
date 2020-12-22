@@ -1321,7 +1321,18 @@ installRemoteModule() {
 	case "$installRemoteModule_module" in
 		amqp)
 			if test -z "$installRemoteModule_version"; then
-				if test "$DISTRO_VERSION" = debian@8; then
+				if test $PHP_MAJMIN_VERSION -ge 800; then
+					if test -z "$installRemoteModule_version"; then
+						installRemoteModule_version=df1241852b359cf12c346beaa68de202257efdf1
+					fi
+					installRemoteModule_src="$(getPackageSource https://codeload.github.com/php-amqp/php-amqp/tar.gz/$installRemoteModule_version)"
+					cd -- "$installRemoteModule_src"
+					phpize
+					./configure
+					make -j$(getProcessorCount)
+					make install
+					installRemoteModule_manuallyInstalled=1
+				elif test "$DISTRO_VERSION" = debian@8; then
 					# in Debian Jessie we have librammitmq version 0.5.2
 					installRemoteModule_version=1.9.3
 				elif test $PHP_MAJMIN_VERSION -le 505; then
@@ -1950,6 +1961,9 @@ configureInstaller() {
 	USE_PICKLE=0
 	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 		if test "${PHP_MODULE_TO_INSTALL#@}" != "$PHP_MODULE_TO_INSTALL"; then
+			continue
+		fi
+		if test "$PHP_MODULE_TO_INSTALL" = 'amqp' && test $PHP_MAJMIN_VERSION -ge 800; then
 			continue
 		fi
 		if test "$PHP_MODULE_TO_INSTALL" = 'imagick' && test $PHP_MAJMIN_VERSION -ge 800; then
