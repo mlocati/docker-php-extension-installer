@@ -123,6 +123,7 @@ install-php-extensions @composer-2.0.2
 | pdo_dblib | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_firebird | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_mysql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| pdo_oci |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_sqlsrv |  |  | &check; | &check; | &check; | &check; | &check; |  |
@@ -162,7 +163,7 @@ install-php-extensions @composer-2.0.2
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 88*
+*Number of supported extensions: 89*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
