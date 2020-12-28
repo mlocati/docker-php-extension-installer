@@ -575,14 +575,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
-			oci8@alpine)
+			oci8@alpine | pdo_oci@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio libc6-compat libnsl"
 				if test $DISTRO_MAJMIN_VERSION -le 307; then
 					# The unzip tool of Alpine 3.7 can't extract symlinks from ZIP archives: let's use bsdtar instead
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libarchive-tools"
 				fi
 				;;
-			oci8@debian)
+			oci8@debian | pdo_oci@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unzip"
 				;;
@@ -1042,6 +1042,9 @@ compareVersions() {
 }
 
 # Install Oracle Instant Client & SDK
+#
+# Set:
+#   ORACLE_INSTANTCLIENT_LIBPATH
 installOracleInstantClient() {
 	if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
 		installOracleInstantClient_client=client
@@ -1054,19 +1057,19 @@ installOracleInstantClient() {
 		installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.0.0.zip
 		installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.0.0.zip
 	fi
-	if ! test -e "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"; then
+	ORACLE_INSTANTCLIENT_LIBPATH=/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib
+	if ! test -e "$ORACLE_INSTANTCLIENT_LIBPATH"; then
 		printf 'Downloading Oracle Instant Client v%s... ' "$installOracleInstantClient_version"
 		installOracleInstantClient_src="$(getPackageSource $installOracleInstantClient_ic)"
 		mkdir -p "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client"
-		mv "$installOracleInstantClient_src" "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"
+		mv "$installOracleInstantClient_src" "$ORACLE_INSTANTCLIENT_LIBPATH"
 		echo 'done.'
 	fi
-	if ! test -e "/usr/include/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client"; then
+	if ! test -e "$ORACLE_INSTANTCLIENT_LIBPATH/sdk"; then
 		printf 'Downloading Oracle Instant SDK v%s... ' "$installOracleInstantClient_version"
 		installOracleInstantClient_src="$(getPackageSource $installOracleInstantClient_sdk)"
-		mkdir -p "/usr/include/oracle/$installOracleInstantClient_version"
-		ln -s "$installOracleInstantClient_src/sdk/include" "/usr/include/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client"
-		UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS '/usr/include/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client'"
+		ln -sf "$installOracleInstantClient_src/sdk" "$ORACLE_INSTANTCLIENT_LIBPATH/sdk"
+		UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS '$ORACLE_INSTANTCLIENT_LIBPATH/sdk'"
 		echo 'done.'
 	fi
 	case "$DISTRO" in
@@ -1076,20 +1079,20 @@ installOracleInstantClient() {
 			fi
 			installOracleInstantClient_ldconf=/etc/ld-musl-${TARGET_TRIPLET%-alpine-linux-musl}.path
 			if test -e "$installOracleInstantClient_ldconf"; then
-				if ! cat "$installOracleInstantClient_ldconf" | grep -q "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"; then
-					cat "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" | awk -v suffix=":/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" '{print NR==1 ? $0suffix : $0}' >"/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib"
+				if ! cat "$installOracleInstantClient_ldconf" | grep -q "$ORACLE_INSTANTCLIENT_LIBPATH"; then
+					cat "$ORACLE_INSTANTCLIENT_LIBPATH" | awk -v suffix=":$ORACLE_INSTANTCLIENT_LIBPATH" '{print NR==1 ? $0suffix : $0}' >"$ORACLE_INSTANTCLIENT_LIBPATH"
 				fi
 			else
 				if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
-					echo "/lib:/usr/local/lib:/usr/lib:/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" >"$installOracleInstantClient_ldconf"
+					echo "/lib:/usr/local/lib:/usr/lib:$ORACLE_INSTANTCLIENT_LIBPATH" >"$installOracleInstantClient_ldconf"
 				else
-					echo "/lib64:/lib:/usr/local/lib:/usr/lib:/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" >"$installOracleInstantClient_ldconf"
+					echo "/lib64:/lib:/usr/local/lib:/usr/lib:$ORACLE_INSTANTCLIENT_LIBPATH" >"$installOracleInstantClient_ldconf"
 				fi
 			fi
 			;;
 		debian)
 			if ! test -e /etc/ld.so.conf.d/oracle-instantclient.conf; then
-				echo "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib" >/etc/ld.so.conf.d/oracle-instantclient.conf
+				echo "$ORACLE_INSTANTCLIENT_LIBPATH" >/etc/ld.so.conf.d/oracle-instantclient.conf
 				ldconfig
 			fi
 			;;
@@ -1222,8 +1225,13 @@ EOF
 			./configure --with-unixODBC=shared,/usr
 			cd - >/dev/null
 			;;
-		oci8)
+		oci8 | pdo_oci)
 			installOracleInstantClient
+			if test "$1" = oci8; then
+				docker-php-ext-configure "$1" "--with-oci8=instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
+			elif test "$1" = pdo_oci; then
+				docker-php-ext-configure "$1" "--with-pdo-oci=instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
+			fi
 			;;
 		pdo_odbc)
 			docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr
