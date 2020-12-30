@@ -1676,7 +1676,7 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				installRemoteModule_version=0.6.0
 			fi
-			installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v0.6.0)"
+			installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$installRemoteModule_version)"
 			cd "$installRemoteModule_src/src"
 			phpize
 			./configure --enable-snuffleupagus
