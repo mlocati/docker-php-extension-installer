@@ -138,7 +138,7 @@ install-php-extensions @composer-2.0.2
 | redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | shmop | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | snmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| snuffleupagus |  |  | &check; | &check; | &check; | &check; | &check; |  |
+| snuffleupagus |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | soap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sockets | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
