@@ -137,6 +137,7 @@ install-php-extensions @composer-2.0.2
 | recode | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | shmop | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| smbclient | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | snmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | snuffleupagus |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | soap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -164,7 +165,7 @@ install-php-extensions @composer-2.0.2
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 90*
+*Number of supported extensions: 91*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
