@@ -567,14 +567,6 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
 				fi
 				;;
-			odbc@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
-				;;
-			odbc@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
-				;;
 			oci8@alpine | pdo_oci@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio libc6-compat libnsl"
 				if test $DISTRO_MAJMIN_VERSION -le 307; then
@@ -585,6 +577,14 @@ buildRequiredPackageLists() {
 			oci8@debian | pdo_oci@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unzip"
+				;;
+			odbc@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
+				;;
+			odbc@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
 			pdo_dblib@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
@@ -686,12 +686,13 @@ buildRequiredPackageLists() {
 					esac
 				fi
 				;;
-			snuffleupagus@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent pcre"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
+			smbclient@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsmbclient"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile samba-dev"
 				;;
-			snuffleupagus@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+			smbclient@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsmbclient"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsmbclient-dev"
 				;;
 			snmp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent net-snmp-libs"
@@ -700,6 +701,13 @@ buildRequiredPackageLists() {
 			snmp@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent snmp"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsnmp-dev"
+				;;
+			snuffleupagus@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent pcre"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
+				;;
+			snuffleupagus@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
 				;;
 			soap@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
@@ -776,17 +784,17 @@ buildRequiredPackageLists() {
 			uuid@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile uuid-dev"
 				;;
-			xlswriter@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev"
-				;;
-			xlswriter@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
-				;;
 			wddx@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
 			wddx@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				;;
+			xlswriter@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev"
+				;;
+			xlswriter@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
 				;;
 			xmlrpc@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
@@ -1461,19 +1469,19 @@ installRemoteModule() {
 			cp "$installRemoteModule_src/$installRemoteModule_so" "$(getPHPExtensionsDir)/$installRemoteModule_module.so"
 			installRemoteModule_manuallyInstalled=1
 			;;
+		mailparse)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installRemoteModule_version=2.1.6
+				fi
+			fi
+			;;
 		memcache)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
 					installRemoteModule_version=2.2.7
 				elif test $PHP_MAJMIN_VERSION -lt 800; then
 					installRemoteModule_version=4.0.5.2
-				fi
-			fi
-			;;
-		mailparse)
-			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installRemoteModule_version=2.1.6
 				fi
 			fi
 			;;
@@ -1847,6 +1855,15 @@ installRemoteModule() {
 			rm "$PHP_INI_DIR/conf.d/tdlib.ini"
 			installRemoteModule_manuallyInstalled=1
 			;;
+		uopz)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installRemoteModule_version=2.0.7
+				elif test $PHP_MAJMIN_VERSION -lt 701; then
+					installRemoteModule_version=5.0.2
+				fi
+			fi
+			;;
 		uuid)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
@@ -1868,15 +1885,6 @@ installRemoteModule() {
 					installRemoteModule_version=2.6.1
 				elif test $PHP_MAJMIN_VERSION -le 701; then
 					installRemoteModule_version=2.9.8
-				fi
-			fi
-			;;
-		uopz)
-			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installRemoteModule_version=2.0.7
-				elif test $PHP_MAJMIN_VERSION -lt 701; then
-					installRemoteModule_version=5.0.2
 				fi
 			fi
 			;;
