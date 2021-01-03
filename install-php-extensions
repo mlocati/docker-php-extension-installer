@@ -686,6 +686,14 @@ buildRequiredPackageLists() {
 					esac
 				fi
 				;;
+			smbclient@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsmbclient"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile samba-dev"
+				;;
+			smbclient@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsmbclient"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsmbclient-dev"
+				;;
 			snmp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent net-snmp-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile net-snmp-dev"
