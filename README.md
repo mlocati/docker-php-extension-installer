@@ -37,6 +37,17 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 RUN install-php-extensions gd xdebug
 ```
 
+#### *Beware*
+
+*When building locally, be sure you have the latest version of the `mlocati/php-extension-installer` image by running :*
+
+```sh
+docker pull mlocati/php-extension-installer
+```
+
+*otherwise the `COPY` instruction could use a previously downloaded, outdated version of the image stored in the local docker cache.*
+
+
 ### Installing a specific version of an extension
 
 Simply append `-<version>` to the module name.
