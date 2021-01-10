@@ -1732,6 +1732,8 @@ installRemoteModule() {
 					installRemoteModule_version=2.0.11
 				elif test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=4.3.6
+				elif test $PHP_MAJMIN_VERSION -le 701; then
+					installRemoteModule_version=4.5.10
 				fi
 			fi
 			if php --ri sockets >/dev/null 2>/dev/null; then
