@@ -37,9 +37,13 @@ setDistro() {
 	DISTRO_MAJMIN_VERSION="$(echo "$DISTRO_VERSION_NUMBER" | awk -F. '{print $1*100+$2}')"
 }
 
-# Set the PHP_MAJMIN_VERSION variable containing the PHP Major-Minor version as an integer value, in format MMmm (example: 506 for PHP 5.6.15)
-setPHPMajorMinor() {
-	PHP_MAJMIN_VERSION=$(php-config --version | awk -F. '{print $1*100+$2}')
+# Set:
+# - PHP_MAJMIN_VERSION: Major-Minor version, format MMmm (example 800 for PHP 8.0.1)
+# - PHP_MAJMINPAT_VERSION: Major-Minor-Patch version, format MMmmpp (example 80001 for PHP 8.0.1) variables containing integers value
+setPHPVersionVariables() {
+	setPHPVersionVariables_textual="$(php-config --version)"
+	PHP_MAJMIN_VERSION=$(printf '%s' "$setPHPVersionVariables_textual" | awk -F. '{print $1*100+$2}')
+	PHP_MAJMINPAT_VERSION=$(printf '%s' "$setPHPVersionVariables_textual" | awk -F. '{print $1*10000+$2*100+$3}')
 }
 
 # Get the directory containing the compiled PHP extensions
@@ -739,7 +743,7 @@ buildRequiredPackageLists() {
 				;;
 			swoole@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs libstdc++"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev linux-headers"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev postgresql-dev linux-headers"
 				case "$DISTRO_VERSION" in
 					alpine@3.7 | alpine@3.8)
 						# I can assure you I tried very hard to enable openssl in these Alpine versions...
@@ -751,8 +755,8 @@ buildRequiredPackageLists() {
 				esac
 				;;
 			swoole@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libpq-dev"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libcurl4-gnutls-dev libpq-dev"
 				;;
 			sybase_ct@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
@@ -1528,8 +1532,10 @@ installRemoteModule() {
 			fi
 			;;
 		mongo)
-			# Build with Cyrus SASL (MongoDB Enterprise Authentication) support?
-			addConfigureOption '-with-mongo-sasl' 'yes'
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '1.5.0') -ge 0; then
+				# Build with Cyrus SASL (MongoDB Enterprise Authentication) support?
+				addConfigureOption '-with-mongo-sasl' 'yes'
+			fi
 			;;
 		mongodb)
 			if test -z "$installRemoteModule_version"; then
@@ -1750,7 +1756,25 @@ installRemoteModule() {
 					installRemoteModule_openssl=yes
 					;;
 			esac
-			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.4.0) -ge 0; then
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
+				# enable sockets supports?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable json support?
+				addConfigureOption enable-swoole-json yes
+				# enable curl support?
+				if test $PHP_MAJMINPAT_VERSION -ne 80000; then
+					addConfigureOption enable-swoole-curl yes
+				else
+					# https://github.com/swoole/swoole-src/issues/3977#issuecomment-754755521
+					addConfigureOption enable-swoole-curl no
+				fi
+			elif test $(compareVersions "$installRemoteModule_version" 4.4.0) -ge 0; then
 				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
@@ -2211,7 +2235,7 @@ mkdir -p /tmp/pickle.tmp
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 CONFIGURE_FILE=/tmp/configure-options
 setDistro
-setPHPMajorMinor
+setPHPVersionVariables
 setPHPPreinstalledModules
 case "$PHP_MAJMIN_VERSION" in
 	505 | 506 | 700 | 701 | 702 | 703 | 704 | 800) ;;
