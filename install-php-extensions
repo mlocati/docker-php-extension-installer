@@ -2093,7 +2093,7 @@ buildPickle() {
 	curl -sSLf https://getcomposer.org/installer | php -- --quiet --install-dir=. --filename=composer --1
 	printf 'done.\n'
 	printf 'Installing composer dependencies... '
-	./composer install --no-dev --no-progress --no-suggest --optimize-autoloader --ignore-platform-reqs --quiet
+	./composer install --no-dev --no-progress --no-suggest --optimize-autoloader --ignore-platform-reqs --quiet --no-cache
 	printf 'done.\n'
 	printf 'Building... '
 	php -d phar.readonly=0 box.phar build
