@@ -10,7 +10,7 @@ if test -n "$WANTED_VERSION"; then
     INSTALLME="$INSTALLME-$1"
 fi
 
-./install-php-extensions "$INSTALLME"
+CI=true ./install-php-extensions "$INSTALLME"
 
 INSTALLED_VERSION="$(php --ri xdebug | grep -Ei 'Version\s*=>\s*' | sed -E 's/^.*?=>\s*//')"
 if test -z "$WANTED_VERSION"; then

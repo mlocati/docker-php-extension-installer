@@ -285,7 +285,7 @@ testExtensionFor() {
 	printf ' - Docker image: %s\n' "$testExtensionFor_Image"
 	testExtensionFor_out="$(mktemp)"
 	testExtensionFor_start=$(date +%s)
-	if $(docker run --rm --volume "$CI_BUILD_DIR:/app" --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1); then
+	if $(docker run --rm --volume "$CI_BUILD_DIR:/app" --env CI=true --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1); then
 		testExtensionFor_end=$(date +%s)
 		testExtensionFor_delta=$(expr $testExtensionFor_end - $testExtensionFor_start)
 		rm -rf "$testExtensionFor_out"

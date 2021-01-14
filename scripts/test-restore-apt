@@ -8,7 +8,7 @@ apt-get update -qq
 apt-get upgrade -qqy
 apt-get install -qqy libssl-dev
 
-./install-php-extensions zip
+CI=true ./install-php-extensions zip
 
 if test -z "$(dpkg --get-selections | grep -E '^libssl-dev[:\s].*install$')"; then
 	echo 'The libssl-dev APT package has not been restored.' >&2
