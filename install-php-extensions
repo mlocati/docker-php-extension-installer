@@ -2,7 +2,7 @@
 
 # This script wraps docker-php-ext-install, properly configuring the system.
 #
-# Copyright (c) Michele Locati, 2018-2020
+# Copyright (c) Michele Locati, 2018-2021
 #
 # Source: https://github.com/mlocati/docker-php-extension-installer
 #
@@ -44,6 +44,15 @@ setPHPVersionVariables() {
 	setPHPVersionVariables_textual="$(php-config --version)"
 	PHP_MAJMIN_VERSION=$(printf '%s' "$setPHPVersionVariables_textual" | awk -F. '{print $1*100+$2}')
 	PHP_MAJMINPAT_VERSION=$(printf '%s' "$setPHPVersionVariables_textual" | awk -F. '{print $1*10000+$2*100+$3}')
+}
+
+# Fix apt-get being very slow on Debian Jessie
+# See https://bugs.launchpad.net/ubuntu/+source/apt/+bug/1332440
+fixMaxOpenFiles() {
+	fixMaxOpenFiles_cur=$(ulimit -n 2>/dev/null || echo 0)
+	if test "$fixMaxOpenFiles_cur" -gt 10000; then
+		ulimit -n 10000
+	fi
 }
 
 # Get the directory containing the compiled PHP extensions
@@ -1643,26 +1652,33 @@ installRemoteModule() {
 			;;
 		rdkafka)
 			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version1=''
 				if test $PHP_MAJMIN_VERSION -le 505; then
-					installRemoteModule_version=3.0.5
-				else
-					installRemoteModule_tmp=
-					case "$DISTRO" in
-						alpine)
-							installRemoteModule_tmp='librdkafka'
-							;;
-						debian)
-							installRemoteModule_tmp='librdkafka*'
-							;;
-					esac
-					if test -n "$installRemoteModule_tmp"; then
-						installRemoteModule_tmp="$(getInstalledPackageVersion "$installRemoteModule_tmp")"
-						if test -n "$installRemoteModule_tmp"; then
-							if test $(compareVersions "$installRemoteModule_tmp" '0.11.0') -lt 0; then
-								installRemoteModule_version=3.1.3
-							fi
-						fi
+					installRemoteModule_version1=3.0.5
+				elif test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version1=4.1.2
+				fi
+				installRemoteModule_version2=''
+				case "$DISTRO" in
+					alpine)
+						installRemoteModule_tmp='librdkafka'
+						;;
+					debian)
+						installRemoteModule_tmp='librdkafka*'
+						;;
+				esac
+				if test -n "$installRemoteModule_tmp"; then
+					installRemoteModule_tmp="$(getInstalledPackageVersion "$installRemoteModule_tmp")"
+					if test -n "$installRemoteModule_tmp" && test $(compareVersions "$installRemoteModule_tmp" '0.11.0') -lt 0; then
+						installRemoteModule_version2=3.1.3
 					fi
+				fi
+				if test -z "$installRemoteModule_version1" || test -z "$installRemoteModule_version2"; then
+					installRemoteModule_version="$installRemoteModule_version1$installRemoteModule_version2"
+				elif test $(compareVersions "$installRemoteModule_version1" "$installRemoteModule_version2") -le 0; then
+					installRemoteModule_version="$installRemoteModule_version1"
+				else
+					installRemoteModule_version="$installRemoteModule_version2"
 				fi
 			fi
 			;;
@@ -2235,6 +2251,11 @@ mkdir -p /tmp/pickle.tmp
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 CONFIGURE_FILE=/tmp/configure-options
 setDistro
+case "$DISTRO_VERSION" in
+	debian@8)
+		fixMaxOpenFiles || true
+		;;
+esac
 setPHPVersionVariables
 setPHPPreinstalledModules
 case "$PHP_MAJMIN_VERSION" in
