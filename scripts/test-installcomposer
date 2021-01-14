@@ -10,7 +10,7 @@ if test -n "$WANTED_VERSION"; then
     INSTALLME="$INSTALLME-$1"
 fi
 
-./install-php-extensions "$INSTALLME"
+CI=true ./install-php-extensions "$INSTALLME"
 
 INSTALLED_VERSION="$(composer --version | sed -E 's/^.*[Vv]ersion\s*(\S+).*$/\1/')"
 if test -z "$WANTED_VERSION"; then
