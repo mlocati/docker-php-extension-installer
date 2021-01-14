@@ -46,6 +46,15 @@ setPHPVersionVariables() {
 	PHP_MAJMINPAT_VERSION=$(printf '%s' "$setPHPVersionVariables_textual" | awk -F. '{print $1*10000+$2*100+$3}')
 }
 
+# Fix apt-get being very slow on Debian Jessie
+# See https://bugs.launchpad.net/ubuntu/+source/apt/+bug/1332440
+fixMaxOpenFiles() {
+	fixMaxOpenFiles_cur=$(ulimit -n 2>/dev/null || echo 0)
+	if test "$fixMaxOpenFiles_cur" -gt 10000; then
+		ulimit -n 10000
+	fi
+}
+
 # Get the directory containing the compiled PHP extensions
 #
 # Output:
@@ -2242,6 +2251,11 @@ mkdir -p /tmp/pickle.tmp
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 CONFIGURE_FILE=/tmp/configure-options
 setDistro
+case "$DISTRO_VERSION" in
+	debian@8)
+		fixMaxOpenFiles || true
+		;;
+esac
 setPHPVersionVariables
 setPHPPreinstalledModules
 case "$PHP_MAJMIN_VERSION" in
