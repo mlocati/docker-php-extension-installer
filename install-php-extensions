@@ -1642,10 +1642,14 @@ installRemoteModule() {
 		pdo_sqlsrv | sqlsrv)
 			if test -z "$installRemoteModule_version"; then
 				# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
-				if test $PHP_MAJMIN_VERSION -le 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=3.0.1
+				elif test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=5.3.0
 				elif test $PHP_MAJMIN_VERSION -le 701; then
 					installRemoteModule_version=5.6.1
+				elif test $PHP_MAJMIN_VERSION -le 702; then
+					installRemoteModule_version=5.8.1
 				fi
 			fi
 			;;
@@ -2098,7 +2102,7 @@ configureInstaller() {
 			if ! stringInList 'zip' "$PHP_PREINSTALLED_MODULES"; then
 				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
 			fi
-			if anyStringInList 'swoole xdebug xhprof' "$PHP_MODULES_TO_INSTALL"; then
+			if anyStringInList 'swoole xdebug xhprof pdo_sqlsrv sqlsrv' "$PHP_MODULES_TO_INSTALL"; then
 				USE_PICKLE=2
 			else
 				curl -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
