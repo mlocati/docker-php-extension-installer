@@ -42,7 +42,7 @@ jobs:
             git commit -m '[skip ci] Automatically update README.md'
             git push
           fi
-      - name: Looking for the recent version tags
+      - name: Look for the recent version tags
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
           || (github.event_name == 'create' && github.event.ref_type == 'tag')
@@ -68,7 +68,7 @@ jobs:
           fi
           printf 'VERSIONTAG_LAST=%s\n' "$VERSIONTAG_LAST" >> "$GITHUB_ENV"
           printf 'VERSIONTAG_PENULTIMATE=%s\n' "$VERSIONTAG_PENULTIMATE" >> "$GITHUB_ENV"
-      - name: Checking if we need to create a version tag after a push
+      - name: Check if we need to create a version tag after a push
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           VERSIONTAG_THIS=
@@ -157,7 +157,7 @@ jobs:
         with:
           username: mlocati
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build docker image and push to Docker Hub
+      - name: Build docker image
         if: env.VERSIONTAG_THIS != ''
         run: docker build --tag "mlocati/php-extension-installer:$VERSIONTAG_THIS" --tag mlocati/php-extension-installer:latest .
       - name: Push docker image to Docker Hub
