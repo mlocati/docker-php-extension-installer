@@ -139,7 +139,7 @@ install-php-extensions @composer-2.0.2
 | pdo_oci |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| pdo_sqlsrv |  |  | &check; | &check; | &check; | &check; | &check; |  |
+| pdo_sqlsrv |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | propro | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | protobuf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -156,7 +156,7 @@ install-php-extensions @composer-2.0.2
 | soap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sockets | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| sqlsrv |  |  | &check; | &check; | &check; | &check; | &check; |  |
+| sqlsrv |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | swoole | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sybase_ct | &check; | &check; |  |  |  |  |  |  |
