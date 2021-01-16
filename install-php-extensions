@@ -1730,7 +1730,7 @@ installRemoteModule() {
 					installRemoteModule_zstdVersion=1.4.4
 					installRemoteModule_zstdVersionMajor=$(echo $installRemoteModule_zstdVersion | cut -d. -f1)
 					rm -rf /tmp/src/zstd
-					mv "$(getPackageSource https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-$installRemoteModule_zstdVersion.tar.gz)" /tmp/src/zstd
+					mv "$(getPackageSource https://github.com/facebook/zstd/releases/download/v$installRemoteModule_zstdVersion/zstd-$installRemoteModule_zstdVersion.tar.gz)" /tmp/src/zstd
 					cd /tmp/src/zstd
 					make V=0 -j$(getProcessorCount) lib
 					cp -f lib/libzstd.so "/usr/lib/$TARGET_TRIPLET/libzstd.so.$installRemoteModule_zstdVersion"
