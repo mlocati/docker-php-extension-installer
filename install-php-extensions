@@ -437,6 +437,14 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
 				fi
 				;;
+			gearman@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ libuuid"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile boost-dev gperf libmemcached-dev libevent-dev util-linux-dev"
+				;;
+			gearman@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgearman[0-9]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgearman-dev"
+				;;
 			gettext@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libintl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gettext-dev"
@@ -1441,6 +1449,25 @@ installRemoteModule() {
 					make -j$(getProcessorCount)
 					make install
 					cd - >/dev/null
+					;;
+			esac
+			;;
+		gearman)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=1.1.2
+				fi
+			fi
+			case "$DISTRO" in
+				alpine)
+					if ! test -e /usr/local/include/libgearman/gearman.h || ! test -e /usr/local/lib/libgearman.so; then
+						installRemoteModule_src="$(getPackageSource https://github.com/gearman/gearmand/releases/download/1.1.19.1/gearmand-1.1.19.1.tar.gz)"
+						cd -- "$installRemoteModule_src"
+						./configure
+						make -j$(getProcessorCount) install-binPROGRAMS
+						make -j$(getProcessorCount) install-nobase_includeHEADERS
+						cd - >/dev/null
+					fi
 					;;
 			esac
 			;;
