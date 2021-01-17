@@ -23,6 +23,12 @@ SUPPORTED_EXTENSIONS=''
 resetIFS
 for EXTENSION in $EXTENSIONS_LIST; do
 	printf 'Checking extension "%s"... ' "$EXTENSION" >&2
+	case "$EXTENSION" in
+		pecl_http)
+			EXTENSION=http
+			printf '(using %s) ' "$EXTENSION" >&2
+			;;
+	esac
 	if printf '%s' "$ALL_SUPPORTED_EXTENSIONS" | grep -q "^$EXTENSION\s"; then
 		printf 'supported.\n' >&2
 		SUPPORTED_EXTENSIONS="$SUPPORTED_EXTENSIONS $EXTENSION"
