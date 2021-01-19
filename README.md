@@ -151,6 +151,7 @@ install-php-extensions @composer-2.0.2
 | rdkafka | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | recode | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| seaslog | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | shmop | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | smbclient | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | snmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -181,7 +182,7 @@ install-php-extensions @composer-2.0.2
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
-*Number of supported extensions: 94*
+*Number of supported extensions: 95*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
