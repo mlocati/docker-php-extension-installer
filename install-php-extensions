@@ -2131,7 +2131,7 @@ configureInstaller() {
 			if ! stringInList 'zip' "$PHP_PREINSTALLED_MODULES"; then
 				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
 			fi
-			if anyStringInList 'swoole xdebug xhprof pdo_sqlsrv sqlsrv igbinary' "$PHP_MODULES_TO_INSTALL"; then
+			if anyStringInList 'swoole xdebug xhprof pdo_sqlsrv sqlsrv igbinary seaslog' "$PHP_MODULES_TO_INSTALL"; then
 				USE_PICKLE=2
 			else
 				curl -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
