@@ -667,14 +667,6 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
 				;;
-			pdo_sqlsrv@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ unixodbc"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
-				;;
-			pdo_sqlsrv@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1 odbcinst"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
-				;;
 			pgsql@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
@@ -772,13 +764,16 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-gnutls-dev libxml2-dev"
 				;;
-			sqlsrv@alpine)
+			sqlsrv@alpine | pdo_sqlsrv@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ unixodbc"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
-			sqlsrv@debian)
+			sqlsrv@debian | pdo_sqlsrv@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
+				if ! isMicrosoftSqlServerODBCInstalled; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gnupg apt-transport-https"
+				fi
 				;;
 			ssh2@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssh2"
@@ -1166,6 +1161,41 @@ installOracleInstantClient() {
 				echo "$ORACLE_INSTANTCLIENT_LIBPATH" >/etc/ld.so.conf.d/oracle-instantclient.conf
 				ldconfig
 			fi
+			;;
+	esac
+}
+
+# Check if the Microsoft SQL Server ODBC Driver is installed
+#
+# Return:
+#   0 (true): if the string is in the list
+#   1 (false): if the string is not in the list
+isMicrosoftSqlServerODBCInstalled() {
+	test -d /opt/microsoft/msodbcsql*/
+}
+
+# Install the Microsoft SQL Server ODBC Driver
+installMicrosoftSqlServerODBC() {
+	printf 'Installing the Microsoft SQL Server ODBC Driver\n'
+	case "$DISTRO" in
+		alpine)
+			# https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17
+			rm -rf /tmp/src/msodbcsql.apk
+			curl -sSLf -o /tmp/src/msodbcsql.apk https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.6.1.1-1_amd64.apk
+			printf '\n' | apk add --allow-untrusted /tmp/src/msodbcsql.apk
+			rm -rf /tmp/src/msodbcsql.apk
+			;;
+		debian)
+			# https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#debian17
+			printf -- '- installing the Microsoft APT key\n'
+			curl -sSLf https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+			if ! test -f /etc/apt/sources.list.d/mssql-release.list; then
+				printf -- '- adding the Microsoft APT source list\n'
+				curl -sSLf https://packages.microsoft.com/config/debian/$DISTRO_VERSION_NUMBER/prod.list >/etc/apt/sources.list.d/mssql-release.list
+				DEBIAN_FRONTEND=noninteractive apt-get -q update
+			fi
+			printf -- '- installing the APT package\n'
+			DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get -qy install '^msodbcsql[0-9]+$'
 			;;
 	esac
 }
@@ -1680,6 +1710,9 @@ installRemoteModule() {
 				elif test $PHP_MAJMIN_VERSION -le 702; then
 					installRemoteModule_version=5.8.1
 				fi
+			fi
+			if ! isMicrosoftSqlServerODBCInstalled; then
+				installMicrosoftSqlServerODBC
 			fi
 			;;
 		propro)

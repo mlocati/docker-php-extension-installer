@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+
+error_reporting(-1);
+
+set_error_handler(
+    static function ($errno, $errstr, $errfile, $errline) {
+        $msg = "Error {$errno}: {$errstr}\n";
+        if ($errfile) {
+            $msg .= "File: {$errfile}\n";
+            if ($errline) {
+                $msg .= "Line: {$errline}\n";
+            }
+        }
+        fwrite(STDERR, $msg);
+        exit(1);
+    },
+    -1
+);
+
+sqlsrv_connect(
+    'localhost, 50000',
+    [
+        'Authentication' => 'SqlPassword',
+        'ConnectRetryCount' => 0,
+        'Database' => 'example',
+        'LoginTimeout' => 1, // string for PDO_SQLSRV
+        'UID' => 'userName', // not for PDO_SQLSRV
+        'PWD' => 'password',
+    ]
+);
+$errors = sqlsrv_errors(SQLSRV_ERR_ALL);
+if (is_array($errors)) {
+    foreach ($errors as $error) {
+        if (isset($error['message']) && stripos($error['message'], 'This extension requires the Microsoft ODBC Driver for SQL Server') !== false) {
+            fwrite(STDERR, trim($error['message']) . "\n");
+        }
+    }
+}
