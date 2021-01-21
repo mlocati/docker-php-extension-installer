@@ -1810,6 +1810,15 @@ installRemoteModule() {
 				addConfigureOption 'enable-redis-zstd' 'yes'
 			fi
 			;;
+		smbclient)
+			if test -z "$installRemoteModule_version"; then
+				case "$DISTRO_VERSION" in
+					alpine@3.7 | alpine@3.8 | alpine@3.9)
+						installRemoteModule_version=1.0.1
+						;;
+				esac
+			fi
+			;;
 		snuffleupagus)
 			if test -z "$installRemoteModule_version"; then
 				installRemoteModule_version=0.7.0
