@@ -181,8 +181,9 @@ install-php-extensions @composer-2.0.2
 | yar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 95*
+*Number of supported extensions: 96*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
