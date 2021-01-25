@@ -2138,7 +2138,6 @@ installRemoteModule() {
 }
 
 # Configure the PECL package installed
-# If we'll use pickle, the zip extension will be added to PHP_MODULES_TO_INSTALL
 #
 # Updates:
 #   PHP_MODULES_TO_INSTALL
@@ -2161,10 +2160,7 @@ configureInstaller() {
 				pecl channel-update pecl.php.net || true
 				return
 			fi
-			if ! stringInList 'zip' "$PHP_PREINSTALLED_MODULES"; then
-				PHP_MODULES_TO_INSTALL="zip $(removeStringFromList 'zip' "$PHP_MODULES_TO_INSTALL")"
-			fi
-			if anyStringInList 'swoole xdebug xhprof pdo_sqlsrv sqlsrv igbinary seaslog zstd' "$PHP_MODULES_TO_INSTALL"; then
+			if false && anyStringInList '' "$PHP_MODULES_TO_INSTALL"; then
 				USE_PICKLE=2
 			else
 				curl -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
@@ -2233,7 +2229,7 @@ installPeclPackage() {
 		else
 			installPeclPackage_fullname="$1@$2"
 		fi
-		MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --with-configure-options "$CONFIGURE_FILE" -- "$installPeclPackage_fullname"
+		MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --version-override='' --with-configure-options "$CONFIGURE_FILE" -- "$installPeclPackage_fullname"
 	fi
 }
 
