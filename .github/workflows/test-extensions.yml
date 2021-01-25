@@ -74,6 +74,7 @@ jobs:
           - jessie
           - stretch
           - buster
+          - phpdaily-alpine
     name: Check on ${{ matrix.distro }}
     runs-on: ubuntu-latest
     env:

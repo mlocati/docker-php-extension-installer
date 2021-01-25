@@ -128,7 +128,14 @@ getDockerImageName() {
 			fi
 		done
 	fi
-	getDockerImageName_imageName="$(printf 'php:%s-%s-%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$DOCKER_DISTRO")"
+	if test "$DOCKER_DISTRO" = "phpdaily-alpine"; then
+		if test "$getDockerImageName_version" = "8.1-rc"; then
+			getDockerImageName_version="8.1"
+		fi
+		getDockerImageName_imageName="$(printf 'phpdaily/php:%s-dev' "$getDockerImageName_version")"
+	else
+		getDockerImageName_imageName="$(printf 'php:%s-%s-%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$DOCKER_DISTRO")"
+	fi
 	case "$getDockerImageName_imageName" in
 		php:5.5-cli-jessie)
 			getDockerImageName_imageName='php:5.5-cli'

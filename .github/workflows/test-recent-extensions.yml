@@ -45,6 +45,7 @@ jobs:
           - jessie
           - stretch
           - buster
+          - phpdaily-alpine
     name: Check on ${{ matrix.distro }}
     env:
       DOCKER_DISTRO: ${{ matrix.distro }}
