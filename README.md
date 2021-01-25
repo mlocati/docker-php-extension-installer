@@ -118,7 +118,7 @@ install-php-extensions @composer-2.0.2
 | mailparse | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | maxminddb |  |  |  |  | &check; | &check; | &check; | &check; |
 | mcrypt | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| memcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| memcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | memcached | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mongo | &check; | &check; |  |  |  |  |  |  |
 | mongodb | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
