@@ -110,6 +110,8 @@ jobs:
           - ''
           - 2.9.8
           - 3.0.0
+          - ^2
+          - ^2.8
     steps:
       - name: Checkout
         uses: actions/checkout@v1

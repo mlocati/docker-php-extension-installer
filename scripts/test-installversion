@@ -5,6 +5,7 @@ set -o errexit
 set -o nounset
 
 WANTED_VERSION="${1:-}"
+WANTED_VERSION_AFTERCARET="${1#^}"
 INSTALLME=xdebug
 if test -n "$WANTED_VERSION"; then
     INSTALLME="$INSTALLME-$1"
@@ -14,9 +15,11 @@ CI=true ./install-php-extensions "$INSTALLME"
 
 INSTALLED_VERSION="$(php --ri xdebug | grep -Ei 'Version\s*=>\s*' | sed -E 's/^.*?=>\s*//')"
 if test -z "$WANTED_VERSION"; then
-    echo 'Installing the default version worked'
+    printf 'Installing the default version worked (we installed version %s)\n' "$INSTALLED_VERSION"
 elif test "$WANTED_VERSION" = "$INSTALLED_VERSION"; then
     printf 'Installing specific version %s worked\n' "$WANTED_VERSION"
+elif test "$WANTED_VERSION" != "$WANTED_VERSION_AFTERCARET" && test "${INSTALLED_VERSION#$WANTED_VERSION_AFTERCARET.}" != "$INSTALLED_VERSION"; then
+    printf 'Installing version compatible with %s worked (we installed version %s)\n' "$WANTED_VERSION" "$INSTALLED_VERSION"
 else
     printf 'We wanted to install version %s, but we installed %s\n' "$WANTED_VERSION" "$INSTALLED_VERSION" >&2
     exit 1
