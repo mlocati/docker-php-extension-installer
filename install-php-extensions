@@ -141,8 +141,10 @@ getPeclModuleName() {
 }
 
 # Parse a module name (and optionally version) as received via command arguments, extracting the version and normalizing it
-# Example:
+# Examples:
 #   xdebug-2.9.8
+#   xdebug-^2
+#   xdebug-^2.9
 #
 # Arguments:
 #   $1: the name of the module to be normalized
@@ -187,6 +189,56 @@ getWantedPHPModuleVersion() {
 	elif printf '%s' "$1" | grep -Eq '^@[a-zA-Z0-9_]+$'; then
 		eval printf '%s' "\${PHP_WANTEDMODULEVERSION__${1#@}:-}"
 	fi
+}
+
+# Get the wanted PHP module version, resolving it if it starts with '^'
+#
+# Arguments:
+#   $1: the name of the module to be normalized
+#
+# Output:
+#   The version to be used
+resolveWantedPHPModuleVersion() {
+	resolveWantedPHPModuleVersion_raw="$(getWantedPHPModuleVersion "$1")"
+	resolveWantedPHPModuleVersion_afterCaret="${resolveWantedPHPModuleVersion_raw#^}"
+	if test "$resolveWantedPHPModuleVersion_raw" = "$resolveWantedPHPModuleVersion_afterCaret"; then
+		printf '%s' "$resolveWantedPHPModuleVersion_raw"
+		return
+	fi
+	resolveWantedPHPModuleVersion_xml="$(curl -sSLf "http://pecl.php.net/rest/r/$1/allreleases.xml")"
+	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_xml" | tr -s ' \t\r\n' ' ' | sed -r 's# *<#\n<#g' | grep '<v>' | sed 's#<v>##g' | sed 's# ##g')"
+	resetIFS
+	for resolveWantedPHPModuleVersion_version in $resolveWantedPHPModuleVersion_versions; do
+		resolveWantedPHPModuleVersion_suffix="${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_afterCaret}"
+		if test "$resolveWantedPHPModuleVersion_version" != "${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_afterCaret.}"; then
+			# Example: looking for 1.0, found 1.0.1
+			printf '%s' "$resolveWantedPHPModuleVersion_version"
+			return
+		fi
+	done
+	for resolveWantedPHPModuleVersion_version in $resolveWantedPHPModuleVersion_versions; do
+		resolveWantedPHPModuleVersion_suffix="${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_afterCaret}"
+		if test "$resolveWantedPHPModuleVersion_version" = "$resolveWantedPHPModuleVersion_suffix"; then
+			continue
+		fi
+		if test -z "$resolveWantedPHPModuleVersion_suffix"; then
+			# Example: looking for 1.0, found exactly it
+			printf '%s' "$resolveWantedPHPModuleVersion_version"
+			return
+		fi
+		case "$resolveWantedPHPModuleVersion_suffix" in
+			[0-9])
+				# Example: looking for 1.1, but this is 1.10
+				;;
+			*)
+				# Example: looking for 1.1, this is 1.1rc1
+				printf '%s' "$resolveWantedPHPModuleVersion_version"
+				return
+				;;
+		esac
+	done
+	printf 'Unable to find a version of "%s" compatible with "%s"\nAvailable versions are:\n%s\n' "$1" "$resolveWantedPHPModuleVersion_raw" "$resolveWantedPHPModuleVersion_versions" >&2
+	exit 1
 }
 
 # Set these variables:
@@ -1222,6 +1274,7 @@ installMicrosoftSqlServerODBC() {
 # Install Composer
 installComposer() {
 	installComposer_version="$(getWantedPHPModuleVersion @composer)"
+	installComposer_version="${installComposer_version#^}"
 	if test -z "$installComposer_version"; then
 		installComposer_fullname=composer
 		installComposer_flags=''
@@ -1442,7 +1495,7 @@ getPackageSource() {
 installRemoteModule() {
 	installRemoteModule_module="$1"
 	printf '### INSTALLING REMOTE MODULE %s ###\n' "$installRemoteModule_module"
-	installRemoteModule_version="$(getWantedPHPModuleVersion "$installRemoteModule_module")"
+	installRemoteModule_version="$(resolveWantedPHPModuleVersion "$installRemoteModule_module")"
 	rm -rf "$CONFIGURE_FILE"
 	installRemoteModule_manuallyInstalled=0
 	installRemoteModule_cppflags=''
