@@ -1516,6 +1516,13 @@ installRemoteModule() {
 					installRemoteModule_version=1.33.1
 				fi
 			fi
+			if test -z "$installRemoteModule_version" || test "$installRemoteModule_version" = 1.35.0; then
+				case "$DISTRO_VERSION" in
+					alpine@3.13)
+						installRemoteModule_cppflags='-Wno-maybe-uninitialized'
+						;;
+				esac
+			fi
 			;;
 		http)
 			installRemoteModule_module=pecl_http
