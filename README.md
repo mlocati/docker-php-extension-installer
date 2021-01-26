@@ -50,7 +50,7 @@ docker pull mlocati/php-extension-installer
 *otherwise the `COPY` instruction could use a previously downloaded, outdated version of the image stored in the local docker cache.*
 
 
-### Installing a specific version of an extension
+### Installing specific versions of an extension
 
 Simply append `-<version>` to the module name.
 For example:
@@ -58,6 +58,17 @@ For example:
 ```sh
 install-php-extensions xdebug-2.9.7
 ```
+
+The script also support resolving *compatible* versions by prefixing the version with a caret (`^`).
+For example:
+
+```sh
+# Install the most recent xdebug 2.x version (for example 2.9.8)
+install-php-extensions xdebug-^2
+# Install the most recent xdebug 2.x version (for example 2.8.1)
+install-php-extensions xdebug-^2.8
+```
+
 
 ### Installing composer
 
