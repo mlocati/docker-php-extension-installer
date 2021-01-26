@@ -65,7 +65,7 @@ For example:
 ```sh
 # Install the most recent xdebug 2.x version (for example 2.9.8)
 install-php-extensions xdebug-^2
-# Install the most recent xdebug 2.x version (for example 2.8.1)
+# Install the most recent xdebug 2.8.x version (for example 2.8.1)
 install-php-extensions xdebug-^2.8
 ```
 
