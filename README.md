@@ -166,7 +166,6 @@ install-php-extensions @composer-2.0.2
 | sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvsem | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvshm | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| tdlib[*](#special-requirements-for-tdlib) |  |  | &check; | &check; | &check; | &check; | &check; |  |
 | tidy | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | timezonedb | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | uopz | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
@@ -183,7 +182,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 96*
+*Number of supported extensions: 95*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
@@ -243,12 +242,11 @@ Some extension has special requirements:
 <!-- ########################################################### -->
 | Extension | Requirements |
 |---|---|
-| <a name="special-requirements-for-enchant"></a>enchant | &bull; Not available in `7.2-alpine3.12` docker images<br />&bull; Not available in `7.3-alpine3.12` docker images<br />&bull; Not available in `7.4-alpine3.12` docker images |
+| <a name="special-requirements-for-enchant"></a>enchant | &bull; Not available in `7.2-alpine3.12` docker images<br />&bull; Not available in `7.3-alpine3.12` docker images<br />&bull; Not available in `7.3-alpine3.13` docker images<br />&bull; Not available in `7.4-alpine3.12` docker images<br />&bull; Not available in `7.4-alpine3.13` docker images |
 | <a name="special-requirements-for-parallel"></a>parallel | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 | <a name="special-requirements-for-pdo_sqlsrv"></a>pdo_sqlsrv | &bull; Not available in `7.0-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.8` docker images<br />&bull; Not available in `7.2-alpine3.7` docker images<br />&bull; Not available in `7.2-alpine3.8` docker images<br />&bull; Not available in `7.3-alpine3.8` docker images |
 | <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 | <a name="special-requirements-for-sqlsrv"></a>sqlsrv | &bull; Not available in `7.0-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.8` docker images<br />&bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.1-alpine3.10` docker images<br />&bull; Not available in `7.2-alpine3.7` docker images<br />&bull; Not available in `7.2-alpine3.8` docker images<br />&bull; Not available in `7.3-alpine3.8` docker images |
-| <a name="special-requirements-for-tdlib"></a>tdlib | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `jessie` docker images |
 <!-- END OF SPECIAL REQUIREMENTS -->
 
 ## Tests
