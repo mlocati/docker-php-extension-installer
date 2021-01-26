@@ -1050,7 +1050,7 @@ setTargetTriplet() {
 #   The number of processors to be used
 getCompilationProcessorCount() {
 	case "$1" in
-		amqp | bcmath | bz2 | calendar | exif | gd | gettext | grpc | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | redis | soap | sockets | tidy | xdebug | xsl | yaml | zip)
+		amqp | bcmath | bz2 | calendar | exif | gd | gettext | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | redis | soap | sockets | tidy | xdebug | xsl | yaml | zip)
 			# These extensions support parallel compilation
 			getProcessorCount
 			;;
