@@ -325,6 +325,13 @@ Test: gd, zip, -STOP-
 
 See [this pull request](https://github.com/mlocati/docker-php-extension-installer/pull/43) for an example.
 
+### PHP requirements and configure options
+
+PHP extensions published on the PECL archive contain a `package.xml` (or `package2.xml`) file describing the supported PHP versions and the options that can be used to compile it.
+When we add support for a new PHP extension, and when a new version of a PHP extension is released, we have to check those constraints.
+
+It's a rather tedious taks, so I developed a project that lets you easily check those constraints: you can find it at https://mlocati.github.io/pecl-info ([here](https://github.com/mlocati/pecl-info) you can find its source code).
+
 ## For the maintainers
 
 See the [`MAINTAINERS.md`](https://github.com/mlocati/docker-php-extension-installer/blob/master/MAINTAINERS.md) file.
