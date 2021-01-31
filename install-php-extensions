@@ -852,17 +852,8 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-1-dev"
 				;;
 			swoole@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs libstdc++"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev postgresql-dev linux-headers"
-				case "$DISTRO_VERSION" in
-					alpine@3.7 | alpine@3.8)
-						# I can assure you I tried very hard to enable openssl in these Alpine versions...
-						;;
-					*)
-						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl"
-						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libressl-dev"
-						;;
-				esac
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs libstdc++ $buildRequiredPackageLists_libssl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev postgresql-dev linux-headers libressl-dev"
 				;;
 			swoole@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
@@ -1936,13 +1927,13 @@ installRemoteModule() {
 			else
 				installRemoteModule_sockets=no
 			fi
+			installRemoteModule_openssl=yes
 			case "$DISTRO_VERSION" in
 				alpine@3.7 | alpine@3.8)
-					# I can assure you I tried very hard to enable openssl in these Alpine versions...
-					installRemoteModule_openssl=no
-					;;
-				*)
-					installRemoteModule_openssl=yes
+					if test -n "$installRemoteModule_version" && test $(compareVersions "$installRemoteModule_version" 4.6.0) -lt 0; then
+						# see https://github.com/swoole/swoole-src/issues/3934
+						installRemoteModule_openssl=no
+					fi
 					;;
 			esac
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
