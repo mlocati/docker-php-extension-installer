@@ -1093,7 +1093,7 @@ setTargetTriplet() {
 #   The number of processors to be used
 getCompilationProcessorCount() {
 	case "$1" in
-		amqp | bcmath | bz2 | calendar | exif | gd | gettext | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | redis | ssh2 | soap | sockets | tidy | xdebug | xsl | yaml | zip)
+		amqp | bcmath | bz2 | calendar | exif | gd | geospatial | gettext | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | redis | ssh2 | soap | sockets | tidy | xdebug | xsl | yaml | zip)
 			# These extensions support parallel compilation
 			getProcessorCount
 			;;
@@ -1563,6 +1563,15 @@ installRemoteModule() {
 					fi
 					;;
 			esac
+			;;
+		geospatial)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=0.2.1
+				else
+					installRemoteModule_version=beta
+				fi
+			fi
 			;;
 		gmagick)
 			if test -z "$installRemoteModule_version"; then
@@ -2301,19 +2310,14 @@ installPeclPackage() {
 		printf '\n' >"$CONFIGURE_FILE"
 	fi
 	installPeclPackage_name="$(getPeclModuleName "$1")"
+	if test -z "${2:-}"; then
+		installPeclPackage_fullname="$installPeclPackage_name"
+	else
+		installPeclPackage_fullname="$installPeclPackage_name-$2"
+	fi
 	if test $USE_PICKLE -eq 0; then
-		if test -z "${2:-}"; then
-			installPeclPackage_fullname="$installPeclPackage_name"
-		else
-			installPeclPackage_fullname="$installPeclPackage_name-$2"
-		fi
 		cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" pecl install "$installPeclPackage_fullname"
 	else
-		if test -z "${2:-}"; then
-			installPeclPackage_fullname="$installPeclPackage_name"
-		else
-			installPeclPackage_fullname="$installPeclPackage_name@$2"
-		fi
 		MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --version-override='' --with-configure-options "$CONFIGURE_FILE" -- "$installPeclPackage_fullname"
 	fi
 }
