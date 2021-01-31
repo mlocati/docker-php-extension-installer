@@ -171,7 +171,7 @@ install-php-extensions @composer-2.0.2
 | sockets | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sqlsrv[*](#special-requirements-for-sqlsrv) |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
-| ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | swoole | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sybase_ct | &check; | &check; |  |  |  |  |  |  |
 | sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
