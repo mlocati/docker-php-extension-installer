@@ -1093,7 +1093,7 @@ setTargetTriplet() {
 #   The number of processors to be used
 getCompilationProcessorCount() {
 	case "$1" in
-		amqp | bcmath | bz2 | calendar | exif | gd | gettext | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | redis | soap | sockets | tidy | xdebug | xsl | yaml | zip)
+		amqp | bcmath | bz2 | calendar | exif | gd | gettext | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | redis | ssh2 | soap | sockets | tidy | xdebug | xsl | yaml | zip)
 			# These extensions support parallel compilation
 			getProcessorCount
 			;;
@@ -1877,6 +1877,18 @@ installRemoteModule() {
 				fi
 				# Enable zstd compression support?
 				addConfigureOption 'enable-redis-zstd' 'yes'
+			fi
+			;;
+		ssh2)
+			if test -z "$installRemoteModule_version" && test $PHP_MAJMIN_VERSION -ge 800; then
+				installRemoteModule_src="$(getPackageSource https://codeload.github.com/php/pecl-networking-ssh2/tar.gz/93265d71bdeb23350e8320126c7949ed791310df)"
+				cd -- "$installRemoteModule_src"
+				phpize
+				./configure
+				make -j$(getCompilationProcessorCount)
+				make install
+				cd - >/dev/null
+				installRemoteModule_manuallyInstalled=1
 			fi
 			;;
 		snuffleupagus)
