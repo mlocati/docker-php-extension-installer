@@ -107,7 +107,7 @@ install-php-extensions @composer-2.0.2
 | dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | decimal |  |  | &check; | &check; | &check; | &check; | &check; |  |
 | enchant[*](#special-requirements-for-enchant) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ffi |  |  |  |  |  |  | &check; | &check; |
 | gd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
