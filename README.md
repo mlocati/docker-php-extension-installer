@@ -160,7 +160,7 @@ install-php-extensions @composer-2.0.2
 | pspell | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pthreads[*](#special-requirements-for-pthreads) | &check; | &check; | &check; |  |  |  |  |  |
 | raphf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| rdkafka | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| rdkafka | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | recode | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | seaslog | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
