@@ -28,7 +28,7 @@ if test "$IPE_VERSION" = master && test "${CI:-}" != true; then
 #                                                                                                           #
 # You are using an unsupported method to get install-php-extensions!                                        #
 #                                                                                                           #
-# Please update the way you fetch it. Read the instrictions at                                              #
+# Please update the way you fetch it. Read the instructions at                                              #
 # https://github.com/mlocati/docker-php-extension-installer#usage                                           #
 #                                                                                                           #
 # For example, if you get this script by fetching                                                           #
