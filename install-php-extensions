@@ -1536,12 +1536,14 @@ installRemoteModule() {
 		decimal)
 			case "$DISTRO" in
 				alpine)
-					installRemoteModule_src="$(getPackageSource https://codeload.github.com/bematech/libmpdec/tar.gz/master)"
-					cd -- "$installRemoteModule_src"
-					./configure CFLAGS='-w'
-					make -j$(getProcessorCount)
-					make install
-					cd - >/dev/null
+					if ! test -f /usr/local/lib/libmpdec.so; then
+						installRemoteModule_src="$(getPackageSource https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz)"
+						cd -- "$installRemoteModule_src"
+						./configure
+						make -j$(getProcessorCount)
+						make install
+						cd - >/dev/null
+					fi
 					;;
 			esac
 			;;
@@ -1556,7 +1558,7 @@ installRemoteModule() {
 					if ! test -e /usr/local/include/libgearman/gearman.h || ! test -e /usr/local/lib/libgearman.so; then
 						installRemoteModule_src="$(getPackageSource https://github.com/gearman/gearmand/releases/download/1.1.19.1/gearmand-1.1.19.1.tar.gz)"
 						cd -- "$installRemoteModule_src"
-						./configure
+						./configure --disable-cxx
 						make -j$(getProcessorCount) install-binPROGRAMS
 						make -j$(getProcessorCount) install-nobase_includeHEADERS
 						cd - >/dev/null
