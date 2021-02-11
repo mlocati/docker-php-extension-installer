@@ -1027,7 +1027,7 @@ expandPackagesToBeInstalled() {
 			resetIFS
 			;;
 		debian)
-			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@ 2>&1 || printf '\nE: apt-get failed\n')"
+			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy --no-install-recommends $@ 2>&1 || printf '\nE: apt-get failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^E:')"; then
 				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
 				printf '%s ' "$@" >&2
@@ -1118,7 +1118,7 @@ installRequiredPackages() {
 			apk add $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get install -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
+			DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
 	esac
 }
@@ -1257,7 +1257,7 @@ installMicrosoftSqlServerODBC() {
 				DEBIAN_FRONTEND=noninteractive apt-get -q update
 			fi
 			printf -- '- installing the APT package\n'
-			DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get -qy install '^msodbcsql[0-9]+$'
+			DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get -qy --no-install-recommends install '^msodbcsql[0-9]+$'
 			;;
 	esac
 }
@@ -2406,7 +2406,7 @@ cleanup() {
 		case "$DISTRO" in
 			debian)
 				printf '### RESTORING PREVIOUSLY INSTALLED PACKAGES ###\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install --no-upgrade -qqy $PACKAGES_PREVIOUS
+				DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-upgrade -qqy $PACKAGES_PREVIOUS
 				;;
 		esac
 	fi
