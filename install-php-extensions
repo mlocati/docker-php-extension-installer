@@ -1118,7 +1118,7 @@ installRequiredPackages() {
 			apk add $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get install -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
+			DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
 	esac
 }
@@ -2406,7 +2406,7 @@ cleanup() {
 		case "$DISTRO" in
 			debian)
 				printf '### RESTORING PREVIOUSLY INSTALLED PACKAGES ###\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install --no-upgrade -qqy $PACKAGES_PREVIOUS
+				DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-upgrade -qqy $PACKAGES_PREVIOUS
 				;;
 		esac
 	fi
