@@ -1257,7 +1257,7 @@ installMicrosoftSqlServerODBC() {
 				DEBIAN_FRONTEND=noninteractive apt-get -q update
 			fi
 			printf -- '- installing the APT package\n'
-			DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get -qy install '^msodbcsql[0-9]+$'
+			DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get -qy --no-install-recommends install '^msodbcsql[0-9]+$'
 			;;
 	esac
 }
