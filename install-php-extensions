@@ -1027,7 +1027,7 @@ expandPackagesToBeInstalled() {
 			resetIFS
 			;;
 		debian)
-			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy $@ 2>&1 || printf '\nE: apt-get failed\n')"
+			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy --no-install-recommends $@ 2>&1 || printf '\nE: apt-get failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^E:')"; then
 				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
 				printf '%s ' "$@" >&2
