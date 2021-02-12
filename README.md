@@ -114,7 +114,7 @@ install-php-extensions @composer-2.0.2
 | gearman | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | geospatial | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gettext | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| gmagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| gmagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gnupg | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | grpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
