@@ -514,6 +514,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgearman[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgearman-dev"
 				;;
+			geoip@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent geoip"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile geoip-dev"
+				;;
+			geoip@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgeoip1[0-9]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgeoip-dev"
+				;;
 			gettext@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libintl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gettext-dev"
@@ -1565,6 +1573,11 @@ installRemoteModule() {
 					fi
 					;;
 			esac
+			;;
+		geoip)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=beta
+			fi
 			;;
 		geospatial)
 			if test -z "$installRemoteModule_version"; then
