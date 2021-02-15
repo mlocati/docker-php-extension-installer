@@ -117,7 +117,7 @@ install-php-extensions @composer-2.0.2
 | gettext | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gmagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gmp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| gnupg | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| gnupg | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | grpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | http | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | igbinary | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
