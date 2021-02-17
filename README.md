@@ -105,7 +105,7 @@ install-php-extensions @composer-2.0.2
 | calendar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | cmark |  |  | &check; | &check; | &check; | &check; | &check; |  |
 | dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| decimal |  |  | &check; | &check; | &check; | &check; | &check; |  |
+| decimal |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | enchant[*](#special-requirements-for-enchant) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
