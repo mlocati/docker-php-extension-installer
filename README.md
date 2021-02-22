@@ -106,6 +106,7 @@ install-php-extensions @composer-2.0.2
 | cmark |  |  | &check; | &check; | &check; | &check; | &check; |  |
 | dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | decimal |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
+| ds |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | enchant[*](#special-requirements-for-enchant) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -195,7 +196,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 97*
+*Number of supported extensions: 98*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
