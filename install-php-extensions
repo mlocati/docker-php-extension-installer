@@ -884,6 +884,23 @@ buildRequiredPackageLists() {
 			tdlib@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib1g-dev $buildRequiredPackageLists_libssldev"
 				;;
+			tensor@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent lapack libexecinfo openblas"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile lapack-dev libexecinfo-dev openblas-dev"
+				if test $DISTRO_MAJMIN_VERSION -le 310; then
+					if ! stringInList --force-overwrite "$IPE_APK_FLAGS"; then
+						IPE_APK_FLAGS="$IPE_APK_FLAGS --force-overwrite"
+					fi
+				fi
+				;;
+			tensor@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblapacke libopenblas-base"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblapack-dev libopenblas-dev liblapacke-dev"
+				if test $DISTRO_VERSION_NUMBER -ge 10; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-8"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-8-dev"
+				fi
+				;;
 			tidy@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile tidyhtml-dev"
@@ -1103,7 +1120,7 @@ setTargetTriplet() {
 #   The number of processors to be used
 getCompilationProcessorCount() {
 	case "$1" in
-		amqp | bcmath | bz2 | calendar | decimal | excimer | exif | gd | geospatial | gettext | gmagick | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | raphf | redis | ssh2 | soap | sockets | tidy | xdebug | xmlrpc | xsl | yaml | zip)
+		amqp | bcmath | bz2 | calendar | decimal | excimer | exif | gd | geospatial | gettext | gmagick | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | raphf | redis | ssh2 | soap | sockets | tensor | tidy | xdebug | xmlrpc | xsl | yaml | zip)
 			# These extensions support parallel compilation
 			getProcessorCount
 			;;
@@ -1125,7 +1142,7 @@ installRequiredPackages() {
 
 	case "$DISTRO" in
 		alpine)
-			apk add $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
+			apk add $IPE_APK_FLAGS $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
 			;;
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
@@ -2444,6 +2461,7 @@ mkdir -p /tmp/src
 mkdir -p /tmp/pickle.tmp
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 CONFIGURE_FILE=/tmp/configure-options
+IPE_APK_FLAGS=''
 setDistro
 case "$DISTRO_VERSION" in
 	debian@8)
