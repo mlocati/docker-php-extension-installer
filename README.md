@@ -104,6 +104,7 @@ install-php-extensions @composer-2.0.2
 | bz2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | calendar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | cmark |  |  | &check; | &check; | &check; | &check; | &check; |  |
+| csv |  |  |  |  |  | &check; | &check; | &check; |
 | dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | decimal |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | ds |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -196,7 +197,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 98*
+*Number of supported extensions: 99*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
