@@ -12,7 +12,7 @@ on:
       - readme-release
 
 jobs:
-  create-and-release:
+  readme-release:
     runs-on: ubuntu-latest
     env:
       VERSIONTAG_THIS: ""
@@ -162,7 +162,7 @@ jobs:
         run: docker build --tag "mlocati/php-extension-installer:$VERSIONTAG_THIS" --tag mlocati/php-extension-installer:latest .
       - name: Push docker image to Docker Hub
         if: env.VERSIONTAG_THIS != ''
-        run: docker push mlocati/php-extension-installer
+        run: docker push --all-tags mlocati/php-extension-installer
       - name: Create release
         id: create_release
         if: env.VERSIONTAG_THIS != ''
