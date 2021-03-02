@@ -246,7 +246,7 @@ zlib
 
 ## Special requirements
 
-Some extension has special requirements:
+Some extensions have special requirements:
 
 <!-- START OF SPECIAL REQUIREMENTS -->
 <!-- ########################################################### -->
