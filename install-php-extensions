@@ -1914,17 +1914,8 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=0.13
-				elif test $PHP_MAJMIN_VERSION -le 704; then
-					installRemoteModule_version=beta
 				else
-					installRemoteModule_src="$(getPackageSource https://codeload.github.com/php/pecl-networking-ssh2/tar.gz/93265d71bdeb23350e8320126c7949ed791310df)"
-					cd -- "$installRemoteModule_src"
-					phpize
-					./configure
-					make -j$(getCompilationProcessorCount)
-					make install
-					cd - >/dev/null
-					installRemoteModule_manuallyInstalled=1
+					installRemoteModule_version=beta
 				fi
 			fi
 			;;
