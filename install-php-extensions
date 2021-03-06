@@ -355,8 +355,10 @@ checkRequiredModule() {
 sortModulesToInstall() {
 	# apcu_bc requires apcu
 	checkRequiredModule 'apcu_bc' 'apcu'
-	# http requires propro and raphf
-	checkRequiredModule 'http' 'propro'
+	# http requires propro (for PHP < 8) and raphf
+	if test $PHP_MAJMIN_VERSION -le 704; then
+		checkRequiredModule 'http' 'propro'
+	fi
 	checkRequiredModule 'http' 'raphf'
 	# Some module installation may use igbinary if available: move it before other modules
 	if stringInList 'igbinary' "$PHP_MODULES_TO_INSTALL"; then
@@ -1101,7 +1103,7 @@ setTargetTriplet() {
 #   The number of processors to be used
 getCompilationProcessorCount() {
 	case "$1" in
-		amqp | bcmath | bz2 | calendar | decimal | excimer | exif | gd | geospatial | gettext | gmagick | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | redis | ssh2 | soap | sockets | tidy | xdebug | xmlrpc | xsl | yaml | zip)
+		amqp | bcmath | bz2 | calendar | decimal | excimer | exif | gd | geospatial | gettext | gmagick | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | raphf | redis | ssh2 | soap | sockets | tidy | xdebug | xmlrpc | xsl | yaml | zip)
 			# These extensions support parallel compilation
 			getProcessorCount
 			;;
