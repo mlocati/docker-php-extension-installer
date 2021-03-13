@@ -17,3 +17,91 @@ Once that draft release has been created, you have to:
 2. edit the newly created draft release
 3. review the release notes
 4. publish the release
+
+# Extensions to be monitored
+
+## amqp
+
+For PHP 8+ we currenly install the `amqp` PHP extension from a specific git commit.
+We should switch to the normal pecl/pickle approach when we have a new release.
+
+## cmark
+
+The `cmark` PHP extension requires the `libcmark` system library.
+It's not available on Debian/Alpine Linux, so we install it maually.
+We need to monitor new releases at https://github.com/commonmark/cmark/releases
+
+## decimal
+
+The `decimal` PHP extension requires the `libmpdec` system library.
+It's not available on Alpine Linux, so we install it manually.
+We need to monitor new releases at https://www.bytereef.org/mpdecimal/changelog.html
+
+## gearman
+
+The `gearman` PHP extension requires the `libgearman` system library.
+It's not available on Alpine Linux, so we install it manually.
+We need to monitor new releases at https://github.com/gearman/gearmand/releases
+
+## geoip
+
+The latest stable release of the `gearman` PHP extension is very old, so we install the latest beta release.
+We should switch to the stable release once it will be available.
+
+## geospatial
+
+The only available versions of the `geospatial` PHP extension are all beta.
+We should switch to the stable release once it will be available.
+
+## gmagick
+
+The only available versions of the `gmagick` PHP extension are all alpha/beta.
+We should switch to the stable release once it will be available.
+
+## http
+
+The `http` PHP extension may use the `libidnkit` system library since version 3.0.0.
+It's not available on Alpine Linux, so we install it manually.
+We need to monitor new releases at https://jprs.co.jp/idn
+
+## imagick
+
+For PHP 8+ we currenly install the `imagick` PHP extension from a specific git commit.
+We should switch to the normal pecl/pickle approach when we have a new release.
+
+## ionCube Loader
+
+The `ionCube Loader` PHP extension is not available in the PECL archive, so we install it manually.
+We need to monitor new releases at https://www.ioncube.com/news.php
+
+## mosquitto
+
+The only available versions of the `mosquitto` PHP extension are all alpha/beta.
+We should switch to the stable release once it will be available.
+
+## opencensus
+
+The latest available version of the `opencensus` PHP extension is not compatible with PHP 7.3+.
+We manually patch the latest version to make it compatible with PHP 7.3 and PHP 7.4.
+We should switch to the stable release once it will be available.
+
+## pdo_sqlsrv / sqlsrv
+
+The `pdo_sqlsrv` and `sqlsrv` PHP extensions require the Microsoft ODBC Driver for SQL Server.
+On Alpine Linux there's no way to automatically install its latest version, so we install it manually.
+We need to monitor new releases at https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17
+
+## snuffleupagus
+
+The `snuffleupagus` PHP extension is not available in the PECL archive, so we install it manually.
+We need to monitor new releases at https://github.com/jvoisin/snuffleupagus/releases
+
+## ssh2
+
+The latest stable release of the `ssh2` PHP extension is very old, so we install the latest beta release.
+We should switch to the stable release once it will be available.
+
+## zookeeper
+
+The latest stable release of the `zookeeper` PHP extension doesn't support PHP 7.3+, so we install the beta version.
+We should switch to the stable release once it will be available.
