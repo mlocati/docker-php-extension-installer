@@ -1766,7 +1766,7 @@ installRemoteModule() {
 			;;
 		mosquitto)
 			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version=0.4.0
+				installRemoteModule_version=beta
 			fi
 			;;
 		msgpack)
