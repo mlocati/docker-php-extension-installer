@@ -1657,7 +1657,7 @@ installRemoteModule() {
 			;;
 		igbinary)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=2.0.8
 				fi
 			fi
@@ -1698,23 +1698,23 @@ installRemoteModule() {
 			;;
 		mailparse)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=2.1.6
 				fi
 			fi
 			;;
 		memcache)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=2.2.7
-				elif test $PHP_MAJMIN_VERSION -lt 800; then
+				elif test $PHP_MAJMIN_VERSION -le 704; then
 					installRemoteModule_version=4.0.5.2
 				fi
 			fi
 			;;
 		memcached)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=2.2.0
 				fi
 			fi
@@ -1812,7 +1812,7 @@ installRemoteModule() {
 			;;
 		pcov)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 701; then
+				if test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=0.9.0
 				fi
 			fi
@@ -1836,28 +1836,28 @@ installRemoteModule() {
 			;;
 		propro)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=1.0.2
 				fi
 			fi
 			;;
 		protobuf)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=3.12.4
 				fi
 			fi
 			;;
 		pthreads)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=2.0.10
 				fi
 			fi
 			;;
 		raphf)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=1.1.2
 				fi
 			fi
@@ -2118,9 +2118,9 @@ installRemoteModule() {
 			;;
 		uopz)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=2.0.7
-				elif test $PHP_MAJMIN_VERSION -lt 701; then
+				elif test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=5.0.2
 				fi
 			fi
@@ -2164,9 +2164,9 @@ installRemoteModule() {
 			;;
 		yaml)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=1.3.1
-				elif test $PHP_MAJMIN_VERSION -lt 701; then
+				elif test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=2.0.4
 				fi
 			fi
@@ -2209,9 +2209,9 @@ installRemoteModule() {
 					;;
 			esac
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=0.5.0
-				elif test $PHP_MAJMIN_VERSION -gt 702; then
+				elif test $PHP_MAJMIN_VERSION -ge 703; then
 					installRemoteModule_version=beta
 				fi
 			fi
