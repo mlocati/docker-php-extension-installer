@@ -1817,23 +1817,6 @@ installRemoteModule() {
 				fi
 			fi
 			;;
-		pdo_sqlsrv | sqlsrv)
-			if test -z "$installRemoteModule_version"; then
-				# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
-				if test $PHP_MAJMIN_VERSION -le 506; then
-					installRemoteModule_version=3.0.1
-				elif test $PHP_MAJMIN_VERSION -le 700; then
-					installRemoteModule_version=5.3.0
-				elif test $PHP_MAJMIN_VERSION -le 701; then
-					installRemoteModule_version=5.6.1
-				elif test $PHP_MAJMIN_VERSION -le 702; then
-					installRemoteModule_version=5.8.1
-				fi
-			fi
-			if ! isMicrosoftSqlServerODBCInstalled; then
-				installMicrosoftSqlServerODBC
-			fi
-			;;
 		propro)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
@@ -1945,6 +1928,23 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=2.4.0
 				fi
+			fi
+			;;
+		sqlsrv | pdo_sqlsrv)
+			if test -z "$installRemoteModule_version"; then
+				# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=3.0.1
+				elif test $PHP_MAJMIN_VERSION -le 700; then
+					installRemoteModule_version=5.3.0
+				elif test $PHP_MAJMIN_VERSION -le 701; then
+					installRemoteModule_version=5.6.1
+				elif test $PHP_MAJMIN_VERSION -le 702; then
+					installRemoteModule_version=5.8.1
+				fi
+			fi
+			if ! isMicrosoftSqlServerODBCInstalled; then
+				installMicrosoftSqlServerODBC
 			fi
 			;;
 		ssh2)
