@@ -85,16 +85,16 @@ The latest available version of the `opencensus` PHP extension is not compatible
 We manually patch the latest version to make it compatible with PHP 7.3 and PHP 7.4.
 We should switch to the stable release once it will be available.
 
-### pdo_sqlsrv / sqlsrv
-
-The `pdo_sqlsrv` and `sqlsrv` PHP extensions require the Microsoft ODBC Driver for SQL Server.
-On Alpine Linux there's no way to automatically install its latest version, so we install it manually.
-We need to monitor new releases at https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17
-
 ### snuffleupagus
 
 The `snuffleupagus` PHP extension is not available in the PECL archive, so we install it manually.
 We need to monitor new releases at https://github.com/jvoisin/snuffleupagus/releases
+
+### sqlsrv / pdo_sqlsrv 
+
+The `pdo_sqlsrv` and `sqlsrv` PHP extensions require the Microsoft ODBC Driver for SQL Server.
+On Alpine Linux there's no way to automatically install its latest version, so we install it manually.
+We need to monitor new releases at https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17
 
 ### ssh2
 
