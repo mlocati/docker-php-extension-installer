@@ -1366,7 +1366,7 @@ EOF
 					if ! test -d /tmp/src/firebird; then
 						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R2_5_9/Firebird-2.5.9.27139-0.tar.bz2)" /tmp/src/firebird
 						cd /tmp/src/firebird
-						#Patch rwlock.h (this has been fixed in later release of firebird 3.x)
+						# Patch rwlock.h (this has been fixed in later release of firebird 3.x)
 						sed -i '194s/.*/#if 0/' src/common/classes/rwlock.h
 						./configure --with-system-icu
 						# -j option can't be used: make targets must be compiled sequentially
@@ -1996,7 +1996,7 @@ installRemoteModule() {
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 			elif test $(compareVersions "$installRemoteModule_version" 4.2.11) -ge 0; then
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2007,7 +2007,7 @@ installRemoteModule() {
 				# enable postgresql coroutine client support?
 				addConfigureOption enable-coroutine-postgresql yes
 			elif test $(compareVersions "$installRemoteModule_version" 4.2.7) -ge 0; then
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2022,7 +2022,7 @@ installRemoteModule() {
 			elif test $(compareVersions "$installRemoteModule_version" 4.2.6) -ge 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-debug-log no
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2035,7 +2035,7 @@ installRemoteModule() {
 			elif test $(compareVersions "$installRemoteModule_version" 4.2.0) -ge 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-debug-log no
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2050,7 +2050,7 @@ installRemoteModule() {
 			elif test $(compareVersions "$installRemoteModule_version" 2.1.2) -ge 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-swoole-debug no
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2065,7 +2065,7 @@ installRemoteModule() {
 			elif test $(compareVersions "$installRemoteModule_version" 1.10.4) -ge 0 && test $(compareVersions "$installRemoteModule_version" 1.10.5) -le 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-swoole-debug no
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
