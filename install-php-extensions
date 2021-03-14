@@ -707,11 +707,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unzip"
 				;;
-			odbc@alpine)
+			odbc@alpine | pdo_odbc@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
-			odbc@debian)
+			odbc@debian | pdo_odbc@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
@@ -730,27 +730,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
 				;;
-			pdo_odbc@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unixodbc"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
-				;;
-			pdo_odbc@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
-				;;
-			pdo_pgsql@alpine)
+			pgsql@alpine | pdo_pgsql@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
 				;;
-			pdo_pgsql@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
-				;;
-			pgsql@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
-				;;
-			pgsql@debian)
+			pgsql@debian | pdo_pgsql@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
 				;;
@@ -1120,13 +1104,13 @@ setTargetTriplet() {
 #   The number of processors to be used
 getCompilationProcessorCount() {
 	case "$1" in
-		amqp | bcmath | bz2 | calendar | decimal | excimer | exif | gd | geospatial | gettext | gmagick | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | raphf | redis | ssh2 | soap | sockets | tensor | tidy | xdebug | xmlrpc | xsl | yaml | zip)
-			# These extensions support parallel compilation
-			getProcessorCount
+		'')
+			# The above extensions don't support parallel compilation
+			echo 1
 			;;
 		*)
-			# We don't know - it's safer to disable parallel compilation
-			echo 1
+			# All the other extensions support parallel compilation
+			getProcessorCount
 			;;
 	esac
 }
@@ -1382,7 +1366,7 @@ EOF
 					if ! test -d /tmp/src/firebird; then
 						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R2_5_9/Firebird-2.5.9.27139-0.tar.bz2)" /tmp/src/firebird
 						cd /tmp/src/firebird
-						#Patch rwlock.h (this has been fixed in later release of firebird 3.x)
+						# Patch rwlock.h (this has been fixed in later release of firebird 3.x)
 						sed -i '194s/.*/#if 0/' src/common/classes/rwlock.h
 						./configure --with-system-icu
 						# -j option can't be used: make targets must be compiled sequentially
@@ -1817,23 +1801,6 @@ installRemoteModule() {
 				fi
 			fi
 			;;
-		pdo_sqlsrv | sqlsrv)
-			if test -z "$installRemoteModule_version"; then
-				# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
-				if test $PHP_MAJMIN_VERSION -le 506; then
-					installRemoteModule_version=3.0.1
-				elif test $PHP_MAJMIN_VERSION -le 700; then
-					installRemoteModule_version=5.3.0
-				elif test $PHP_MAJMIN_VERSION -le 701; then
-					installRemoteModule_version=5.6.1
-				elif test $PHP_MAJMIN_VERSION -le 702; then
-					installRemoteModule_version=5.8.1
-				fi
-			fi
-			if ! isMicrosoftSqlServerODBCInstalled; then
-				installMicrosoftSqlServerODBC
-			fi
-			;;
 		propro)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
@@ -1947,6 +1914,23 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		sqlsrv | pdo_sqlsrv)
+			if test -z "$installRemoteModule_version"; then
+				# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=3.0.1
+				elif test $PHP_MAJMIN_VERSION -le 700; then
+					installRemoteModule_version=5.3.0
+				elif test $PHP_MAJMIN_VERSION -le 701; then
+					installRemoteModule_version=5.6.1
+				elif test $PHP_MAJMIN_VERSION -le 702; then
+					installRemoteModule_version=5.8.1
+				fi
+			fi
+			if ! isMicrosoftSqlServerODBCInstalled; then
+				installMicrosoftSqlServerODBC
+			fi
+			;;
 		ssh2)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
@@ -2012,7 +1996,7 @@ installRemoteModule() {
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 			elif test $(compareVersions "$installRemoteModule_version" 4.2.11) -ge 0; then
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2023,7 +2007,7 @@ installRemoteModule() {
 				# enable postgresql coroutine client support?
 				addConfigureOption enable-coroutine-postgresql yes
 			elif test $(compareVersions "$installRemoteModule_version" 4.2.7) -ge 0; then
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2038,7 +2022,7 @@ installRemoteModule() {
 			elif test $(compareVersions "$installRemoteModule_version" 4.2.6) -ge 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-debug-log no
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2051,7 +2035,7 @@ installRemoteModule() {
 			elif test $(compareVersions "$installRemoteModule_version" 4.2.0) -ge 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-debug-log no
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2066,7 +2050,7 @@ installRemoteModule() {
 			elif test $(compareVersions "$installRemoteModule_version" 2.1.2) -ge 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-swoole-debug no
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -2081,7 +2065,7 @@ installRemoteModule() {
 			elif test $(compareVersions "$installRemoteModule_version" 1.10.4) -ge 0 && test $(compareVersions "$installRemoteModule_version" 1.10.5) -le 0; then
 				# enable debug/trace log support?
 				addConfigureOption enable-swoole-debug no
-				#enable sockets supports?
+				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
