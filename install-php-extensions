@@ -730,19 +730,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
 				;;
-			pdo_pgsql@alpine)
+			pgsql@alpine | pdo_pgsql@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
 				;;
-			pdo_pgsql@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
-				;;
-			pgsql@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
-				;;
-			pgsql@debian)
+			pgsql@debian | pdo_pgsql@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
 				;;
