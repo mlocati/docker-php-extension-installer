@@ -1104,13 +1104,13 @@ setTargetTriplet() {
 #   The number of processors to be used
 getCompilationProcessorCount() {
 	case "$1" in
-		amqp | bcmath | bz2 | calendar | decimal | excimer | exif | gd | geospatial | gettext | gmagick | grpc | http | imagick | intl | mysqli | opcache | pcntl | pdo_mysql | protobuf | raphf | redis | ssh2 | soap | sockets | tensor | tidy | xdebug | xmlrpc | xsl | yaml | zip)
-			# These extensions support parallel compilation
-			getProcessorCount
+		'')
+			# The above extensions don't support parallel compilation
+			echo 1
 			;;
 		*)
-			# We don't know - it's safer to disable parallel compilation
-			echo 1
+			# All the other extensions support parallel compilation
+			getProcessorCount
 			;;
 	esac
 }
