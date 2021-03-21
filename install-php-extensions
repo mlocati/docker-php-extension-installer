@@ -548,7 +548,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gpgme-dev"
 				;;
 			gnupg@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_volatile libgpgme[0-9]*$"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgpgme[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgpgme[0-9]*-dev"
 				;;
 			grpc@alpine)
