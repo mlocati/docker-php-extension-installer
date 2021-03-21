@@ -18,17 +18,6 @@ With the first method you are sure you'll always get the very latest version of 
 
 For example, here are two `Dockerfile`s that install the GD and xdebug PHP extensions:
 
-### Downloading the script on the fly
-
-```Dockerfile
-FROM php:7.2-cli
-
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-
-RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
-    install-php-extensions gd xdebug
-```
-
 ### Copying the script from a Docker image
 
 ```Dockerfile
