@@ -1289,7 +1289,35 @@ installComposer() {
 		fi
 	fi
 	printf '### INSTALLING %s ###\n' "$installComposer_fullname"
-	curl -sSLf https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer $installComposer_flags
+	actuallyInstallComposer /usr/local/bin composer "$installComposer_flags"
+}
+
+# Actually install composer
+#
+# Arguments:
+#   $1: the directory where composer should be installed (required)
+#   $2: the composer filename (optional, default: composer)
+#   $3. additional flags for the composer installed (optional)
+actuallyInstallComposer() {
+	actuallyInstallComposer_installer="$(mktemp -p /tmp/src)"
+	curl -sSLf -o "$actuallyInstallComposer_installer" https://getcomposer.org/installer
+	actuallyInstallComposer_expectedSignature="$(curl -sSLf https://composer.github.io/installer.sig)"
+	actuallyInstallComposer_actualSignature="$(php -n -r "echo hash_file('sha384', '$actuallyInstallComposer_installer');")"
+	if test "$actuallyInstallComposer_expectedSignature" != "$actuallyInstallComposer_actualSignature"; then
+		printf 'Verification of composer installer failed!\nExpected signature: %s\nActual signature: %s\n' "$actuallyInstallComposer_expectedSignature" "$actuallyInstallComposer_actualSignature" >&2
+		exit 1
+	fi
+	actuallyInstallComposer_flags="--install-dir=$1"
+	if test -n "${2:-}"; then
+		actuallyInstallComposer_flags="$actuallyInstallComposer_flags --filename=$2"
+	else
+		actuallyInstallComposer_flags="$actuallyInstallComposer_flags --filename=composer"
+	fi
+	if test -n "${3:-}"; then
+		actuallyInstallComposer_flags="$actuallyInstallComposer_flags $3"
+	fi
+	php "$actuallyInstallComposer_installer" $actuallyInstallComposer_flags
+	rm -- "$actuallyInstallComposer_installer"
 }
 
 # Install a bundled PHP module given its handle
@@ -2278,7 +2306,7 @@ buildPickle() {
 	git tag 0.7.0
 	printf 'done.\n'
 	printf 'Installing composer... '
-	curl -sSLf https://getcomposer.org/installer | php -- --quiet --install-dir=. --filename=composer --1
+	actuallyInstallComposer . composer '--1 --quiet'
 	printf 'done.\n'
 	printf 'Installing composer dependencies... '
 	./composer install --no-dev --no-progress --no-suggest --optimize-autoloader --ignore-platform-reqs --quiet --no-cache
