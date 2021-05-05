@@ -187,6 +187,7 @@ install-php-extensions @composer-2.0.2
 | timezonedb | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | uopz | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | uuid | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| vips[*](#special-requirements-for-vips) |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -199,7 +200,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 101*
+*Number of supported extensions: 102*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
@@ -264,6 +265,7 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-pdo_sqlsrv"></a>pdo_sqlsrv | &bull; Not available in `7.0-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.8` docker images<br />&bull; Not available in `7.2-alpine3.7` docker images<br />&bull; Not available in `7.2-alpine3.8` docker images<br />&bull; Not available in `7.3-alpine3.8` docker images |
 | <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 | <a name="special-requirements-for-sqlsrv"></a>sqlsrv | &bull; Not available in `7.0-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.8` docker images<br />&bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.1-alpine3.10` docker images<br />&bull; Not available in `7.2-alpine3.7` docker images<br />&bull; Not available in `7.2-alpine3.8` docker images<br />&bull; Not available in `7.3-alpine3.8` docker images |
+| <a name="special-requirements-for-vips"></a>vips | &bull; Not available in `7.0-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.7` docker images<br />&bull; Not available in `7.2-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.8` docker images<br />&bull; Not available in `7.2-alpine3.8` docker images<br />&bull; Not available in `7.3-alpine3.8` docker images<br />&bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.2-alpine3.9` docker images<br />&bull; Not available in `7.3-alpine3.9` docker images<br />&bull; Not available in `7.0-jessie` docker images<br />&bull; Not available in `7.1-jessie` docker images<br />&bull; Not available in `7.2-jessie` docker images |
 <!-- END OF SPECIAL REQUIREMENTS -->
 
 ## Tests
