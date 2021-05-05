@@ -900,6 +900,14 @@ buildRequiredPackageLists() {
 			uuid@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile uuid-dev"
 				;;
+			vips@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent vips"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile vips-dev"
+				;;
+			vips@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libvips"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libvips-dev"
+				;;
 			wddx@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
