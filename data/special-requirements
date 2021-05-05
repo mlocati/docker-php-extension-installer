@@ -3,3 +3,4 @@ parallel zts
 pdo_sqlsrv !7.0-alpine3.7 !7.1-alpine3.7 !7.1-alpine3.8 !7.2-alpine3.7 !7.2-alpine3.8 !7.3-alpine3.8
 pthreads zts
 sqlsrv !7.0-alpine3.7 !7.1-alpine3.7 !7.1-alpine3.8 !7.1-alpine3.9 !7.1-alpine3.10 !7.2-alpine3.7 !7.2-alpine3.8 !7.3-alpine3.8
+vips !7.0-alpine3.7 !7.1-alpine3.7 !7.2-alpine3.7 !7.1-alpine3.8 !7.2-alpine3.8 !7.3-alpine3.8 !7.1-alpine3.9 !7.2-alpine3.9 !7.3-alpine3.9 !7.0-jessie !7.1-jessie !7.2-jessie
