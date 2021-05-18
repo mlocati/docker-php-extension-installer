@@ -100,6 +100,7 @@ install-php-extensions @composer-2.0.2
 | amqp | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | apcu | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | apcu_bc |  |  | &check; | &check; | &check; | &check; | &check; |  |
+| ast |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | bcmath | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | bz2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | calendar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -200,7 +201,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 102*
+*Number of supported extensions: 103*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
