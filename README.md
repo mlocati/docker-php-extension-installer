@@ -127,6 +127,7 @@ install-php-extensions @composer-2.0.2
 | igbinary | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | imagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | imap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| inotify | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | interbase | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | intl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ioncube_loader | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
@@ -201,7 +202,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 103*
+*Number of supported extensions: 104*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
