@@ -2147,8 +2147,6 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 703; then
 					installRemoteModule_version=2.2.3
-				elif test $PHP_MAJMIN_VERSION -ge 800; then
-					installRemoteModule_version=beta
 				fi
 			fi
 			;;
