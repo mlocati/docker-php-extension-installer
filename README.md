@@ -149,7 +149,7 @@ install-php-extensions @composer-2.0.2
 | oci8 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| opencensus |  |  | &check; | &check; | &check; | &check; | &check; |  |
+| opencensus |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | parallel[*](#special-requirements-for-parallel) |  |  |  | &check; | &check; | &check; | &check; |  |
 | pcntl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pcov |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
