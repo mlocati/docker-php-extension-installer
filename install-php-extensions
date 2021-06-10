@@ -1811,23 +1811,8 @@ installRemoteModule() {
 			fi
 			;;
 		opencensus)
-			if test $PHP_MAJMIN_VERSION -le 702; then
-				if test -z "$installRemoteModule_version"; then
-					installRemoteModule_version=alpha
-				fi
-			else
-				installRemoteModule_manuallyInstalled=1
-				if test -z "$installRemoteModule_version"; then
-					installRemoteModule_src="$(getPackageSource https://pecl.php.net/get/opencensus)"
-				else
-					installRemoteModule_src="$(getPackageSource https://pecl.php.net/get/opencensus-$installRemoteModule_version)"
-				fi
-				cd "$installRemoteModule_src"/opencensus-*
-				find . -name '*.c' -type f -exec sed -i 's/\bZVAL_DESTRUCTOR\b/zval_dtor/g' {} +
-				phpize
-				./configure
-				make install
-				cd - >/dev/null
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=alpha
 			fi
 			;;
 		parallel)
