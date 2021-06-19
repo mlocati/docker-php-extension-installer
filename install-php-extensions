@@ -580,7 +580,7 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			imagick@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent imagemagick"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent imagemagick libgomp"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile imagemagick-dev"
 				;;
 			imagick@debian)
