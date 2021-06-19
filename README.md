@@ -248,6 +248,14 @@ zlib
 [Zend Modules]
 ```
 
+## Configuration
+
+The compilation of some extensions may be fine-tuned to better fit your needs by using environment variables:
+
+| Extension | Environment variable | Description |
+|---|---|---|
+| lzf | IPE_LZF_BETTERCOMPRESSION=1 | By default `install-php-extensions` compiles the `lzf` extension to prefer speed over size; you can use this environment variable to compile it preferring size over speed  |
+
 ## Special requirements
 
 Some extensions have special requirements:
