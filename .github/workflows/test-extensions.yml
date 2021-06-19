@@ -1,7 +1,7 @@
 name: Test extensions
 
 on:
-  - push
+  - pull_request
 
 jobs:
   check_syntax_data:
