@@ -1703,6 +1703,19 @@ installRemoteModule() {
 			cp "$installRemoteModule_src/$installRemoteModule_so" "$(getPHPExtensionsDir)/$installRemoteModule_module.so"
 			installRemoteModule_manuallyInstalled=1
 			;;
+		lzf)
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '1.5.0') -ge 0; then
+				# Sacrifice speed in favour of compression ratio?
+				case "${IPE_LZF_BETTERCOMPRESSION:-}" in
+					1 | y* | Y*)
+						addConfigureOption 'enable-lzf-better-compression' 'yes'
+						;;
+					*)
+						addConfigureOption 'enable-lzf-better-compression' 'no'
+						;;
+				esac
+			fi
+			;;
 		mailparse)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
