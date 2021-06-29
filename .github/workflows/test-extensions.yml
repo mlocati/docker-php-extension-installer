@@ -3,7 +3,6 @@ name: Test extensions
 on:
   - pull_request
 
-
 jobs:
   check_syntax_data:
     name: Check data syntax
