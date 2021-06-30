@@ -133,6 +133,7 @@ install-php-extensions @composer-2.0.2
 | ioncube_loader | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | json_post | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ldap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| lzf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mailparse | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | maxminddb |  |  |  |  | &check; | &check; | &check; | &check; |
 | mcrypt | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -202,7 +203,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 104*
+*Number of supported extensions: 105*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
@@ -247,6 +248,14 @@ zlib
 
 [Zend Modules]
 ```
+
+## Configuration
+
+The compilation of some extensions may be fine-tuned to better fit your needs by using environment variables:
+
+| Extension | Environment variable | Description |
+|---|---|---|
+| lzf | IPE_LZF_BETTERCOMPRESSION=1 | By default `install-php-extensions` compiles the `lzf` extension to prefer speed over size; you can use this environment variable to compile it preferring size over speed  |
 
 ## Special requirements
 
