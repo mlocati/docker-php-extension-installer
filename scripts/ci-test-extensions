@@ -4,6 +4,22 @@
 set -o errexit
 set -o nounset
 
+# Check if we should use a specific PHP version for a specific distribution
+#
+# Arguments:
+# $1: the distribution
+# $2: the PHP version
+shouldProcessPhpVersionForDistro() {
+	case "$2@$1" in
+		8.1@alpine3.12)
+			return 1
+			;;
+		*)
+			return 0
+			;;
+	esac
+}
+
 # Extract the extensions to be tested from commit messages
 #
 # Update: EXTENSIONS_TO_BE_TESTED
@@ -108,8 +124,11 @@ filterUnsupportedExensionsForDistro() {
 # $2: the PHP version
 #
 # Outputs:
-# the full docker image ID
+# the full docker image ID (if exists/is usable)
 getDockerImageName() {
+	if ! shouldProcessPhpVersionForDistro "$DOCKER_DISTRO" "$2"; then
+		return
+	fi
 	case "$2" in
 		8.1)
 			getDockerImageName_version="$2-rc"
@@ -141,7 +160,6 @@ getDockerImageName() {
 		getDockerImageName_log="$(docker pull "$getDockerImageName_imageName" 2>&1 || true)"
 		if test -z "$(docker images -q "$getDockerImageName_imageName" 2>/dev/null)"; then
 			if test "${getDockerImageName_log#*manifest unknown}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*manifest for * not found}" != "$getDockerImageName_log"; then
-				true
 				return
 			fi
 			printf '%s\n' "$getDockerImageName_log" >&2
