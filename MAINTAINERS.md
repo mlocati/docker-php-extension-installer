@@ -103,5 +103,5 @@ We should switch to the stable release once it will be available.
 
 ### zookeeper
 
-The latest stable release of the `zookeeper` PHP extension doesn't support PHP 7.3+, so we install the beta version.
+The latest stable release of the `zookeeper` PHP extension doesn't support PHP 7.3+, so we install the alpha version.
 We should switch to the stable release once it will be available.
