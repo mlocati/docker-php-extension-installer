@@ -410,10 +410,15 @@ buildRequiredPackageLists() {
 			fi
 			if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
 				buildRequiredPackageLists_libssl='libssl1.0'
-			elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')"; then
+			elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')" && test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libssl')" && test -z "$(apk info 2>/dev/null | grep -E '^libretls-')"; then
 				buildRequiredPackageLists_libssl=$(apk search -q libressl*-libtls)
 			else
 				buildRequiredPackageLists_libssl=''
+			fi
+			if test $DISTRO_MAJMIN_VERSION -le 313; then
+				buildRequiredPackageLists_libssldev='libressl-dev'
+			else
+				buildRequiredPackageLists_libssldev='libretls-dev'
 			fi
 			;;
 		debian@9)
@@ -589,7 +594,7 @@ buildRequiredPackageLists() {
 				;;
 			imap@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-client $buildRequiredPackageLists_libssl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev libressl-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev $buildRequiredPackageLists_libssldev"
 				;;
 			imap@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-client2007e"
@@ -657,14 +662,14 @@ buildRequiredPackageLists() {
 				;;
 			mongo@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsasl $buildRequiredPackageLists_libssl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libressl-dev cyrus-sasl-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev cyrus-sasl-dev"
 				;;
 			mongo@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libsasl2-dev"
 				;;
 			mongodb@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl $buildRequiredPackageLists_libssl snappy"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev libressl-dev zlib-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev $buildRequiredPackageLists_libssldev zlib-dev"
 				;;
 			mongodb@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsnappy[0-9]+(v[0-9]+)?$ libicu[0-9]+$"
@@ -847,7 +852,7 @@ buildRequiredPackageLists() {
 				;;
 			swoole@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs libstdc++ $buildRequiredPackageLists_libssl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev postgresql-dev linux-headers libressl-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev postgresql-dev linux-headers $buildRequiredPackageLists_libssldev"
 				;;
 			swoole@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
@@ -863,7 +868,7 @@ buildRequiredPackageLists() {
 				;;
 			tdlib@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ $buildRequiredPackageLists_libssl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib-dev libressl-dev linux-headers readline-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib-dev $buildRequiredPackageLists_libssldev linux-headers readline-dev"
 				;;
 			tdlib@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib1g-dev $buildRequiredPackageLists_libssldev"
@@ -951,7 +956,7 @@ buildRequiredPackageLists() {
 				;;
 			zip@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev libressl-dev zlib-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake gnutls-dev libzip-dev $buildRequiredPackageLists_libssldev zlib-dev"
 				;;
 			zip@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzip[0-9]$"
