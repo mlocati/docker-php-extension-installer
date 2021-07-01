@@ -80,7 +80,7 @@ jobs:
     name: Check on ${{ matrix.distro }}
     runs-on: ubuntu-latest
     env:
-      DOCKER_DISTRO: ${{ matrix.distro }}
+      IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
     steps:
       - name: Checkout
         uses: actions/checkout@v1
