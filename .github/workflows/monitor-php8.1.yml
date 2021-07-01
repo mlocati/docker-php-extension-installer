@@ -26,3 +26,10 @@ jobs:
         uses: actions/checkout@v1
       - name: Test extensions
         run: ./scripts/ci-test-extensions all
+      - name: Notify failures
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_TO }}
+          message: Testing packages against PHP 8.1 failed on https://github.com/mlocati/docker-php-extension-installer
