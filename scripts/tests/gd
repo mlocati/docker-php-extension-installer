@@ -3,9 +3,12 @@
 
 require_once __DIR__ . '/_bootstrap.php';
 
+echo 'Creating sample image... ';
 $imageWidth = 8;
 $imageHeight = 16;
 $image = imagecreatetruecolor($imageWidth, $imageHeight);
+echo "done.\n";
+
 $formats = [
     'gd2',
     'gif',
@@ -19,24 +22,29 @@ $formats = [
     'gd',
 ];
 if (PHP_VERSION_ID >= 70200) {
-    $formats = array_merge($formats, [
-        'bmp',
-    ]);
+    $formats[] = 'bmp';
+    if (PHP_VERSION_ID >= 80100) {
+        $formats[] = 'avif';
+    }
 }
 $tempFile = null;
 $image2 = null;
 
 try {
     foreach ($formats as $format) {
+        echo "Checking format {$format}... ";
         $loadFuntion = "imagecreatefrom{$format}";
         if (!function_exists($loadFuntion)) {
             throw new Exception("{$loadFuntion}() function is missing");
         }
-        if ($format === 'xpm') {
-            continue;
-        }
         $saveFuntion = "image{$format}";
         if (!function_exists($saveFuntion)) {
+            if ($format === 'xpm') {
+                echo "skipping tests since PHP can't save images to that format.\n";
+
+                continue;
+            }
+
             throw new Exception("{$saveFuntion}() function is missing");
         }
         $tempFile = tempnam(sys_get_temp_dir(), 'dpei');
@@ -62,6 +70,7 @@ try {
             throw new Exception("{$loadFuntion}() failed");
         }
         imagedestroy($image2);
+        echo "done.\n";
     }
     if (!function_exists('imagefttext')) {
         throw new Exception('imagefttext() function is missing');

@@ -553,6 +553,19 @@ buildRequiredPackageLists() {
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebp"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
+					if test $PHP_MAJMIN_VERSION -ge 801; then
+						if isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+						else
+							case "${IPE_GD_WITHOUTAVIF:-}" in
+								1 | y* | Y*) ;;
+								*)
+									buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+									buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake nasm meson"
+									;;
+							esac
+						fi
+					fi
 				fi
 				;;
 			gd@debian)
@@ -564,6 +577,16 @@ buildRequiredPackageLists() {
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libwebp[0-9]+$"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
+					if test $PHP_MAJMIN_VERSION -ge 801; then
+						if ! isLibaomInstalled || ! isLibdav1dInstalled || ! isLibyuvInstalled || ! isLibavifInstalled; then
+							case "${IPE_GD_WITHOUTAVIF:-}" in
+								1 | y* | Y*) ;;
+								*)
+									buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake nasm meson"
+									;;
+							esac
+						fi
+					fi
 				fi
 				;;
 			gearman@alpine)
@@ -1418,6 +1441,115 @@ installMicrosoftSqlServerODBC() {
 	esac
 }
 
+# Check if libaom is installed
+#
+# Return:
+#   0 (true)
+#   1 (false)
+isLibaomInstalled() {
+	if ! test -f /usr/local/lib/libaom.so && ! test -f /usr/lib/libaom.so; then
+		return 1
+	fi
+	if ! test -f /usr/local/include/aom/aom_codec.h && ! test -f /usr/include/aom/aom_codec.h; then
+		return 1
+	fi
+	return 0
+}
+
+# Install libaom
+installLibaom() {
+	printf 'Installing libaom\n'
+	installLibaom_dir="$(getPackageSource https://aomedia.googlesource.com/aom/+archive/v3.1.2.tar.gz)"
+	mkdir -- "$installLibaom_dir/my.build"
+	cd -- "$installLibaom_dir/my.build"
+	cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TESTDATA=0 -DENABLE_TESTS=0 -DENABLE_TOOLS=0 -DCMAKE_INSTALL_LIBDIR:PATH=lib ..
+	ninja -j $(getProcessorCount) install
+	cd - >/dev/null
+	ldconfig || true
+}
+
+# Check if libdav1d is installed
+#
+# Return:
+#   0 (true)
+#   1 (false)
+isLibdav1dInstalled() {
+	if ! test -f /usr/local/lib/libdav1d.so && ! test -f /usr/lib/libdav1d.so; then
+		return 1
+	fi
+	if ! test -f /usr/local/include/dav1d/dav1d.h && ! test -f /usr/include/dav1d/dav1d.h; then
+		return 1
+	fi
+	return 0
+}
+
+# Install libdav1d
+installLibdav1d() {
+	printf 'Installing libdav1d\n'
+	installLibdav1d_dir="$(getPackageSource https://code.videolan.org/videolan/dav1d/-/archive/0.9.2/dav1d-0.9.2.tar.gz)"
+	mkdir -- "$installLibdav1d_dir/build"
+	cd -- "$installLibdav1d_dir/build"
+	meson --buildtype release -Dprefix=/usr ..
+	ninja -j $(getProcessorCount) install
+	cd - >/dev/null
+	if test -f /usr/lib/$TARGET_TRIPLET/libdav1d.so && ! test -f /usr/lib/libdav1d.so; then
+		ln -s /usr/lib/$TARGET_TRIPLET/libdav1d.so /usr/lib/
+	fi
+	ldconfig || true
+}
+
+# Check if libyuv is installed
+#
+# Return:
+#   0 (true)
+#   1 (false)
+isLibyuvInstalled() {
+	if ! test -f /usr/local/lib/libyuv.so && ! test -f /usr/lib/libyuv.so; then
+		return 1
+	fi
+	if ! test -f /usr/local/include/libyuv.h && ! test -f /usr/include/libyuv.h; then
+		return 1
+	fi
+	return 0
+}
+
+# Install libyuv
+installLibyuv() {
+	printf 'Installing libyuv\n'
+	installLibyuv_dir="$(getPackageSource https://chromium.googlesource.com/libyuv/libyuv/+archive/refs/heads/main.tar.gz)"
+	mkdir -- "$installLibyuv_dir/build"
+	cd -- "$installLibyuv_dir/build"
+	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -B. ..
+	make -j$(getProcessorCount) install
+	cd - >/dev/null
+}
+
+# Check if libavif is installed
+#
+# Return:
+#   0 (true)
+#   1 (false)
+isLibavifInstalled() {
+	if ! test -f /usr/local/lib/libavif.so && ! test -f /usr/lib/libavif.so; then
+		return 1
+	fi
+	if ! test -f /usr/local/include/avif/avif.h && ! test -f /usr/include/avif/avif.h; then
+		return 1
+	fi
+	return 0
+}
+
+# Install libavif
+installLibavif() {
+	printf 'Installing libavif\n'
+	installLibavif_dir="$(getPackageSource https://codeload.github.com/AOMediaCodec/libavif/tar.gz/refs/tags/v0.9.2)"
+	mkdir -- "$installLibavif_dir/build"
+	cd -- "$installLibavif_dir/build"
+	cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DAVIF_CODEC_AOM=ON -DCMAKE_INSTALL_LIBDIR:PATH=lib
+	make -j$(getProcessorCount) install
+	cd - >/dev/null
+}
+
 # Install Composer
 installComposer() {
 	installComposer_version="$(getWantedPHPModuleVersion @composer)"
@@ -1603,8 +1735,31 @@ EOF
 				docker-php-ext-configure gd --with-gd --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --enable-gd-native-ttf --with-webp-dir
 			elif test $PHP_MAJMIN_VERSION -le 703; then
 				docker-php-ext-configure gd --with-gd --with-jpeg-dir --with-png-dir --with-zlib-dir --with-xpm-dir --with-freetype-dir --with-webp-dir
-			else
+			elif test $PHP_MAJMIN_VERSION -le 800; then
 				docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype
+			else
+				case "${IPE_GD_WITHOUTAVIF:-}" in
+					1 | y* | Y*) ;;
+					*)
+						if ! isLibaomInstalled; then
+							installLibaom
+						fi
+						if ! isLibdav1dInstalled; then
+							installLibdav1d
+						fi
+						if ! isLibyuvInstalled; then
+							installLibyuv
+						fi
+						if ! isLibavifInstalled; then
+							installLibavif
+						fi
+						;;
+				esac
+				if isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
+					docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype --with-avif
+				else
+					docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype
+				fi
 			fi
 			;;
 		gmp)
