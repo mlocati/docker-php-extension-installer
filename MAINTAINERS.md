@@ -76,8 +76,7 @@ We should switch to the stable release once it will be available.
 
 ### opencensus
 
-The latest available version of the `opencensus` PHP extension is not compatible with PHP 7.3+.
-We manually patch the latest version to make it compatible with PHP 7.3 and PHP 7.4.
+The only available versions of the `opencensus` PHP extension are all alpha.
 We should switch to the stable release once it will be available.
 
 ### snuffleupagus
