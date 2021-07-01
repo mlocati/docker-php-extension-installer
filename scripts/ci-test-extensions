@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Syntax:
+# - ci-test-extensions from-commits "<commit range>"
+#   Automatically detect the extensions to be tested by inspecting the git commits
+# - ci-test-extensions from-list "<space-separated extensions>"
+#   Test the specified extensions
+# - ci-test-extensions all
+#   Test all the supported extensions
+#
 # Global environment variables used:
 # - IPETEST_DOCKER_DISTRO (required) the handle of the docker distibution to be used (eg 'buster', 'alpine3.14')
 # - IPETEST_ONLY_PHPVERSIONS (optional) a space-separeted list of PHP versions: if set, we'll test only those PHP versions (eg '8.0 8.1')
@@ -351,6 +359,9 @@ case "${1:-}" in
 		;;
 	from-list)
 		EXTENSIONS_TO_BE_TESTED="${2:-}"
+		;;
+	all)
+		EXTENSIONS_TO_BE_TESTED="$(cat "$CI_BUILD_DIR/data/supported-extensions" | cut -d' ' -f1)"
 		;;
 	*)
 		if test -z "${1:-}"; then
