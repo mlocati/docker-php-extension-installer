@@ -63,7 +63,7 @@ jobs:
       - check_syntax_shell
       - check_syntax_php
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         distro:
           - alpine3.7
@@ -81,6 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
+      IPETEST_ONLY_PHPVERSIONS: "8.1"
     steps:
       - name: Checkout
         uses: actions/checkout@v1
