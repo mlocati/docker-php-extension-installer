@@ -1,0 +1,28 @@
+name: Monitor PHP 8.1
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  repository_dispatch:
+    types:
+      - monitor-php8.1
+
+jobs:
+  test_extensions:
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - alpine3.13
+          - alpine3.14
+          - buster
+    name: Check on ${{ matrix.distro }}
+    runs-on: ubuntu-latest
+    env:
+      IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
+      IPETEST_ONLY_PHPVERSIONS: "8.1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Test extensions
+        run: ./scripts/ci-test-extensions all
