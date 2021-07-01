@@ -361,7 +361,7 @@ case "${1:-}" in
 		EXTENSIONS_TO_BE_TESTED="${2:-}"
 		;;
 	all)
-		EXTENSIONS_TO_BE_TESTED="$(cat "$CI_BUILD_DIR/data/supported-extensions" | cut -d' ' -f1)"
+		EXTENSIONS_TO_BE_TESTED="$(cat "$CI_BUILD_DIR/data/supported-extensions" | cut -d' ' -f1 | tr '\n' ' ')"
 		;;
 	*)
 		if test -z "${1:-}"; then
