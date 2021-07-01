@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Global environment variables used:
+# - IPETEST_DOCKER_DISTRO (required) the handle of the docker distibution to be used (eg 'buster', 'alpine3.14')
+# - IPETEST_ONLY_PHPVERSIONS (optional) a space-separeted list of PHP versions: if set, we'll test only those PHP versions (eg '8.0 8.1')
+
 # Let's set a sane environment
 set -o errexit
 set -o nounset
@@ -107,8 +111,8 @@ filterUnsupportedExensionsForDistro() {
 	filterUnsupportedExensionsForDistro_filtered=''
 	IFS=' '
 	for filterUnsupportedExensionsForDistro_extension in $EXTENSIONS_TO_BE_TESTED; do
-		if stringInList "!$DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
-			printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$DOCKER_DISTRO"
+		if stringInList "!$IPETEST_DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
+			printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$IPETEST_DOCKER_DISTRO"
 		else
 			filterUnsupportedExensionsForDistro_filtered="$filterUnsupportedExensionsForDistro_filtered $filterUnsupportedExensionsForDistro_extension"
 		fi
@@ -126,7 +130,7 @@ filterUnsupportedExensionsForDistro() {
 # Outputs:
 # the full docker image ID (if exists/is usable)
 getDockerImageName() {
-	if ! shouldProcessPhpVersionForDistro "$DOCKER_DISTRO" "$2"; then
+	if ! shouldProcessPhpVersionForDistro "$IPETEST_DOCKER_DISTRO" "$2"; then
 		return
 	fi
 	case "$2" in
@@ -147,7 +151,7 @@ getDockerImageName() {
 			fi
 		done
 	fi
-	getDockerImageName_imageName="$(printf 'php:%s-%s-%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$DOCKER_DISTRO")"
+	getDockerImageName_imageName="$(printf 'php:%s-%s-%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$IPETEST_DOCKER_DISTRO")"
 	case "$getDockerImageName_imageName" in
 		php:5.5-cli-jessie)
 			getDockerImageName_imageName='php:5.5-cli'
@@ -240,8 +244,8 @@ getAllPHPVersionsForExtension() {
 	if test -f "$filterUnsupportedExensionsForDistro_reqs"; then
 		getAllPHPVersionsForExtension_filtered_result=''
 		for getAllPHPVersionsForExtension_result_filter in $getAllPHPVersionsForExtension_result; do
-			if stringInList "!$getAllPHPVersionsForExtension_result_filter-$DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$1[ \t]")"; then
-				printf 'Note: extension "%s" is not supported for distro "%s" using php "%s"\n' "$1" "$DOCKER_DISTRO" "$getAllPHPVersionsForExtension_result_filter" >/dev/stderr
+			if stringInList "!$getAllPHPVersionsForExtension_result_filter-$IPETEST_DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$1[ \t]")"; then
+				printf 'Note: extension "%s" is not supported for distro "%s" using php "%s"\n' "$1" "$IPETEST_DOCKER_DISTRO" "$getAllPHPVersionsForExtension_result_filter" >/dev/stderr
 			else
 				getAllPHPVersionsForExtension_filtered_result="$getAllPHPVersionsForExtension_filtered_result $getAllPHPVersionsForExtension_result_filter"
 			fi
@@ -268,8 +272,10 @@ testExtension() {
 		testExtension_extension="$(printf '%s' "$testExtension_extension" | sed -E 's/\+/ /g')"
 		printf '### TESTING EXTENSION(S) %s ###\n' "$testExtension_extension"
 		for testExtension_phpVersion in $(getAllPHPVersionsForExtensions "$testExtension_extension"); do
-			if ! testExtensionFor "$testExtension_extension" "$testExtension_phpVersion"; then
-				testExtensionsFromMessage_result=1
+			if test -z "${IPETEST_ONLY_PHPVERSIONS:-}" || stringInList "$testExtension_phpVersion" "$IPETEST_ONLY_PHPVERSIONS"; then
+				if ! testExtensionFor "$testExtension_extension" "$testExtension_phpVersion"; then
+					testExtensionsFromMessage_result=1
+				fi
 			fi
 		done
 	done
@@ -322,8 +328,8 @@ if test -z "${GITHUB_WORKSPACE:-}"; then
 	exit 1
 fi
 CI_BUILD_DIR="$GITHUB_WORKSPACE"
-if test -z "${DOCKER_DISTRO:-}"; then
-	echo 'DOCKER_DISTRO environment variable not set' >&2
+if test -z "${IPETEST_DOCKER_DISTRO:-}"; then
+	echo 'IPETEST_DOCKER_DISTRO environment variable not set' >&2
 	exit 1
 fi
 
