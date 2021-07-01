@@ -64,11 +64,6 @@ The `http` PHP extension may use the `libidnkit` system library since version 3.
 It's not available on Alpine Linux, so we install it manually.
 We need to monitor new releases at https://jprs.co.jp/idn
 
-### imagick
-
-For PHP 8+ we currenly install the `imagick` PHP extension from a specific git commit.
-We should switch to the normal pecl/pickle approach when we have a new release.
-
 ### ionCube Loader
 
 The `ionCube Loader` PHP extension is not available in the PECL archive, so we install it manually.
