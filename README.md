@@ -200,7 +200,7 @@ install-php-extensions @composer-2.0.2
 | yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | yar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
+| zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 
 *Number of supported extensions: 105*
