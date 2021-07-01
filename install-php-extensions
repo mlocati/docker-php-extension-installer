@@ -1950,6 +1950,7 @@ installRemoteModule() {
 			fi
 			;;
 		sqlsrv | pdo_sqlsrv)
+			isMicrosoftSqlServerODBCInstalled || installMicrosoftSqlServerODBC
 			if test -z "$installRemoteModule_version"; then
 				# https://docs.microsoft.com/it-it/sql/connect/php/system-requirements-for-the-php-sql-driver?view=sql-server-2017
 				if test $PHP_MAJMIN_VERSION -le 506; then
@@ -1960,10 +1961,21 @@ installRemoteModule() {
 					installRemoteModule_version=5.6.1
 				elif test $PHP_MAJMIN_VERSION -le 702; then
 					installRemoteModule_version=5.8.1
+				elif test $PHP_MAJMIN_VERSION -ge 801; then
+					# https://github.com/microsoft/msphpsql/commits/PHP-8.1-dev
+					installRemoteModule_src="$(getPackageSource https://codeload.github.com/microsoft/msphpsql/tar.gz/f00dc9f0c555eebaf9f1e5a9bd1a04044908bba1)"
+					cd -- "$installRemoteModule_src/source/$installRemoteModule_module"
+					if command -v bash >/dev/null; then
+						(cd .. && bash ./packagize.sh)
+					else
+						(cd .. && sh ./packagize.sh)
+					fi
+					phpize
+					./configure
+					make -j$(getProcessorCount) install
+					cd - >/dev/null
+					installRemoteModule_manuallyInstalled=1
 				fi
-			fi
-			if ! isMicrosoftSqlServerODBCInstalled; then
-				installMicrosoftSqlServerODBC
 			fi
 			;;
 		ssh2)
@@ -2132,6 +2144,7 @@ installRemoteModule() {
 			cmake -D USE_SHARED_PHPCPP:BOOL=ON ..
 			make
 			make install
+			cd - >/dev/null
 			rm "$PHP_INI_DIR/conf.d/tdlib.ini"
 			installRemoteModule_manuallyInstalled=1
 			;;
