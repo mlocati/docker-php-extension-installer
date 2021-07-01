@@ -1568,12 +1568,30 @@ installRemoteModule() {
 					installRemoteModule_version=1.1.0
 				fi
 			fi
-			if ! test -e /usr/local/lib/libcmark.so && ! test -e /usr/lib/libcmark.so && ! test -e /usr/lib64/libcmark.so && ! test -e /lib/libcmark.so; then
-				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/0.29.0.tar.gz)"
+			if ! test -e /usr/local/lib/libcmark.so && ! test -e /usr/local/lib64/libcmark.so && ! test -e /usr/lib/libcmark.so && ! test -e /usr/lib64/libcmark.so && ! test -e /lib/libcmark.so; then
+				case "$DISTRO_VERSION" in
+					debian@8)
+						# cmark library version 0.30.0 doesn't work with cmake 3.0 (debian jessie)
+						installRemoteModule_tmp=0.29.0
+						;;
+					*)
+						installRemoteModule_tmp=0.30.0
+						;;
+				esac
+				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/$installRemoteModule_tmp.tar.gz)"
 				make -s -j$(getProcessorCount) cmake_build
 				make -s -j$(getProcessorCount) install
 				cd - >/dev/null
-				ldconfig || true
+				case "$DISTRO" in
+					alpine)
+						if test -e /usr/local/lib64/libcmark.so.$installRemoteModule_tmp && ! test -e /usr/local/lib/libcmark.so.$installRemoteModule_tmp; then
+							ln -s /usr/local/lib64/libcmark.so.$installRemoteModule_tmp /usr/local/lib/
+						fi
+						;;
+					*)
+						ldconfig || true
+						;;
+				esac
 			fi
 			;;
 		csv)
