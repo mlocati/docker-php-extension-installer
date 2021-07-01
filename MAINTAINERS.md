@@ -22,8 +22,8 @@ Once that draft release has been created, you have to:
 
 ### amqp
 
-For PHP 8+ we currenly install the `amqp` PHP extension from a specific git commit.
-We should switch to the normal pecl/pickle approach when we have a new release.
+For PHP 8+ we currenly install the `amqp` PHP extension with the `beta` stability.
+We should switch to `stable` when it will be available.
 
 ### cmark
 
