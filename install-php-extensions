@@ -392,9 +392,10 @@ sortModulesToInstall() {
 #   $@: the PHP module handles
 #
 # Set:
-#   PACKAGES_PERSISTENT
-#   PACKAGES_VOLATILE
-#   PACKAGES_PREVIOUS
+#   PACKAGES_PERSISTENT_NEW the list of packages required at runtume that must be installed
+#   PACKAGES_PERSISTENT_PRE the list of packages required at runtume that are already installed
+#   PACKAGES_VOLATILE the list of packages required at compile time that must be installed
+#   PACKAGES_PREVIOUS the list of packages (with their version) that are installed right now (calculated only on Debian and only if PACKAGES_PERSISTENT_NEW or PACKAGES_VOLATILE are not empty)
 buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
@@ -983,7 +984,8 @@ buildRequiredPackageLists() {
 		esac
 		shift
 	done
-	PACKAGES_PERSISTENT=''
+	PACKAGES_PERSISTENT_NEW=''
+	PACKAGES_PERSISTENT_PRE=''
 	PACKAGES_VOLATILE=''
 	PACKAGES_PREVIOUS=''
 	if test -z "$buildRequiredPackageLists_persistent$buildRequiredPackageLists_volatile"; then
@@ -995,10 +997,18 @@ buildRequiredPackageLists() {
 			;;
 	esac
 	if test -n "$buildRequiredPackageLists_persistent"; then
-		PACKAGES_PERSISTENT="$(expandPackagesToBeInstalled $buildRequiredPackageLists_persistent)"
+		PACKAGES_PERSISTENT_NEW="$(expandPackagesToBeInstalled $buildRequiredPackageLists_persistent)"
 		if test -s "$IPE_ERRFLAG_FILE"; then
 			exit 1
 		fi
+		resetIFS
+		for buildRequiredPackageLists_package in $buildRequiredPackageLists_persistent; do
+			buildRequiredPackageLists_package="$(expandInstalledSystemPackageName "$buildRequiredPackageLists_package")"
+			if test -n "$buildRequiredPackageLists_package"; then
+				PACKAGES_PERSISTENT_PRE="$PACKAGES_PERSISTENT_PRE $buildRequiredPackageLists_package"
+			fi
+		done
+		PACKAGES_PERSISTENT_PRE="${PACKAGES_PERSISTENT_PRE# }"
 	fi
 	if test -n "$buildRequiredPackageLists_volatile"; then
 		buildRequiredPackageLists_packages="$(expandPackagesToBeInstalled $buildRequiredPackageLists_volatile)"
@@ -1007,13 +1017,13 @@ buildRequiredPackageLists() {
 		fi
 		resetIFS
 		for buildRequiredPackageLists_package in $buildRequiredPackageLists_packages; do
-			if ! stringInList "$buildRequiredPackageLists_package" "$PACKAGES_PERSISTENT"; then
+			if ! stringInList "$buildRequiredPackageLists_package" "$PACKAGES_PERSISTENT_NEW"; then
 				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $buildRequiredPackageLists_package"
 			fi
 		done
 		PACKAGES_VOLATILE="${PACKAGES_VOLATILE# }"
 	fi
-	if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
+	if test -n "$PACKAGES_PERSISTENT_NEW$PACKAGES_VOLATILE"; then
 		case "$DISTRO" in
 			debian)
 				PACKAGES_PREVIOUS="$(dpkg --get-selections | grep -E '\sinstall$' | awk '{ print $1 }')"
@@ -1084,7 +1094,28 @@ expandPackagesToBeInstalled() {
 	printf '%s' "${expandPackagesToBeInstalled_result# }"
 }
 
+# Check if a system package is installed; if so we prints its name.
+#
+# Arguments:
+#   $1: the name of the package to be checked (regular expressions accepted: they must start with a ^)
+expandInstalledSystemPackageName() {
+	if test "$1" = "${1#^}"; then
+		expandInstalledSystemPackageName_grepflags='-Fx'
+	else
+		expandInstalledSystemPackageName_grepflags='-E'
+	fi
+	case "$DISTRO" in
+		alpine)
+			apk info | grep $expandInstalledSystemPackageName_grepflags -- "$1" || test $? -eq 1
+			;;
+		debian)
+			dpkg --get-selections | grep -E '\sinstall$' | awk '{ print $1 }' | cut -d: -f1 | grep $expandInstalledSystemPackageName_grepflags -- "$1" || test $? -eq 1
+			;;
+	esac
+}
+
 # Retrieve the number of available cores (alternative to nproc if not available)
+#
 # Output:
 #   The number of processor cores available
 getProcessorCount() {
@@ -1128,21 +1159,35 @@ getCompilationProcessorCount() {
 	esac
 }
 
+# Mark the pre-installed APT/APK packages as used
+# that way they won't be uninstalled by accident
+markPreinstalledPackagesAsUsed() {
+	printf '### MARKING PRE-INSTALLED PACKAGES AS IN-USE ###\n'
+	case "$DISTRO" in
+		alpine)
+			printf '# Packages: %s\n' "$PACKAGES_PERSISTENT_PRE"
+			apk add $PACKAGES_PERSISTENT_PRE
+			;;
+		debian)
+			DEBIAN_FRONTEND=noninteractive apt-mark manual $PACKAGES_PERSISTENT_PRE
+			;;
+	esac
+}
+
 # Install the required APT/APK packages
 #
 # Arguments:
 #   $@: the list of APT/APK packages to be installed
 installRequiredPackages() {
 	printf '### INSTALLING REQUIRED PACKAGES ###\n'
-	printf '# Packages to be kept after installation: %s\n' "$PACKAGES_PERSISTENT"
+	printf '# Packages to be kept after installation: %s\n' "$PACKAGES_PERSISTENT_NEW"
 	printf '# Packages to be used only for installation: %s\n' "$PACKAGES_VOLATILE"
-
 	case "$DISTRO" in
 		alpine)
-			apk add $IPE_APK_FLAGS $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
+			apk add $IPE_APK_FLAGS $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qq -y $PACKAGES_PERSISTENT $PACKAGES_VOLATILE
+			DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qq -y $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
 			;;
 	esac
 }
@@ -1571,7 +1616,7 @@ installRemoteModule() {
 			if ! test -e /usr/local/lib/libcmark.so && ! test -e /usr/local/lib64/libcmark.so && ! test -e /usr/lib/libcmark.so && ! test -e /usr/lib64/libcmark.so && ! test -e /lib/libcmark.so; then
 				case "$DISTRO_VERSION" in
 					debian@8)
-						# cmark library version 0.30.0 doesn't work with cmake 3.0 (debian jessie)
+						# cmark library version 0.30.0 requires cmake 3.3+ (debian jessie comes with cmake 3.0)
 						installRemoteModule_tmp=0.29.0
 						;;
 					*)
@@ -2527,7 +2572,10 @@ BUNDLED_MODULES="$(find /usr/src/php/ext -mindepth 2 -maxdepth 2 -type f -name '
 configureInstaller
 
 buildRequiredPackageLists $PHP_MODULES_TO_INSTALL
-if test -n "$PACKAGES_PERSISTENT$PACKAGES_VOLATILE"; then
+if test -n "$PACKAGES_PERSISTENT_PRE"; then
+	markPreinstalledPackagesAsUsed
+fi
+if test -n "$PACKAGES_PERSISTENT_NEW$PACKAGES_VOLATILE"; then
 	installRequiredPackages
 fi
 if test "$PHP_MODULES_TO_INSTALL" != '@composer'; then
