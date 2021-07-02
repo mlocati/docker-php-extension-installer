@@ -35,9 +35,7 @@ jobs:
       - name: Install shfmt
         run: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt
       - name: Checkout
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v2
       - name: Check coding style
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
@@ -83,7 +81,9 @@ jobs:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Test extensions
         run: ./scripts/ci-test-extensions from-commits "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
   test_restoring_packages:
@@ -95,9 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v2
       - run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.3-stretch ./scripts/test-restore-apt
   test_custom_version:
     name: Test installing specific versions
@@ -116,9 +114,7 @@ jobs:
           - ^2.8
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v2
       - run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.4-alpine ./scripts/test-installversion "${{ matrix.xdebug_version }}"
   test_composer:
     name: Test installing composer
@@ -138,4 +134,19 @@ jobs:
         uses: actions/checkout@v2
       - run: |
           docker run --rm --volume "$(pwd):/app" --workdir /app php:7.4-alpine ./scripts/test-installcomposer "${{ matrix.composer_version }}"
-
+  test_marking_packages:
+    name: Test marking pre-installed packages
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro:
+          - alpine
+          - buster
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: docker run --rm --volume "$(pwd):/app" --workdir /app "php:7.4-${{ matrix.distro }}" "./scripts/ci-markused-${{ matrix.distro }}"

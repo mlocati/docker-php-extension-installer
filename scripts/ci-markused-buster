@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Let's set a sane environment
+set -o errexit
+set -o nounset
+
+DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND
+
+apt-get update -q
+apt-get remove -qy --purge '^libzip[0-9]*$'
+apt-get install -qy libepub0 # <- uses libzip
+CI=true ./install-php-extensions zip # <- uses libzip
+apt-get remove -qy --purge libepub0
+apt-get autoremove -qy --purge
+php --ri zip
