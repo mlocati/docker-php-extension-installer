@@ -69,6 +69,20 @@ install-php-extensions xdebug-^2
 install-php-extensions xdebug-^2.8
 ```
 
+Pre-release versions extensions available on `PECL` can be setup by suffixing the extension's name with its state i.e `alpha`, `beta`, `rc`, `preview`, `devel` or `snapshot`.
+For example:
+
+```sh
+install-php-extensions xdebug-beta
+```
+
+TIP: When the latest version available on `PECL` is not stable, and you want to keep the last stable version, 
+force it by suffixing the extension's name with the `stable` state.
+For example:
+
+```sh
+install-php-extensions mongodb-stable
+```
 
 ### Installing composer
 
