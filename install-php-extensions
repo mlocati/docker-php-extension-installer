@@ -157,19 +157,19 @@ getPeclModuleName() {
 #
 # Output:
 #   Nothing
-processPHPMuduleArgument() {
+processPHPModuleArgument() {
 	PROCESSED_PHP_MODULE_ARGUMENT="${1%%-*}"
 	if test -n "$PROCESSED_PHP_MODULE_ARGUMENT" && test "$PROCESSED_PHP_MODULE_ARGUMENT" != "$1"; then
-		processPHPMuduleArgument_version="${1#*-}"
+		processPHPModuleArgument_version="${1#*-}"
 	else
-		processPHPMuduleArgument_version=''
+		processPHPModuleArgument_version=''
 	fi
 	PROCESSED_PHP_MODULE_ARGUMENT="$(normalizePHPModuleName "$PROCESSED_PHP_MODULE_ARGUMENT")"
-	if test -n "$processPHPMuduleArgument_version"; then
+	if test -n "$processPHPModuleArgument_version"; then
 		if printf '%s' "$PROCESSED_PHP_MODULE_ARGUMENT" | grep -Eq '^[a-zA-Z0-9_]+$'; then
-			eval PHP_WANTEDMODULEVERSION_$PROCESSED_PHP_MODULE_ARGUMENT="$processPHPMuduleArgument_version"
+			eval PHP_WANTEDMODULEVERSION_$PROCESSED_PHP_MODULE_ARGUMENT="$processPHPModuleArgument_version"
 		elif printf '%s' "$PROCESSED_PHP_MODULE_ARGUMENT" | grep -Eq '^@[a-zA-Z0-9_]+$'; then
-			eval PHP_WANTEDMODULEVERSION__${PROCESSED_PHP_MODULE_ARGUMENT#@}="$processPHPMuduleArgument_version"
+			eval PHP_WANTEDMODULEVERSION__${PROCESSED_PHP_MODULE_ARGUMENT#@}="$processPHPModuleArgument_version"
 		else
 			printf 'Unable to parse the following module name:\n%s\n' "$PROCESSED_PHP_MODULE_ARGUMENT" >&2
 		fi
@@ -304,7 +304,7 @@ processCommandArguments() {
 			esac
 		fi
 		if test $processCommandArguments_skip -eq 0; then
-			processPHPMuduleArgument "$1"
+			processPHPModuleArgument "$1"
 			processCommandArguments_name="$PROCESSED_PHP_MODULE_ARGUMENT"
 			if stringInList "$processCommandArguments_name" "$PHP_MODULES_TO_INSTALL"; then
 				printf '### WARNING Duplicated module name specified: %s ###\n' "$processCommandArguments_name" >&2
