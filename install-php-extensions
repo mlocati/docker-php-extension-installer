@@ -1593,7 +1593,7 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -ge 800; then
 					installRemoteModule_version=beta
 				elif test "$DISTRO_VERSION" = debian@8; then
-					# in Debian Jessie we have librammitmq version 0.5.2
+					# in Debian Jessie we have librabbitmq version 0.5.2
 					installRemoteModule_version=1.9.3
 				elif test $PHP_MAJMIN_VERSION -le 505; then
 					installRemoteModule_version=1.9.4
