@@ -926,6 +926,12 @@ buildRequiredPackageLists() {
 			xlswriter@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
 				;;
+			xmldiff@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				;;
+			xmldiff@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				;;
 			xmlrpc@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
@@ -2237,6 +2243,10 @@ installRemoteModule() {
 					installRemoteModule_version=0.9.4
 				fi
 			fi
+			;;
+		xmldiff)
+			# whether to use system diffmark library
+			addConfigureOption 'with-libdiffmark' 'yes'
 			;;
 		xlswriter)
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 1.2.7) -ge 0; then
