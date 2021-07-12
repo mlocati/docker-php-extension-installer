@@ -4,9 +4,11 @@
 set -o errexit
 set -o nounset
 
+wget -qO /dev/null https://www.google.com && echo wget works
 apk update
 apk del libzip
 apk add ebook-tools # <- uses libzip
 CI=true ./install-php-extensions zip # <- uses libzip
 apk del ebook-tools
 php --ri zip
+wget -qO /dev/null https://www.google.com && echo wget works
