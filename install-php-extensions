@@ -2245,10 +2245,6 @@ installRemoteModule() {
 				fi
 			fi
 			;;
-		xmldiff)
-			# whether to use system diffmark library (not yet supported with PHP 8.x)
-			addConfigureOption 'with-libdiffmark' 'no'
-			;;
 		xlswriter)
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 1.2.7) -ge 0; then
 				# enable reader supports?
