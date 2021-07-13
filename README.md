@@ -203,6 +203,7 @@ install-php-extensions @composer-2.0.2
 | tidy | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | timezonedb | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | uopz | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
+| uploadprogress | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | uuid | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | vips[*](#special-requirements-for-vips) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
@@ -218,7 +219,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 106*
+*Number of supported extensions: 107*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
