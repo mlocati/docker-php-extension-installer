@@ -1770,6 +1770,13 @@ installRemoteModule() {
 			cp "$installRemoteModule_src/$installRemoteModule_so" "$(getPHPExtensionsDir)/$installRemoteModule_module.so"
 			installRemoteModule_manuallyInstalled=1
 			;;
+		jsmin)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installRemoteModule_version=2.0.1
+				fi
+			fi
+			;;
 		lzf)
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '1.5.0') -ge 0; then
 				# Sacrifice speed in favour of compression ratio?
