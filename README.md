@@ -145,6 +145,7 @@ install-php-extensions @composer-2.0.2
 | interbase | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
 | intl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ioncube_loader | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
+| jsmin | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | json_post | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ldap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | lzf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -219,7 +220,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 107*
+*Number of supported extensions: 108*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
