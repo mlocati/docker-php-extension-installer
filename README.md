@@ -195,6 +195,7 @@ install-php-extensions @composer-2.0.2
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sqlsrv[*](#special-requirements-for-sqlsrv) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| stomp | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | swoole | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | sybase_ct | &check; | &check; |  |  |  |  |  |  |  |
 | sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -220,7 +221,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 108*
+*Number of supported extensions: 109*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
