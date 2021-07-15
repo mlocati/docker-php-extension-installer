@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -o errexit
+set -o nounset
+
+rc=0
+if test -z "$(php --ri stomp | grep 'SSL Support => enabled')"; then
+	echo 'stomp has not been compiled with SSL support' >&2
+	rc=1
+else
+	echo 'stomp has been compiled with SSL support'
+fi
+exit $rc
