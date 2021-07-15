@@ -3,7 +3,7 @@ name: Test sending notifications
 on:
   repository_dispatch:
     types:
-      - test-sample-notification
+      - test-sending-notifications
 
 jobs:
   send_sampe_notification:
