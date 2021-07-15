@@ -851,6 +851,13 @@ buildRequiredPackageLists() {
 			ssh2@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-1-dev"
 				;;
+			stomp@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev"
+				;;
+			stomp@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev"
+				;;
 			swoole@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs libstdc++ $buildRequiredPackageLists_libssl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev postgresql-dev linux-headers $buildRequiredPackageLists_libssldev"
@@ -2045,6 +2052,18 @@ installRemoteModule() {
 				else
 					installRemoteModule_version=beta
 				fi
+			fi
+			;;
+		stomp)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=1.0.9
+				fi
+			fi
+			if test "$DISTRO" = debian; then
+				addConfigureOption with-openssl-dir yes
+			else
+				addConfigureOption with-openssl-dir /usr
 			fi
 			;;
 		swoole)
