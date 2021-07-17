@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -o errexit
+set -o nounset
+
+rc=0
+if test -z "$(php --ri yac | grep 'Serializer => .*igbinary')"; then
+	echo 'yac has not been compiled with Igbinary support' >&2
+	rc=1
+else
+	echo 'yac has been compiled with Igbinary support'
+fi
+if test -z "$(php --ri yac | grep 'Serializer => .*json')"; then
+	echo 'yac has not been compiled with Json support' >&2
+	rc=1
+else
+	echo 'yac has been compiled with Json support'
+fi
+if test -z "$(php --ri yac | grep 'Serializer => .*msgpack')"; then
+	echo 'yac has not been compiled with Msgpack support' >&2
+	rc=1
+else
+	echo 'yac has been compiled with Msgpack support'
+fi
+exit $rc
