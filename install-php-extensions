@@ -2282,6 +2282,33 @@ installRemoteModule() {
 				addConfigureOption enable-reader yes
 			fi
 			;;
+		yac)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=0.9.2
+				fi
+			fi
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 2.2.0) -ge 0; then
+				# Enable igbinary serializer support
+				if php --ri igbinary >/dev/null 2>/dev/null; then
+					addConfigureOption enable-igbinary yes
+				else
+					addConfigureOption enable-igbinary no
+				fi
+				# Enable json serializer support
+				if php --ri json >/dev/null 2>/dev/null; then
+					addConfigureOption enable-json yes
+				else
+					addConfigureOption enable-json no
+				fi
+				# Enable msgpack serializer support
+				if php --ri msgpack >/dev/null 2>/dev/null; then
+					addConfigureOption enable-msgpack yes
+				else
+					addConfigureOption enable-msgpack no
+				fi
+			fi
+			;;
 		yaml)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
