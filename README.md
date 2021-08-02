@@ -211,7 +211,7 @@ install-php-extensions @composer-2.0.2
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
 | xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| xlswriter |  |  | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| xlswriter |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xmldiff | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xmlrpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | xsl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
