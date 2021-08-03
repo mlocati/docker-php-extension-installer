@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -o errexit
+set -o nounset
+
+rc=0
+if php --ri sockets >/dev/null 2>/dev/null; then
+	if test -z "$(php --ri event | grep 'Sockets support => enabled')"; then
+		echo 'event has not been compiled with sockets support' >&2
+		rc=1
+	else
+		echo 'event has been compiled with sockets support'
+	fi
+fi
+if test -z "$(php --ri event | grep 'OpenSSL support => enabled')"; then
+	echo 'event has not been compiled with OpenSSL support' >&2
+	rc=1
+else
+	echo 'event has been compiled with OpenSSL support'
+fi
+exit $rc
