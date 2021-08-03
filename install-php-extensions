@@ -1631,11 +1631,11 @@ installRemoteModule() {
 			if ! test -e /usr/local/lib/libcmark.so && ! test -e /usr/local/lib64/libcmark.so && ! test -e /usr/lib/libcmark.so && ! test -e /usr/lib64/libcmark.so && ! test -e /lib/libcmark.so; then
 				case "$DISTRO_VERSION" in
 					debian@8)
-						# cmark library version 0.30.0 requires cmake 3.3+ (debian jessie comes with cmake 3.0)
+						# See https://github.com/commonmark/cmark/issues/384
 						installRemoteModule_tmp=0.29.0
 						;;
 					*)
-						installRemoteModule_tmp=0.30.0
+						installRemoteModule_tmp=0.30.1
 						;;
 				esac
 				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/$installRemoteModule_tmp.tar.gz)"
