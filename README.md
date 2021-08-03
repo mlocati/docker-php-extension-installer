@@ -125,6 +125,7 @@ install-php-extensions @composer-2.0.2
 | ds |  |  | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | enchant[*](#special-requirements-for-enchant) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| event | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | excimer |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ffi |  |  |  |  |  |  | &check; | &check; | &check; |
@@ -222,7 +223,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 110*
+*Number of supported extensions: 111*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
