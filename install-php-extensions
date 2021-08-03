@@ -360,6 +360,16 @@ sortModulesToInstall() {
 		checkRequiredModule 'http' 'propro'
 	fi
 	checkRequiredModule 'http' 'raphf'
+	# event requires sockets (for PHP <= 5.6)
+	if test $PHP_MAJMIN_VERSION -le 506; then
+		checkRequiredModule event sockets
+	fi
+	# Some module installation may use sockets if available: move it before other modules
+	if stringInList 'sockets' "$PHP_MODULES_TO_INSTALL"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'sockets' "$PHP_MODULES_TO_INSTALL")"
+		PHP_MODULES_TO_INSTALL="sockets $PHP_MODULES_TO_INSTALL"
+		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
+	fi
 	# Some module installation may use igbinary if available: move it before other modules
 	if stringInList 'igbinary' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'igbinary' "$PHP_MODULES_TO_INSTALL")"
@@ -484,6 +494,14 @@ buildRequiredPackageLists() {
 			enchant@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libenchant1c2a"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libenchant-dev"
+				;;
+			event@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libevent $buildRequiredPackageLists_libssl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libevent-dev $buildRequiredPackageLists_libssldev"
+				;;
+			event@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libevent[0-9\.\-]*$ ^libevent-openssl[0-9\.\-]*$ ^libevent-extra[0-9\.\-]*$ ^libevent-pthreads[0-9\.\-]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libevent-dev $buildRequiredPackageLists_libssldev"
 				;;
 			ffi@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libffi"
@@ -1675,6 +1693,66 @@ installRemoteModule() {
 					;;
 			esac
 			;;
+		event)
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 2.4.0) -ge 0; then
+				# Enable internal debugging in Event
+				addConfigureOption enable-event-debug no
+				# Enable sockets support in Event
+				if php --ri sockets >/dev/null 2>/dev/null; then
+					addConfigureOption enable-event-sockets yes
+				else
+					addConfigureOption enable-event-sockets no
+				fi
+				# libevent installation prefix
+				addConfigureOption with-event-libevent-dir /usr
+				# Include libevent's pthreads library and enable thread safety support in Event
+				addConfigureOption with-event-pthreads yes
+				# Include libevent protocol-specific functionality support including HTTP, DNS, and RPC
+				addConfigureOption with-event-extra yes
+				# Include libevent OpenSSL support
+				addConfigureOption with-event-openssl yes
+				# PHP Namespace for all Event classes
+				if test -n "${IPE_EVENT_NAMESPACE:-}"; then
+					addConfigureOption with-event-ns "$IPE_EVENT_NAMESPACE"
+				else
+					addConfigureOption with-event-ns no
+				fi
+				# openssl installation prefix
+				addConfigureOption with-openssl-dir no
+			elif test $(compareVersions "$installRemoteModule_version" 1.7.6) -ge 0; then
+				# Enable internal debugging in Event
+				addConfigureOption enable-event-debug no
+				# Enable sockets support in Event
+				if php --ri sockets >/dev/null 2>/dev/null; then
+					addConfigureOption enable-event-sockets yes
+				else
+					addConfigureOption enable-event-sockets no
+				fi
+				# libevent installation prefix
+				addConfigureOption with-event-libevent-dir /usr
+				# Include libevent's pthreads library and enable thread safety support in Event
+				addConfigureOption with-event-pthreads yes
+				# Include libevent protocol-specific functionality support including HTTP, DNS, and RPC
+				addConfigureOption with-event-extra yes
+				# Include libevent OpenSSL support
+				addConfigureOption with-event-openssl yes
+				# openssl installation prefix
+				addConfigureOption with-openssl-dir no
+			elif test $(compareVersions "$installRemoteModule_version" 1.3.0) -ge 0; then
+				# Enable internal debugging in event
+				addConfigureOption enable-event-debug no
+				# libevent installation prefix
+				addConfigureOption with-event-libevent-dir /usr
+				# Include libevent's pthreads library and enable thread safety support in event
+				addConfigureOption with-event-pthreads yes
+				# Include libevent protocol-specific functionality support including HTTP, DNS, and RPC
+				addConfigureOption with-event-extra yes
+				# Include libevent OpenSSL support
+				addConfigureOption with-event-openssl yes
+				# openssl installation prefix
+				addConfigureOption with-openssl-dir no
+			fi
+			;;
 		gearman)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
@@ -2386,6 +2464,10 @@ installRemoteModule() {
 		apcu_bc)
 			# apcu_bc must be loaded after apcu
 			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" apc
+			;;
+		event)
+			# event must be loaded after sockets
+			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" "$installRemoteModule_module"
 			;;
 		ioncube_loader)
 			# On PHP 5.5, docker-php-ext-enable fails to detect that ionCube Loader is a Zend Extension
