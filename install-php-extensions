@@ -770,11 +770,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaspell15"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpspell-dev"
 				;;
-			rdkafka@alpine)
+			rdkafka@alpine | simple_kafka_client@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent librdkafka"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librdkafka-dev"
 				;;
-			rdkafka@debian)
+			rdkafka@debian | simple_kafka_client@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^librdkafka\+*[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile librdkafka-dev"
 				;;
