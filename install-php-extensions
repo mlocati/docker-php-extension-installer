@@ -447,6 +447,9 @@ buildRequiredPackageLists() {
 			break
 		fi
 		case "$1@$DISTRO" in
+			@composer@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent unzip"
+				;;
 			amqp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent rabbitmq-c"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile rabbitmq-c-dev"
