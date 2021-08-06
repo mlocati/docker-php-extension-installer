@@ -411,7 +411,12 @@ buildRequiredPackageLists() {
 	buildRequiredPackageLists_volatile=''
 	case "$DISTRO" in
 		alpine)
-			apk update
+			if test $DISTRO_VERSION_NUMBER = '3.14'; then
+				# https://gitlab.alpinelinux.org/alpine/aports/-/issues/12763#note_172090
+				apk -U upgrade
+			else
+				apk update
+			fi
 			;;
 	esac
 	case "$DISTRO_VERSION" in
