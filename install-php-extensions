@@ -859,6 +859,12 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-gnutls-dev libxml2-dev"
 				;;
+			spx@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev"
+				;;
+			spx@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
+				;;
 			sqlsrv@alpine | pdo_sqlsrv@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ unixodbc"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
@@ -2102,6 +2108,24 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		spx)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=1367cbc70194d18888ec9cfe9b06c0a5b4426dff
+			fi
+			if test "${installRemoteModule_version%.*}" = "$installRemoteModule_version"; then
+				installRemoteModule_displayVersion="$installRemoteModule_version"
+			else
+				installRemoteModule_displayVersion="git--master-$installRemoteModule_version"
+			fi
+			installRemoteModule_src="$(getPackageSource https://codeload.github.com/NoiseByNorthwest/php-spx/tar.gz/$installRemoteModule_version)"
+			cd -- "$installRemoteModule_src"
+			sed -Ei "s/^([ \t]*#define[ \t]+PHP_SPX_VERSION[ \t]+\")0.4.10(\")/\1git--master-$installRemoteModule_displayVersion\2/" src/php_spx.h
+			phpize
+			./configure
+			make -j$(getProcessorCount) install
+			cd - >/dev/null
+			installRemoteModule_manuallyInstalled=1
+			;;
 		sqlsrv | pdo_sqlsrv)
 			isMicrosoftSqlServerODBCInstalled || installMicrosoftSqlServerODBC
 			if test -z "$installRemoteModule_version"; then
@@ -2509,6 +2533,9 @@ configureInstaller() {
 	USE_PICKLE=0
 	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 		if test "${PHP_MODULE_TO_INSTALL#@}" != "$PHP_MODULE_TO_INSTALL"; then
+			continue
+		fi
+		if test "$PHP_MODULE_TO_INSTALL" = 'spx'; then
 			continue
 		fi
 		if test "$PHP_MODULE_TO_INSTALL" = 'amqp' && test $PHP_MAJMIN_VERSION -ge 800; then
