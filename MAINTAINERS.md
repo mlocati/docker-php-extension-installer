@@ -84,6 +84,11 @@ We should switch to the stable release once it will be available.
 The `snuffleupagus` PHP extension is not available in the PECL archive, so we install it manually.
 We need to monitor new releases at https://github.com/jvoisin/snuffleupagus/releases
 
+## spx
+
+Currenly the `spx` PHP extension installs with a commit version.
+We should switch to a tagged realease when it will be available (see https://github.com/NoiseByNorthwest/php-spx/issues/174).
+
 ### sqlsrv / pdo_sqlsrv 
 
 The `pdo_sqlsrv` and `sqlsrv` PHP extensions require the Microsoft ODBC Driver for SQL Server.
