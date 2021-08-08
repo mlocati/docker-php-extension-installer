@@ -1654,6 +1654,29 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		blackfire)
+			case $(uname -m) in
+				i386 | i686 | x86)
+					architecture="i386"
+					;;
+				x86_64 | amd64)
+					architecture="amd64"
+					;;
+				aarch64 | arm64 | armv8)
+					architecture="arm64"
+					;;
+				*)
+					architecture="amd64"
+					;;
+			esac
+			version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")
+			curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/$architecture/$version
+			mkdir -p /tmp/blackfire
+			tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire
+			mv /tmp/blackfire/blackfire-*.so $(getPHPExtensionsDir)/blackfire.so
+			rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
+			installRemoteModule_manuallyInstalled=1
+			;;
 		cmark)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 701; then
@@ -2496,6 +2519,9 @@ installRemoteModule() {
 		apcu_bc)
 			# apcu_bc must be loaded after apcu
 			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" apc
+			;;
+		blackfire)
+			printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307\n" > "$PHP_INI_DIR/conf.d/docker-php-ext-$installRemoteModule_module.ini"
 			;;
 		event)
 			# event must be loaded after sockets
