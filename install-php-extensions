@@ -2521,7 +2521,7 @@ installRemoteModule() {
 			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" apc
 			;;
 		blackfire)
-			printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307\n" > "$PHP_INI_DIR/conf.d/docker-php-ext-$installRemoteModule_module.ini"
+			printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307\n" >"$PHP_INI_DIR/conf.d/docker-php-ext-$installRemoteModule_module.ini"
 			;;
 		event)
 			# event must be loaded after sockets
