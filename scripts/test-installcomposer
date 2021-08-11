@@ -7,24 +7,24 @@ set -o nounset
 WANTED_VERSION="${1:-}"
 INSTALLME=@composer
 if test -n "$WANTED_VERSION"; then
-    INSTALLME="$INSTALLME-$1"
+	INSTALLME="$INSTALLME-$1"
 fi
 
 CI=true ./install-php-extensions "$INSTALLME"
 
 INSTALLED_VERSION="$(composer --version | sed -E 's/^.*[Vv]ersion\s*(\S+).*$/\1/')"
 if test -z "$WANTED_VERSION"; then
-    echo 'Installing the latest version worked'
+	echo 'Installing the latest version worked'
 elif printf '%s' "$WANTED_VERSION" | grep -Eq '^[0-9]+$'; then
-    if test "${INSTALLED_VERSION#$WANTED_VERSION.}" = "$INSTALLED_VERSION"; then
-        printf 'Installing major version %s DID NOT worked (we installed version %s)\n' "$WANTED_VERSION" "$INSTALLED_VERSION"
-        exit 1
-    fi
-    printf 'Installing major version %s worked (we installed version %s)\n' "$WANTED_VERSION" "$INSTALLED_VERSION"
+	if test "${INSTALLED_VERSION#$WANTED_VERSION.}" = "$INSTALLED_VERSION"; then
+		printf 'Installing major version %s DID NOT worked (we installed version %s)\n' "$WANTED_VERSION" "$INSTALLED_VERSION"
+		exit 1
+	fi
+	printf 'Installing major version %s worked (we installed version %s)\n' "$WANTED_VERSION" "$INSTALLED_VERSION"
 else
-    if test "$INSTALLED_VERSION" != "$WANTED_VERSION"; then
-        printf 'Installing specific version %s DID NOT worked (we installed version %s)\n' "$WANTED_VERSION" "$INSTALLED_VERSION"
-        exit 1
-    fi
-    printf 'Installing specific version %s worked\n' "$INSTALLED_VERSION"
+	if test "$INSTALLED_VERSION" != "$WANTED_VERSION"; then
+		printf 'Installing specific version %s DID NOT worked (we installed version %s)\n' "$WANTED_VERSION" "$INSTALLED_VERSION"
+		exit 1
+	fi
+	printf 'Installing specific version %s worked\n' "$INSTALLED_VERSION"
 fi
