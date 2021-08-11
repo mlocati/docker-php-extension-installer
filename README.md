@@ -314,7 +314,27 @@ Feel free to subscribe to it to receive failure notifications.
 
 ### Formatting code
 
-Before submitting any pull request, be sure to execute the `lint` script in the `scripts` directory (or `lint.bat` on Windows).
+Before submitting any pull request, you should execute the `lint` script in the `scripts` directory (or `lint.bat` on Windows).
+
+If you don't do that, and if there's a coding style error, you'll see that the `Check shell coding style` and/or the `Check PHP coding style` GitHub Actions will fail.
+
+The error will be something like this:
+
+```diff
+--- filename.orig
++++ filename
+@@ -line number,7 +line number,7 @@
+     good line of code #1
+     good line of code #2
+     good line of code #3
+-    the original line with a wrong coding style
++    the line wrong coding style that has been corrected
+     good line of code #4
+     good line of code #5
+     good line of code #6
+```
+
+So, you should fix highlighed line (the one(s) at `line number`) by replacing what you see after the `-` with what you see after the `+`
 
 ### Adding support to a new PHP extension?
 
