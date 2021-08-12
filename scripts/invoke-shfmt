@@ -3,28 +3,38 @@
 set -o errexit
 set -o nounset
 
-PARAMS='-s -ln posix -i 0 -ci -kp'
+. ./scripts/common
+
+# -s        Simplify the code
+# -ln posix Language variant: POSIX
+# -i 0      Use TAB to indent
+# -ci       Switch cases will be indented
+# -kp       Keep column alignment paddings
+DPEI_PARAMS='-s -ln posix -i 0 -ci -kp'
 
 case "${1:-}" in
 	check)
-		PARAMS="$PARAMS -d"
+		DPEI_PARAMS="$DPEI_PARAMS -d"
 		;;
 	fix)
-		PARAMS="$PARAMS -w"
+		DPEI_PARAMS="$DPEI_PARAMS -w"
 		;;
 	*)
-		printf 'Syntax: %s <check|fix>' "$0" >&2
+		printf 'Syntax: %s <check|fix>\n' "$0" >&2
 		exit 1
 		;;
 esac
 
-shfmt $PARAMS \
-	install-php-extensions \
-	scripts/ci-filter-supported-extensions \
-	scripts/ci-retrieve-recent-extensions \
-	scripts/ci-test-extensions \
-	scripts/common \
-	scripts/invoke-shfmt \
-	scripts/lint \
-	scripts/test-restore-apt \
-	scripts/update-readme
+DPEI_FILES=install-php-extensions
+
+IFS='
+'
+for DPEI_FILE in $(find scripts -type f); do
+	if test "$(head -n1 $DPEI_FILE)" = '#!/bin/sh'; then
+		DPEI_FILES="$DPEI_FILES $DPEI_FILE"
+	fi
+done
+
+resetIFS
+
+FORCE_COLOR=true shfmt $DPEI_PARAMS -- $DPEI_FILES
