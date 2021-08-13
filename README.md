@@ -41,7 +41,7 @@ RUN install-php-extensions gd xdebug
 
 #### *Beware*
 
-*When building locally, be sure you have the latest version of the `mlocati/php-extension-installer` image by running :*
+*When building locally, be sure you have the latest version of the `mlocati/php-extension-installer` image by running:*
 
 ```sh
 docker pull mlocati/php-extension-installer
@@ -59,7 +59,7 @@ For example:
 install-php-extensions xdebug-2.9.7
 ```
 
-The script also support resolving *compatible* versions by prefixing the version with a caret (`^`).
+The script also supports resolving *compatible* versions by prefixing the version with a caret (`^`).
 For example:
 
 ```sh
@@ -69,7 +69,7 @@ install-php-extensions xdebug-^2
 install-php-extensions xdebug-^2.8
 ```
 
-Pre-release versions extensions available on `PECL` can be setup by suffixing the extension's name with its state i.e `alpha`, `beta`, `rc`, `preview`, `devel` or `snapshot`.
+Pre-release versions extensions available on `PECL` can be setup by suffixing the extension's name with its state i.e. `alpha`, `beta`, `rc`, `preview`, `devel` or `snapshot`.
 For example:
 
 ```sh
@@ -336,7 +336,7 @@ The error will be something like this:
      good line of code #6
 ```
 
-So, you should fix highlighed line (the one(s) at `line number`) by replacing what you see after the `-` with what you see after the `+`
+So, you should fix highlighted line (the one(s) at `line number`) by replacing what you see after the `-` with what you see after the `+`
 
 ### Adding support to a new PHP extension?
 
@@ -393,7 +393,7 @@ See [this pull request](https://github.com/mlocati/docker-php-extension-installe
 PHP extensions published on the PECL archive contain a `package.xml` (or `package2.xml`) file describing the supported PHP versions and the options that can be used to compile it.
 When we add support for a new PHP extension, and when a new version of a PHP extension is released, we have to check those constraints.
 
-It's a rather tedious taks, so I developed a project that lets you easily check those constraints: you can find it at https://mlocati.github.io/pecl-info ([here](https://github.com/mlocati/pecl-info) you can find its source code).
+It's a rather tedious task, so I developed a project that lets you easily check those constraints: you can find it at https://mlocati.github.io/pecl-info ([here](https://github.com/mlocati/pecl-info) you can find its source code).
 
 ## For the maintainers
 
