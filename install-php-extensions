@@ -2725,20 +2725,25 @@ cleanup() {
 				;;
 		esac
 	fi
-	case "$DISTRO" in
-		alpine)
-			rm -rf /var/cache/apk/*
-			;;
-		debian)
-			rm -rf /var/lib/apt/lists/*
-			;;
-	esac
 	docker-php-source delete
-	rm -rf /tmp/pear
 	rm -rf /tmp/src
 	rm -rf /tmp/pickle
 	rm -rf /tmp/pickle.tmp
 	rm -rf "$CONFIGURE_FILE"
+	case "${IPE_KEEP_SYSPKG_CACHE:-}" in
+		1 | y* | Y*) ;;
+		*)
+			case "$DISTRO" in
+				alpine)
+					rm -rf /var/cache/apk/*
+					;;
+				debian)
+					rm -rf /var/lib/apt/lists/*
+					;;
+			esac
+			rm -rf /tmp/pear
+			;;
+	esac
 }
 
 resetIFS
