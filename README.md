@@ -273,12 +273,13 @@ zlib
 
 ## Configuration
 
-The compilation of some extensions may be fine-tuned to better fit your needs by using environment variables:
+You can configure the behavior of the script, as well as fine-tune some extensions in order fit your needs, by using environment variables:
 
 | Extension | Environment variable | Description |
 |---|---|---|
-| lzf | IPE_LZF_BETTERCOMPRESSION=1 | By default `install-php-extensions` compiles the `lzf` extension to prefer speed over size; you can use this environment variable to compile it preferring size over speed  |
-| event | IPE_EVENT_NAMESPACE=... | By default the `event` classes are defined in the root namespace. You can use this environment variable to specify a custom namespace |
+| | `IPE_KEEP_SYSPKG_CACHE=1` | By default the script will clear the apt/apk/pear cache in order to save disk space. You can disable it by setting this environment variable |
+| lzf | `IPE_LZF_BETTERCOMPRESSION=1` | By default `install-php-extensions` compiles the `lzf` extension to prefer speed over size; you can use this environment variable to compile it preferring size over speed  |
+| event | `IPE_EVENT_NAMESPACE=`... | By default the `event` classes are defined in the root namespace. You can use this environment variable to specify a custom namespace |
 
 ## Special requirements
 
