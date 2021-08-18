@@ -1666,10 +1666,18 @@ installRemoteModule() {
 					installRemoteModule_tmp1=amd64
 					;;
 			esac
+			case $DISTRO in
+				alpine)
+					installRemoteModule_distro=alpine
+					;;
+				*)
+					installRemoteModule_distro=linux
+					;;
+			esac
 			installRemoteModule_tmp2=$(php -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION;')
 			installRemoteModule_tmp="$(mktemp -p /tmp/src -d)"
 			cd "$installRemoteModule_tmp"
-			curl -sSLf --user-agent Docker https://blackfire.io/api/v1/releases/probe/php/linux/$installRemoteModule_tmp1/$installRemoteModule_tmp2 | tar xz
+			curl -sSLf --user-agent Docker https://blackfire.io/api/v1/releases/probe/php/$installRemoteModule_distro/$installRemoteModule_tmp1/$installRemoteModule_tmp2 | tar xz
 			mv blackfire-*.so $(getPHPExtensionsDir)/blackfire.so
 			cd - >/dev/null
 			installRemoteModule_manuallyInstalled=1
