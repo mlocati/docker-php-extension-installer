@@ -124,7 +124,7 @@ install-php-extensions @composer-2.0.2
 | dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | decimal |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ds |  |  | &check; | &check; | &check; | &check; | &check; | &check; |  |
-| enchant[*](#special-requirements-for-enchant) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| enchant | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | event | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | excimer |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -295,7 +295,6 @@ Some extensions have special requirements:
 <!-- ########################################################### -->
 | Extension | Requirements |
 |---|---|
-| <a name="special-requirements-for-enchant"></a>enchant | &bull; Not available in `7.2-alpine3.12` docker images<br />&bull; Not available in `7.3-alpine3.12` docker images<br />&bull; Not available in `7.3-alpine3.13` docker images<br />&bull; Not available in `7.4-alpine3.12` docker images<br />&bull; Not available in `7.4-alpine3.13` docker images |
 | <a name="special-requirements-for-parallel"></a>parallel | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 | <a name="special-requirements-for-pdo_sqlsrv"></a>pdo_sqlsrv | &bull; Not available in `7.0-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.7` docker images<br />&bull; Not available in `7.1-alpine3.8` docker images<br />&bull; Not available in `7.2-alpine3.7` docker images<br />&bull; Not available in `7.2-alpine3.8` docker images<br />&bull; Not available in `7.3-alpine3.8` docker images |
 | <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
