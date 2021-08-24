@@ -16,6 +16,7 @@ jobs:
           - alpine3.13
           - alpine3.14
           - buster
+          - bullseye
     name: Check on ${{ matrix.distro }}
     runs-on: ubuntu-latest
     env:

@@ -75,6 +75,7 @@ jobs:
           - jessie
           - stretch
           - buster
+          - bullseye
     name: Check on ${{ matrix.distro }}
     runs-on: ubuntu-latest
     env:
