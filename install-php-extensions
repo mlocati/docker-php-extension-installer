@@ -489,7 +489,7 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			decimal@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmpdec2"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmpdec[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmpdec-dev"
 				;;
 			enchant@alpine)
