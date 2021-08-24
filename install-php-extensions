@@ -53,8 +53,10 @@ resetIFS() {
 }
 
 # Set these variables:
-# - DISTRO containing distribution name (eg 'alpine', 'debian')
-# - DISTO_VERSION containing distribution name and its version(eg 'alpine@3.10', 'debian@9')
+# - DISTRO containing the distribution name (eg 'alpine', 'debian')
+# - DISTRO_VERSION_NUMBER containing the distribution version (eg '3.14' for Alpine, 11 for Debian)
+# - DISTRO_VERSION containing the distribution name and its version(eg 'alpine@3.14', 'debian@11')
+# - DISTRO_MAJMIN_VERSION always containing a number representing the distribution version (eg 314 for Alpine, 1100 for Debian)
 setDistro() {
 	if ! test -r /etc/os-release; then
 		printf 'The file /etc/os-release is not readable\n' >&2
@@ -492,16 +494,33 @@ buildRequiredPackageLists() {
 				;;
 			enchant@alpine)
 				if test $DISTRO_MAJMIN_VERSION -ge 312; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent enchant2"
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile enchant2-dev"
+					if test $PHP_MAJMIN_VERSION -ge 800; then
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent enchant2"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile enchant2-dev"
+					else
+						# The system provides libenchant2, supported since PHP 8.0: we need to build libenchant1 on our own
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent glib aspell-libs libhunspell"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile glib-dev aspell-dev hunspell-dev"
+					fi
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent enchant"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile enchant-dev"
 				fi
 				;;
 			enchant@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libenchant1c2a"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libenchant-dev"
+				if test $DISTRO_VERSION_NUMBER -ge 11; then
+					if test $PHP_MAJMIN_VERSION -ge 800; then
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libenchant-2-2"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libenchant-2-dev"
+					else
+						# The system provides libenchant2, supported since PHP 8.0: we need to build libenchant1 on our own
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-en libhunspell-1.7-0"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libglib2.0-dev libaspell-dev libhunspell-dev"
+					fi
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libenchant1c2a"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libenchant-dev"
+				fi
 				;;
 			event@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libevent $buildRequiredPackageLists_libssl"
@@ -1460,6 +1479,32 @@ installBundledModule() {
 EOF
 			fi
 			docker-php-ext-configure dba --with-db4
+			;;
+		enchant)
+			installBundledModule_tmp=0
+			if test $PHP_MAJMIN_VERSION -lt 800; then
+				case "$DISTRO" in
+					alpine)
+						if test $DISTRO_MAJMIN_VERSION -ge 312; then
+							installBundledModule_tmp=1
+						fi
+						;;
+					debian)
+						if test $DISTRO_VERSION_NUMBER -ge 11; then
+							installBundledModule_tmp=1
+						fi
+						;;
+				esac
+			fi
+			if test $installBundledModule_tmp -eq 1 && ! test -f /usr/lib/libenchant.so && ! test -f /usr/local/lib/libenchant.so; then
+				# We need to install libenchant1 from source
+				installBundledModule_src="$(getPackageSource https://github.com/AbiWord/enchant/releases/download/enchant-1-6-1/enchant-1.6.1.tar.gz)"
+				cd -- "$installBundledModule_src"
+				./configure
+				make -j$(getProcessorCount)
+				make install
+				cd - >/dev/null
+			fi
 			;;
 		gd)
 			if test $PHP_MAJMIN_VERSION -le 506; then
