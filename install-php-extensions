@@ -944,7 +944,10 @@ buildRequiredPackageLists() {
 			tensor@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblapacke libopenblas-base"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblapack-dev libopenblas-dev liblapacke-dev"
-				if test $DISTRO_VERSION_NUMBER -ge 10; then
+				if test $DISTRO_VERSION_NUMBER -ge 11; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-10"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-10-dev"
+				elif test $DISTRO_VERSION_NUMBER -ge 10; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-8"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-8-dev"
 				fi
