@@ -273,7 +273,15 @@ zlib
 
 ## Configuration
 
-You can configure the behavior of the script, as well as fine-tune some extensions in order fit your needs, by using environment variables:
+You can configure the behavior of the script, as well as fine-tune some extensions in order fit your needs, by using environment variables.
+
+Here's an example:
+
+```sh
+IPE_LZF_BETTERCOMPRESSION=1 install-php-extensions lzf
+```
+
+Here's the list of all the supported environment variables:
 
 | Extension | Environment variable | Description |
 |---|---|---|
