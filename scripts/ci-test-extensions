@@ -248,11 +248,11 @@ getAllPHPVersionsForExtension() {
 		done
 	done <"$CI_BUILD_DIR/data/supported-extensions"
 
-	filterUnsupportedExensionsForDistro_reqs="$CI_BUILD_DIR/data/special-requirements"
-	if test -f "$filterUnsupportedExensionsForDistro_reqs"; then
+	getAllPHPVersionsForExtension_reqs="$CI_BUILD_DIR/data/special-requirements"
+	if test -f "$getAllPHPVersionsForExtension_reqs"; then
 		getAllPHPVersionsForExtension_filtered_result=''
 		for getAllPHPVersionsForExtension_result_filter in $getAllPHPVersionsForExtension_result; do
-			if stringInList "!$getAllPHPVersionsForExtension_result_filter-$IPETEST_DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$1[ \t]")"; then
+			if stringInList "!$getAllPHPVersionsForExtension_result_filter-$IPETEST_DOCKER_DISTRO" "$(cat "$getAllPHPVersionsForExtension_reqs" | grep -E "^$1[ \t]")"; then
 				printf 'Note: extension "%s" is not supported for distro "%s" using php "%s"\n' "$1" "$IPETEST_DOCKER_DISTRO" "$getAllPHPVersionsForExtension_result_filter" >/dev/stderr
 			else
 				getAllPHPVersionsForExtension_filtered_result="$getAllPHPVersionsForExtension_filtered_result $getAllPHPVersionsForExtension_result_filter"
