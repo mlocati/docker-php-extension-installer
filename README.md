@@ -310,6 +310,24 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-vips"></a>vips | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `jessie` docker images |
 <!-- END OF SPECIAL REQUIREMENTS -->
 
+### How do I know which Linux distribution I am using?
+
+You can run this command:
+
+```sh
+cat /etc/os-release
+```
+
+For example:
+- for Debian 11 (Bullseye) you'll see:
+  ```sh
+  PRETTY_NAME="Debian GNU/Linux 11 (bullseye)"
+  ```
+- for Alpine Linux 3.14 you'll see:
+  ```sh
+  PRETTY_NAME="Alpine Linux v3.14"
+  ```
+
 ## Tests
 
 When submitting a pull request, a [GitHub Action](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/test-extensions.yml) is executed to check if affected PHP extensions actually work (see below).
