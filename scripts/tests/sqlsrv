@@ -29,11 +29,14 @@ sqlsrv_connect(
         'PWD' => 'password',
     ]
 );
+$rc = 0;
 $errors = sqlsrv_errors(SQLSRV_ERR_ALL);
 if (is_array($errors)) {
     foreach ($errors as $error) {
         if (isset($error['message']) && stripos($error['message'], 'This extension requires the Microsoft ODBC Driver for SQL Server') !== false) {
             fwrite(STDERR, trim($error['message']) . "\n");
+            $rc = 1;
         }
     }
 }
+exit($rc);
