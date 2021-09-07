@@ -5,7 +5,7 @@ on:
     - cron: "0 12 * * *"
   repository_dispatch:
     types:
-      - test-recent
+      - test-recent-extensions
 
 jobs:
   determine_extension_list:
