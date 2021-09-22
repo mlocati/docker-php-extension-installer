@@ -16,9 +16,11 @@ See also the notes in the [Special requirements](#special-requirements) section.
 You have two ways to use this script within your `Dockerfile`s: you can download the script on the fly, or you can grab it from the [`mlocati/php-extension-installer` Docker Hub image](https://hub.docker.com/r/mlocati/php-extension-installer).
 With the first method you are sure you'll always get the very latest version of the script, with the second method the process is faster since you'll use a local image.
 
-For example, here are two `Dockerfile`s that install the GD and xdebug PHP extensions:
+For example, here some `Dockerfile`s that install the GD and xdebug PHP extensions:
 
 ### Downloading the script on the fly
+
+#### With the Dockerfile
 
 ```Dockerfile
 FROM php:7.2-cli
@@ -26,6 +28,18 @@ FROM php:7.2-cli
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions gd xdebug
+```
+
+#### With curl
+
+```Dockerfile
+FROM php:7.2-cli
+
+RUN curl -sSLf \
+        -o /usr/local/bin/install-php-extensions \
+        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+    chmod +x /usr/local/bin/install-php-extensions && \
     install-php-extensions gd xdebug
 ```
 
@@ -39,16 +53,13 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 RUN install-php-extensions gd xdebug
 ```
 
-#### *Beware*
-
-*When building locally, be sure you have the latest version of the `mlocati/php-extension-installer` image by running:*
-
-```sh
-docker pull mlocati/php-extension-installer
-```
-
-*otherwise the `COPY` instruction could use a previously downloaded, outdated version of the image stored in the local docker cache.*
-
+> **Warning**: by using this method you may use an outdated version of the `mlocati/php-extension-installer` image.
+>
+> In order to be sure the `COPY` instruction uses the very latest version, you can run:
+>
+> ```sh
+> docker pull mlocati/php-extension-installer
+> ```
 
 ### Installing specific versions of an extension
 
@@ -401,7 +412,6 @@ Improve the GD and ZIP extensions
 
 Test: gd+zip
 ```
-
 
 If your pull request contains multiple commits, we'll check the "Test:" message of every commit.
 If you want to stop parsing next commits, add `-STOP-` in the "Test:" line, for example:
