@@ -1742,15 +1742,11 @@ installRemoteModule() {
 				fi
 			fi
 			if ! test -e /usr/local/lib/libcmark.so && ! test -e /usr/local/lib64/libcmark.so && ! test -e /usr/lib/libcmark.so && ! test -e /usr/lib64/libcmark.so && ! test -e /lib/libcmark.so; then
-				case "$DISTRO_VERSION" in
-					debian@8)
-						# See https://github.com/commonmark/cmark/issues/384
-						installRemoteModule_tmp=0.29.0
-						;;
-					*)
-						installRemoteModule_tmp=0.30.1
-						;;
-				esac
+				if test $(compareVersions "$(cmake --version | head -n1 | sed -E 's/^.* //')" '3.7') -lt 0; then
+					installRemoteModule_tmp=0.29.0
+				else
+					installRemoteModule_tmp=0.30.2
+				fi
 				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/$installRemoteModule_tmp.tar.gz)"
 				make -s -j$(getProcessorCount) cmake_build
 				make -s -j$(getProcessorCount) install
