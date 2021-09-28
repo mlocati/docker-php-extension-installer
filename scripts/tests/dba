@@ -1,20 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-set_error_handler(
-    static function ($errno, $errstr, $errfile, $errline) {
-        $msg = "Error {$errno}: {$errstr}\n";
-        if ($errfile) {
-            $msg .= "File: {$errfile}\n";
-            if ($errline) {
-                $msg .= "Line: {$errline}\n";
-            }
-        }
-        fwrite(STDERR, $msg);
-        exit(1);
-    },
-    -1
-);
+require_once __DIR__ . '/_bootstrap.php';
 
 $requiredHandlers = array_map('strtolower', [
     'db4',
