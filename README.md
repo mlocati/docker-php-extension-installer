@@ -206,6 +206,7 @@ install-php-extensions @composer-2.0.2
 | soap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sockets | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| sourceguardian | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | spx |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | sqlsrv[*](#special-requirements-for-sqlsrv) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -237,7 +238,7 @@ install-php-extensions @composer-2.0.2
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 114*
+*Number of supported extensions: 115*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
