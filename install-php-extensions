@@ -1465,17 +1465,54 @@ actuallyInstallComposer() {
 	rm -- "$actuallyInstallComposer_installer"
 }
 
-# Install SourceGuardian Loader
-installSourceGuardian() {
-	case $(uname -m) in
-		i386 | i686 | x86)
-			installSourceGuardian_url=https://www.sourceguardian.com/loaders/download/loaders.linux-i386.tar.gz
-			;;
-		aarch64 | arm64 | armv8)
-			installSourceGuardian_url=https://www.sourceguardian.com/loaders/download/loaders.linux-aarch64.tar.gz
+# Install ionCube Loader
+installIonCubeLoader() {
+	# See https://www.ioncube.com/loaders.php
+	case $PHP_BITS in
+		32)
+			case $(uname -m) in
+				aarch* | arm*)
+					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_armv7l.tar.gz"
+					;;
+				*)
+					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86.tar.gz"
+					;;
+			esac
 			;;
 		*)
-			installSourceGuardian_url=https://www.sourceguardian.com/loaders/download/loaders.linux-x86_64.tar.gz
+			case $(uname -m) in
+				aarch64 | arm64 | armv8)
+					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_aarch64.tar.gz"
+					;;
+				*)
+					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz"
+					;;
+			esac
+			;;
+	esac
+	printf 'Downloading ionCube Loader... '
+	installIonCubeLoader_dir="$(getPackageSource $installIonCubeLoader_url)"
+	echo 'done.'
+	installIonCubeLoader_so=$(php -r "printf('ioncube_loader_lin_%s.%s%s.so', PHP_MAJOR_VERSION, PHP_MINOR_VERSION, ZEND_THREAD_SAFE ? '_ts' : '');")
+	cp "$installIonCubeLoader_dir/$installIonCubeLoader_so" "$(getPHPExtensionsDir)/ioncube_loader.so"
+}
+
+# Install SourceGuardian Loader
+installSourceGuardian() {
+	# See https://www.sourceguardian.com/loaders.html
+	case $PHP_BITS in
+		32)
+			installSourceGuardian_url=https://www.sourceguardian.com/loaders/download/loaders.linux-i386.tar.gz
+			;;
+		*)
+			case $(uname -m) in
+				aarch64 | arm64 | armv8)
+					installSourceGuardian_url=https://www.sourceguardian.com/loaders/download/loaders.linux-aarch64.tar.gz
+					;;
+				*)
+					installSourceGuardian_url=https://www.sourceguardian.com/loaders/download/loaders.linux-x86_64.tar.gz
+					;;
+			esac
 			;;
 	esac
 	printf 'Downloading SourceGuardian... '
@@ -1978,20 +2015,7 @@ installRemoteModule() {
 			fi
 			;;
 		ioncube_loader)
-			installRemoteModule_src='https://downloads.ioncube.com/loader_downloads/'
-			case $PHP_BITS in
-				32)
-					installRemoteModule_src="${installRemoteModule_src}ioncube_loaders_lin_x86.tar.gz"
-					;;
-				*)
-					installRemoteModule_src="${installRemoteModule_src}ioncube_loaders_lin_x86-64.tar.gz"
-					;;
-			esac
-			printf 'Downloading ionCube Loader... '
-			installRemoteModule_src="$(getPackageSource $installRemoteModule_src)"
-			echo 'done.'
-			installRemoteModule_so=$(php -r "printf('ioncube_loader_lin_%s.%s%s.so', PHP_MAJOR_VERSION, PHP_MINOR_VERSION, ZEND_THREAD_SAFE ? '_ts' : '');")
-			cp "$installRemoteModule_src/$installRemoteModule_so" "$(getPHPExtensionsDir)/$installRemoteModule_module.so"
+			installIonCubeLoader
 			installRemoteModule_manuallyInstalled=1
 			;;
 		jsmin)

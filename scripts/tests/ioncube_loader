@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$rc = 0;
+foreach ([false => 'PHP module', true => 'Zend extension'] as $type => $typeName) {
+    $extensions = get_loaded_extensions($type);
+    $found = '';
+    foreach ($extensions as $extension) {
+        if (preg_match('/^(the )?ioncube (php )?loader/i', $extension)) {
+            $found = $extension;
+
+            break;
+        }
+    }
+    if ($found !== '') {
+        fwrite(STDOUT, "The {$found} {$typeName} is loaded.\n");
+    } else {
+        fwrite(STDERR, "The ionCube Loader {$typeName} is not loaded.\nLoaded extensions are: \n- " . implode("\n- ", $extensions));
+        $rc = 1;
+    }
+}
+exit($rc);
