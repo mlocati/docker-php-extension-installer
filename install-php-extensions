@@ -70,11 +70,16 @@ setDistro() {
 
 # Set:
 # - PHP_MAJMIN_VERSION: Major-Minor version, format MMmm (example 800 for PHP 8.0.1)
+# - PHP_MAJDOTMIN_VERSION: Major-Minor version, format M.m (example 8.0 for PHP 8.0.1)
 # - PHP_MAJMINPAT_VERSION: Major-Minor-Patch version, format MMmmpp (example 80001 for PHP 8.0.1) variables containing integers value
+# - PHP_MAJDOTMINDOTPAT_VERSION: Major-Minor-Patch version, format M.m.p (example 8.0.1 for PHP 8.0.1)
+# - PHP_THREADSAFE: 1 if PHP is thread-safe (TS), 0 if not thread-safe (NTS)
 setPHPVersionVariables() {
-	setPHPVersionVariables_textual="$(php-config --version)"
-	PHP_MAJMIN_VERSION=$(printf '%s' "$setPHPVersionVariables_textual" | awk -F. '{print $1*100+$2}')
-	PHP_MAJMINPAT_VERSION=$(printf '%s' "$setPHPVersionVariables_textual" | awk -F. '{print $1*10000+$2*100+$3}')
+	PHP_MAJDOTMINDOTPAT_VERSION="$(php-config --version)"
+	PHP_MAJMIN_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | awk -F. '{print $1*100+$2}')
+	PHP_MAJDOTMIN_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | cut -d. -f1-2)
+	PHP_MAJMINPAT_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | awk -F. '{print $1*10000+$2*100+$3}')
+	PHP_THREADSAFE=$(php -r 'echo ZEND_THREAD_SAFE ? 1 : 0;')
 }
 
 # Fix apt-get being very slow on Debian Jessie
@@ -1452,6 +1457,38 @@ actuallyInstallComposer() {
 	rm -- "$actuallyInstallComposer_installer"
 }
 
+# Install SourceGuardian Loader
+installSourceGuardian() {
+	case $(uname -m) in
+		i386 | i686 | x86)
+			installSourceGuardian_url=https://www.sourceguardian.com/loaders/download/loaders.linux-i386.tar.gz
+			;;
+		aarch64 | arm64 | armv8)
+			installSourceGuardian_url=https://www.sourceguardian.com/loaders/download/loaders.linux-aarch64.tar.gz
+			;;
+		*)
+			installSourceGuardian_url=https://www.sourceguardian.com/loaders/download/loaders.linux-x86_64.tar.gz
+			;;
+	esac
+	printf 'Downloading SourceGuardian... '
+	installSourceGuardian_dir="$(getPackageSource $installSourceGuardian_url)"
+	printf 'done (version: %s)\n' "$(cat "$installSourceGuardian_dir/version")"
+	for installSourceGuardian_phpv in $PHP_MAJDOTMINDOTPAT_VERSION $PHP_MAJDOTMIN_VERSION; do
+		installSourceGuardian_file="$installSourceGuardian_dir/ixed.$PHP_MAJDOTMIN_VERSION"
+		if test $PHP_THREADSAFE -eq 1; then
+			installSourceGuardian_file="${installSourceGuardian_file}ts"
+		fi
+		installSourceGuardian_file="${installSourceGuardian_file}.lin"
+		if test -f "$installSourceGuardian_file"; then
+			mv "$installSourceGuardian_file" "$(getPHPExtensionsDir)/sourceguardian.so"
+			return
+		fi
+	done
+	printf 'Unable to find a SourceGuardian compatible with PHP %s or PHP %s.\nAvailable SourceGuardian versions:\n' "$PHP_MAJDOTMINDOTPAT_VERSION" "$PHP_MAJDOTMIN_VERSION" >&2
+	ls -1 "$installSourceGuardian_dir" | grep -E '^ixed\..*\.lin$' | sed -E 's/^[^0-9]+([0-9]+(\.[0-9]+)*).*$/\1/' | sort | uniq >&2
+	exit 1
+}
+
 # Install a bundled PHP module given its handle
 #
 # Arguments:
@@ -2185,6 +2222,10 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		sourceguardian)
+			installSourceGuardian
+			installRemoteModule_manuallyInstalled=1
+			;;
 		spx)
 			if test -z "$installRemoteModule_version"; then
 				installRemoteModule_version=1367cbc70194d18888ec9cfe9b06c0a5b4426dff
@@ -2581,7 +2622,7 @@ installRemoteModule() {
 			# event must be loaded after sockets
 			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" "$installRemoteModule_module"
 			;;
-		ioncube_loader)
+		ioncube_loader | sourceguardian)
 			# On PHP 5.5, docker-php-ext-enable fails to detect that ionCube Loader is a Zend Extension
 			if test $PHP_MAJMIN_VERSION -le 505; then
 				printf 'zend_extension=%s/%s.so\n' "$(getPHPExtensionsDir)" "$installRemoteModule_module" >"$PHP_INI_DIR/conf.d/docker-php-ext-$installRemoteModule_module.ini"

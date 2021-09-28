@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+
+set_error_handler(
+    static function ($errno, $errstr, $errfile, $errline) {
+        $msg = "Error {$errno}: {$errstr}\n";
+        if ($errfile) {
+            $msg .= "File: {$errfile}\n";
+            if ($errline) {
+                $msg .= "Line: {$errline}\n";
+            }
+        }
+        fwrite(STDERR, $msg);
+        exit(1);
+    },
+    -1
+);
+
+$rc = 0;
+foreach ([false => 'PHP module', true => 'Zend extension'] as $type => $typeName) {
+    $extensions = get_loaded_extensions($type);
+    $extensionsLowerCase = array_map('strtolower', $extensions);
+    if (in_array('sourceguardian', $extensionsLowerCase, true)) {
+        fwrite(STDOUT, "The SourceGuardian {$typeName} is loaded.\n");
+    } else {
+        fwrite(STDERR, "The SourceGuardian {$typeName} is not loaded.\nLoaded extensions are: \n- " . implode("\n- ", $extensions));
+        $rc = 1;
+    }
+}
+exit($rc);
