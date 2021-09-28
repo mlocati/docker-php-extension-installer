@@ -74,12 +74,14 @@ setDistro() {
 # - PHP_MAJMINPAT_VERSION: Major-Minor-Patch version, format MMmmpp (example 80001 for PHP 8.0.1) variables containing integers value
 # - PHP_MAJDOTMINDOTPAT_VERSION: Major-Minor-Patch version, format M.m.p (example 8.0.1 for PHP 8.0.1)
 # - PHP_THREADSAFE: 1 if PHP is thread-safe (TS), 0 if not thread-safe (NTS)
+# - PHP_BITS: 32 if PHP is compiled for 32-bit, 64 if 64-bit
 setPHPVersionVariables() {
 	PHP_MAJDOTMINDOTPAT_VERSION="$(php-config --version)"
 	PHP_MAJMIN_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | awk -F. '{print $1*100+$2}')
 	PHP_MAJDOTMIN_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | cut -d. -f1-2)
 	PHP_MAJMINPAT_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | awk -F. '{print $1*10000+$2*100+$3}')
 	PHP_THREADSAFE=$(php -r 'echo ZEND_THREAD_SAFE ? 1 : 0;')
+	PHP_BITS=$(php -r 'echo PHP_INT_SIZE * 8;')
 }
 
 # Fix apt-get being very slow on Debian Jessie
@@ -1317,17 +1319,20 @@ compareVersions() {
 # Set:
 #   ORACLE_INSTANTCLIENT_LIBPATH
 installOracleInstantClient() {
-	if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
-		installOracleInstantClient_client=client
-		installOracleInstantClient_version='19.9'
-		installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-basic-linux-$installOracleInstantClient_version.0.0.0dbru.zip
-		installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-sdk-linux-$installOracleInstantClient_version.0.0.0dbru.zip
-	else
-		installOracleInstantClient_client=client64
-		installOracleInstantClient_version='21.1'
-		installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.0.0.zip
-		installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.0.0.zip
-	fi
+	case $PHP_BITS in
+		32)
+			installOracleInstantClient_client=client
+			installOracleInstantClient_version='19.9'
+			installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-basic-linux-$installOracleInstantClient_version.0.0.0dbru.zip
+			installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-sdk-linux-$installOracleInstantClient_version.0.0.0dbru.zip
+			;;
+		*)
+			installOracleInstantClient_client=client64
+			installOracleInstantClient_version='21.1'
+			installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basic-linux.x64-$installOracleInstantClient_version.0.0.0.zip
+			installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.0.0.zip
+			;;
+	esac
 	ORACLE_INSTANTCLIENT_LIBPATH=/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib
 	if ! test -e "$ORACLE_INSTANTCLIENT_LIBPATH"; then
 		printf 'Downloading Oracle Instant Client v%s... ' "$installOracleInstantClient_version"
@@ -1354,11 +1359,14 @@ installOracleInstantClient() {
 					cat "$ORACLE_INSTANTCLIENT_LIBPATH" | awk -v suffix=":$ORACLE_INSTANTCLIENT_LIBPATH" '{print NR==1 ? $0suffix : $0}' >"$ORACLE_INSTANTCLIENT_LIBPATH"
 				fi
 			else
-				if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
-					echo "/lib:/usr/local/lib:/usr/lib:$ORACLE_INSTANTCLIENT_LIBPATH" >"$installOracleInstantClient_ldconf"
-				else
-					echo "/lib64:/lib:/usr/local/lib:/usr/lib:$ORACLE_INSTANTCLIENT_LIBPATH" >"$installOracleInstantClient_ldconf"
-				fi
+				case $PHP_BITS in
+					32)
+						echo "/lib:/usr/local/lib:/usr/lib:$ORACLE_INSTANTCLIENT_LIBPATH" >"$installOracleInstantClient_ldconf"
+						;;
+					*)
+						echo "/lib64:/lib:/usr/local/lib:/usr/lib:$ORACLE_INSTANTCLIENT_LIBPATH" >"$installOracleInstantClient_ldconf"
+						;;
+				esac
 			fi
 			;;
 		debian)
@@ -1971,11 +1979,14 @@ installRemoteModule() {
 			;;
 		ioncube_loader)
 			installRemoteModule_src='https://downloads.ioncube.com/loader_downloads/'
-			if test $(php -r 'echo PHP_INT_SIZE;') -eq 4; then
-				installRemoteModule_src="${installRemoteModule_src}ioncube_loaders_lin_x86.tar.gz"
-			else
-				installRemoteModule_src="${installRemoteModule_src}ioncube_loaders_lin_x86-64.tar.gz"
-			fi
+			case $PHP_BITS in
+				32)
+					installRemoteModule_src="${installRemoteModule_src}ioncube_loaders_lin_x86.tar.gz"
+					;;
+				*)
+					installRemoteModule_src="${installRemoteModule_src}ioncube_loaders_lin_x86-64.tar.gz"
+					;;
+			esac
 			printf 'Downloading ionCube Loader... '
 			installRemoteModule_src="$(getPackageSource $installRemoteModule_src)"
 			echo 'done.'
