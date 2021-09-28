@@ -1,7 +1,6 @@
 #!/bin/sh
 
-set -o errexit
-set -o nounset
+. "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/_bootstrap.sh"
 
 rc=0
 if php --ri sockets >/dev/null 2>/dev/null; then
