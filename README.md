@@ -220,7 +220,7 @@ install-php-extensions @composer-2.0.2
 | tidy | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | timezonedb | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | uopz | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| uploadprogress | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
+| uploadprogress | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | uuid | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | vips[*](#special-requirements-for-vips) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
