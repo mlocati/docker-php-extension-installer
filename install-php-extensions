@@ -2508,6 +2508,13 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		uploadprogress)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 701; then
+					installRemoteModule_version=1.1.4
+				fi
+			fi
+			;;
 		uuid)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
