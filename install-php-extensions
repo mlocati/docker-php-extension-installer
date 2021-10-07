@@ -1257,6 +1257,44 @@ getCompilationProcessorCount() {
 	esac
 }
 
+# Enable a PHP extension
+#
+# Arguments:
+#   $1: the name of the PHP extension to be enabled
+#   $2: the name of the INI file (optional)
+#   $3: custom contents of the INI file (optional)
+enablePhpExtension() {
+	enablePhpExtension_cmd='docker-php-ext-enable'
+	enablePhpExtension_iniFile="$PHP_INI_DIR/conf.d"
+	if test -n "${2:-}"; then
+		enablePhpExtension_cmd="$enablePhpExtension_cmd --ini-name $2"
+		enablePhpExtension_iniFile="$enablePhpExtension_iniFile/$2"
+	else
+		enablePhpExtension_iniFile="$enablePhpExtension_iniFile/docker-php-ext-$1.ini"
+	fi
+	enablePhpExtension_cmd="$enablePhpExtension_cmd $1"
+	case "${IPE_DONT_ENABLE:-}" in
+		1 | y* | Y*)
+			enablePhpExtension_enableCommand="/usr/local/bin/docker-php-ext-enable-$1"
+			printf '#!/bin/sh\n\n' >"$enablePhpExtension_enableCommand"
+			if test -z "${3-}"; then
+				printf '%s\n' "$enablePhpExtension_cmd" >>"$enablePhpExtension_enableCommand"
+			else
+				printf 'cat <<EOT >%s\n%s\nEOT\n' "$enablePhpExtension_iniFile" "$3" >>"$enablePhpExtension_enableCommand"
+			fi
+			chmod +x "$enablePhpExtension_enableCommand"
+			printf '## Extension %s not enabled.\nYou can enable it by running the following command:\n%s\n\n' "$1" "$(basename "$enablePhpExtension_enableCommand")"
+			;;
+		*)
+			if test -z "${3-}"; then
+				$enablePhpExtension_cmd
+			else
+				printf '%s\n' "$3" >"$enablePhpExtension_iniFile"
+			fi
+			;;
+	esac
+}
+
 # Mark the pre-installed APT/APK packages as used
 # that way they won't be uninstalled by accident
 markPreinstalledPackagesAsUsed() {
@@ -2810,33 +2848,32 @@ installRemoteModule() {
 	case "$installRemoteModule_module" in
 		apcu_bc)
 			# apcu_bc must be loaded after apcu
-			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" apc
+			enablePhpExtension apc "xx-php-ext-$installRemoteModule_module.ini"
 			;;
 		blackfire)
-			printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307\n" >"$PHP_INI_DIR/conf.d/docker-php-ext-$installRemoteModule_module.ini"
+			enablePhpExtension "$installRemoteModule_module" '' "$(printf 'extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307')"
 			;;
 		event)
 			# event must be loaded after sockets
-			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" "$installRemoteModule_module"
+			enablePhpExtension "$installRemoteModule_module" "xx-php-ext-$installRemoteModule_module.ini"
 			;;
 		ioncube_loader | sourceguardian)
 			# On PHP 5.5, docker-php-ext-enable fails to detect that ionCube Loader is a Zend Extension
 			if test $PHP_MAJMIN_VERSION -le 505; then
-				printf 'zend_extension=%s/%s.so\n' "$(getPHPExtensionsDir)" "$installRemoteModule_module" >"$PHP_INI_DIR/conf.d/docker-php-ext-$installRemoteModule_module.ini"
+				enablePhpExtension "$installRemoteModule_module" '' "$(printf 'zend_extension=%s/%s.so' "$(getPHPExtensionsDir)" "$installRemoteModule_module")"
 			else
-				docker-php-ext-enable "$installRemoteModule_module"
+				enablePhpExtension "$installRemoteModule_module"
 			fi
 			;;
 		http | memcached)
 			# http must be loaded after raphf and propro, memcached must be loaded after msgpack
-			docker-php-ext-enable --ini-name "xx-php-ext-$installRemoteModule_module.ini" "$installRemoteModule_module"
+			enablePhpExtension "$installRemoteModule_module" "xx-php-ext-$installRemoteModule_module.ini"
 			;;
 		snuffleupagus)
-			docker-php-ext-enable "$installRemoteModule_module"
-			printf 'sp.configuration_file=%s\n' "$PHP_INI_DIR/conf.d/snuffleupagus.rules" >>"$PHP_INI_DIR/conf.d/docker-php-ext-snuffleupagus.ini"
+			enablePhpExtension "$installRemoteModule_module" '' "$(printf 'extension=%s/%s.so\nsp.configuration_file=%s' "$(getPHPExtensionsDir)" "$installRemoteModule_module" "$PHP_INI_DIR/conf.d/snuffleupagus.rules")"
 			;;
 		*)
-			docker-php-ext-enable "$installRemoteModule_module"
+			enablePhpExtension "$installRemoteModule_module"
 			;;
 	esac
 }
