@@ -29,17 +29,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v2
         with:
-          go-version: "1.13"
+          go-version: "1.17.1"
       - name: Install shfmt
-        run: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt
+        run: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt@v3.4.0
       - name: Checkout
         uses: actions/checkout@v2
       - name: Check coding style
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          ./scripts/invoke-shfmt check
+        run: ./scripts/invoke-shfmt check
   check_syntax_php:
     name: Check PHP coding style
     runs-on: ubuntu-latest
