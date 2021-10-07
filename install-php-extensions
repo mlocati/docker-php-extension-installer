@@ -2991,6 +2991,48 @@ removeStringFromList() {
 	printf '%s' "$removeStringFromList_result"
 }
 
+# Replace the list of trusted CA with toe ones provided by cURL.
+# (controlled by IPE_FIX_CACERTS is set)
+fixCACerts() {
+	case "${IPE_FIX_CACERTS:-}" in
+		1 | y* | Y*) ;;
+		*)
+			return
+			;;
+	esac
+	case "$DISTRO_VERSION" in
+		alpine@3.7 | alpine@3.8) ;;
+		debian@8 | debian@9)
+			if ! grep -q 'mozilla/ISRG_Root_X1.crt' /etc/ca-certificates.conf && grep -q 'mozilla/DST_Root_CA_X3.crt' /etc/ca-certificates.conf; then
+				fixCACerts_mustUpdate=1
+				if test -d /var/lib/apt/lists; then
+					for fixCACerts_item in $(ls -1 /var/lib/apt/lists); do
+						case "$fixCACerts_item" in
+							partial | lock) ;;
+							*)
+								fixCACerts_mustUpdate=0
+								break
+								;;
+						esac
+					done
+				fi
+				if test $fixCACerts_mustUpdate -eq 1; then
+					DEBIAN_FRONTEND=noninteractive apt-get update -q
+				fi
+				apt-get install -qqy --no-install-recommends ca-certificates
+			fi
+			;;
+		*)
+			# No needs to update the CA list
+			return
+			;;
+	esac
+	if grep -Eq '^mozilla/ISRG_Root_X1\.crt$' /etc/ca-certificates.conf && grep -Eq '^mozilla/DST_Root_CA_X3\.crt$' /etc/ca-certificates.conf; then
+		sed -i '/^mozilla\/DST_Root_CA_X3/s/^/!/' /etc/ca-certificates.conf
+		update-ca-certificates -f
+	fi
+}
+
 # Cleanup everything at the end of the execution
 cleanup() {
 	if test -n "$UNNEEDED_PACKAGE_LINKS"; then
@@ -3067,6 +3109,8 @@ processCommandArguments "$@"
 if test -z "$PHP_MODULES_TO_INSTALL"; then
 	exit 0
 fi
+
+fixCACerts
 
 sortModulesToInstall
 
