@@ -298,7 +298,7 @@ Here's the list of all the supported environment variables:
 
 | Extension | Environment variable | Description |
 |---|---|---|
-| | `IPE_FIX_CACERTS=1` | Old Alpine Linux (3.7 and 3.8) and Debian (Jessie and Stretch) versions don't work anymore with websites whose HTTPS certificate has been signed by Let's Encrypt ([more details here](https://letsencrypt.org/docs/dst-root-ca-x3-expiration-september-2021/).<br /> By setting this environment variable, `install-php-extensions` will fix this issue |
+| | `IPE_FIX_CACERTS=1` | Old Alpine Linux (3.7 and 3.8) and Debian (Jessie and Stretch) versions don't work anymore with websites whose HTTPS certificate has been signed by Let's Encrypt ([more details here](https://letsencrypt.org/docs/dst-root-ca-x3-expiration-september-2021/)).<br /> By setting this environment variable, `install-php-extensions` will fix this issue |
 | | `IPE_DONT_ENABLE=1` | By default the script will install and enable the extensions.<br />If you want to only install them (without enabling them) you can set this environment variable.<br />To enable the extensions at a later time you can execute the command `docker-php-ext-enable-<extension>` (for example: `docker-php-ext-enable-xdebug`).<br />**Beware**: installing some PHP extensions require that other PHP extensions are already enabled, so use this feature wisely. |
 | | `IPE_KEEP_SYSPKG_CACHE=1` | By default the script will clear the apt/apk/pear cache in order to save disk space. You can disable it by setting this environment variable |
 | lzf | `IPE_LZF_BETTERCOMPRESSION=1` | By default `install-php-extensions` compiles the `lzf` extension to prefer speed over size; you can use this environment variable to compile it preferring size over speed |
