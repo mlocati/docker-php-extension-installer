@@ -291,6 +291,12 @@ setPHPPreinstalledModules() {
 processCommandArguments() {
 	processCommandArguments_endArgs=0
 	PHP_MODULES_TO_INSTALL=''
+	# Support deprecated flag IPE_FIX_CACERTS
+	case "${IPE_FIX_CACERTS:-}" in
+		1 | y* | Y*)
+			PHP_MODULES_TO_INSTALL="$PHP_MODULES_TO_INSTALL @fix_letsencrypt"
+			;;
+	esac
 	while :; do
 		if test $# -lt 1; then
 			break
@@ -2878,7 +2884,30 @@ installRemoteModule() {
 	esac
 }
 
-# Configure the PECL package installed
+# Check if a module/helper may be installed using the pecl archive
+#
+# Arguments:
+#   $1: the name of the module
+#
+# Return:
+#   0: true
+#   1: false
+moduleMayUsePecl() {
+	case "$1" in
+		@composer | @fix_letsencrypt)
+			return 1
+			;;
+		blackfire | ioncube_loader | snuffleupagus | sourceguardian | spx | tdlib)
+			return 1
+			;;
+	esac
+	if stringInList "$1" "$BUNDLED_MODULES"; then
+		return 1
+	fi
+	return 0
+}
+
+# Configure the PECL package installer
 #
 # Updates:
 #   PHP_MODULES_TO_INSTALL
@@ -2887,16 +2916,7 @@ installRemoteModule() {
 configureInstaller() {
 	USE_PICKLE=0
 	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
-		if test "${PHP_MODULE_TO_INSTALL#@}" != "$PHP_MODULE_TO_INSTALL"; then
-			continue
-		fi
-		if test "$PHP_MODULE_TO_INSTALL" = 'spx'; then
-			continue
-		fi
-		if test "$PHP_MODULE_TO_INSTALL" = 'amqp' && test $PHP_MAJMIN_VERSION -ge 800; then
-			continue
-		fi
-		if ! stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
+		if moduleMayUsePecl "$PHP_MODULE_TO_INSTALL"; then
 			if test $PHP_MAJMIN_VERSION -lt 800; then
 				pecl channel-update pecl.php.net || true
 				return
@@ -3028,19 +3048,17 @@ removeStringFromList() {
 	printf '%s' "$removeStringFromList_result"
 }
 
-# Replace the list of trusted CA with toe ones provided by cURL.
-# (controlled by IPE_FIX_CACERTS is set)
-fixCACerts() {
-	case "${IPE_FIX_CACERTS:-}" in
-		1 | y* | Y*) ;;
-		*)
-			return
-			;;
-	esac
+# Fix the Let's Encrypt CA certificates on old distros
+fixLetsEncrypt() {
+	printf '### FIXING LETS ENCRYPT CA CERTIFICATES ###\n'
 	case "$DISTRO_VERSION" in
-		alpine@3.7 | alpine@3.8) ;;
+		alpine@3.7 | alpine@3.8)
+			printf -- '- old Alpine Linux detected: we should fix the certificates\n'
+			;;
 		debian@8 | debian@9)
+			printf -- '- old Debian detected: we should fix the certificates\n'
 			if ! grep -q 'mozilla/ISRG_Root_X1.crt' /etc/ca-certificates.conf && grep -q 'mozilla/DST_Root_CA_X3.crt' /etc/ca-certificates.conf; then
+				printf -- '- old ca-certificates package detected\n'
 				fixCACerts_mustUpdate=1
 				if test -d /var/lib/apt/lists; then
 					for fixCACerts_item in $(ls -1 /var/lib/apt/lists); do
@@ -3054,19 +3072,25 @@ fixCACerts() {
 					done
 				fi
 				if test $fixCACerts_mustUpdate -eq 1; then
-					DEBIAN_FRONTEND=noninteractive apt-get update -q
+					printf -- '- refreshing the APT package list\n'
+					DEBIAN_FRONTEND=noninteractive apt-get update -qq
 				fi
-				apt-get install -qqy --no-install-recommends ca-certificates
+				printf -- '- installing newer ca-certificates package\n'
+				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends ca-certificates
 			fi
 			;;
 		*)
-			# No needs to update the CA list
+			printf -- '- patch not required in this distro version\n'
 			return
 			;;
 	esac
 	if grep -Eq '^mozilla/ISRG_Root_X1\.crt$' /etc/ca-certificates.conf && grep -Eq '^mozilla/DST_Root_CA_X3\.crt$' /etc/ca-certificates.conf; then
+		printf -- '- disabling the DST_Root_CA_X3 certificate\n'
 		sed -i '/^mozilla\/DST_Root_CA_X3/s/^/!/' /etc/ca-certificates.conf
+		printf -- '- refreshing the certificates\n'
 		update-ca-certificates -f
+	else
+		printf -- '- DST_Root_CA_X3 certificate not found or already disabled\n'
 	fi
 }
 
@@ -3147,7 +3171,10 @@ if test -z "$PHP_MODULES_TO_INSTALL"; then
 	exit 0
 fi
 
-fixCACerts
+if stringInList @fix_letsencrypt "$PHP_MODULES_TO_INSTALL"; then
+	# This must be the very first thing we do
+	fixLetsEncrypt
+fi
 
 sortModulesToInstall
 
@@ -3169,12 +3196,20 @@ if test $USE_PICKLE -gt 1; then
 	buildPickle
 fi
 for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
-	if test "$PHP_MODULE_TO_INSTALL" = '@composer'; then
-		installComposer
-	elif stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
-		installBundledModule "$PHP_MODULE_TO_INSTALL"
-	else
-		installRemoteModule "$PHP_MODULE_TO_INSTALL"
-	fi
+	case "$PHP_MODULE_TO_INSTALL" in
+		@fix_letsencrypt)
+			# Already done: it must be the first thing we do
+			;;
+		@composer)
+			installComposer
+			;;
+		*)
+			if stringInList "$PHP_MODULE_TO_INSTALL" "$BUNDLED_MODULES"; then
+				installBundledModule "$PHP_MODULE_TO_INSTALL"
+			else
+				installRemoteModule "$PHP_MODULE_TO_INSTALL"
+			fi
+			;;
+	esac
 done
 cleanup
