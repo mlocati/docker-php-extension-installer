@@ -159,7 +159,13 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build docker image
         if: env.VERSIONTAG_THIS != ''
-        run: docker build --tag "mlocati/php-extension-installer:$VERSIONTAG_THIS" --tag mlocati/php-extension-installer:latest .
+        run: >
+          docker build
+          --tag "mlocati/php-extension-installer:$VERSIONTAG_THIS"
+          --tag "mlocati/php-extension-installer:${VERSIONTAG_THIS%.*}"
+          --tag "mlocati/php-extension-installer:${VERSIONTAG_THIS%%.*}"
+          --tag mlocati/php-extension-installer:latest
+          .
       - name: Push docker image to Docker Hub
         if: env.VERSIONTAG_THIS != ''
         run: docker push --all-tags mlocati/php-extension-installer
