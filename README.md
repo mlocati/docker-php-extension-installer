@@ -247,7 +247,7 @@ install-php-extensions @fix_letsencrypt
 | xmlrpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | xsl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | yac |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| yaml | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | yar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zephir_parser |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
