@@ -195,6 +195,7 @@ install-php-extensions @fix_letsencrypt
 | odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opencensus |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| openswoole |  |  |  |  | &check; | &check; | &check; | &check; | &check; |
 | parallel[*](#special-requirements-for-parallel) |  |  |  | &check; | &check; | &check; | &check; |  |  |
 | pcntl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pcov |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -254,7 +255,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 115*
+*Number of supported extensions: 116*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
