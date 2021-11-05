@@ -2596,7 +2596,7 @@ installRemoteModule() {
 				# enable json support?
 				addConfigureOption enable-swoole-json yes
 				# enable curl support?
-				if test $PHP_MAJMINPAT_VERSION -ne 80000; then
+				if test $PHP_MAJMINPAT_VERSION -ne 80000 || test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
 					addConfigureOption enable-swoole-curl yes
 				else
 					# https://github.com/swoole/swoole-src/issues/3977#issuecomment-754755521
