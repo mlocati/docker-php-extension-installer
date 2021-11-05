@@ -802,6 +802,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
+			openswoole@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs libstdc++ $buildRequiredPackageLists_libssl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev postgresql-dev linux-headers $buildRequiredPackageLists_libssldev"
+				;;
+			openswoole@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libcurl4-gnutls-dev libpq-dev"
+				;;
 			pdo_dblib@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
@@ -2328,6 +2336,26 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				installRemoteModule_version=alpha
 			fi
+			;;
+		openswoole)
+			if php --ri sockets >/dev/null 2>/dev/null; then
+				installRemoteModule_sockets=yes
+			else
+				installRemoteModule_sockets=no
+			fi
+			installRemoteModule_openssl=yes
+			# enable sockets supports?
+			addConfigureOption enable-sockets $installRemoteModule_sockets
+			# enable openssl support?
+			addConfigureOption enable-openssl $installRemoteModule_openssl
+			# enable http2 support?
+			addConfigureOption enable-http2 yes
+			# enable mysqlnd support?
+			addConfigureOption enable-mysqlnd yes
+			# enable json support?
+			addConfigureOption enable-swoole-json yes
+			# enable curl support?
+			addConfigureOption enable-swoole-curl yes
 			;;
 		parallel)
 			if test -z "$installRemoteModule_version"; then
