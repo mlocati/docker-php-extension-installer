@@ -2,4 +2,5 @@ parallel zts
 pdo_sqlsrv !alpine3.7 !alpine3.8 !bullseye
 pthreads zts
 sqlsrv !alpine3.7 !alpine3.8 !7.1-alpine3.9 !7.1-alpine3.10 !bullseye
+tensor !alpine3.15
 vips !alpine3.7 !alpine3.8 !alpine3.9 !jessie
