@@ -20,11 +20,6 @@ Once that draft release has been created, you have to:
 
 ## Extensions to be monitored
 
-### amqp
-
-For PHP 8+ we currenly install the `amqp` PHP extension with the `beta` stability.
-We should switch to `stable` when it will be available.
-
 ### cmark
 
 The `cmark` PHP extension requires the `libcmark` system library.
