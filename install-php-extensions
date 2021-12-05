@@ -997,7 +997,11 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			tidy@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml-libs"
+				if test $DISTRO_MAJMIN_VERSION -ge 315; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent tidyhtml-libs"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile tidyhtml-dev"
 				;;
 			tidy@debian)
