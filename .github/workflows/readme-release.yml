@@ -179,7 +179,7 @@ jobs:
           tag_name: ${{ env.VERSIONTAG_THIS }}
           release_name: ${{ env.RELEASE_NAME }}
           body: ${{ env.RELEASE_NOTES }}
-          draft: true
+          draft: false
           prerelease: false
       - name: Upload release asset
         if: env.VERSIONTAG_THIS != ''
