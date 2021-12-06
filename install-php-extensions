@@ -710,6 +710,9 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile openldap-dev"
 				;;
 			ldap@debian)
+				if test $DISTRO_VERSION_NUMBER -ge 9; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libldap-common"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libldap2-dev"
 				;;
 			maxminddb@alpine)
