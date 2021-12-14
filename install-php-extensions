@@ -2078,6 +2078,13 @@ installRemoteModule() {
 					;;
 			esac
 			;;
+		ds)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 702; then
+					installRemoteModule_version=1.3.0
+				fi
+			fi
+			;;
 		event)
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 2.4.0) -ge 0; then
 				# Enable internal debugging in Event
