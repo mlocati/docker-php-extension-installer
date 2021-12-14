@@ -150,7 +150,7 @@ install-php-extensions @fix_letsencrypt
 | csv |  |  |  |  |  | &check; | &check; | &check; | &check; |
 | dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | decimal |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| ds |  |  | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| ds |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | enchant | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | event | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
