@@ -2255,6 +2255,11 @@ installRemoteModule() {
 			fi
 			;;
 		lzf)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 702; then
+					installRemoteModule_version=1.6.8
+				fi
+			fi
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '1.5.0') -ge 0; then
 				# Sacrifice speed in favour of compression ratio?
 				case "${IPE_LZF_BETTERCOMPRESSION:-}" in
