@@ -2448,6 +2448,9 @@ installRemoteModule() {
 					debian)
 						installRemoteModule_tmp='librdkafka*'
 						;;
+					*)
+						installRemoteModule_tmp=''
+						;;
 				esac
 				if test -n "$installRemoteModule_tmp"; then
 					installRemoteModule_tmp="$(getInstalledPackageVersion "$installRemoteModule_tmp")"
