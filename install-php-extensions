@@ -691,7 +691,8 @@ buildRequiredPackageLists() {
 				esac
 				;;
 			interbase@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev ncurses-dev"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev libtool linux-headers ncurses-dev zlib-dev"
 				;;
 			interbase@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
@@ -822,7 +823,8 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
 				;;
 			pdo_firebird@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev ncurses-dev"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev libtool linux-headers ncurses-dev zlib-dev"
 				;;
 			pdo_firebird@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
@@ -1856,15 +1858,38 @@ EOF
 			case "$DISTRO" in
 				alpine)
 					if ! test -d /tmp/src/firebird; then
-						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R2_5_9/Firebird-2.5.9.27139-0.tar.bz2)" /tmp/src/firebird
+						installRemoteModule_v=3.0.8
+						installRemoteModule_p=33535-0
+						if test $(compareVersions "$installRemoteModule_v" 3.0.8) -ge 0; then
+							installRemoteModule_v2="v$installRemoteModule_v"
+						else
+							installRemoteModule_v2="$(printf 'R%s' "$installRemoteModule_v" | tr . _)"
+						fi
+						if test $(compareVersions "$installRemoteModule_v" 3.0.0) -ge 0; then
+							installRemoteModule_f='--with-builtin-tommath'
+							installRemoteModule_b='firebird'
+						else
+							installRemoteModule_f='--with-system-icu'
+							installRemoteModule_b='btyacc_binary gpre_boot libfbstatic libfbclient'
+						fi
+						echo "Downloading and compiling Firebird v$installRemoteModule_v"
+						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/$installRemoteModule_v2/Firebird-$installRemoteModule_v.$installRemoteModule_p.tar.bz2)" /tmp/src/firebird
 						cd /tmp/src/firebird
-						# Patch rwlock.h (this has been fixed in later release of firebird 3.x)
-						sed -i '194s/.*/#if 0/' src/common/classes/rwlock.h
-						./configure --with-system-icu
+						if test $(compareVersions "$installRemoteModule_v" 3.0.0) -lt 0; then
+							# Patch rwlock.h (this has been fixed in later release of firebird 3.x)
+							sed -i '194s/.*/#if 0/' src/common/classes/rwlock.h
+						fi
+						./configure $installRemoteModule_f
 						# -j option can't be used: make targets must be compiled sequentially
-						make -s btyacc_binary gpre_boot libfbstatic libfbclient
-						cp gen/firebird/lib/libfbclient.so /usr/lib/
-						ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
+						make -j$(getProcessorCount) $installRemoteModule_b
+						if test -f gen/firebird/lib/libfbclient.so; then
+							cp gen/firebird/lib/libfbclient.so /usr/lib/
+							ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
+						else
+							cp gen/Release/firebird/lib/libfbclient.so* /usr/lib/
+							cp gen/Release/firebird/lib/libib_util.so* /usr/lib/
+							cp gen/Release/firebird/lib/libtommath.so* /usr/lib/
+						fi
 						cd - >/dev/null
 					fi
 					CFLAGS='-I/tmp/src/firebird/src/jrd -I/tmp/src/firebird/src/include -I/tmp/src/firebird/src/include/gen' docker-php-ext-configure $1
