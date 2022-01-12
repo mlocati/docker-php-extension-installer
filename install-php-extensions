@@ -403,6 +403,12 @@ sortModulesToInstall() {
 		PHP_MODULES_TO_INSTALL="socket $PHP_MODULES_TO_INSTALL"
 		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
 	fi
+	# Some module installation may use apcu if available: move it before other modules
+	if stringInList 'apcu' "$PHP_MODULES_TO_INSTALL"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'apcu' "$PHP_MODULES_TO_INSTALL")"
+		PHP_MODULES_TO_INSTALL="apcu $PHP_MODULES_TO_INSTALL"
+		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
+	fi
 	# In any case, first of all, we need to install composer
 	if stringInList '@composer' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList '@composer' "$PHP_MODULES_TO_INSTALL")"
