@@ -1916,6 +1916,15 @@ EOF
 					;;
 			esac
 			;;
+		sockets)
+			case "$PHP_MAJDOTMINDOTPAT_VERSION" in
+				8.0.15 | 8.1.2)
+					sed -i '70 i #ifndef _GNU_SOURCE' /usr/src/php/ext/sockets/config.m4
+					sed -i '71 i #define _GNU_SOURCE' /usr/src/php/ext/sockets/config.m4
+					sed -i '72 i #endif' /usr/src/php/ext/sockets/config.m4
+					;;
+			esac
+			;;
 		sybase_ct)
 			docker-php-ext-configure sybase_ct --with-sybase-ct=/usr
 			;;
