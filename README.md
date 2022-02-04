@@ -143,7 +143,7 @@ install-php-extensions @fix_letsencrypt
 | apcu_bc |  |  | &check; | &check; | &check; | &check; | &check; |  |  |
 | ast |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | bcmath | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| blackfire | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| blackfire | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | bz2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | calendar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | cmark |  |  | &check; | &check; | &check; | &check; | &check; |  |  |
