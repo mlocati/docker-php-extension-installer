@@ -2541,7 +2541,7 @@ installRemoteModule() {
 			;;
 		spx)
 			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version=1367cbc70194d18888ec9cfe9b06c0a5b4426dff
+				installRemoteModule_version=6eba1a5839d0ce8dc71148ed723c72fe06c69600
 			fi
 			if test "${installRemoteModule_version%.*}" = "$installRemoteModule_version"; then
 				installRemoteModule_displayVersion="$installRemoteModule_version"
