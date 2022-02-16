@@ -1,0 +1,41 @@
+name: Bug Report
+description: File a bug report
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        Please remark that this project is about the `install-php-extensions` command, not about `docker-php-ext-install`.
+  - type: input
+    attributes:
+      label: Version of install-php-extensions
+      description: |
+        Please specify the version of `install-php-extensions version`.
+        You can see the version in the first line after executing the command. For example:
+        ```sh
+        $ install-php-extensions zip
+        install-php-extensions v.1.4.15
+        ...
+        ```
+        If it's not the [latest one](https://github.com/mlocati/docker-php-extension-installer/releases/latest) please update it: we don't support old versions.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Error description
+      description: Please describe the error
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Docker image
+      description: For example `php:8.1-cli`
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Minimal Dockerfile
+      description: Please provide the relevant parts of your Dockerfile to reproduce the issue
+      render: Dockerfile
