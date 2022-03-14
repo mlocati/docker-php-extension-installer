@@ -1545,7 +1545,7 @@ isLibaomInstalled() {
 # Install libaom
 installLibaom() {
 	printf 'Installing libaom\n'
-	installLibaom_dir="$(getPackageSource https://aomedia.googlesource.com/aom/+archive/v3.1.2.tar.gz)"
+	installLibaom_dir="$(getPackageSource https://aomedia.googlesource.com/aom/+archive/v3.3.0.tar.gz)"
 	mkdir -- "$installLibaom_dir/my.build"
 	cd -- "$installLibaom_dir/my.build"
 	cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TESTDATA=0 -DENABLE_TESTS=0 -DENABLE_TOOLS=0 -DCMAKE_INSTALL_LIBDIR:PATH=lib ..
@@ -1560,7 +1560,7 @@ installLibaom() {
 #   0 (true)
 #   1 (false)
 isLibdav1dInstalled() {
-	if ! test -f /usr/local/lib/libdav1d.so && ! test -f /usr/lib/libdav1d.so; then
+	if ! test -f /usr/local/lib/libdav1d.so && ! test -f /usr/lib/libdav1d.so && ! test -f /usr/lib/x86_64*/libdav1d.so; then
 		return 1
 	fi
 	if ! test -f /usr/local/include/dav1d/dav1d.h && ! test -f /usr/include/dav1d/dav1d.h; then
@@ -1590,7 +1590,7 @@ installLibdav1d() {
 #   0 (true)
 #   1 (false)
 isLibyuvInstalled() {
-	if ! test -f /usr/local/lib/libyuv.so && ! test -f /usr/lib/libyuv.so; then
+	if ! test -f /usr/local/lib/libyuv.so && ! test -f /usr/lib/libyuv.so && ! test -f /usr/lib/x86_64*/libyuv.so; then
 		return 1
 	fi
 	if ! test -f /usr/local/include/libyuv.h && ! test -f /usr/include/libyuv.h; then
@@ -1616,7 +1616,7 @@ installLibyuv() {
 #   0 (true)
 #   1 (false)
 isLibavifInstalled() {
-	if ! test -f /usr/local/lib/libavif.so && ! test -f /usr/lib/libavif.so; then
+	if ! test -f /usr/local/lib/libavif.so && ! test -f /usr/lib/libavif.so && ! test -f /usr/lib/x86_64*/libavif.so; then
 		return 1
 	fi
 	if ! test -f /usr/local/include/avif/avif.h && ! test -f /usr/include/avif/avif.h; then
