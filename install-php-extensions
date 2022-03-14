@@ -1628,7 +1628,7 @@ isLibavifInstalled() {
 # Install libavif
 installLibavif() {
 	printf 'Installing libavif\n'
-	installLibavif_dir="$(getPackageSource https://codeload.github.com/AOMediaCodec/libavif/tar.gz/refs/tags/v0.9.2)"
+	installLibavif_dir="$(getPackageSource https://codeload.github.com/AOMediaCodec/libavif/tar.gz/refs/tags/v0.9.3)"
 	mkdir -- "$installLibavif_dir/build"
 	cd -- "$installLibavif_dir/build"
 	cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DAVIF_CODEC_AOM=ON -DCMAKE_INSTALL_LIBDIR:PATH=lib
