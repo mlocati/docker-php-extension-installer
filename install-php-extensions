@@ -1602,7 +1602,7 @@ isLibyuvInstalled() {
 # Install libyuv
 installLibyuv() {
 	printf 'Installing libyuv\n'
-	installLibyuv_dir="$(getPackageSource https://chromium.googlesource.com/libyuv/libyuv/+archive/refs/heads/main.tar.gz)"
+	installLibyuv_dir="$(getPackageSource https://chromium.googlesource.com/libyuv/libyuv/+archive/25d0a5110be796eef47004412baf43333d9ecf26.tar.gz)"
 	mkdir -- "$installLibyuv_dir/build"
 	cd -- "$installLibyuv_dir/build"
 	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -B. ..
