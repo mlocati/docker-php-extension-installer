@@ -19,6 +19,14 @@ fi
 
 IPE_VERSION=master
 
+StandWithUkraine() {
+	if test -t 1 && ! grep -Eq '^VERSION=.*jessie' /etc/os-release; then
+		printf '\e[37;44m#StandWith\e[30;43mUkraine\e[0m\n'
+	else
+		printf '#StandWithUkraine\n'
+	fi
+}
+
 if test "$IPE_VERSION" = master && test "${CI:-}" != true; then
 	cat <<EOF
 
@@ -41,9 +49,11 @@ if test "$IPE_VERSION" = master && test "${CI:-}" != true; then
 #############################################################################################################
 
 EOF
+	StandWithUkraine
 	sleep 10 || true
 else
 	printf 'install-php-extensions v.%s\n' "$IPE_VERSION"
+	StandWithUkraine
 fi
 
 # Reset the Internal Field Separator
@@ -149,6 +159,31 @@ getPeclModuleName() {
 	printf '%s' "$normalizePHPModuleName_name"
 }
 
+# Parse a package.xml (or package2.xml) file and extract the module name and version
+#
+# Arguments:
+#   $1: the patho to the XML file
+#
+# Set these variables:
+# - EXTRACTPACKAGEVERSIONFROMXML_NAME
+# - EXTRACTPACKAGEVERSIONFROMXML_VERSION
+#
+# Output:
+#   Nothing
+#
+# Return:
+#   0 (true): if the string is in the list
+#   1 (false): if the string is not in the list
+extractPackageVersionFromXML() {
+	if ! test -f "$1"; then
+		printf 'Unable to find the file\n%s\n' >&2
+		return 1
+	fi
+	extractPackageVersionFromXML_xml="$(cat "$1" | tr '\n' ' ' | sed -E 's/<!--.*?-->//')"
+	printf '\extractPackageVersionFromXML_xml=\n%s\n' "$extractPackageVersionFromXML_xml" | sed -E 's/^.*?'
+	exit 1
+}
+
 # Parse a module name (and optionally version) as received via command arguments, extracting the version and normalizing it
 # Examples:
 #   xdebug-2.9.8
@@ -167,9 +202,38 @@ getPeclModuleName() {
 # Output:
 #   Nothing
 processPHPModuleArgument() {
-	PROCESSED_PHP_MODULE_ARGUMENT="${1%%-*}"
-	if test -n "$PROCESSED_PHP_MODULE_ARGUMENT" && test "$PROCESSED_PHP_MODULE_ARGUMENT" != "$1"; then
-		processPHPModuleArgument_version="${1#*-}"
+	processPHPModuleArgument_arg="$1"
+	# Convert GitHub short form to long url,
+	# for example: from
+	# php-memcached-dev/php-memcached@8f106564e6bb005ca6100b12ccc89000daafa9d8
+	# to
+	# https://codeload.github.com/php-memcached-dev/php-memcached/tar.gz/8f106564e6bb005ca6100b12ccc89000daafa9d8
+	processPHPModuleArgument_arg="$(printf '%s' "$processPHPModuleArgument_arg" | sed -E 's/^([a-zA-Z0-9_.\-]+\/[a-zA-Z0-9_.\-]+)@([a-zA-Z0-9]{40}$)/https:\/\/codeload.github.com\/\1\/tar.gz\/\2/')"
+	# Let's check if $processPHPModuleArgument_arg is an URL
+	if printf '%s' "$processPHPModuleArgument_arg" | grep -Eq '^https?://[^ ]+/[^ ]+$'; then
+		printf 'Downloading source from %s\n' "$processPHPModuleArgument_arg"
+		processPHPModuleArgument_arg="$(getPackageSource "$processPHPModuleArgument_arg")"
+	fi
+	# Let's check if $processPHPModuleArgument_arg the absolute path of an existing directory
+	if test "$processPHPModuleArgument_arg" != "${processPHPModuleArgument_arg#/}" && test -d "$processPHPModuleArgument_arg"; then
+		if test -f "$processPHPModuleArgument_arg/package2.xml"; then
+			printf 'Checking package2.xml of directory %s... ' "$processPHPModuleArgument_arg"
+			if ! extractPackageVersionFromXML "$processPHPModuleArgument_arg/package2.xml"; then
+				return 1
+			fi
+		elif test -f "$processPHPModuleArgument_arg/package.xml"; then
+			printf 'Checking package.xml of directory %s... ' "$processPHPModuleArgument_arg"
+			if ! extractPackageVersionFromXML "$processPHPModuleArgument_arg/package.xml"; then
+				return 1
+			fi
+		else
+			printf 'Unable to find the package.xml file in the directory\n%s\n' "$processPHPModuleArgument_arg"
+			return 1
+		fi
+	fi
+	PROCESSED_PHP_MODULE_ARGUMENT="${processPHPModuleArgument_arg%%-*}"
+	if test -n "$PROCESSED_PHP_MODULE_ARGUMENT" && test "$PROCESSED_PHP_MODULE_ARGUMENT" != "$processPHPModuleArgument_arg"; then
+		processPHPModuleArgument_version="${processPHPModuleArgument_arg#*-}"
 	else
 		processPHPModuleArgument_version=''
 	fi
