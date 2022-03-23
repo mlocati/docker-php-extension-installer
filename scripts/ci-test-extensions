@@ -118,9 +118,20 @@ filterUnsupportedExensionsForDistro() {
 	fi
 	filterUnsupportedExensionsForDistro_filtered=''
 	IFS=' '
+	case "$IPETEST_DOCKER_DISTRO" in
+		alpine*)
+			filterUnsupportedExensionsForDistro_baseDistro="alpine"
+			;;
+		*)
+			filterUnsupportedExensionsForDistro_baseDistro="debian"
+			;;
+	esac
+
 	for filterUnsupportedExensionsForDistro_extension in $EXTENSIONS_TO_BE_TESTED; do
 		if stringInList "!$IPETEST_DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
 			printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$IPETEST_DOCKER_DISTRO"
+		elif stringInList "!$filterUnsupportedExensionsForDistro_baseDistro" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
+			printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$filterUnsupportedExensionsForDistro_baseDistro"
 		else
 			filterUnsupportedExensionsForDistro_filtered="$filterUnsupportedExensionsForDistro_filtered $filterUnsupportedExensionsForDistro_extension"
 		fi
