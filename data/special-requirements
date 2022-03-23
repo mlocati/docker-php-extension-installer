@@ -1,3 +1,4 @@
+memprof !alpine
 parallel zts
 pdo_sqlsrv !alpine3.7 !alpine3.8
 pthreads zts
