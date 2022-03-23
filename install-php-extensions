@@ -793,6 +793,15 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmaxminddb[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmaxminddb-dev"
 				;;
+			memprof@alpine)
+				# Only available in testing
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent judy"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile judy-dev"
+				;;
+			memprof@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libjudydebian1"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libjudy-dev"
+				;;
 			mcrypt@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmcrypt"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmcrypt-dev"
@@ -2411,6 +2420,15 @@ installRemoteModule() {
 				addConfigureOption 'enable-memcached-sasl' 'yes'
 				# Enable memcached session handler support
 				addConfigureOption 'enable-memcached-session' 'yes'
+			fi
+			;;
+		memprof)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=1.0.0
+				elif test $PHP_MAJMIN_VERSION -le 700; then
+					installRemoteModule_version=2.1.0
+				fi
 			fi
 			;;
 		mongo)
