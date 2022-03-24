@@ -183,9 +183,51 @@ extractPackageVersionFromXML() {
 		printf 'Unable to find the file\n%s\n' >&2
 		return 1
 	fi
-	extractPackageVersionFromXML_xml="$(cat "$1" | tr '\n' ' ' | sed -E 's/<!--.*?-->//')"
-	printf '\extractPackageVersionFromXML_xml=\n%s\n' "$extractPackageVersionFromXML_xml" | sed -E 's/^.*?'
-	exit 1
+	extractPackageVersionFromXML_code="$(
+		cat <<'EOT'
+$doc = new DOMDocument();
+if (!$doc->load($argv[1])) {
+	fwrite(STDERR, "Failed to load XML file\n");
+	exit(1);
+}
+set_error_handler(
+	static function($errno, $errstr) {
+		fwrite(STDERR, trim((string) $errstr) . "\n");
+		exit(1);
+	},
+	-1
+);
+$xpath = new DOMXpath($doc);
+$xpath->registerNamespace('v20', 'http://pear.php.net/dtd/package-2.0');
+$xpath->registerNamespace('v21', 'http://pear.php.net/dtd/package-2.1');
+if ($xpath->query('/v20:package/v20:dependencies')->count() === 1) {
+	$ns = 'v20:';
+} elseif ($xpath->query('/v21:package/v21:dependencies')->count() === 1) {
+	$ns = 'v21:';
+} elseif ($xpath->query('/package')->count() === 1) {
+	$ns = '';
+} else {
+	fwrite(STDERR, "Unsupported namespace of the XML of package version details\n");
+}
+$nodes = $xpath->query("/{$ns}package/{$ns}name");
+$name = trim((string) $nodes[0]->nodeValue);
+if ($ns === '') {
+	$nodes = $xpath->query("/{$ns}package/{$ns}version");
+} else {
+	$nodes = $xpath->query("/{$ns}package/{$ns}version/{$ns}release");
+}
+$version = trim((string) $nodes[0]->nodeValue);
+echo "EXTRACTPACKAGEVERSIONFROMXML_NAME='{$name}'\n";
+echo "EXTRACTPACKAGEVERSIONFROMXML_VERSION='{$version}'\n";
+exit(0);
+EOT
+	)"
+	extractPackageVersionFromXML_vars="$(php -n -d display_errors=stderr -r "$extractPackageVersionFromXML_code" "$1")"
+	if test -z "$extractPackageVersionFromXML_vars"; then
+		return 1
+	fi
+	eval "$extractPackageVersionFromXML_vars"
+	return 0
 }
 
 # Parse a module name (and optionally version) as received via command arguments, extracting the version and normalizing it
@@ -202,6 +244,7 @@ extractPackageVersionFromXML() {
 #
 # Optionally set these variables:
 # - PHP_WANTEDMODULEVERSION_<...> (where <...> is the normalized module name)
+# - PHP_MODULESOURCECODEPATH_<...> (where <...> is the normalized module name)
 #
 # Output:
 #   Nothing
@@ -234,14 +277,24 @@ processPHPModuleArgument() {
 			printf 'Unable to find the package.xml file in the directory\n%s\n' "$processPHPModuleArgument_arg"
 			return 1
 		fi
-	fi
-	PROCESSED_PHP_MODULE_ARGUMENT="${processPHPModuleArgument_arg%%-*}"
-	if test -n "$PROCESSED_PHP_MODULE_ARGUMENT" && test "$PROCESSED_PHP_MODULE_ARGUMENT" != "$processPHPModuleArgument_arg"; then
-		processPHPModuleArgument_version="${processPHPModuleArgument_arg#*-}"
+		printf 'good (name: %s, version: %s)\n' "$EXTRACTPACKAGEVERSIONFROMXML_NAME" "$EXTRACTPACKAGEVERSIONFROMXML_VERSION"
+		PROCESSED_PHP_MODULE_ARGUMENT="$(normalizePHPModuleName "$EXTRACTPACKAGEVERSIONFROMXML_NAME")"
+		processPHPModuleArgument_version="$EXTRACTPACKAGEVERSIONFROMXML_VERSION"
+		if printf '%s' "$PROCESSED_PHP_MODULE_ARGUMENT" | grep -Eq '^[a-zA-Z0-9_]+$'; then
+			eval PHP_MODULESOURCECODEPATH_$PROCESSED_PHP_MODULE_ARGUMENT="$processPHPModuleArgument_arg"
+		else
+			printf 'Unable to parse the following module name:\n%s\n' "$PROCESSED_PHP_MODULE_ARGUMENT" >&2
+			exit 1
+		fi
 	else
-		processPHPModuleArgument_version=''
+		PROCESSED_PHP_MODULE_ARGUMENT="${processPHPModuleArgument_arg%%-*}"
+		if test -n "$PROCESSED_PHP_MODULE_ARGUMENT" && test "$PROCESSED_PHP_MODULE_ARGUMENT" != "$processPHPModuleArgument_arg"; then
+			processPHPModuleArgument_version="${processPHPModuleArgument_arg#*-}"
+		else
+			processPHPModuleArgument_version=''
+		fi
+		PROCESSED_PHP_MODULE_ARGUMENT="$(normalizePHPModuleName "$PROCESSED_PHP_MODULE_ARGUMENT")"
 	fi
-	PROCESSED_PHP_MODULE_ARGUMENT="$(normalizePHPModuleName "$PROCESSED_PHP_MODULE_ARGUMENT")"
 	if test -n "$processPHPModuleArgument_version"; then
 		if printf '%s' "$PROCESSED_PHP_MODULE_ARGUMENT" | grep -Eq '^[a-zA-Z0-9_]+$'; then
 			eval PHP_WANTEDMODULEVERSION_$PROCESSED_PHP_MODULE_ARGUMENT="$processPHPModuleArgument_version"
@@ -265,6 +318,19 @@ getWantedPHPModuleVersion() {
 		eval printf '%s' "\${PHP_WANTEDMODULEVERSION_$1:-}"
 	elif printf '%s' "$1" | grep -Eq '^@[a-zA-Z0-9_]+$'; then
 		eval printf '%s' "\${PHP_WANTEDMODULEVERSION__${1#@}:-}"
+	fi
+}
+
+# Get source code path of a PHP module version, as specified in the command line arguments.
+#
+# Arguments:
+#   $1: the name of the module to be normalized
+#
+# Output:
+#   The wanted version (if any)
+getModuleSourceCodePath() {
+	if printf '%s' "$1" | grep -Eq '^[a-zA-Z0-9_]+$'; then
+		eval printf '%s' "\${PHP_MODULESOURCECODEPATH_$1:-}"
 	fi
 }
 
@@ -1943,6 +2009,9 @@ installBundledModule() {
 	if test -n "$(getWantedPHPModuleVersion "$1")"; then
 		printf '### WARNING the module "%s" is bundled with PHP, you can NOT specify a version for it\n' "$1" >&2
 	fi
+	if test -n "$(getModuleSourceCodePath "$1")"; then
+		printf '### WARNING the module "%s" is bundled with PHP, you can NOT specify a source code path for it\n' "$1" >&2
+	fi
 	case "$1" in
 		dba)
 			if test -e /usr/lib/$TARGET_TRIPLET/libdb-5.3.so && ! test -e /usr/lib/libdb-5.3.so; then
@@ -2199,6 +2268,7 @@ installRemoteModule() {
 	installRemoteModule_module="$1"
 	printf '### INSTALLING REMOTE MODULE %s ###\n' "$installRemoteModule_module"
 	installRemoteModule_version="$(resolveWantedPHPModuleVersion "$installRemoteModule_module")"
+	installRemoteModule_path="$(getModuleSourceCodePath "$installRemoteModule_module")"
 	rm -rf "$CONFIGURE_FILE"
 	installRemoteModule_manuallyInstalled=0
 	installRemoteModule_cppflags=''
@@ -2389,16 +2459,18 @@ installRemoteModule() {
 			fi
 			;;
 		geos)
-			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version=71b5f9001512e16d3cf4657b517e8a051d6ef36f
+			if test -z "$installRemoteModule_path"; then
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=71b5f9001512e16d3cf4657b517e8a051d6ef36f
+				fi
+				installRemoteModule_src="$(getPackageSource https://git.osgeo.org/gitea/geos/php-geos/archive/$installRemoteModule_version.tar.gz)"
+				cd "$installRemoteModule_src"
+				./autogen.sh
+				./configure
+				make -j$(getProcessorCount) install
+				cd - >/dev/null
+				installRemoteModule_manuallyInstalled=1
 			fi
-			installRemoteModule_src="$(getPackageSource https://git.osgeo.org/gitea/geos/php-geos/archive/$installRemoteModule_version.tar.gz)"
-			cd "$installRemoteModule_src"
-			./autogen.sh
-			./configure
-			make -j$(getProcessorCount) install
-			cd - >/dev/null
-			installRemoteModule_manuallyInstalled=1
 			;;
 		geospatial)
 			if test -z "$installRemoteModule_version"; then
@@ -2738,16 +2810,18 @@ installRemoteModule() {
 			fi
 			;;
 		snuffleupagus)
-			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version=0.7.1
+			if test -z "$installRemoteModule_path"; then
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=0.7.1
+				fi
+				installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$installRemoteModule_version)"
+				cd "$installRemoteModule_src/src"
+				phpize
+				./configure --enable-snuffleupagus
+				make -j$(getProcessorCount) install
+				cd - >/dev/null
+				cp -a "$installRemoteModule_src/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
 			fi
-			installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$installRemoteModule_version)"
-			cd "$installRemoteModule_src/src"
-			phpize
-			./configure --enable-snuffleupagus
-			make -j$(getProcessorCount) install
-			cd - >/dev/null
-			cp -a "$installRemoteModule_src/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
 			installRemoteModule_manuallyInstalled=1
 			;;
 		solr)
@@ -2762,22 +2836,24 @@ installRemoteModule() {
 			installRemoteModule_manuallyInstalled=1
 			;;
 		spx)
-			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version=6eba1a5839d0ce8dc71148ed723c72fe06c69600
+			if test -z "$installRemoteModule_path"; then
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=6eba1a5839d0ce8dc71148ed723c72fe06c69600
+				fi
+				if test "${installRemoteModule_version%.*}" = "$installRemoteModule_version"; then
+					installRemoteModule_displayVersion="$installRemoteModule_version"
+				else
+					installRemoteModule_displayVersion="git--master-$installRemoteModule_version"
+				fi
+				installRemoteModule_src="$(getPackageSource https://codeload.github.com/NoiseByNorthwest/php-spx/tar.gz/$installRemoteModule_version)"
+				cd -- "$installRemoteModule_src"
+				sed -Ei "s/^([ \t]*#define[ \t]+PHP_SPX_VERSION[ \t]+\")0.4.10(\")/\1git--master-$installRemoteModule_displayVersion\2/" src/php_spx.h
+				phpize
+				./configure
+				make -j$(getProcessorCount) install
+				cd - >/dev/null
+				installRemoteModule_manuallyInstalled=1
 			fi
-			if test "${installRemoteModule_version%.*}" = "$installRemoteModule_version"; then
-				installRemoteModule_displayVersion="$installRemoteModule_version"
-			else
-				installRemoteModule_displayVersion="git--master-$installRemoteModule_version"
-			fi
-			installRemoteModule_src="$(getPackageSource https://codeload.github.com/NoiseByNorthwest/php-spx/tar.gz/$installRemoteModule_version)"
-			cd -- "$installRemoteModule_src"
-			sed -Ei "s/^([ \t]*#define[ \t]+PHP_SPX_VERSION[ \t]+\")0.4.10(\")/\1git--master-$installRemoteModule_displayVersion\2/" src/php_spx.h
-			phpize
-			./configure
-			make -j$(getProcessorCount) install
-			cd - >/dev/null
-			installRemoteModule_manuallyInstalled=1
 			;;
 		sqlsrv | pdo_sqlsrv)
 			isMicrosoftSqlServerODBCInstalled || installMicrosoftSqlServerODBC
@@ -2967,16 +3043,18 @@ installRemoteModule() {
 				make install
 				cd - >/dev/null
 			fi
-			installRemoteModule_tmp="$(mktemp -p /tmp/src -d)"
-			git clone --depth=1 --recurse-submodules https://github.com/yaroslavche/phptdlib.git "$installRemoteModule_tmp"
-			mkdir "$installRemoteModule_tmp/build"
-			cd "$installRemoteModule_tmp/build"
-			cmake -D USE_SHARED_PHPCPP:BOOL=ON ..
-			make
-			make install
-			cd - >/dev/null
-			rm "$PHP_INI_DIR/conf.d/tdlib.ini"
-			installRemoteModule_manuallyInstalled=1
+			if test -z "$installRemoteModule_path"; then
+				installRemoteModule_tmp="$(mktemp -p /tmp/src -d)"
+				git clone --depth=1 --recurse-submodules https://github.com/yaroslavche/phptdlib.git "$installRemoteModule_tmp"
+				mkdir "$installRemoteModule_tmp/build"
+				cd "$installRemoteModule_tmp/build"
+				cmake -D USE_SHARED_PHPCPP:BOOL=ON ..
+				make
+				make install
+				cd - >/dev/null
+				rm "$PHP_INI_DIR/conf.d/tdlib.ini"
+				installRemoteModule_manuallyInstalled=1
+			fi
 			;;
 		tensor)
 			if test -z "$installRemoteModule_version"; then
@@ -3135,10 +3213,12 @@ installRemoteModule() {
 			;;
 	esac
 	if test $installRemoteModule_manuallyInstalled -eq 0; then
-		if test -n "$installRemoteModule_version"; then
+		if test -n "$installRemoteModule_path"; then
+			printf '  (installing version %s from %s)\n' "$installRemoteModule_version" "$installRemoteModule_path"
+		elif test -n "$installRemoteModule_version"; then
 			printf '  (installing version %s)\n' "$installRemoteModule_version"
 		fi
-		installPeclPackage "$installRemoteModule_module" "$installRemoteModule_version" "$installRemoteModule_cppflags"
+		installPeclPackage "$installRemoteModule_module" "$installRemoteModule_version" "$installRemoteModule_cppflags" "$installRemoteModule_path"
 	fi
 	postProcessModule "$installRemoteModule_module"
 	checkModuleWorking "$installRemoteModule_module"
@@ -3263,7 +3343,8 @@ addConfigureOption() {
 # Arguments:
 #   $1: the package to be installed
 #   $2: the package version to be installed (optional)
-#   $3: the value of the CPPFLAGS variable
+#   $3: the value of the CPPFLAGS variable (optional)
+#   $4: the path of the local package to be installed (optional, downloaded from PECL if omitted/empty)
 installPeclPackage() {
 	if ! test -f "$CONFIGURE_FILE"; then
 		printf '\n' >"$CONFIGURE_FILE"
@@ -3274,10 +3355,21 @@ installPeclPackage() {
 	else
 		installPeclPackage_fullname="$installPeclPackage_name-$2"
 	fi
+	installPeclPackage_path="${4:-}"
+	if test -z "$installPeclPackage_path"; then
+		installPeclPackage_path="$installPeclPackage_fullname"
+	fi
 	if test $USE_PICKLE -eq 0; then
-		cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" pecl install "$installPeclPackage_fullname"
+		if test -n "${4:-}"; then
+			if test -f "$installPeclPackage_path/package2.xml"; then
+				installPeclPackage_path="$installPeclPackage_path/package2.xml"
+			else
+				installPeclPackage_path="$installPeclPackage_path/package.xml"
+			fi
+		fi
+		cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" pecl install "$installPeclPackage_path"
 	else
-		MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --version-override='' --with-configure-options "$CONFIGURE_FILE" -- "$installPeclPackage_fullname"
+		MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" /tmp/pickle install --tmp-dir=/tmp/pickle.tmp --no-interaction --version-override='' --with-configure-options "$CONFIGURE_FILE" -- "$installPeclPackage_path"
 	fi
 }
 
