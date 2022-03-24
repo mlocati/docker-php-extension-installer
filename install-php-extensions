@@ -1567,11 +1567,19 @@ compareVersions() {
 # Set:
 #   ORACLE_INSTANTCLIENT_LIBPATH
 installOracleInstantClient() {
+	case "${IPE_INSTANTCLIENT_BASIC:-}" in
+		1 | y* | Y*)
+			installOracleInstantClient_handle=basic
+			;;
+		*)
+			installOracleInstantClient_handle=basiclite
+			;;
+	esac
 	case $PHP_BITS in
 		32)
 			installOracleInstantClient_client=client
 			installOracleInstantClient_version='19.9'
-			installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-basiclite-linux-$installOracleInstantClient_version.0.0.0dbru.zip
+			installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-$installOracleInstantClient_handle-linux-$installOracleInstantClient_version.0.0.0dbru.zip
 			installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/199000/instantclient-sdk-linux-$installOracleInstantClient_version.0.0.0dbru.zip
 			;;
 		*)
@@ -1579,13 +1587,13 @@ installOracleInstantClient() {
 				aarch64*)
 					installOracleInstantClient_client=client64
 					installOracleInstantClient_version='19.10'
-					installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/191000/instantclient-basiclite-linux.arm64-$installOracleInstantClient_version.0.0.0dbru.zip
+					installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/191000/instantclient-$installOracleInstantClient_handle-linux.arm64-$installOracleInstantClient_version.0.0.0dbru.zip
 					installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/191000/instantclient-sdk-linux.arm64-$installOracleInstantClient_version.0.0.0dbru.zip
 					;;
 				*)
 					installOracleInstantClient_client=client64
 					installOracleInstantClient_version='21.1'
-					installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-basiclite-linux.x64-$installOracleInstantClient_version.0.0.0.zip
+					installOracleInstantClient_ic=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-$installOracleInstantClient_handle-linux.x64-$installOracleInstantClient_version.0.0.0.zip
 					installOracleInstantClient_sdk=https://download.oracle.com/otn_software/linux/instantclient/211000/instantclient-sdk-linux.x64-$installOracleInstantClient_version.0.0.0.zip
 					;;
 			esac
@@ -1593,7 +1601,7 @@ installOracleInstantClient() {
 	esac
 	ORACLE_INSTANTCLIENT_LIBPATH=/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client/lib
 	if ! test -e "$ORACLE_INSTANTCLIENT_LIBPATH"; then
-		printf 'Downloading Oracle Instant Client v%s... ' "$installOracleInstantClient_version"
+		printf 'Downloading Oracle Instant Client v%s (%s)... ' "$installOracleInstantClient_version" "$installOracleInstantClient_handle"
 		installOracleInstantClient_src="$(getPackageSource $installOracleInstantClient_ic)"
 		mkdir -p "/usr/lib/oracle/$installOracleInstantClient_version/$installOracleInstantClient_client"
 		mv "$installOracleInstantClient_src" "$ORACLE_INSTANTCLIENT_LIBPATH"
