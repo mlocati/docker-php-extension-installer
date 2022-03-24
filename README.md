@@ -177,6 +177,7 @@ install-php-extensions @fix_letsencrypt
 | jsmin | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | json_post | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ldap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| luasandbox | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | lzf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mailparse | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | maxminddb |  |  |  |  | &check; | &check; | &check; | &check; | &check; |
@@ -256,7 +257,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 117*
+*Number of supported extensions: 118*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
