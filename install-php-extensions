@@ -85,6 +85,7 @@ setDistro() {
 # - PHP_MAJDOTMINDOTPAT_VERSION: Major-Minor-Patch version, format M.m.p (example 8.0.1 for PHP 8.0.1)
 # - PHP_THREADSAFE: 1 if PHP is thread-safe (TS), 0 if not thread-safe (NTS)
 # - PHP_BITS: 32 if PHP is compiled for 32-bit, 64 if 64-bit
+# - PHP_EXTDIR: the absolute path where the PHP extensions reside
 setPHPVersionVariables() {
 	PHP_MAJDOTMINDOTPAT_VERSION="$(php-config --version)"
 	PHP_MAJMIN_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | awk -F. '{print $1*100+$2}')
@@ -92,6 +93,7 @@ setPHPVersionVariables() {
 	PHP_MAJMINPAT_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | awk -F. '{print $1*10000+$2*100+$3}')
 	PHP_THREADSAFE=$(php -r 'echo ZEND_THREAD_SAFE ? 1 : 0;')
 	PHP_BITS=$(php -r 'echo PHP_INT_SIZE * 8;')
+	PHP_EXTDIR="$(php -d display_errors=stderr -r 'echo realpath(ini_get("extension_dir"));')"
 }
 
 # Fix apt-get being very slow on Debian Jessie
@@ -1371,6 +1373,75 @@ getCompilationProcessorCount() {
 			getProcessorCount
 			;;
 	esac
+}
+
+# Get the full path of a PHP extension given its name.
+#
+# Arguments:
+#   $1: the name of the PHP extension
+#
+# Output:
+#   The absolute path of the PHP extension file (or nothing if the file can't be found)
+getModuleFullPath() {
+	case "$1" in
+		*)
+			getModuleFullPath_path="$PHP_EXTDIR/$1.so"
+			;;
+	esac
+	if test -f "$getModuleFullPath_path"; then
+		printf '%s' "$getModuleFullPath_path"
+	fi
+}
+
+# Post-process a PHP module just compiled and installed in the PHP extension directory
+#
+# Arguments:
+#   $1: the name of the PHP extension
+#
+# Return:
+#   0 (true): if suceeded
+#   non-zero (false): in case of errors
+postProcessModule() {
+	postProcessModule_file="$(getModuleFullPath "$1")"
+	if test -z "$postProcessModule_file"; then
+		printf 'Unable to find the file of the PHP extension "%s"\n' "$1" >&2
+		return 1
+	fi
+	printf 'Removing symbols from %s... ' "$postProcessModule_file"
+	postProcessModule_preSize="$(stat -c %s "$postProcessModule_file")"
+	strip --strip-all "$postProcessModule_file"
+	postProcessModule_postSize="$(stat -c %s "$postProcessModule_file")"
+	printf 'done (%s bytes saved).\n' "$((postProcessModule_preSize - postProcessModule_postSize))"
+	return $?
+}
+
+# Check that a PHP module actually works (better to run this check before enabling the extension)
+#
+# Arguments:
+#   $1: the name of the PHP extension
+#
+# Return:
+#   0 (true): if the string is in the list
+#   1 (false): if the string is not in the list
+checkModuleWorking() {
+	checkModuleWorking_file="$(getModuleFullPath "$1")"
+	if test -z "$checkModuleWorking_file"; then
+		printf 'Unable to find the file of the PHP extension "%s"\n' "$1" >&2
+		return 1
+	fi
+	if readelf --wide --syms "$checkModuleWorking_file" | grep -Eq ' zend_extension_entry$'; then
+		checkModuleWorking_inientry=zend_extension
+	else
+		checkModuleWorking_inientry=extension
+	fi
+	printf 'Check if the %s %s can be loaded... ' "$checkModuleWorking_inientry" "$1"
+	checkModuleWorking_err="$(php -d "$checkModuleWorking_inientry=$checkModuleWorking_file" -r 'return;' 2>&1 || true)"
+	if test -n "$checkModuleWorking_err"; then
+		printf 'Error loading the "%s" extension from "%s":\n%s\n' "$1" "$checkModuleWorking_file" "$checkModuleWorking_err" >&2
+		return 1
+	fi
+	printf 'ok.\n'
+	return 0
 }
 
 # Enable a PHP extension
@@ -3046,6 +3117,8 @@ installRemoteModule() {
 		fi
 		installPeclPackage "$installRemoteModule_module" "$installRemoteModule_version" "$installRemoteModule_cppflags"
 	fi
+	postProcessModule "$installRemoteModule_module"
+	checkModuleWorking "$installRemoteModule_module"
 	case "$installRemoteModule_module" in
 		apcu_bc)
 			# apcu_bc must be loaded after apcu
