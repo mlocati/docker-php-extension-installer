@@ -323,6 +323,7 @@ Here's the list of all the supported environment variables:
 | lzf | `IPE_LZF_BETTERCOMPRESSION=1` | By default `install-php-extensions` compiles the `lzf` extension to prefer speed over size; you can use this environment variable to compile it preferring size over speed |
 | event | `IPE_EVENT_NAMESPACE=`... | By default the `event` classes are defined in the root namespace. You can use this environment variable to specify a custom namespace |
 | gd | IPE_GD_WITHOUTAVIF=1 | Since PHP 8.1, gd supports the AVIF format. Enabling it requires compiling libaom/libdav1d/libyuv/libavif, which is time-consuming. You can disable AVIF support by setting this environment variable |
+| oci8 & pdo_oci | `IPE_INSTANTCLIENT_BASIC=1` | The oci8 and pdo_oci PHP extensions require [Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client.html). In order to save disk space, we install the Basic Lite version: if you want to install the Basic (non-lite) version simply set this environment variable |
 
 ## Special requirements
 

@@ -150,3 +150,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - run: docker run --rm --volume "$(pwd):/app" --workdir /app "php:7.4-${{ matrix.distro }}" "./scripts/ci-markused-${{ matrix.distro }}"
+  test_instantclient_basic:
+    name: Test using Oracle Instant Client Basic
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    container: php:8.1-cli-alpine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - run: IPE_INSTANTCLIENT_BASIC=1 ./install-php-extensions oci8 pdo_oci
