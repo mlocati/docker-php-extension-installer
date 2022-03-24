@@ -2140,6 +2140,7 @@ EOF
 	installBundledModule_err="$(php -r 'return;' 2>&1 || true)"
 	if test -n "$installBundledModule_err"; then
 		printf 'PHP has problems after installing the "%s" extension:\n%s\n' "$1" "$installBundledModule_err" >&2
+		rm "$PHP_INI_DIR/conf.d/docker-php-ext-$1.ini" || true
 		return 1
 	fi
 }
