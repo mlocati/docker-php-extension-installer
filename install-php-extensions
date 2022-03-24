@@ -681,6 +681,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libgeoip1[0-9]*$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgeoip-dev"
 				;;
+			geos@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent geos-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile geos"
+				;;
+			geos@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libgeos-c1(v[0-9]*)?$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgeos-dev"
+				;;
 			gettext@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libintl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gettext-dev"
@@ -2285,6 +2293,18 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				installRemoteModule_version=beta
 			fi
+			;;
+		geos)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=71b5f9001512e16d3cf4657b517e8a051d6ef36f
+			fi
+			installRemoteModule_src="$(getPackageSource https://git.osgeo.org/gitea/geos/php-geos/archive/$installRemoteModule_version.tar.gz)"
+			cd "$installRemoteModule_src"
+			./autogen.sh
+			./configure
+			make -j$(getProcessorCount) install
+			cd - >/dev/null
+			installRemoteModule_manuallyInstalled=1
 			;;
 		geospatial)
 			if test -z "$installRemoteModule_version"; then
