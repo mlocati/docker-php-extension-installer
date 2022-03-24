@@ -785,6 +785,14 @@ buildRequiredPackageLists() {
 				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libldap2-dev"
 				;;
+			luasandbox@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent lua5.1-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile lua5.1-dev"
+				;;
+			luasandbox@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblua5.1-0"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblua5.1-0-dev"
+				;;
 			maxminddb@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmaxminddb"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmaxminddb-dev"
@@ -2350,6 +2358,13 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
 					installRemoteModule_version=2.0.1
+				fi
+			fi
+			;;
+		luasandbox)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 702; then
+					installRemoteModule_version=3.0.3
 				fi
 			fi
 			;;
