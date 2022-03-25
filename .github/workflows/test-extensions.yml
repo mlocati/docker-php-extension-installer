@@ -162,3 +162,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - run: IPE_INSTANTCLIENT_BASIC=1 ./install-php-extensions oci8 pdo_oci
+  test_install_fromsource:
+    name: Test installing from source
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    container: ${{ matrix.container }}
+    strategy:
+      matrix:
+        container:
+          - php:8.1-cli-alpine
+        source:
+          - php-memcached-dev/php-memcached@8f106564e6bb005ca6100b12ccc89000daafa9d8
+          - php-memcached-dev/php-memcached@8f106564e6bb
+          - php-memcached-dev/php-memcached@v3.2.0RC2
+          - php-memcached-dev/php-memcached@refs/tags/v3.2.0RC2
+        include:
+          -
+            container: php:8.1-cli-bullseye
+            source: php-memcached-dev/php-memcached@v3.2.0RC2
+          -
+            container: php:7.4-cli-alpine
+            source: php-memcached-dev/php-memcached@v3.2.0RC2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - run: ./install-php-extensions ${{ matrix.source }}
