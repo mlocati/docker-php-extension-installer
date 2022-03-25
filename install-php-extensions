@@ -1377,6 +1377,9 @@ getCompilationProcessorCount() {
 #   The absolute path of the PHP extension file (or nothing if the file can't be found)
 getModuleFullPath() {
 	case "$1" in
+		apcu_bc)
+			getModuleFullPath_path="$PHP_EXTDIR/apc.so"
+			;;
 		*)
 			getModuleFullPath_path="$PHP_EXTDIR/$1.so"
 			;;
