@@ -101,7 +101,7 @@ You can also install PHP extensions from source code (provided that it comes wit
 
 Accepted formats are:
 
-- A short version for repositories hosted on GitHub.
+- A short version for repositories hosted on GitHub.  
   For example, for the [php-memcached-dev/php-memcached](https://github.com/php-memcached-dev/php-memcached) GitHub repository,
   you can simply write:
   ```sh
@@ -116,7 +116,7 @@ Accepted formats are:
   install-php-extensions php-memcached-dev/php-memcached@master
   install-php-extensions php-memcached-dev/php-memcached@refs/heads/master
   ```
-- An URL providing an archive containing the source code.
+- An URL providing an archive containing the source code.  
   Examples:
   ```sh
   # tgz archive for commit 8f106564e6bb005ca6100b12ccc89000daafa9d8
@@ -126,7 +126,7 @@ Accepted formats are:
   # tgz archive for branch master
   install-php-extensions https://codeload.github.com/php-memcached-dev/php-memcached/tar.gz/refs/heads/master
   ```
-- The absolute path of a local directory
+- The absolute path of a local directory.  
   Examples:
   ```sh
   # Download the source code
