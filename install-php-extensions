@@ -498,12 +498,10 @@ buildRequiredPackageLists() {
 	buildRequiredPackageLists_volatile=''
 	case "$DISTRO" in
 		alpine)
-			if test $DISTRO_VERSION_NUMBER = '3.14'; then
-				# https://gitlab.alpinelinux.org/alpine/aports/-/issues/12763#note_172090
-				apk -U upgrade
-			else
-				apk update
-			fi
+			apk update
+			;;
+		debian)
+			DEBIAN_FRONTEND=noninteractive apt-get update -q
 			;;
 	esac
 	case "$DISTRO_VERSION" in
@@ -1207,11 +1205,6 @@ buildRequiredPackageLists() {
 	if test -z "$buildRequiredPackageLists_persistent$buildRequiredPackageLists_volatile"; then
 		return
 	fi
-	case "$DISTRO" in
-		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get update -q
-			;;
-	esac
 	if test -n "$buildRequiredPackageLists_persistent"; then
 		PACKAGES_PERSISTENT_NEW="$(expandPackagesToBeInstalled $buildRequiredPackageLists_persistent)"
 		if test -s "$IPE_ERRFLAG_FILE"; then
@@ -1509,7 +1502,14 @@ installRequiredPackages() {
 	case "$DISTRO" in
 		alpine)
 			apk add $IPE_APK_FLAGS $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
-			apk upgrade
+			# https://gitlab.alpinelinux.org/alpine/aports/-/issues/12763#note_172090
+			# https://github.com/mlocati/docker-php-extension-installer/issues/385
+			# https://github.com/mlocati/docker-php-extension-installer/issues/537#issuecomment-1078748882
+			for installRequiredPackages_item in wget; do
+				if test -n "$(expandInstalledSystemPackageName "$installRequiredPackages_item")"; then
+					apk add --upgrade "$installRequiredPackages_item"
+				fi
+			done
 			;;
 		debian)
 			DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qq -y $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
