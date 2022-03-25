@@ -84,6 +84,7 @@ setDistro() {
 # - PHP_MAJMINPAT_VERSION: Major-Minor-Patch version, format MMmmpp (example 80001 for PHP 8.0.1) variables containing integers value
 # - PHP_MAJDOTMINDOTPAT_VERSION: Major-Minor-Patch version, format M.m.p (example 8.0.1 for PHP 8.0.1)
 # - PHP_THREADSAFE: 1 if PHP is thread-safe (TS), 0 if not thread-safe (NTS)
+# - PHP_DEBUGBUILD: 1 if PHP is debug build (configured with "--enable-debug"), 0 otherwise
 # - PHP_BITS: 32 if PHP is compiled for 32-bit, 64 if 64-bit
 # - PHP_EXTDIR: the absolute path where the PHP extensions reside
 setPHPVersionVariables() {
@@ -91,8 +92,9 @@ setPHPVersionVariables() {
 	PHP_MAJMIN_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | awk -F. '{print $1*100+$2}')
 	PHP_MAJDOTMIN_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | cut -d. -f1-2)
 	PHP_MAJMINPAT_VERSION=$(printf '%s' "$PHP_MAJDOTMINDOTPAT_VERSION" | awk -F. '{print $1*10000+$2*100+$3}')
-	PHP_THREADSAFE=$(php -r 'echo ZEND_THREAD_SAFE ? 1 : 0;')
-	PHP_BITS=$(php -r 'echo PHP_INT_SIZE * 8;')
+	PHP_THREADSAFE=$(php -n -r 'echo ZEND_THREAD_SAFE ? 1 : 0;')
+	PHP_DEBUGBUILD=$(php -n -r 'echo ZEND_DEBUG_BUILD ? 1 : 0;')
+	PHP_BITS=$(php -n -r 'echo PHP_INT_SIZE * 8;')
 	PHP_EXTDIR="$(php -d display_errors=stderr -r 'echo realpath(ini_get("extension_dir"));')"
 }
 
@@ -1403,11 +1405,13 @@ postProcessModule() {
 		printf 'Unable to find the file of the PHP extension "%s"\n' "$1" >&2
 		return 1
 	fi
-	printf 'Removing symbols from %s... ' "$postProcessModule_file"
-	postProcessModule_preSize="$(stat -c %s "$postProcessModule_file")"
-	strip --strip-all "$postProcessModule_file"
-	postProcessModule_postSize="$(stat -c %s "$postProcessModule_file")"
-	printf 'done (%s bytes saved).\n' "$((postProcessModule_preSize - postProcessModule_postSize))"
+	if test $PHP_DEBUGBUILD -ne 1; then
+		printf 'Removing symbols from %s... ' "$postProcessModule_file"
+		postProcessModule_preSize="$(stat -c %s "$postProcessModule_file")"
+		strip --strip-all "$postProcessModule_file"
+		postProcessModule_postSize="$(stat -c %s "$postProcessModule_file")"
+		printf 'done (%s bytes saved).\n' "$((postProcessModule_preSize - postProcessModule_postSize))"
+	fi
 	return $?
 }
 
