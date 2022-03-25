@@ -101,11 +101,20 @@ You can also install PHP extensions from source code (provided that it comes wit
 
 Accepted formats are:
 
-- A short version for GitHub.
-  For example, to install from commit `8f106564e6bb005ca6100b12ccc89000daafa9d8` of the [php-memcached-dev/php-memcached](https://github.com/php-memcached-dev/php-memcached) GitHub repository,
+- A short version for repositories hosted on GitHub.
+  For example, for the [php-memcached-dev/php-memcached](https://github.com/php-memcached-dev/php-memcached) GitHub repository,
   you can simply write:
   ```sh
+  # Install from a specific commit (full commit SHA-1)
   install-php-extensions php-memcached-dev/php-memcached@8f106564e6bb005ca6100b12ccc89000daafa9d8
+  # Install from a specific commit (short commit SHA-1)
+  install-php-extensions php-memcached-dev/php-memcached@8f106564e6bb
+  # Install from tag v3.2.0RC2
+  install-php-extensions php-memcached-dev/php-memcached@v3.2.0RC2
+  install-php-extensions php-memcached-dev/php-memcached@refs/tags/v3.2.0RC2
+  # Install from branch master
+  install-php-extensions php-memcached-dev/php-memcached@master
+  install-php-extensions php-memcached-dev/php-memcached@refs/heads/master
   ```
 - An URL providing an archive containing the source code.
   Examples:
@@ -114,6 +123,8 @@ Accepted formats are:
   install-php-extensions https://codeload.github.com/php-memcached-dev/php-memcached/tar.gz/8f106564e6bb005ca6100b12ccc89000daafa9d8
   # tgz archive for tag v3.1.5
   install-php-extensions https://codeload.github.com/php-memcached-dev/php-memcached/tar.gz/refs/tags/v3.1.5
+  # tgz archive for branch master
+  install-php-extensions https://codeload.github.com/php-memcached-dev/php-memcached/tar.gz/refs/heads/master
   ```
 - The absolute path of a local directory
   Examples:

@@ -255,7 +255,7 @@ processPHPModuleArgument() {
 	# php-memcached-dev/php-memcached@8f106564e6bb005ca6100b12ccc89000daafa9d8
 	# to
 	# https://codeload.github.com/php-memcached-dev/php-memcached/tar.gz/8f106564e6bb005ca6100b12ccc89000daafa9d8
-	processPHPModuleArgument_arg="$(printf '%s' "$processPHPModuleArgument_arg" | sed -E 's/^([a-zA-Z0-9_.\-]+\/[a-zA-Z0-9_.\-]+)@([a-zA-Z0-9]{40}$)/https:\/\/codeload.github.com\/\1\/tar.gz\/\2/')"
+	processPHPModuleArgument_arg="$(printf '%s' "$processPHPModuleArgument_arg" | sed -E 's/^([a-zA-Z0-9_.\-]+\/[a-zA-Z0-9_.\-]+)@(.+$)/https:\/\/codeload.github.com\/\1\/tar.gz\/\2/')"
 	# Let's check if $processPHPModuleArgument_arg is an URL
 	if printf '%s' "$processPHPModuleArgument_arg" | grep -Eq '^https?://[^ ]+/[^ ]+$'; then
 		printf 'Downloading source from %s\n' "$processPHPModuleArgument_arg"
