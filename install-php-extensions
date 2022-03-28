@@ -3304,10 +3304,13 @@ moduleMayUsePecl() {
 		@composer | @fix_letsencrypt)
 			return 1
 			;;
-		blackfire | ioncube_loader | snuffleupagus | sourceguardian | spx | tdlib)
+		blackfire | geos | ioncube_loader | snuffleupagus | sourceguardian | spx | tdlib)
 			return 1
 			;;
 	esac
+	if test -n "$(getModuleSourceCodePath "$1")"; then
+		return 1
+	fi
 	if stringInList "$1" "$BUNDLED_MODULES"; then
 		return 1
 	fi
