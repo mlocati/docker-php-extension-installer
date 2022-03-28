@@ -1452,9 +1452,11 @@ getModuleFullPath() {
 			getModuleFullPath_path="$PHP_EXTDIR/$1.so"
 			;;
 	esac
-	if test -f "$getModuleFullPath_path"; then
-		printf '%s' "$getModuleFullPath_path"
+	if ! test -f "$getModuleFullPath_path"; then
+		printf 'Unable to find the file of the PHP extension "%s"\n' "$1" >&2
+		exit 1
 	fi
+	printf '%s' "$getModuleFullPath_path"
 }
 
 # Post-process a PHP module just compiled and installed in the PHP extension directory
@@ -1467,10 +1469,6 @@ getModuleFullPath() {
 #   non-zero (false): in case of errors
 postProcessModule() {
 	postProcessModule_file="$(getModuleFullPath "$1")"
-	if test -z "$postProcessModule_file"; then
-		printf 'Unable to find the file of the PHP extension "%s"\n' "$1" >&2
-		return 1
-	fi
 	if test $PHP_DEBUGBUILD -ne 1; then
 		printf 'Removing symbols from %s... ' "$postProcessModule_file"
 		postProcessModule_preSize="$(stat -c %s "$postProcessModule_file")"
@@ -1481,30 +1479,73 @@ postProcessModule() {
 	return $?
 }
 
+# Get the type of the php.ini entry to be used for a PHP extension
+#
+# Arguments:
+#   $1: the name of the PHP extension
+#
+# Output:
+#   zend_extension or extension
+getModuleIniEntryType() {
+	case "$1" in
+		ioncube_loader | sourceguardian)
+			# On PHP 5.5, docker-php-ext-enable fails to detect that ionCube Loader and sourceguardian are Zend extensions
+			if test $PHP_MAJMIN_VERSION -le 505; then
+				printf 'zend_extension'
+				return 0
+			fi
+			;;
+	esac
+	getModuleIniEntryType_file="$(getModuleFullPath "$1")"
+	if readelf --wide --syms "$getModuleIniEntryType_file" | grep -Eq ' zend_extension_entry$'; then
+		printf 'zend_extension'
+	else
+		printf 'extension'
+	fi
+}
+
+# Create the contents of a PHP ini file that enables an extension
+#
+# Arguments:
+#   $1: the name of the PHP extension
+#   $3: additional php.ini configuration (optional)
+#
+# Output:
+#   The contents of the ini file
+buildPhpExtensionIniContent() {
+	buildPhpExtensionIniContent_type="$(getModuleIniEntryType "$1")"
+	buildPhpExtensionIniContent_soFile="$(getModuleFullPath "$1")"
+	buildPhpExtensionIniContent_result="$(printf '%s=%s' "$buildPhpExtensionIniContent_type" "${buildPhpExtensionIniContent_soFile##$PHP_EXTDIR/}")"
+	if test -n "${2:-}"; then
+		buildPhpExtensionIniContent_result="$(printf '%s\n%s' "$buildPhpExtensionIniContent_result" "$2")"
+	fi
+	printf '%s' "$buildPhpExtensionIniContent_result"
+}
+
 # Check that a PHP module actually works (better to run this check before enabling the extension)
 #
 # Arguments:
 #   $1: the name of the PHP extension
+#   $2: base name (without path and extension) of additional php.ini configuration (optional)
+#   $3: additional php.ini configuration (optional)
 #
 # Return:
 #   0 (true): if the string is in the list
 #   1 (false): if the string is not in the list
 checkModuleWorking() {
-	checkModuleWorking_file="$(getModuleFullPath "$1")"
-	if test -z "$checkModuleWorking_file"; then
-		printf 'Unable to find the file of the PHP extension "%s"\n' "$1" >&2
-		return 1
-	fi
-	if readelf --wide --syms "$checkModuleWorking_file" | grep -Eq ' zend_extension_entry$'; then
-		checkModuleWorking_inientry=zend_extension
+	if test -n "${2:-}"; then
+		checkModuleWorking_iniFile="$PHP_INI_DIR/conf.d/$2--temp.ini"
 	else
-		checkModuleWorking_inientry=extension
+		checkModuleWorking_iniFile="$PHP_INI_DIR/conf.d/docker-php-ext-$1--temp.ini"
 	fi
-	printf 'Check if the %s %s can be loaded... ' "$checkModuleWorking_inientry" "$1"
+	checkModuleWorking_iniContent="$(buildPhpExtensionIniContent "$1" "${3:-}")"
+	printf 'Check if the %s module can be loaded... ' "$1"
 	checkModuleWorking_errBefore="$(php -r 'return;' 2>&1 || true)"
-	checkModuleWorking_errAfter="$(php -d "$checkModuleWorking_inientry=$checkModuleWorking_file" -r 'return;' 2>&1 || true)"
+	printf '%s' "$checkModuleWorking_iniContent" >"$checkModuleWorking_iniFile"
+	checkModuleWorking_errAfter="$(php -r 'return;' 2>&1 || true)"
+	rm "$checkModuleWorking_iniFile"
 	if test "$checkModuleWorking_errAfter" != "$checkModuleWorking_errBefore"; then
-		printf 'Error loading the "%s" extension from "%s":\n%s\n' "$1" "$checkModuleWorking_file" "$checkModuleWorking_errAfter" >&2
+		printf 'Error loading the "%s" extension:\n%s\n' "$1" "$checkModuleWorking_errAfter" >&2
 		return 1
 	fi
 	printf 'ok.\n'
@@ -1515,36 +1556,36 @@ checkModuleWorking() {
 #
 # Arguments:
 #   $1: the name of the PHP extension to be enabled
-#   $2: the name of the INI file (optional)
-#   $3: custom contents of the INI file (optional)
+#   $2: base name (without path and extension) of additional php.ini configuration (optional)
+#   $3: additional php.ini configuration (optional)
 enablePhpExtension() {
-	enablePhpExtension_cmd='docker-php-ext-enable'
-	enablePhpExtension_iniFile="$PHP_INI_DIR/conf.d"
 	if test -n "${2:-}"; then
-		enablePhpExtension_cmd="$enablePhpExtension_cmd --ini-name $2"
-		enablePhpExtension_iniFile="$enablePhpExtension_iniFile/$2"
+		enablePhpExtension_iniFile="$PHP_INI_DIR/conf.d/$2.ini"
 	else
-		enablePhpExtension_iniFile="$enablePhpExtension_iniFile/docker-php-ext-$1.ini"
+		enablePhpExtension_iniFile="$PHP_INI_DIR/conf.d/docker-php-ext-$1.ini"
 	fi
-	enablePhpExtension_cmd="$enablePhpExtension_cmd $1"
+	enablePhpExtension_iniContent="$(buildPhpExtensionIniContent "$1" "${3:-}")"
 	case "${IPE_DONT_ENABLE:-}" in
 		1 | y* | Y*)
 			enablePhpExtension_enableCommand="/usr/local/bin/docker-php-ext-enable-$1"
-			printf '#!/bin/sh\n\n' >"$enablePhpExtension_enableCommand"
-			if test -z "${3-}"; then
-				printf '%s\n' "$enablePhpExtension_cmd" >>"$enablePhpExtension_enableCommand"
-			else
-				printf 'cat <<EOT >%s\n%s\nEOT\n' "$enablePhpExtension_iniFile" "$3" >>"$enablePhpExtension_enableCommand"
-			fi
+			printf '%s' "$enablePhpExtension_iniContent" >"$enablePhpExtension_iniFile-disabled"
+			printf '\n' >>"$enablePhpExtension_iniFile-disabled"
+			cat <<EOT >"$enablePhpExtension_enableCommand"
+#!/bin/sh
+
+if test -f '$enablePhpExtension_iniFile-disabled'; then
+	echo 'Enabling extension $1'
+	mv '$enablePhpExtension_iniFile-disabled' '$enablePhpExtension_iniFile'
+else
+	echo 'The extension $1 has already been enabled'
+fi
+EOT
 			chmod +x "$enablePhpExtension_enableCommand"
 			printf '## Extension %s not enabled.\nYou can enable it by running the following command:\n%s\n\n' "$1" "$(basename "$enablePhpExtension_enableCommand")"
 			;;
 		*)
-			if test -z "${3-}"; then
-				$enablePhpExtension_cmd
-			else
-				printf '%s\n' "$3" >"$enablePhpExtension_iniFile"
-			fi
+			printf '%s' "$enablePhpExtension_iniContent" >"$enablePhpExtension_iniFile"
+			printf '\n' >>"$enablePhpExtension_iniFile"
 			;;
 	esac
 }
@@ -2272,6 +2313,8 @@ installRemoteModule() {
 	rm -rf "$CONFIGURE_FILE"
 	installRemoteModule_manuallyInstalled=0
 	installRemoteModule_cppflags=''
+	installRemoteModule_ini_basename=''
+	installRemoteModule_ini_extra=''
 	case "$installRemoteModule_module" in
 		amqp)
 			if test -z "$installRemoteModule_version"; then
@@ -2289,6 +2332,10 @@ installRemoteModule() {
 					installRemoteModule_version=4.0.11
 				fi
 			fi
+			;;
+		apcu_bc)
+			# apcu_bc must be loaded after apcu
+			installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
 			;;
 		blackfire)
 			case $(uname -m) in
@@ -2317,6 +2364,7 @@ installRemoteModule() {
 			mv blackfire-*.so $(getPHPExtensionsDir)/blackfire.so
 			cd - >/dev/null
 			installRemoteModule_manuallyInstalled=1
+			installRemoteModule_ini_extra="$(printf '%sblackfire.agent_socket=tcp://blackfire:8307\n' "$installRemoteModule_ini_extra")"
 			;;
 		cmark)
 			if test -z "$installRemoteModule_version"; then
@@ -2433,6 +2481,8 @@ installRemoteModule() {
 				# openssl installation prefix
 				addConfigureOption with-openssl-dir no
 			fi
+			# event must be loaded after sockets
+			installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
 			;;
 		gearman)
 			if test -z "$installRemoteModule_version"; then
@@ -2521,6 +2571,8 @@ installRemoteModule() {
 					cd - >/dev/null
 				fi
 			fi
+			# http must be loaded after raphf and propro
+			installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
 			;;
 		igbinary)
 			if test -z "$installRemoteModule_version"; then
@@ -2622,6 +2674,8 @@ installRemoteModule() {
 				# Enable memcached session handler support
 				addConfigureOption 'enable-memcached-session' 'yes'
 			fi
+			# memcached must be loaded after msgpack
+			installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
 			;;
 		memprof)
 			if test -z "$installRemoteModule_version"; then
@@ -2828,7 +2882,12 @@ installRemoteModule() {
 				make -j$(getProcessorCount) install
 				cd - >/dev/null
 				cp -a "$installRemoteModule_src/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
+			else
+				if test -f "$installRemoteModule_path/config/default.rules"; then
+					cp -a "$installRemoteModule_path/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
+				fi
 			fi
+			installRemoteModule_ini_extra="$(printf '%ssp.configuration_file=%s\n' "$installRemoteModule_ini_extra" "$PHP_INI_DIR/conf.d/snuffleupagus.rules")"
 			installRemoteModule_manuallyInstalled=1
 			;;
 		solr)
@@ -3228,38 +3287,8 @@ installRemoteModule() {
 		installPeclPackage "$installRemoteModule_module" "$installRemoteModule_version" "$installRemoteModule_cppflags" "$installRemoteModule_path"
 	fi
 	postProcessModule "$installRemoteModule_module"
-	checkModuleWorking "$installRemoteModule_module"
-	case "$installRemoteModule_module" in
-		apcu_bc)
-			# apcu_bc must be loaded after apcu
-			enablePhpExtension apc "xx-php-ext-$installRemoteModule_module.ini"
-			;;
-		blackfire)
-			enablePhpExtension "$installRemoteModule_module" '' "$(printf 'extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307')"
-			;;
-		event)
-			# event must be loaded after sockets
-			enablePhpExtension "$installRemoteModule_module" "xx-php-ext-$installRemoteModule_module.ini"
-			;;
-		ioncube_loader | sourceguardian)
-			# On PHP 5.5, docker-php-ext-enable fails to detect that ionCube Loader is a Zend Extension
-			if test $PHP_MAJMIN_VERSION -le 505; then
-				enablePhpExtension "$installRemoteModule_module" '' "$(printf 'zend_extension=%s/%s.so' "$(getPHPExtensionsDir)" "$installRemoteModule_module")"
-			else
-				enablePhpExtension "$installRemoteModule_module"
-			fi
-			;;
-		http | memcached)
-			# http must be loaded after raphf and propro, memcached must be loaded after msgpack
-			enablePhpExtension "$installRemoteModule_module" "xx-php-ext-$installRemoteModule_module.ini"
-			;;
-		snuffleupagus)
-			enablePhpExtension "$installRemoteModule_module" '' "$(printf 'extension=%s/%s.so\nsp.configuration_file=%s' "$(getPHPExtensionsDir)" "$installRemoteModule_module" "$PHP_INI_DIR/conf.d/snuffleupagus.rules")"
-			;;
-		*)
-			enablePhpExtension "$installRemoteModule_module"
-			;;
-	esac
+	checkModuleWorking "$installRemoteModule_module" "$installRemoteModule_ini_basename" "$installRemoteModule_ini_extra"
+	enablePhpExtension "$installRemoteModule_module" "$installRemoteModule_ini_basename" "$installRemoteModule_ini_extra"
 }
 
 # Check if a module/helper may be installed using the pecl archive
