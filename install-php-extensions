@@ -2676,6 +2676,11 @@ installRemoteModule() {
 			fi
 			;;
 		openswoole)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 704; then
+					installRemoteModule_version=4.10.0
+				fi
+			fi
 			if php --ri sockets >/dev/null 2>/dev/null; then
 				installRemoteModule_sockets=yes
 			else
