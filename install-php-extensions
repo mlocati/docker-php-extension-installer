@@ -3304,7 +3304,7 @@ moduleMayUsePecl() {
 		@composer | @fix_letsencrypt)
 			return 1
 			;;
-		blackfire | ioncube_loader | snuffleupagus | sourceguardian | spx | tdlib)
+		blackfire | geos | ioncube_loader | snuffleupagus | sourceguardian | spx | tdlib)
 			return 1
 			;;
 	esac
