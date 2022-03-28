@@ -3308,6 +3308,9 @@ moduleMayUsePecl() {
 			return 1
 			;;
 	esac
+	if test -n "$(getModuleSourceCodePath "$1")"; then
+		return 1
+	fi
 	if stringInList "$1" "$BUNDLED_MODULES"; then
 		return 1
 	fi
