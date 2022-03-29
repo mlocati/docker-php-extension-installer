@@ -2256,6 +2256,7 @@ EOF
 			esac
 			;;
 	esac
+	php -r 'return;' >/dev/null 2>/dev/null || true
 	installBundledModule_errAfter="$(php -r 'return;' 2>&1 || true)"
 	if test "$installBundledModule_errAfter" != "$installBundledModule_errBefore"; then
 		printf 'PHP has problems after installing the "%s" extension:\n%s\n' "$1" "$installBundledModule_errAfter" >&2
