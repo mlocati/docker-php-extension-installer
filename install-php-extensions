@@ -2738,6 +2738,7 @@ installRemoteModule() {
 			fi
 			if php --ri sockets >/dev/null 2>/dev/null; then
 				installRemoteModule_sockets=yes
+				installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
 			else
 				installRemoteModule_sockets=no
 			fi
