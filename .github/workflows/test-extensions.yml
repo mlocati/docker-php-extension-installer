@@ -59,7 +59,7 @@ jobs:
       - check_syntax_shell
       - check_syntax_php
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         distro:
           - alpine3.7
