@@ -31,7 +31,8 @@ body:
   - type: input
     attributes:
       label: Docker image
-      description: For example `php:8.1-cli`
+      description: For example `php:8.1-cli` - Only the [official PHP Docker images](https://hub.docker.com/_/php/) are supported
+      placeholder: "php: ..."
     validations:
       required: true
   - type: textarea
