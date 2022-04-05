@@ -8,6 +8,8 @@ body:
       value: |
         Thanks for taking the time to fill out this bug report!
         Please remark that this project is about the `install-php-extensions` command, not about `docker-php-ext-install`.
+        File this bug report for the [supported PHP extensions](https://github.com/mlocati/docker-php-extension-installer#supported-php-extensions).
+        If you'd like support for a new extension please submit a [feature request](https://github.com/mlocati/docker-php-extension-installer/issues/new?template=feature_request.md) instead.
   - type: input
     attributes:
       label: Version of install-php-extensions
