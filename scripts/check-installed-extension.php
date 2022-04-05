@@ -7,6 +7,11 @@ $nameMap = [
     'apcu_bc' => 'apc',
     'ioncube_loader' => 'ionCube Loader',
 ];
+if (PHP_VERSION_ID < 70000) {
+    $nameMap['sodium'] = 'libsodium';
+} else {
+    $nameMap['libsodium'] = 'sodium';
+}
 $testsDir = __DIR__ . '/tests';
 function runTest($testFile)
 {

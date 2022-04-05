@@ -139,6 +139,16 @@ normalizePHPModuleName() {
 		zend\ opcache)
 			normalizePHPModuleName_name='opcache'
 			;;
+		libsodium)
+			if test $PHP_MAJMIN_VERSION -ge 700; then
+				normalizePHPModuleName_name='sodium'
+			fi
+			;;
+		sodium)
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				normalizePHPModuleName_name='libsodium'
+			fi
+			;;
 		*\ *)
 			printf '### WARNING Unrecognized module name: %s ###\n' "$1" >&2
 			;;
@@ -158,6 +168,9 @@ getPeclModuleName() {
 	case "$normalizePHPModuleName_name" in
 		http)
 			normalizePHPModuleName_name=pecl_http
+			;;
+		sodium)
+			normalizePHPModuleName_name=libsodium
 			;;
 	esac
 	printf '%s' "$normalizePHPModuleName_name"
@@ -1080,6 +1093,14 @@ buildRequiredPackageLists() {
 				;;
 			soap@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
+				;;
+			sodium@alpine | libsodium@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsodium"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsodium-dev"
+				;;
+			sodium@debian | libsodium@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libsodium[0-9]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsodium-dev"
 				;;
 			solr@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev libxml2-dev"
@@ -2892,6 +2913,13 @@ installRemoteModule() {
 			fi
 			installRemoteModule_ini_extra="$(printf '%ssp.configuration_file=%s\n' "$installRemoteModule_ini_extra" "$PHP_INI_DIR/conf.d/snuffleupagus.rules")"
 			installRemoteModule_manuallyInstalled=1
+			;;
+		sodium | libsodium)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installRemoteModule_version=1.0.7
+				fi
+			fi
 			;;
 		solr)
 			if test -z "$installRemoteModule_version"; then
