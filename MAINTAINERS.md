@@ -81,8 +81,8 @@ We need to monitor new releases at https://github.com/jvoisin/snuffleupagus/rele
 
 ## spx
 
-Currenly the `spx` PHP extension installs with a commit version.
-We should switch to a tagged realease when it will be available (see https://github.com/NoiseByNorthwest/php-spx/issues/174).
+The `spx` PHP extension is not available in the PECL archive, so we install it manually.
+We need to monitor new releases at https://github.com/NoiseByNorthwest/php-spx/tags
 
 ### sqlsrv / pdo_sqlsrv 
 
