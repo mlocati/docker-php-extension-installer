@@ -74,6 +74,11 @@ We should switch to the stable release once it will be available.
 The only available versions of the `opencensus` PHP extension are all alpha.
 We should switch to the stable release once it will be available.
 
+### parle
+
+The only available versions of the `parle` PHP extension are all beta.
+We should switch to the stable release once it will be available.
+
 ### snuffleupagus
 
 The `snuffleupagus` PHP extension is not available in the PECL archive, so we install it manually.
