@@ -88,7 +88,7 @@ We should switch to a tagged realease when it will be available (see https://git
 
 The `pdo_sqlsrv` and `sqlsrv` PHP extensions require the Microsoft ODBC Driver for SQL Server.
 On Alpine Linux there's no way to automatically install its latest version, so we install it manually.
-We need to monitor new releases at https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17
+We need to monitor new releases at https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine18
 
 ### ssh2
 
