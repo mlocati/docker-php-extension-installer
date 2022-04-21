@@ -239,6 +239,7 @@ install-php-extensions @fix_letsencrypt
 | opencensus |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | openswoole |  |  |  |  | &check; | &check; | &check; | &check; | &check; |
 | parallel[*](#special-requirements-for-parallel) |  |  |  | &check; | &check; | &check; | &check; |  |  |
+| parle[*](#special-requirements-for-parle) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pcntl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pcov |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_dblib | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
@@ -298,7 +299,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 120*
+*Number of supported extensions: 121*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
@@ -382,6 +383,7 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-geos"></a>geos | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images |
 | <a name="special-requirements-for-memprof"></a>memprof | Not available in `alpine` docker images |
 | <a name="special-requirements-for-parallel"></a>parallel | Requires images with PHP compiled with thread-safety enabled (`zts`). |
+| <a name="special-requirements-for-parle"></a>parle | Not available in `jessie` docker images |
 | <a name="special-requirements-for-pdo_sqlsrv"></a>pdo_sqlsrv | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images |
 | <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 | <a name="special-requirements-for-sodium"></a>sodium | Not available in `jessie` docker images |
