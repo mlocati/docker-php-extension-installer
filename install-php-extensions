@@ -989,6 +989,9 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libcurl4-gnutls-dev libpq-dev"
 				;;
+			parle@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				;;
 			pdo_dblib@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetds-dev"
@@ -2786,6 +2789,11 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 701; then
 					installRemoteModule_version=0.8.3
 				fi
+			fi
+			;;
+		parle)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=beta
 			fi
 			;;
 		pcov)
