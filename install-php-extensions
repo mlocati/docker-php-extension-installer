@@ -19,14 +19,6 @@ fi
 
 IPE_VERSION=master
 
-StandWithUkraine() {
-	if test -t 1 && ! grep -Eq '^VERSION=.*jessie' /etc/os-release; then
-		printf '\e[37;44m#StandWith\e[30;43mUkraine\e[0m\n'
-	else
-		printf '#StandWithUkraine\n'
-	fi
-}
-
 if test "$IPE_VERSION" = master && test "${CI:-}" != true; then
 	cat <<EOF
 
@@ -49,11 +41,9 @@ if test "$IPE_VERSION" = master && test "${CI:-}" != true; then
 #############################################################################################################
 
 EOF
-	StandWithUkraine
 	sleep 10 || true
 else
 	printf 'install-php-extensions v.%s\n' "$IPE_VERSION"
-	StandWithUkraine
 fi
 
 # Reset the Internal Field Separator
