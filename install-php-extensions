@@ -864,6 +864,12 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libicu[0-9]+$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev"
 				;;
+			ion@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake git"
+				;;
+			ion@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake git"
+				;;
 			ldap@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libldap"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile openldap-dev"
@@ -2612,6 +2618,25 @@ installRemoteModule() {
 					installRemoteModule_version=0.1.6
 				fi
 			fi
+			;;
+		ion)
+			if ! test -f /usr/local/lib/libionc.so || ! test -f /usr/local/include/ionc/ion.h; then
+				echo 'Installing ion-c... '
+				installRemoteModule_src="$(mktemp -p /tmp/src -d)"
+				git clone -q -c advice.detachedHead=false --depth 1 --branch v1.0.6 https://github.com/amzn/ion-c.git "$installRemoteModule_src/ion"
+				(
+					cd "$installRemoteModule_src/ion"
+					git submodule init -q
+					git submodule update -q
+					mkdir -p build
+					cd build
+					cmake -DCMAKE_BUILD_TYPE=Release .. -Wno-dev
+					make clean
+					make -j$(getProcessorCount) install
+				)
+				rm -rf "$installRemoteModule_src"
+			fi
+			addConfigureOption with-ion "shared,/usr/local"
 			;;
 		ioncube_loader)
 			installIonCubeLoader
