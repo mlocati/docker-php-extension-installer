@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?php
+
+$serialized = ion\serialize(ion\Symbol\PHP::asTable());
+$unserialized = ion\unserialize($serialized);
+if (!$unserialized instanceof ion\Symbol\Table) {
+    fwrite(STDERR, "ion doesn't seem to be working\n");
+    exit(1);
+}
+echo "ion is working.\n";
+
+return 0;
