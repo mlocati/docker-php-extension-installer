@@ -385,10 +385,10 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-memprof"></a>memprof | Not available in `alpine` docker images |
 | <a name="special-requirements-for-parallel"></a>parallel | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 | <a name="special-requirements-for-parle"></a>parle | Not available in `jessie` docker images |
-| <a name="special-requirements-for-pdo_sqlsrv"></a>pdo_sqlsrv | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images |
+| <a name="special-requirements-for-pdo_sqlsrv"></a>pdo_sqlsrv | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in ARM architectures. |
 | <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`). |
 | <a name="special-requirements-for-sodium"></a>sodium | Not available in `jessie` docker images |
-| <a name="special-requirements-for-sqlsrv"></a>sqlsrv | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.1-alpine3.10` docker images |
+| <a name="special-requirements-for-sqlsrv"></a>sqlsrv | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.1-alpine3.10` docker images<br />&bull; Not available in ARM architectures. |
 | <a name="special-requirements-for-tensor"></a>tensor | Not available in `alpine3.15` docker images |
 | <a name="special-requirements-for-vips"></a>vips | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `jessie` docker images |
 <!-- END OF SPECIAL REQUIREMENTS -->
