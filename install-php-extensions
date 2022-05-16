@@ -2927,7 +2927,7 @@ installRemoteModule() {
 		snuffleupagus)
 			if test -z "$installRemoteModule_path"; then
 				if test -z "$installRemoteModule_version"; then
-					installRemoteModule_version=0.7.1
+					installRemoteModule_version=0.8.0
 				fi
 				installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$installRemoteModule_version)"
 				cd "$installRemoteModule_src/src"
@@ -2936,6 +2936,9 @@ installRemoteModule() {
 				make -j$(getProcessorCount) install
 				cd - >/dev/null
 				cp -a "$installRemoteModule_src/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
+				if test $(compareVersions "$installRemoteModule_version" 0.8.0) -ge 0; then
+					printf '\n# Disable "PHP version is not officially maintained anymore" message\nsp.global.show_old_php_warning.disable();\n' >>"$PHP_INI_DIR/conf.d/snuffleupagus.rules"
+				fi
 			else
 				if test -f "$installRemoteModule_path/config/default.rules"; then
 					cp -a "$installRemoteModule_path/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
