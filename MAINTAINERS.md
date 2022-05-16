@@ -59,6 +59,11 @@ The `http` PHP extension may use the `libidnkit` system library since version 3.
 It's not available on Alpine Linux, so we install it manually.
 We need to monitor new releases at https://jprs.co.jp/idn
 
+### ion
+
+We manually compile the `ion-c` library.
+We need to monitor new releases at https://github.com/amzn/ion-c/releases
+
 ### ionCube Loader
 
 The `ionCube Loader` PHP extension is not available in the PECL archive, so we install it manually.
