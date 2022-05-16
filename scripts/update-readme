@@ -172,10 +172,10 @@ generateSpecialRequirementsTable() {
 				fi
 				case "$generateSpecialRequirementsTable_chunk" in
 					zts)
-						generateSpecialRequirementsTable_chunk='Requires images with PHP compiled with thread-safety enabled (`zts`).'
+						generateSpecialRequirementsTable_chunk='Requires images with PHP compiled with thread-safety enabled (`zts`)'
 						;;
 					!arm)
-						generateSpecialRequirementsTable_chunk='Not available in ARM architectures.'
+						generateSpecialRequirementsTable_chunk='Not available in ARM architectures'
 						;;
 					!*)
 						generateSpecialRequirementsTable_chunk="$(printf 'Not available in `%s` docker images' "${generateSpecialRequirementsTable_chunk#!}")"
