@@ -2,9 +2,9 @@ geos !alpine3.7 !alpine3.8 !alpine3.9 !alpine3.10
 memprof !alpine
 parallel zts
 parle !jessie
-pdo_sqlsrv !alpine3.7 !alpine3.8
+pdo_sqlsrv !alpine3.7 !alpine3.8 !arm
 pthreads zts
 sodium !jessie
-sqlsrv !alpine3.7 !alpine3.8 !7.1-alpine3.9 !7.1-alpine3.10
+sqlsrv !alpine3.7 !alpine3.8 !7.1-alpine3.9 !7.1-alpine3.10 !arm
 tensor !alpine3.15
 vips !alpine3.7 !alpine3.8 !alpine3.9 !jessie
