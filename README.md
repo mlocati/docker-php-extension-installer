@@ -251,6 +251,7 @@ install-php-extensions @fix_letsencrypt
 | pdo_pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_sqlsrv[*](#special-requirements-for-pdo_sqlsrv) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| php_trie |  |  |  |  |  | &check; | &check; | &check; | &check; |
 | propro | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | protobuf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | pspell | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -300,7 +301,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 122*
+*Number of supported extensions: 123*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
