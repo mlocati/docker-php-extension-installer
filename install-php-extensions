@@ -1021,6 +1021,9 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
 				;;
+			php_trie@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				;;
 			pspell@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile aspell-dev"
@@ -2826,6 +2829,13 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=0.9.0
 				fi
+			fi
+			;;
+		php_trie)
+			if ! test -f /usr/local/include/hat-trie/include/tsl/htrie_map.h; then
+				installRemoteModule_src="$(getPackageSource https://codeload.github.com/Tessil/hat-trie/tar.gz/v0.6.0)"
+				mkdir -p /usr/local/include/hat-trie
+				mv "$installRemoteModule_src/include" /usr/local/include/hat-trie
 			fi
 			;;
 		propro)
