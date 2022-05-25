@@ -3244,6 +3244,21 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		xdiff)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=1.5.2
+				fi
+			fi
+			if ! test -f /usr/local/lib/libxdiff.* && ! test -f /usr/lib/libxdiff.* && ! test -f /usr/lib/x86_64*/libxdiff.*; then
+				installRemoteModule_src="$(getPackageSource http://www.xmailserver.org/libxdiff-0.23.tar.gz)"
+				cd -- "$installRemoteModule_src"
+				./configure --disable-shared --disable-dependency-tracking --with-pic
+				make -j$(getProcessorCount)
+				make install
+				cd - >/dev/null
+			fi
+			;;
 		xhprof)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
