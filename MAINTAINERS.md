@@ -110,6 +110,11 @@ We need to monitor new releases at https://docs.microsoft.com/en-us/sql/connect/
 The latest stable release of the `ssh2` PHP extension is very old, so we install the latest beta release.
 We should switch to the stable release once it will be available.
 
+## xdiff
+
+The `xdiff` PHP extension uses the LibXDiff library.
+We need to monitor new releases at http://www.xmailserver.org/xdiff-lib.html
+
 ### zookeeper
 
 The latest stable release of the `zookeeper` PHP extension doesn't support PHP 7.3+, so we install the alpha version.
