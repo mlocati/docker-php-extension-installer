@@ -288,6 +288,7 @@ install-php-extensions @fix_letsencrypt
 | vips[*](#special-requirements-for-vips) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
 | xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| xdiff | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xlswriter |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xmldiff | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -301,7 +302,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 123*
+*Number of supported extensions: 124*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
