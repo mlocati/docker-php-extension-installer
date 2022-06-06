@@ -6,5 +6,5 @@ pdo_sqlsrv !alpine3.7 !alpine3.8 !arm
 pthreads zts
 sodium !jessie
 sqlsrv !alpine3.7 !alpine3.8 !7.1-alpine3.9 !7.1-alpine3.10 !arm
-tensor !alpine3.15
+tensor !alpine3.15 !alpine3.16
 vips !alpine3.7 !alpine3.8 !alpine3.9 !jessie
