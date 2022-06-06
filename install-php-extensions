@@ -2481,7 +2481,7 @@ installRemoteModule() {
 					addConfigureOption with-event-ns no
 				fi
 				# openssl installation prefix
-				addConfigureOption with-openssl-dir no
+				addConfigureOption with-openssl-dir yes
 			elif test $(compareVersions "$installRemoteModule_version" 1.7.6) -ge 0; then
 				# Enable internal debugging in Event
 				addConfigureOption enable-event-debug no
