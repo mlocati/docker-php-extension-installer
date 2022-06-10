@@ -166,6 +166,9 @@ normalizePHPModuleName() {
 getPeclModuleName() {
 	normalizePHPModuleName_name="$1"
 	case "$normalizePHPModuleName_name" in
+		ddtrace)
+			normalizePHPModuleName_name=datadog_trace
+			;;
 		http)
 			normalizePHPModuleName_name=pecl_http
 			;;
@@ -641,6 +644,14 @@ buildRequiredPackageLists() {
 				;;
 			cmark@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
+				;;
+			ddtrace@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent curl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl curl-dev"
+				;;
+			ddtrace@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent curl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-openssl-dev"
 				;;
 			dba@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent db"
