@@ -1,5 +1,5 @@
 [![Downloaded GitHub Releases](https://img.shields.io/github/downloads/mlocati/docker-php-extension-installer/total?label=Downloaded%20releases)](https://github.com/mlocati/docker-php-extension-installer/releases)
-[![Docker Hub pulls](https://img.shields.io/docker/pulls/mlocati/php-extension-installer?label=Docker%20Hub%20pulls)](https://hub.docker.com/r/mlocati/php-extension-installer)
+[![Docker Hub pulls](https://img.shields.io/docker/pulls/mlocati/php-extension-installer)](https://hub.docker.com/r/mlocati/php-extension-installer)
 [![Test recent](https://github.com/mlocati/docker-php-extension-installer/workflows/Test%20recent/badge.svg)](https://github.com/mlocati/docker-php-extension-installer/actions?query=workflow%3A%22Test+recent%22)
 
 # Easy installation of PHP extensions in official PHP Docker images
