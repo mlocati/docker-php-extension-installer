@@ -268,7 +268,7 @@ install-php-extensions @fix_letsencrypt
 | snuffleupagus |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | soap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sockets | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| sodium[*](#special-requirements-for-sodium) |  | &check; | &check; | &check; |  |  |  |  |  | &check; |
+| sodium[*](#special-requirements-for-sodium) |  | &check; | &check; | &check; |  |  |  |  |  |  |
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | sourceguardian | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | spx |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
