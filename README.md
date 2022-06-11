@@ -244,7 +244,7 @@ install-php-extensions @fix_letsencrypt
 | parle[*](#special-requirements-for-parle) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pcntl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pcov |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| pdo_dblib | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  | &check; |
+| pdo_dblib | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_firebird | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_mysql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_oci |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -254,7 +254,7 @@ install-php-extensions @fix_letsencrypt
 | pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | php_trie |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; |
 | propro | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
-| protobuf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  | &check; |
+| protobuf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pspell | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pthreads[*](#special-requirements-for-pthreads) | &check; | &check; | &check; |  |  |  |  |  |  |  |
 | raphf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
