@@ -130,6 +130,9 @@ normalizePHPModuleName() {
 			;;
 	esac
 	case "$normalizePHPModuleName_name" in
+		datadog_trace)
+			normalizePHPModuleName_name=ddtrace
+			;;
 		ioncube | ioncube\ loader)
 			normalizePHPModuleName_name='ioncube_loader'
 			;;
@@ -646,8 +649,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
 				;;
 			ddtrace@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent curl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl curl-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev"
 				;;
 			ddtrace@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent curl"
