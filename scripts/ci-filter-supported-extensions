@@ -23,15 +23,21 @@ SUPPORTED_EXTENSIONS=''
 resetIFS
 for EXTENSION in $EXTENSIONS_LIST; do
 	printf 'Checking extension "%s"... ' "$EXTENSION" >&2
+	NORMALIZED_EXTENSION="$EXTENSION"
 	case "$EXTENSION" in
+		datadog_trace)
+			NORMALIZED_EXTENSION=ddtrace
+			;;
 		pecl_http)
-			EXTENSION=http
-			printf '(using %s) ' "$EXTENSION" >&2
+			NORMALIZED_EXTENSION=http
 			;;
 	esac
-	if printf '%s' "$ALL_SUPPORTED_EXTENSIONS" | grep -q "^$EXTENSION\s"; then
+	if test "$NORMALIZED_EXTENSION" != "$EXTENSION"; then
+		printf '(using %s) ' "$NORMALIZED_EXTENSION" >&2
+	fi
+	if printf '%s' "$ALL_SUPPORTED_EXTENSIONS" | grep -q "^$NORMALIZED_EXTENSION\s"; then
 		printf 'supported.\n' >&2
-		SUPPORTED_EXTENSIONS="$SUPPORTED_EXTENSIONS $EXTENSION"
+		SUPPORTED_EXTENSIONS="$SUPPORTED_EXTENSIONS $NORMALIZED_EXTENSION"
 	else
 		printf 'NOT supported.\n' >&2
 	fi
