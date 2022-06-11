@@ -1106,6 +1106,11 @@ buildRequiredPackageLists() {
 			soap@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
+			sockets@alpine)
+				if test $PHP_MAJMIN_VERSION -ge 802; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile linux-headers"
+				fi
+				;;
 			sodium@alpine | libsodium@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsodium"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsodium-dev"
