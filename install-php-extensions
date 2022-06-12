@@ -2931,6 +2931,12 @@ installRemoteModule() {
 			else
 				addConfigureOption 'enable-redis-igbinary' 'no'
 			fi
+			# Enable msgpack serializer support?
+			if php --ri msgpack >/dev/null 2>/dev/null; then
+				addConfigureOption 'enable-redis-msgpack' 'yes'
+			else
+				addConfigureOption 'enable-redis-msgpack' 'no'
+			fi
 			# Enable lzf compression support?
 			addConfigureOption 'enable-redis-lzf' 'yes'
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '5.0.0') -ge 0; then
