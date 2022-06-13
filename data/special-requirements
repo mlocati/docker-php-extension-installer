@@ -1,6 +1,6 @@
 ddtrace !alpine3.7 !alpine3.8 !jessie
 geos !alpine3.7 !alpine3.8 !alpine3.9 !alpine3.10
-memprof !alpine
+memprof !alpine3.7 !alpine3.8 !alpine3.9 !alpine3.10 !alpine3.11 !alpine3.12 !alpine3.13 !alpine3.14 !alpine3.15
 parallel zts
 parle !jessie
 pdo_sqlsrv !alpine3.7 !alpine3.8 !arm
