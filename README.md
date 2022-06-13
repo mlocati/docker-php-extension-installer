@@ -386,7 +386,7 @@ Some extensions have special requirements:
 |---|---|
 | <a name="special-requirements-for-ddtrace"></a>ddtrace | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `jessie` docker images |
 | <a name="special-requirements-for-geos"></a>geos | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images |
-| <a name="special-requirements-for-memprof"></a>memprof | Not available in `alpine` docker images |
+| <a name="special-requirements-for-memprof"></a>memprof | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images<br />&bull; Not available in `alpine3.11` docker images<br />&bull; Not available in `alpine3.12` docker images<br />&bull; Not available in `alpine3.13` docker images<br />&bull; Not available in `alpine3.14` docker images<br />&bull; Not available in `alpine3.15` docker images |
 | <a name="special-requirements-for-parallel"></a>parallel | Requires images with PHP compiled with thread-safety enabled (`zts`) |
 | <a name="special-requirements-for-parle"></a>parle | Not available in `jessie` docker images |
 | <a name="special-requirements-for-pdo_sqlsrv"></a>pdo_sqlsrv | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in ARM architectures |
