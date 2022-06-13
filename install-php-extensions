@@ -910,9 +910,8 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmaxminddb-dev"
 				;;
 			memprof@alpine)
-				# Only available in testing
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent judy"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile judy-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile judy-dev bsd-compat-headers"
 				;;
 			memprof@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libjudydebian1"
