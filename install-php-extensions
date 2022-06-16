@@ -1105,6 +1105,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsmbclient"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsmbclient-dev"
 				;;
+			snappy@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent snappy"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile snappy-dev"
+				;;
+			snappy@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libsnappy1(v[0-9]+)?$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsnappy-dev"
+				;;
 			snmp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent net-snmp-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile net-snmp-dev"
@@ -2971,6 +2979,20 @@ installRemoteModule() {
 				fi
 				# Enable zstd compression support?
 				addConfigureOption 'enable-redis-zstd' 'yes'
+			fi
+			;;
+		snappy)
+			if test -z "$installRemoteModule_path"; then
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=0.2.1
+				fi
+				installRemoteModule_src="$(getPackageSource https://github.com/kjdev/php-ext-snappy/archive/refs/tags/$installRemoteModule_version.tar.gz)"
+				cd "$installRemoteModule_src"
+				phpize
+				./configure --with-snappy-includedir=/usr
+				make -j$(getProcessorCount) install
+				cd - >/dev/null
+				installRemoteModule_manuallyInstalled=1
 			fi
 			;;
 		snuffleupagus)
