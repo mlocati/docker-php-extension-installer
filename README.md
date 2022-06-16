@@ -220,7 +220,7 @@ install-php-extensions @fix_letsencrypt
 | json_post | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ldap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | luasandbox | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
-| lz4 |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| lz4 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | lzf | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mailparse | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | maxminddb |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
