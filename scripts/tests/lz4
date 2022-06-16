@@ -1,0 +1,18 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+const ORIGINAL_DATA = 'Hi, there!';
+
+$compressed = lz4_compress(ORIGINAL_DATA);
+if (!is_string($compressed) || $compressed === '') {
+    fwrite(STDERR, 'lz4_compress() failed!');
+    exit(1);
+}
+$uncompressed = lz4_uncompress($compressed);
+if ($uncompressed !== ORIGINAL_DATA) {
+    fwrite(STDERR, 'lz4_uncompress() failed!');
+    exit(1);
+}
+exit(0);
