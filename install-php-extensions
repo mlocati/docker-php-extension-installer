@@ -901,6 +901,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblua5.1-0"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblua5.1-0-dev"
 				;;
+			lz4@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent lz4-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile lz4-dev"
+				;;
+			lz4@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblz4-1"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblz4-dev"
+				;;
 			maxminddb@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmaxminddb"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmaxminddb-dev"
@@ -2674,6 +2682,20 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -lt 702; then
 					installRemoteModule_version=3.0.3
 				fi
+			fi
+			;;
+		lz4)
+			if test -z "$installRemoteModule_path"; then
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=0.4.3
+				fi
+				installRemoteModule_src="$(getPackageSource https://github.com/kjdev/php-ext-lz4/archive/refs/tags/$installRemoteModule_version.tar.gz)"
+				cd "$installRemoteModule_src"
+				phpize
+				./configure --with-lz4-includedir=/usr
+				make -j$(getProcessorCount) install
+				cd - >/dev/null
+				installRemoteModule_manuallyInstalled=1
 			fi
 			;;
 		lzf)
