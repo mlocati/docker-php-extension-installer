@@ -69,6 +69,11 @@ We need to monitor new releases at https://github.com/amzn/ion-c/releases
 The `ionCube Loader` PHP extension is not available in the PECL archive, so we install it manually.
 We need to monitor new releases at https://www.ioncube.com/news.php
 
+### lz4
+
+The `lz4` PHP extension is not available in the PECL archive, so we install it manually.
+We need to monitor new releases at https://github.com/kjdev/php-ext-lz4/tags
+
 ### mosquitto
 
 The only available versions of the `mosquitto` PHP extension are all alpha/beta.
@@ -88,6 +93,11 @@ We should switch to the stable release once it will be available.
 
 The only available versions of the `parle` PHP extension are all beta.
 We should switch to the stable release once it will be available.
+
+### snappy
+
+The `snappy` PHP extension is not available in the PECL archive, so we install it manually.
+We need to monitor new releases at https://github.com/kjdev/php-ext-lz4/tags
 
 ### snuffleupagus
 
