@@ -97,7 +97,7 @@ We should switch to the stable release once it will be available.
 ### snappy
 
 The `snappy` PHP extension is not available in the PECL archive, so we install it manually.
-We need to monitor new releases at https://github.com/kjdev/php-ext-lz4/tags
+We need to monitor new releases at https://github.com/kjdev/php-ext-snappy/tags
 
 ### snuffleupagus
 
