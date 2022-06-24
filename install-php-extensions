@@ -608,6 +608,10 @@ buildRequiredPackageLists() {
 			else
 				buildRequiredPackageLists_libssldev='libretls-dev'
 			fi
+			buildRequiredPackageLists_icuPersistent=''
+			if test $DISTRO_MAJMIN_VERSION -ge 316; then
+				buildRequiredPackageLists_icuPersistent='icu-data-full'
+			fi
 			;;
 		debian@9)
 			buildRequiredPackageLists_libssldev='libssl1.0-dev'
@@ -824,7 +828,7 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libidn"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libidn-dev"
 				else
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libidn"
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs $buildRequiredPackageLists_icuPersistent libidn"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev libidn-dev"
 				fi
 				;;
@@ -870,7 +874,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
 				;;
 			intl@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs $buildRequiredPackageLists_icuPersistent"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev"
 				;;
 			intl@debian)
@@ -955,7 +959,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libsasl2-dev"
 				;;
 			mongodb@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl $buildRequiredPackageLists_libssl snappy"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs $buildRequiredPackageLists_icuPersistent libsasl $buildRequiredPackageLists_libssl snappy"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev $buildRequiredPackageLists_libssldev zlib-dev"
 				;;
 			mongodb@debian)
@@ -1361,7 +1365,9 @@ buildRequiredPackageLists() {
 		resetIFS
 		for buildRequiredPackageLists_package in $buildRequiredPackageLists_packages; do
 			if ! stringInList "$buildRequiredPackageLists_package" "$PACKAGES_PERSISTENT_NEW"; then
-				PACKAGES_VOLATILE="$PACKAGES_VOLATILE $buildRequiredPackageLists_package"
+				if test "$buildRequiredPackageLists_package" != icu-data-en || ! stringInList icu-data-full "$PACKAGES_PERSISTENT_NEW"; then
+					PACKAGES_VOLATILE="$PACKAGES_VOLATILE $buildRequiredPackageLists_package"
+				fi
 			fi
 		done
 		PACKAGES_VOLATILE="${PACKAGES_VOLATILE# }"
