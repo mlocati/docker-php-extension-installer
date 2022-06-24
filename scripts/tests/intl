@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$rc = 0;
+echo "Checking languages:\n";
+foreach ([
+    'en' => "\xC2\xA4#,##0.00",
+    'it' => "#,##0.00\xC2\xA0\xC2\xA4",
+] as $locale => $expectedCurrencyFormat) {
+    echo "- {$locale}: ";
+    $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
+    $actualCurrencyFormat = $formatter->getPattern();
+    if ($actualCurrencyFormat === $expectedCurrencyFormat) {
+        echo "ok\n";
+    } else {
+        echo "failed (expected: '{$expectedCurrencyFormat}', actual: '{$actualCurrencyFormat}')\n";
+        $rc = 1;
+    }
+}
+exit($rc);
