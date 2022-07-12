@@ -1192,10 +1192,18 @@ buildRequiredPackageLists() {
 			swoole@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs libstdc++ $buildRequiredPackageLists_libssl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev postgresql-dev linux-headers $buildRequiredPackageLists_libssldev"
+				if test $PHP_MAJMIN_VERSION -ge 702; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-ares"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile c-ares-dev"
+				fi
 				;;
 			swoole@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libcurl4-gnutls-dev libpq-dev"
+				if test $PHP_MAJMIN_VERSION -ge 702; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-ares2"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-ares-dev"
+				fi
 				;;
 			sybase_ct@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
@@ -3144,6 +3152,9 @@ installRemoteModule() {
 				else
 					# https://github.com/swoole/swoole-src/issues/3977#issuecomment-754755521
 					addConfigureOption enable-swoole-curl no
+				fi
+				if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.8.11) -ge 0; then
+					addConfigureOption enable-cares yes
 				fi
 			elif test $(compareVersions "$installRemoteModule_version" 4.4.0) -ge 0; then
 				# enable sockets supports?
