@@ -2482,6 +2482,13 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		ddtrace)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					installRemoteModule_version=0.75.0
+				fi
+			fi
+			;;
 		decimal)
 			case "$DISTRO" in
 				alpine)
