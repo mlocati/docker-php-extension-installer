@@ -610,7 +610,12 @@ buildRequiredPackageLists() {
 			fi
 			buildRequiredPackageLists_icuPersistent=''
 			if test $DISTRO_MAJMIN_VERSION -ge 316; then
-				buildRequiredPackageLists_icuPersistent='icu-data-full'
+				case "${IPE_ICU_EN_ONLY:-}" in
+					1 | y* | Y*) ;;
+					*)
+						buildRequiredPackageLists_icuPersistent='icu-data-full'
+						;;
+				esac
 			fi
 			;;
 		debian@9)
