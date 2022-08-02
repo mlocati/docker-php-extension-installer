@@ -1209,6 +1209,9 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-ares2"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-ares-dev"
 				fi
+				if test $PHP_MAJMIN_VERSION -ge 800; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
+				fi
 				;;
 			sybase_ct@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetds"
@@ -3138,6 +3141,8 @@ installRemoteModule() {
 					installRemoteModule_version=4.3.6
 				elif test $PHP_MAJMIN_VERSION -le 701; then
 					installRemoteModule_version=4.5.10
+				elif test $PHP_MAJMIN_VERSION -le 704; then
+					installRemoteModule_version=4.8.11
 				fi
 			fi
 			if php --ri sockets >/dev/null 2>/dev/null; then
@@ -3154,7 +3159,18 @@ installRemoteModule() {
 					fi
 					;;
 			esac
-			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 5.0.0) -ge 0; then
+				# enable sockets supports?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable curl support?
+				addConfigureOption enable-swoole-curl yes
+				# enable cares support?
+				addConfigureOption enable-cares yes
+			elif test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
 				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
@@ -3166,13 +3182,14 @@ installRemoteModule() {
 				# enable json support?
 				addConfigureOption enable-swoole-json yes
 				# enable curl support?
-				if test $PHP_MAJMINPAT_VERSION -ne 80000 || test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
+				if test $PHP_MAJMINPAT_VERSION -ne 80000 || test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
 					addConfigureOption enable-swoole-curl yes
 				else
 					# https://github.com/swoole/swoole-src/issues/3977#issuecomment-754755521
 					addConfigureOption enable-swoole-curl no
 				fi
-				if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 4.8.11) -ge 0; then
+				if test $(compareVersions "$installRemoteModule_version" 4.8.11) -ge 0; then
+					# enable cares support?
 					addConfigureOption enable-cares yes
 				fi
 			elif test $(compareVersions "$installRemoteModule_version" 4.4.0) -ge 0; then
