@@ -570,6 +570,17 @@ sortModulesToInstall() {
 	fi
 }
 
+# Expand the IPE_ASPELL_LANGUAGES environment variable into apk/apt package names
+expandASpellDictionaries() {
+	expandASpellDictionaries_languages="${IPE_ASPELL_LANGUAGES:-en}"
+	expandASpellDictionaries_result=''
+	resetIFS
+	for expandASpellDictionaries_language in $expandASpellDictionaries_languages; do
+		expandASpellDictionaries_result="$expandASpellDictionaries_result aspell-$expandASpellDictionaries_language"
+	done
+	printf '%s' "${expandASpellDictionaries_result# }"
+}
+
 # Get the required APT/APK packages for a specific PHP version and for the list of module handles
 #
 # Arguments:
@@ -1054,11 +1065,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
 				;;
 			pspell@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-libs"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-libs $(expandASpellDictionaries)"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile aspell-dev"
 				;;
 			pspell@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaspell15"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaspell15 $(expandASpellDictionaries)"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpspell-dev"
 				;;
 			rdkafka@alpine)
