@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+const ENGLISH_ONLY_WORD = 'Goodbye';
+const FRENCH_ONLY_WORD = 'Merci';
+
+$rc = 0;
+
+$english = pspell_new('en');
+$french = pspell_new('fr');
+
+if (pspell_check($english, ENGLISH_ONLY_WORD) !== true) {
+    fwrite(STDERR, "pspell failed to detect a correct English word ('" . ENGLISH_ONLY_WORD . "') as correct\n");
+    $rc = 1;
+}
+if (pspell_check($french, ENGLISH_ONLY_WORD) !== false) {
+    fwrite(STDERR, "pspell failed to detect a wrong French word ('" . ENGLISH_ONLY_WORD . "') as wrong\n");
+    $rc = 1;
+}
+if (pspell_check($english, FRENCH_ONLY_WORD) !== false) {
+    fwrite(STDERR, "pspell failed to detect a wrong English word ('" . FRENCH_ONLY_WORD . "') as wrong\n");
+    $rc = 1;
+}
+if (pspell_check($french, FRENCH_ONLY_WORD) !== true) {
+    fwrite(STDERR, "pspell failed to detect a correct French word ('" . FRENCH_ONLY_WORD . "') as correct\n");
+    $rc = 1;
+}
+
+exit($rc);
