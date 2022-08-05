@@ -1292,6 +1292,11 @@ buildRequiredPackageLists() {
 			wddx@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
+			xdebug@alpine)
+				if test $PHP_MAJMIN_VERSION -ge 800; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile linux-headers"
+				fi
+				;;
 			xlswriter@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev"
 				;;
