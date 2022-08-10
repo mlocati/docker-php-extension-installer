@@ -2442,6 +2442,13 @@ installRemoteModule() {
 			# apcu_bc must be loaded after apcu
 			installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
 			;;
+		ast)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 701; then
+					installRemoteModule_version=1.0.16
+				fi
+			fi
+			;;
 		blackfire)
 			case $(uname -m) in
 				i386 | i686 | x86)
