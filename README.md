@@ -292,7 +292,7 @@ install-php-extensions @fix_letsencrypt
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |
 | xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | xdiff | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xlswriter |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xmldiff | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xmlrpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
