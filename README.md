@@ -277,7 +277,7 @@ install-php-extensions @fix_letsencrypt
 | sqlsrv[*](#special-requirements-for-sqlsrv) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | stomp | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  | &check; |
-| swoole | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| swoole | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sybase_ct | &check; | &check; |  |  |  |  |  |  |  |  |
 | sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvsem | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
