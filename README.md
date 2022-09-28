@@ -272,7 +272,7 @@ install-php-extensions @fix_letsencrypt
 | sockets | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sodium[*](#special-requirements-for-sodium) |  | &check; | &check; | &check; |  |  |  |  |  |  |
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
-| sourceguardian | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
+| sourceguardian | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | spx |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sqlsrv[*](#special-requirements-for-sqlsrv) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
