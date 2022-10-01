@@ -1117,6 +1117,9 @@ buildRequiredPackageLists() {
 					esac
 				fi
 				;;
+			simdjson@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				;;
 			smbclient@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsmbclient"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile samba-dev"
