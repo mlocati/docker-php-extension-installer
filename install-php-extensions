@@ -219,11 +219,11 @@ set_error_handler(
 $xpath = new DOMXpath($doc);
 $xpath->registerNamespace('v20', 'http://pear.php.net/dtd/package-2.0');
 $xpath->registerNamespace('v21', 'http://pear.php.net/dtd/package-2.1');
-if ($xpath->query('/v20:package/v20:dependencies')->count() === 1) {
+if ($xpath->query('/v20:package/v20:dependencies')->length === 1) {
 	$ns = 'v20:';
-} elseif ($xpath->query('/v21:package/v21:dependencies')->count() === 1) {
+} elseif ($xpath->query('/v21:package/v21:dependencies')->length === 1) {
 	$ns = 'v21:';
-} elseif ($xpath->query('/package')->count() === 1) {
+} elseif ($xpath->query('/package')->length === 1) {
 	$ns = '';
 } else {
 	fwrite(STDERR, "Unsupported namespace of the XML of package version details\n");
