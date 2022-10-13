@@ -291,7 +291,7 @@ install-php-extensions @fix_letsencrypt
 | uuid | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | vips[*](#special-requirements-for-vips) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |
-| xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xdiff | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xlswriter |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
