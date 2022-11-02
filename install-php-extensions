@@ -744,7 +744,10 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebp"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
 					if test $PHP_MAJMIN_VERSION -ge 801; then
-						if isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
+						if test $DISTRO_MAJMIN_VERSION -ge 315; then
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libavif aom-libs libdav1d"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libavif-dev aom-dev dav1d-dev"
+						elif isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
 							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
 						else
 							case "${IPE_GD_WITHOUTAVIF:-}" in
@@ -2217,24 +2220,37 @@ EOF
 			elif test $PHP_MAJMIN_VERSION -le 800; then
 				docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype
 			else
-				case "${IPE_GD_WITHOUTAVIF:-}" in
-					1 | y* | Y*) ;;
-					*)
-						if ! isLibaomInstalled; then
-							installLibaom
-						fi
-						if ! isLibdav1dInstalled; then
-							installLibdav1d
-						fi
-						if ! isLibyuvInstalled; then
-							installLibyuv
-						fi
-						if ! isLibavifInstalled; then
-							installLibavif
+				installBundledModule_tmp=0
+				case "$DISTRO" in
+					alpine)
+						if test $DISTRO_MAJMIN_VERSION -ge 315; then
+							installBundledModule_tmp=1
 						fi
 						;;
 				esac
-				if isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
+				if test $installBundledModule_tmp -eq 0; then
+					case "${IPE_GD_WITHOUTAVIF:-}" in
+						1 | y* | Y*) ;;
+						*)
+							if ! isLibaomInstalled; then
+								installLibaom
+							fi
+							if ! isLibdav1dInstalled; then
+								installLibdav1d
+							fi
+							if ! isLibyuvInstalled; then
+								installLibyuv
+							fi
+							if ! isLibavifInstalled; then
+								installLibavif
+							fi
+							;;
+					esac
+					if isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
+						installBundledModule_tmp=1
+					fi
+				fi
+				if test $installBundledModule_tmp -eq 1; then
 					docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype --with-avif
 				else
 					docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype
