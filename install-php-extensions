@@ -3388,6 +3388,8 @@ installRemoteModule() {
 					installRemoteModule_version=2.6.1
 				elif test $PHP_MAJMIN_VERSION -le 701; then
 					installRemoteModule_version=2.9.8
+				elif test $PHP_MAJMIN_VERSION -ge 802; then
+					installRemoteModule_version=beta
 				fi
 			fi
 			;;
