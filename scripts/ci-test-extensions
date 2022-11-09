@@ -335,7 +335,7 @@ testExtensionFor() {
 		printf ' - Passed in %s seconds\n' $testExtensionFor_delta
 		return 0
 	fi
-	printf ' - FAILED!\n' >&2
+	printf '\n\n###############\n##           ##\n##  FAILED!  ##\n##           ##\n###############\n' >&2
 	cat "$testExtensionFor_out" >&2
 	rm -rf "$testExtensionFor_out"
 	return 1
