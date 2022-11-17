@@ -52,7 +52,7 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 
 RUN install-php-extensions gd xdebug
 ```
-Alternative which do not incrise image size with tool
+Alternative that does not increase the image size with the tool
 ```
 RUN  --mount=type=bind,from=mlocati/php-extension-installer:1.5,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
       install-php-extensions pcntl
