@@ -6,7 +6,5 @@ set -o nounset
 
 if grep -q 'VERSION="8 (jessie)"' /etc/os-release; then
 	echo 'Fix Debian Jessie keyring'
-	curl -o /tmp/debian-archive-keyring.deb -sSLf http://ftp.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2019.1+deb10u1_all.deb
-	dpkg -i /tmp/debian-archive-keyring.deb
-	rm -rf /tmp/debian-archive-keyring.deb
+	echo 'APT::Get::AllowUnauthenticated "true";' >/etc/apt/apt.conf.d/99-install-php-extensions
 fi
