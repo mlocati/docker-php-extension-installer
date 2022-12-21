@@ -3075,7 +3075,7 @@ installRemoteModule() {
 			;;
 		relay)
 			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version="$(curl -sSLf https://cachewerk.s3.amazonaws.com/relay/LATEST)"
+				installRemoteModule_version="$(curl -sSLf https://builds.r2.relay.so/meta/latest)"
 				installRemoteModule_version="${installRemoteModule_version#v}"
 			fi
 			case $(uname -m) in
@@ -3087,7 +3087,7 @@ installRemoteModule() {
 					;;
 			esac
 			printf 'Downloading relay v%s (%s)... ' "$installRemoteModule_version" "$installRemoteModule_hardware"
-			installRemoteModule_url="https://cachewerk.s3.amazonaws.com/relay/v${installRemoteModule_version}/relay-v${installRemoteModule_version}-php${PHP_MAJDOTMIN_VERSION}-${DISTRO}-${installRemoteModule_hardware}.tar.gz"
+			installRemoteModule_url="https://builds.r2.relay.so/v${installRemoteModule_version}/relay-v${installRemoteModule_version}-php${PHP_MAJDOTMIN_VERSION}-${DISTRO}-${installRemoteModule_hardware}.tar.gz"
 			installRemoteModule_src="$(getPackageSource $installRemoteModule_url)"
 			echo 'done.'
 			cp -- "$installRemoteModule_src/relay-pkg.so" "$PHP_EXTDIR/relay.so"
