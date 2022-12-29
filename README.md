@@ -43,6 +43,18 @@ RUN curl -sSLf \
     install-php-extensions gd xdebug
 ```
 
+#### With direct execution from curl
+
+```Dockerfile
+FROM php:8.2-cli
+
+RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
+      gd \
+      gmp \
+      exif \
+      opcache
+```
+
 ### Copying the script from a Docker image
 
 ```Dockerfile
