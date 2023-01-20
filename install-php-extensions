@@ -403,6 +403,32 @@ resolveWantedPHPModuleVersion() {
 	exit 1
 }
 
+# Get the actual version of a PECL pmodule, resolving 'latest', 'stable', 'beta', 'alpha', 'devel'.
+#
+# Arguments:
+#   $1: the module name as known on the PECL archive
+#   $2: the version to be resolved
+# Output:
+#   $2 itself if $1 is not 'latest', 'stable', 'beta', 'alpha', or 'devel', the actual version otherwise
+resolvePeclStabilityVersion() {
+	case "$2" in
+		latest | stable | beta | alpha | devel) ;;
+		*)
+			printf '%s' "$2"
+			return
+			;;
+	esac
+	peclStabilityFlagToVersion_url="http://pecl.php.net/rest/r/$1/$2.txt"
+	if ! peclStabilityFlagToVersion_result="$(curl -sSLf "$peclStabilityFlagToVersion_url")"; then
+		peclStabilityFlagToVersion_result=''
+	fi
+	if test -z "$peclStabilityFlagToVersion_result"; then
+		printf 'Failed to resolve the PECL package version "%s" of %s from %s\n' "$2" "$1" "$peclStabilityFlagToVersion_url" >&2
+		exit 1
+	fi
+	printf '%s' "$peclStabilityFlagToVersion_result"
+}
+
 # Set these variables:
 # - PHP_PREINSTALLED_MODULES the normalized list of PHP modules installed before running this script
 setPHPPreinstalledModules() {
@@ -2568,6 +2594,7 @@ installRemoteModule() {
 			fi
 			;;
 		event)
+			installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 2.4.0) -ge 0; then
 				# Enable internal debugging in Event
 				addConfigureOption enable-event-debug no
@@ -2799,6 +2826,8 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -lt 702; then
 					installRemoteModule_version=1.6.8
 				fi
+			else
+				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '1.5.0') -ge 0; then
 				# Sacrifice speed in favour of compression ratio?
@@ -2835,6 +2864,8 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=2.2.0
 				fi
+			else
+				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
 			# Set the path to libmemcached install prefix
 			addConfigureOption 'with-libmemcached-dir' 'no'
@@ -2877,6 +2908,7 @@ installRemoteModule() {
 			fi
 			;;
 		mongo)
+			installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '1.5.0') -ge 0; then
 				# Build with Cyrus SASL (MongoDB Enterprise Authentication) support?
 				addConfigureOption '-with-mongo-sasl' 'yes'
@@ -2924,6 +2956,8 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -lt 704; then
 					installRemoteModule_version=4.10.0
 				fi
+			else
+				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
 			if php --ri sockets >/dev/null 2>/dev/null; then
 				installRemoteModule_sockets=yes
@@ -3009,6 +3043,7 @@ installRemoteModule() {
 			fi
 			;;
 		rdkafka)
+			installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			if test -z "$installRemoteModule_version"; then
 				installRemoteModule_version1=''
 				if test $PHP_MAJMIN_VERSION -le 505; then
@@ -3048,6 +3083,8 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=4.3.0
 				fi
+			else
+				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
 			# Enable igbinary serializer support?
 			if php --ri igbinary >/dev/null 2>/dev/null; then
@@ -3225,6 +3262,8 @@ installRemoteModule() {
 				elif test $PHP_MAJMIN_VERSION -le 704; then
 					installRemoteModule_version=4.8.11
 				fi
+			else
+				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
 			if php --ri sockets >/dev/null 2>/dev/null; then
 				installRemoteModule_sockets=yes
@@ -3464,6 +3503,7 @@ installRemoteModule() {
 			fi
 			;;
 		xlswriter)
+			installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 1.2.7) -ge 0; then
 				# enable reader supports?
 				addConfigureOption enable-reader yes
@@ -3479,6 +3519,8 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=0.9.2
 				fi
+			else
+				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 2.2.0) -ge 0; then
 				# Enable igbinary serializer support
@@ -3515,6 +3557,8 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=1.2.5
 				fi
+			else
+				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 1.2.4) -ge 0; then
 				# Enable Msgpack Supports
@@ -3532,6 +3576,8 @@ installRemoteModule() {
 				else
 					installRemoteModule_version=1.0.0
 				fi
+			else
+				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
 			case "$DISTRO" in
 				alpine)
