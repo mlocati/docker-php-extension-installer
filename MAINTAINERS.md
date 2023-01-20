@@ -61,8 +61,10 @@ We need to monitor new releases at https://jprs.co.jp/idn
 
 ### ion
 
-We manually compile the `ion-c` library.
-We need to monitor new releases at https://github.com/amzn/ion-c/releases
+- We manually compile the `ion-c` library.
+  We need to monitor new releases at https://github.com/amzn/ion-c/releases
+- The only available versions of the `ion` PHP extension are all alpha.
+  We should switch to the stable release once it will be available.
 
 ### ionCube Loader
 
