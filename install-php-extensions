@@ -3665,14 +3665,13 @@ moduleMayUsePecl() {
 # Updates:
 #   PHP_MODULES_TO_INSTALL
 # Sets:
-#   USE_PICKLE
+#   USE_PICKLE 0: no, 1: yes (already downloaded), 2: yes (build it from source)
 configureInstaller() {
 	USE_PICKLE=0
-	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
-		if moduleMayUsePecl "$PHP_MODULE_TO_INSTALL"; then
-			if test $PHP_MAJMIN_VERSION -lt 800; then
-				pecl channel-update pecl.php.net || true
-				return
+	if ! which pecl >/dev/null; then
+		for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
+			if ! moduleMayUsePecl "$PHP_MODULE_TO_INSTALL"; then
+				continue
 			fi
 			if false && anyStringInList '' "$PHP_MODULES_TO_INSTALL"; then
 				USE_PICKLE=2
@@ -3681,9 +3680,12 @@ configureInstaller() {
 				chmod +x /tmp/pickle
 				USE_PICKLE=1
 			fi
-			return
-		fi
-	done
+			break
+		done
+	fi
+	if test $USE_PICKLE -eq 0; then
+		pecl channel-update pecl.php.net || true
+	fi
 }
 
 buildPickle() {
