@@ -2741,6 +2741,9 @@ installRemoteModule() {
 			fi
 			;;
 		ion)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=alpha
+			fi
 			if ! test -f /usr/local/lib/libionc.so || ! test -f /usr/local/include/ionc/ion.h; then
 				echo 'Installing ion-c... '
 				installRemoteModule_src="$(mktemp -p /tmp/src -d)"
