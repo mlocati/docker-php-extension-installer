@@ -1152,6 +1152,9 @@ buildRequiredPackageLists() {
 				;;
 			relay@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent lz4-libs zstd-libs"
+				if test $DISTRO_MAJMIN_VERSION -ge 317; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.1"
+				fi
 				;;
 			simdjson@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
