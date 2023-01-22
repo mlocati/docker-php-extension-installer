@@ -15,6 +15,7 @@ jobs:
         distro:
           - alpine3.15
           - alpine3.16
+          - alpine3.17
           - buster
           - bullseye
     name: Check on ${{ matrix.distro }}
