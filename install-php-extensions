@@ -3688,8 +3688,8 @@ configureInstaller() {
 	fi
 	if test $USE_PICKLE -eq 0; then
 		test -n "$(pear config-get http_proxy)" || \
-		test -n "$http_proxy" && pear config-set http_proxy $http_proxy || \
-		test -n "$HTTP_PROXY" && pear config-set http_proxy $HTTP_PROXY || true
+		(test -n "$http_proxy" && pear config-set http_proxy $http_proxy) || \
+		(test -n "$HTTP_PROXY" && pear config-set http_proxy $HTTP_PROXY) || true
 		pecl channel-update pecl.php.net || true
 	fi
 }
