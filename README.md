@@ -202,6 +202,7 @@ install-php-extensions @fix_letsencrypt
 | blackfire | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | bz2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | calendar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| cassandra[*](#special-requirements-for-cassandra) |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | cmark |  |  | &check; | &check; | &check; | &check; | &check; |  |  |  |
 | csv |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; |
 | dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -324,7 +325,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 129*
+*Number of supported extensions: 130*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
@@ -407,6 +408,7 @@ Some extensions have special requirements:
 <!-- ########################################################### -->
 | Extension | Requirements |
 |---|---|
+| <a name="special-requirements-for-cassandra"></a>cassandra | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images<br />&bull; Not available in `buster` docker images<br />&bull; Not available in `bullseye` docker images |
 | <a name="special-requirements-for-ddtrace"></a>ddtrace | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `jessie` docker images |
 | <a name="special-requirements-for-geos"></a>geos | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images |
 | <a name="special-requirements-for-lz4"></a>lz4 | Not available in `jessie` docker images |
