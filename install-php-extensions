@@ -692,6 +692,10 @@ buildRequiredPackageLists() {
 			bz2@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libbz2-dev"
 				;;
+			cassandra@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent cassandra-cpp-driver gmp"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cassandra-cpp-driver-dev gmp-dev"
+				;;
 			cmark@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
 				;;
@@ -2532,6 +2536,15 @@ installRemoteModule() {
 			cd - >/dev/null
 			installRemoteModule_manuallyInstalled=1
 			installRemoteModule_ini_extra="$(printf '%sblackfire.agent_socket=tcp://blackfire:8307\n' "$installRemoteModule_ini_extra")"
+			;;
+		cassandra)
+			installRemoteModule_src="$(getPackageSource https://github.com/nano-interactive/ext-cassandra/tarball/1cf12c5ce49ed43a2c449bee4b7b23ce02a37bf0)"
+			cd "$installRemoteModule_src/ext"
+			phpize
+			./configure
+			make -j$(getProcessorCount) install
+			cd - >/dev/null
+			installRemoteModule_manuallyInstalled=1
 			;;
 		cmark)
 			if test -z "$installRemoteModule_version"; then

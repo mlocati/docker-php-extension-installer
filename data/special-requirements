@@ -1,3 +1,4 @@
+cassandra !alpine3.7 !alpine3.8 !jessie !stretch !buster !bullseye
 ddtrace !alpine3.7 !alpine3.8 !jessie
 geos !alpine3.7 !alpine3.8 !alpine3.9 !alpine3.10
 lz4 !jessie
