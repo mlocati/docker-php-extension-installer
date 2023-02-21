@@ -322,7 +322,7 @@ install-php-extensions @fix_letsencrypt
 | yar | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zephir_parser |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zip | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
+| zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
 *Number of supported extensions: 130*
