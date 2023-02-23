@@ -2994,13 +2994,20 @@ installRemoteModule() {
 			addConfigureOption enable-http2 yes
 			# enable mysqlnd support?
 			addConfigureOption enable-mysqlnd yes
-			# enable json support?
-			addConfigureOption enable-swoole-json yes
-			# enable curl support?
-			addConfigureOption enable-swoole-curl yes
-			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '4.8.0') -ge 0; then
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '22.8.0') -ge 0; then
+				#enable hook curl support?
+				addConfigureOption enable-hook-curl yes
 				# enable postgres support?
 				addConfigureOption with-postgres yes
+			else
+				# enable json support?
+				addConfigureOption enable-swoole-json yes
+				# enable curl support?
+				addConfigureOption enable-swoole-curl yes
+				if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '4.8.0') -ge 0; then
+					# enable postgres support?
+					addConfigureOption with-postgres yes
+				fi
 			fi
 			;;
 		parallel)
