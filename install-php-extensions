@@ -1763,6 +1763,7 @@ markPreinstalledPackagesAsUsed() {
 #
 # Arguments:
 #   $@: the list of APT/APK packages to be installed
+# the --force-yes argument fix the error E: There are problems and -y was used without --force-yes, https://github.com/mlocati/docker-php-extension-installer/issues/699
 installRequiredPackages() {
 	printf '### INSTALLING REQUIRED PACKAGES ###\n'
 	printf '# Packages to be kept after installation: %s\n' "$PACKAGES_PERSISTENT_NEW"
@@ -1780,7 +1781,7 @@ installRequiredPackages() {
 			done
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qq -y $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
+			DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qq -y --force-yes $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
 			;;
 	esac
 }
