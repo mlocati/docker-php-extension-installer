@@ -633,7 +633,7 @@ buildRequiredPackageLists() {
 			apk update
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get update -q
+			invokeAptGetUpdate
 			;;
 	esac
 	case "$DISTRO_VERSION" in
@@ -1492,7 +1492,7 @@ expandPackagesToBeInstalled() {
 			resetIFS
 			;;
 		debian)
-			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy --no-install-recommends $@ 2>&1 || printf '\nE: apt-get failed\n')"
+			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS $@ 2>&1 || printf '\nE: apt-get failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^E:')"; then
 				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
 				printf '%s ' "$@" >&2
@@ -1780,7 +1780,7 @@ installRequiredPackages() {
 			done
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qq -y $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
+			DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
 			;;
 	esac
 }
@@ -1949,16 +1949,16 @@ installMicrosoftSqlServerODBC() {
 			if ! test -f /etc/apt/sources.list.d/mssql-release.list; then
 				printf -- '- adding the Microsoft APT source list\n'
 				curl -sSLf https://packages.microsoft.com/config/debian/$DISTRO_VERSION_NUMBER/prod.list >/etc/apt/sources.list.d/mssql-release.list
-				DEBIAN_FRONTEND=noninteractive apt-get -q update
+				invokeAptGetUpdate
 			fi
 			printf -- '- installing the APT package\n'
 			if test $PHP_MAJMIN_VERSION -le 703; then
-				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get -qy --no-install-recommends install msodbcsql17
+				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS msodbcsql17
 			elif test $DISTRO_VERSION_NUMBER -ge 9 && $DISTRO_VERSION_NUMBER -le 11; then
 				# On Debian 9 and 11 we have both msodbcsql17 and msodbcsql18: let's install just one
-				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get -qy --no-install-recommends install msodbcsql18
+				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS msodbcsql18
 			else
-				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get -qy --no-install-recommends install '^msodbcsql[0-9]+$'
+				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS '^msodbcsql[0-9]+$'
 			fi
 			;;
 	esac
@@ -2314,7 +2314,7 @@ EOF
 				debian@9)
 					installBundledModule_tmp="$(pwd)"
 					cd /tmp
-					apt-get download libc-client2007e-dev
+					apt-get download $IPE_APTGET_INSTALLOPTIONS libc-client2007e-dev
 					dpkg -i --ignore-depends=libssl-dev libc-client2007e-dev*
 					rm libc-client2007e-dev*
 					cd "$installBundledModule_tmp"
@@ -3843,6 +3843,36 @@ removeStringFromList() {
 	printf '%s' "$removeStringFromList_result"
 }
 
+# Invoke apt-get update
+#
+# Set:
+# IPE_APTGET_INSTALLOPTIONS
+invokeAptGetUpdate() {
+	if test -n "${IPE_APTGETUPDATE_ALREADY:-}"; then
+		DEBIAN_FRONTEND=noninteractive apt-get update -q
+		return
+	fi
+	IPE_APTGET_INSTALLOPTIONS=''
+	if !grep -q 'VERSION="8 (jessie)"' /etc/os-release; then
+		DEBIAN_FRONTEND=noninteractive apt-get update -q
+		return
+	fi
+	invokeAptGetUpdate_tmp="$(mktemp)"
+	DEBIAN_FRONTEND=noninteractive apt-get update -q 2>"$invokeAptGetUpdate_tmp"
+	if test -s "$invokeAptGetUpdate_tmp"; then
+		cat "$invokeAptGetUpdate_tmp" >&2
+		if grep -qE ' KEYEXPIRED [0-9]' "$invokeAptGetUpdate_tmp"; then
+			IPE_APTGET_INSTALLOPTIONS='-o APT::Get::AllowUnauthenticated=true'
+			echo '############' >&2
+			echo '# WARNING! #' >&2
+			echo '############' >&2
+			echo 'apt packages will be installed without checking authenticity!' >&2
+		fi
+	fi
+	rm "$invokeAptGetUpdate_tmp"
+	IPE_APTGETUPDATE_ALREADY=y
+}
+
 # Fix the Let's Encrypt CA certificates on old distros
 fixLetsEncrypt() {
 	printf '### FIXING LETS ENCRYPT CA CERTIFICATES ###\n'
@@ -3868,10 +3898,10 @@ fixLetsEncrypt() {
 				fi
 				if test $fixCACerts_mustUpdate -eq 1; then
 					printf -- '- refreshing the APT package list\n'
-					DEBIAN_FRONTEND=noninteractive apt-get update -qq
+					invokeAptGetUpdate
 				fi
 				printf -- '- installing newer ca-certificates package\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends ca-certificates
+				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS ca-certificates
 			fi
 			;;
 		*)
@@ -3914,7 +3944,7 @@ cleanup() {
 		case "$DISTRO" in
 			debian)
 				printf '### RESTORING PREVIOUSLY INSTALLED PACKAGES ###\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-upgrade -qqy $PACKAGES_PREVIOUS
+				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends --no-upgrade $IPE_APTGET_INSTALLOPTIONS $PACKAGES_PREVIOUS
 				;;
 		esac
 	fi
