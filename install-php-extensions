@@ -3853,7 +3853,7 @@ invokeAptGetUpdate() {
 		return
 	fi
 	IPE_APTGET_INSTALLOPTIONS=''
-	if !grep -q 'VERSION="8 (jessie)"' /etc/os-release; then
+	if ! grep -q 'VERSION="8 (jessie)"' /etc/os-release; then
 		DEBIAN_FRONTEND=noninteractive apt-get update -q
 		return
 	fi
