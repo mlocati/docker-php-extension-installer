@@ -3688,9 +3688,9 @@ configureInstaller() {
 	fi
 	if test $USE_PICKLE -eq 0; then
 		if test -z "$(pear config-get http_proxy)"; then
-			if test -n "$http_proxy"; then
+			if test -n "${http_proxy:-}"; then
 				pear config-set http_proxy "$http_proxy" || true
-			elif test -n "$HTTP_PROXY"; then
+			elif test -n "${HTTP_PROXY:-}"; then
 				pear config-set http_proxy "$HTTP_PROXY" || true
 			fi
 		fi
