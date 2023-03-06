@@ -1406,6 +1406,12 @@ buildRequiredPackageLists() {
 						;;
 				esac
 				;;
+			zmq@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent zeromq-dev"
+				;;
+			zmq@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzmq3-dev"
+				;;
 			zookeeper@alpine)
 				if ! test -f /usr/local/include/zookeeper/zookeeper.h; then
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile maven automake libtool openjdk8"
@@ -3620,6 +3626,18 @@ installRemoteModule() {
 				else
 					addConfigureOption enable-msgpack no
 				fi
+			fi
+			;;
+		zmq)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_src="$(getPackageSource https://github.com/zeromq/php-zmq/tarball/master)"
+				cd "$installRemoteModule_src"
+				phpize
+				./configure
+				make -j$(getProcessorCount)
+				make install
+				cd - >/dev/null
+				installRemoteModule_manuallyInstalled=1
 			fi
 			;;
 		zookeeper)
