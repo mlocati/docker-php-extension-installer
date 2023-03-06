@@ -2676,6 +2676,13 @@ installRemoteModule() {
 			# event must be loaded after sockets
 			installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
 			;;
+		excimer)
+			if test -z "$installRemoteModule_version"; then
+				if test "$DISTRO" = alpine && test $PHP_MAJMIN_VERSION -le 703; then
+					installRemoteModule_version=1.0.4
+				fi
+			fi
+			;;
 		gearman)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
