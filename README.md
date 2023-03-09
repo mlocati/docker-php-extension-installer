@@ -66,7 +66,7 @@ You may want to run `docker pull mlocati/php-extension-installer` in order to us
 
 ```Dockerfile
 RUN  --mount=type=bind,from=mlocati/php-extension-installer:1.5,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
-      install-php-extensions pcntl
+      install-php-extensions gd xdebug
 ```
 
 **Warning**: by using this method you may use an outdated version of the `mlocati/php-extension-installer` image.
