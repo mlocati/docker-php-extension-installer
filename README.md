@@ -13,14 +13,11 @@ See also the notes in the [Special requirements](#special-requirements) section.
 
 ## Usage
 
-You have two ways to use this script within your `Dockerfile`s: you can download the script on the fly, or you can grab it from the [`mlocati/php-extension-installer` Docker Hub image](https://hub.docker.com/r/mlocati/php-extension-installer).
-With the first method you are sure you'll always get the very latest version of the script, with the second method the process is faster since you'll use a local image.
+You have many ways to use this script within your `Dockerfile`s.
 
-For example, here some `Dockerfile`s that install the GD and xdebug PHP extensions:
+Here's a list of sample `Dockerfile`s that install the GD and xdebug PHP extensions:
 
-### Downloading the script on the fly
-
-#### With the Dockerfile
+### Downloading the script on the fly with `ADD`
 
 ```Dockerfile
 FROM php:7.2-cli
@@ -31,7 +28,7 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
     install-php-extensions gd xdebug
 ```
 
-#### With curl
+### Downloading the script on the fly with `curl`
 
 ```Dockerfile
 FROM php:7.2-cli
@@ -43,19 +40,16 @@ RUN curl -sSLf \
     install-php-extensions gd xdebug
 ```
 
-#### With direct execution from curl
+### Direct execution with `curl`
 
 ```Dockerfile
 FROM php:8.2-cli
 
 RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-      gd \
-      gmp \
-      exif \
-      opcache
+      gd xdebug
 ```
 
-#### Copying the script from a Docker image
+### Copying the script from a Docker image
 
 ```Dockerfile
 FROM php:7.2-cli
@@ -65,22 +59,21 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 RUN install-php-extensions gd xdebug
 ```
 
-#### Using the script of a Docker image
+**Warning**: by using this method you may use an outdated version of the `mlocati/php-extension-installer` image.
+You may want to run `docker pull mlocati/php-extension-installer` in order to use an up-to-date version.
+
+### Using the script of a Docker image
 
 ```Dockerfile
 RUN  --mount=type=bind,from=mlocati/php-extension-installer:1.5,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
       install-php-extensions pcntl
 ```
 
-> **Warning**: by using this method you may use an outdated version of the `mlocati/php-extension-installer` image.
->
-> In order to be sure the `COPY` instruction uses the very latest version, you can run:
->
-> ```sh
-> docker pull mlocati/php-extension-installer
-> ```
+**Warning**: by using this method you may use an outdated version of the `mlocati/php-extension-installer` image.
+You may want to run `docker pull mlocati/php-extension-installer` in order to use an up-to-date version.
 
-### Installing specific versions of an extension
+
+## Installing specific versions of an extension
 
 Simply append `-<version>` to the module name.
 For example:
@@ -114,7 +107,7 @@ For example:
 install-php-extensions mongodb-stable
 ```
 
-### Installing from source code
+## Installing an extension from its source code
 
 You can also install PHP extensions from source code (provided that it comes with a `package.xml` or a `package2.xml` file).
 
@@ -153,7 +146,7 @@ Accepted formats are:
   tar xzf /tmp/source.tgz -C /tmp
   install-php-extensions /tmp/php-memcached-3.1.5
 
-### Installing composer
+## Installing composer
 
 You can also install [composer](https://getcomposer.org/), and you also can specify a major version of it, or a full version.
 
@@ -168,7 +161,7 @@ install-php-extensions @composer-1
 install-php-extensions @composer-2.0.2
 ```
 
-### Issue with Let's Encrypt certificates
+## Issue with Let's Encrypt certificates
 
 The root CA certificate of Let's Encrypt changes ([more details here](https://letsencrypt.org/docs/dst-root-ca-x3-expiration-september-2021/)).  
 That breaks old linux distributions, namely:
