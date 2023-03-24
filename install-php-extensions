@@ -2753,6 +2753,10 @@ installRemoteModule() {
 					esac
 				fi
 			fi
+			if test -z "$installRemoteModule_version"; then
+				# See https://github.com/protocolbuffers/protobuf/issues/10619
+				installRemoteModule_version=1.53.0
+			fi
 			if test -z "$installRemoteModule_version" || test "$installRemoteModule_version" = 1.35.0; then
 				case "$DISTRO_VERSION" in
 					alpine@3.13)
@@ -3064,7 +3068,7 @@ installRemoteModule() {
 					installRemoteModule_version=3.12.4
 				else
 					# see https://github.com/protocolbuffers/protobuf/issues/10619
-					installRemoteModule_version=3.21.6
+					installRemoteModule_version=3.22.1
 				fi
 			fi
 			;;
