@@ -390,6 +390,7 @@ Here's the list of all the supported environment variables:
 | oci8 & pdo_oci | `IPE_INSTANTCLIENT_BASIC=1` | The oci8 and pdo_oci PHP extensions require [Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client.html). In order to save disk space, we install the Basic Lite version: if you want to install the Basic (non-lite) version simply set this environment variable |
 | http, intl, mongodb | `IPE_ICU_EN_ONLY=1` | Some extensions require the ICU library, use this flag to install a smaller, but English-only, ICU library on Alpine 3.16 and later |
 | pspell | `IPE_ASPELL_LANGUAGES='...'` | Configure the languages to be made available (for example: `IPE_ASPELL_LANGUAGES='en fr'`). If omitted, we'll assume `en` |
+| | `IPE_DEB_ARCHIVE` & `IPE_DEB_ARCHIVE_SECURITY` | The APT packages of very old Debian versions (eg Jessie) may have been archived: you can use these environment variables to specify custom URLs of these APT archives |
 
 ## Special requirements
 
