@@ -3067,8 +3067,8 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=3.12.4
 				else
-					# see https://github.com/protocolbuffers/protobuf/issues/10619
-					installRemoteModule_version=3.22.1
+					# See https://github.com/protocolbuffers/protobuf/issues/10619
+					installRemoteModule_version=3.22.3
 				fi
 			fi
 			;;
