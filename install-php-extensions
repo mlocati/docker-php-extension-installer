@@ -3170,17 +3170,26 @@ installRemoteModule() {
 					installRemoteModule_hardware=x86-64
 					;;
 			esac
-			if test "$DISTRO" = alpine; then
-				if test $DISTRO_MAJMIN_VERSION -lt 317; then
-					installRemoteModule_distro=alpine3.9
-				else
-					installRemoteModule_distro=alpine3.17
-				fi
-			else
-				installRemoteModule_distro="$DISTRO"
-			fi
+			installRemoteModule_distro="$DISTRO"
+			installRemoteModule_flags=''
+			case "$DISTRO" in
+				alpine)
+					if test $DISTRO_MAJMIN_VERSION -lt 317; then
+						installRemoteModule_distro=alpine3.9
+					else
+						installRemoteModule_distro=alpine3.17
+					fi
+					;;
+				debian)
+					case "$(dpkg -l 'libssl*' | grep -E '^ii ' | cut -d' ' -f3)" in
+						libssl3*)
+							installRemoteModule_flags=+libssl3
+							;;
+					esac
+					;;
+			esac
 			# See https://relay.so/builds
-			installRemoteModule_url="https://builds.r2.relay.so/v${installRemoteModule_version}/relay-v${installRemoteModule_version}-php${PHP_MAJDOTMIN_VERSION}-${installRemoteModule_distro}-${installRemoteModule_hardware}.tar.gz"
+			installRemoteModule_url="https://builds.r2.relay.so/v${installRemoteModule_version}/relay-v${installRemoteModule_version}-php${PHP_MAJDOTMIN_VERSION}-${installRemoteModule_distro}-${installRemoteModule_hardware}${installRemoteModule_flags}.tar.gz"
 			printf 'Downloading relay v%s (%s) from %s... ' "$installRemoteModule_version" "$installRemoteModule_hardware" "$installRemoteModule_url"
 			installRemoteModule_src="$(getPackageSource $installRemoteModule_url)"
 			echo 'done.'
