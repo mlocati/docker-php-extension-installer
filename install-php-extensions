@@ -3925,7 +3925,12 @@ invokeAptGetUpdate() {
 		return
 	fi
 	IPE_APTGET_INSTALLOPTIONS=''
-	if ! grep -q 'VERSION="8 (jessie)"' /etc/os-release; then
+	invokeAptGetUpdate_fixdistro=''
+	if grep -q 'VERSION="8 (jessie)"' /etc/os-release; then
+		invokeAptGetUpdate_fixdistro=jessie
+	elif grep -q 'VERSION="9 (stretch)"' /etc/os-release; then
+		invokeAptGetUpdate_fixdistro=stretch
+	else
 		IPE_APTGETUPDATE_ALREADY=y
 		DEBIAN_FRONTEND=noninteractive apt-get update -q
 		return
@@ -3937,7 +3942,7 @@ invokeAptGetUpdate() {
 	if test -z "${IPE_DEB_ARCHIVE_SECURITY:-}"; then
 		IPE_DEB_ARCHIVE_SECURITY=http://archive.kernel.org/debian-archive/debian-security
 	fi
-	sed -ri "s;^(\s*deb\s+http://(httpredir|deb).debian.org/debian\s+jessie-updates\b.*);#\1;" /etc/apt/sources.list
+	sed -ri "s;^(\s*deb\s+http://(httpredir|deb).debian.org/debian\s+$invokeAptGetUpdate_fixdistro-updates\b.*);#\1;" /etc/apt/sources.list
 	sed -ri "s;^(\s*deb\s+)http://(httpredir|deb).debian.org;\1$IPE_DEB_ARCHIVE;" /etc/apt/sources.list
 	sed -ri "s;^(\s*deb\s+)http://security.debian.org/debian-security;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
 	sed -ri "s;^(\s*deb\s+)http://security.debian.org;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
