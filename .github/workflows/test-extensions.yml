@@ -98,7 +98,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.3-stretch ./scripts/test-restore-apt
+      - run: docker run --rm --volume "$(pwd):/app" --workdir /app php:8.2-bullseye ./scripts/test-restore-apt
   test_custom_version:
     name: Test installing specific versions
     needs:
