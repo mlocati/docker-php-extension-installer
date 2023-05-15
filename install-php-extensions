@@ -3038,7 +3038,16 @@ installRemoteModule() {
 			;;
 		parle)
 			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version=beta
+				if test $PHP_MAJMIN_VERSION -lt 704; then
+					installRemoteModule_version=0.8.3
+				else
+					installRemoteModule_version=beta
+				fi
+			fi
+			installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 0.8.4) -ge 0; then
+				# Enable internal UTF-32 support in parle
+				addConfigureOption enable-parle-utf32 yes
 			fi
 			;;
 		pcov)
