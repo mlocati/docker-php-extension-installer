@@ -2518,6 +2518,13 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		bitset)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=2.0.4
+				fi
+			fi
+			;;
 		blackfire)
 			case $(uname -m) in
 				i386 | i686 | x86)
