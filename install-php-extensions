@@ -566,6 +566,8 @@ sortModulesToInstall() {
 	checkRequiredModule relay msgpack
 	# relay requires igbinary
 	checkRequiredModule relay igbinary
+	# pq requires raphf
+	checkRequiredModule pq raphf
 	# Some module installation may use sockets if available: move it before other modules
 	if stringInList 'sockets' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'sockets' "$PHP_MODULES_TO_INSTALL")"
@@ -594,6 +596,12 @@ sortModulesToInstall() {
 	if stringInList 'apcu' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'apcu' "$PHP_MODULES_TO_INSTALL")"
 		PHP_MODULES_TO_INSTALL="apcu $PHP_MODULES_TO_INSTALL"
+		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
+	fi
+	# Some module installation may use raphf if available: move it before other modules
+	if stringInList 'raphf' "$PHP_MODULES_TO_INSTALL"; then
+		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'raphf' "$PHP_MODULES_TO_INSTALL")"
+		PHP_MODULES_TO_INSTALL="raphf $PHP_MODULES_TO_INSTALL"
 		PHP_MODULES_TO_INSTALL="${PHP_MODULES_TO_INSTALL% }"
 	fi
 	# In any case, first of all, we need to install composer
@@ -1094,11 +1102,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
 				;;
-			pgsql@alpine | pdo_pgsql@alpine)
+			pgsql@alpine | pdo_pgsql@alpine | pq@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent postgresql-libs"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile postgresql-dev"
 				;;
-			pgsql@debian | pdo_pgsql@debian)
+			pgsql@debian | pdo_pgsql@debian | pq@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpq5"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpq-dev"
 				;;
