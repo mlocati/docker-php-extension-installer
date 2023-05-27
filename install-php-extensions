@@ -3079,6 +3079,10 @@ installRemoteModule() {
 				mv "$installRemoteModule_src/include" /usr/local/include/hat-trie
 			fi
 			;;
+		pq)
+			# pq must be loaded after raphf
+			installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
+			;;
 		propro)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
