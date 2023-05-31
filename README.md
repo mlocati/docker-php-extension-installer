@@ -232,6 +232,7 @@ install-php-extensions @fix_letsencrypt
 | ioncube_loader | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  | &check; |  |
 | jsmin | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
 | json_post | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| jsonpath |  |  |  |  |  |  | &check; | &check; | &check; | &check; |
 | ldap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | luasandbox | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | lz4[*](#special-requirements-for-lz4) |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -324,7 +325,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 134*
+*Number of supported extensions: 135*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
