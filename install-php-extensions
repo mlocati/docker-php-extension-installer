@@ -1336,6 +1336,14 @@ buildRequiredPackageLists() {
 			uuid@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile uuid-dev"
 				;;
+			uv@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libuv"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libuv-dev"
+				;;
+			uv@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libuv1"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libuv1-dev"
+				;;
 			vips@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent vips"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile vips-dev"
@@ -3568,6 +3576,15 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=1.0.5
+				fi
+			fi
+			;;
+		uv)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 800; then
+					installRemoteModule_version=0.2.4
+				else
+					installRemoteModule_version=beta
 				fi
 			fi
 			;;
