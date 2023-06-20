@@ -52,6 +52,7 @@ jobs:
           - stretch
           - buster
           - bullseye
+          - bookworm
     name: Check on ${{ matrix.distro }}
     env:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}

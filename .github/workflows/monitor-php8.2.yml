@@ -18,6 +18,7 @@ jobs:
           - alpine3.17
           - buster
           - bullseye
+          - bookworm
     name: Check on ${{ matrix.distro }}
     runs-on: ubuntu-latest
     env:

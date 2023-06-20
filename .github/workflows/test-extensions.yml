@@ -77,6 +77,7 @@ jobs:
           - stretch
           - buster
           - bullseye
+          - bookworm
     name: Check on ${{ matrix.distro }}
     runs-on: ubuntu-latest
     env:
