@@ -1968,6 +1968,10 @@ installMicrosoftSqlServerODBC() {
 			rm -rf /tmp/src/msodbcsql.apk
 			;;
 		debian)
+			if test $DISTRO_VERSION_NUMBER -eq 12; then
+				DISTRO_VERSION_NUMBER=11
+			fi
+
 			# https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#debian17
 			printf -- '- installing the Microsoft APT key\n'
 			if test $DISTRO_VERSION_NUMBER -eq 11; then
@@ -1991,6 +1995,10 @@ installMicrosoftSqlServerODBC() {
 				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS msodbcsql18
 			else
 				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS '^msodbcsql[0-9]+$'
+			fi
+
+			if test $DISTRO_VERSION_NUMBER -eq 11; then
+				setDistro
 			fi
 			;;
 	esac
