@@ -62,8 +62,6 @@ jobs:
       fail-fast: true
       matrix:
         distro:
-          - alpine3.7
-          - alpine3.8
           - alpine3.9
           - alpine3.10
           - alpine3.11
