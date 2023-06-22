@@ -1,14 +1,14 @@
-cassandra !alpine3.7 !alpine3.8 !jessie !stretch !buster !bullseye
-ddtrace !alpine3.7 !alpine3.8 !jessie
-geos !alpine3.7 !alpine3.8 !alpine3.9 !alpine3.10
+cassandra !jessie !stretch !buster !bullseye
+ddtrace !jessie
+geos !alpine3.9 !alpine3.10
 lz4 !jessie
-memprof !alpine3.7 !alpine3.8 !alpine3.9 !alpine3.10 !alpine3.11 !alpine3.12 !alpine3.13 !alpine3.14 !alpine3.15
+memprof !alpine3.9 !alpine3.10 !alpine3.11 !alpine3.12 !alpine3.13 !alpine3.14 !alpine3.15
 parallel zts
 parle !jessie
-pdo_sqlsrv !alpine3.7 !alpine3.8 !arm
+pdo_sqlsrv !arm
 pthreads zts
-simdjson !alpine3.7 !alpine3.8 !jessie !stretch
+simdjson !jessie !stretch
 sodium !jessie
-sqlsrv !alpine3.7 !alpine3.8 !7.1-alpine3.9 !7.1-alpine3.10 !arm
+sqlsrv !7.1-alpine3.9 !7.1-alpine3.10 !arm
 tensor !alpine3.15 !alpine3.16
-vips !alpine3.7 !alpine3.8 !alpine3.9 !jessie
+vips !alpine3.9 !jessie
