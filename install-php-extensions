@@ -661,12 +661,12 @@ buildRequiredPackageLists() {
 			else
 				buildRequiredPackageLists_libssldev='libretls-dev'
 			fi
-			buildRequiredPackageLists_icuPersistent=''
+			buildRequiredPackageLists_icuVolatile=''
 			if test $DISTRO_MAJMIN_VERSION -ge 316; then
 				case "${IPE_ICU_EN_ONLY:-}" in
 					1 | y* | Y*) ;;
 					*)
-						buildRequiredPackageLists_icuPersistent='icu-data-full'
+						buildRequiredPackageLists_icuVolatile='icu-data-full'
 						;;
 				esac
 			fi
@@ -903,8 +903,8 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libidn"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libidn-dev"
 				else
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs $buildRequiredPackageLists_icuPersistent libidn"
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev libidn-dev"
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libidn"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_icuVolatile icu-dev libidn-dev"
 				fi
 				;;
 			http@debian)
@@ -949,8 +949,8 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
 				;;
 			intl@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs $buildRequiredPackageLists_icuPersistent"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_icuVolatile icu-dev"
 				;;
 			intl@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libicu[0-9]+$"
@@ -1034,8 +1034,8 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev libsasl2-dev"
 				;;
 			mongodb@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs $buildRequiredPackageLists_icuPersistent libsasl $buildRequiredPackageLists_libssl snappy"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev $buildRequiredPackageLists_libssldev zlib-dev"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs libsasl $buildRequiredPackageLists_libssl snappy"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_icuVolatile icu-dev cyrus-sasl-dev snappy-dev $buildRequiredPackageLists_libssldev zlib-dev"
 				;;
 			mongodb@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libsnappy[0-9]+(v[0-9]+)?$ ^libicu[0-9]+$"
