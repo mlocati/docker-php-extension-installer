@@ -740,8 +740,10 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			decimal@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmpdec[0-9]*$"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmpdec-dev"
+				if test $DISTRO_MAJMIN_VERSION -lt 1200; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmpdec[0-9]*$"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmpdec-dev"
+				fi
 				;;
 			enchant@alpine)
 				if test $DISTRO_MAJMIN_VERSION -ge 312; then
@@ -2113,6 +2115,16 @@ installLibavif() {
 	cd - >/dev/null
 }
 
+# Install libmpdec
+installLibMPDec() {
+	installLibMPDec_src="$(getPackageSource https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz)"
+	cd -- "$installLibMPDec_src"
+	./configure --disable-cxx
+	make -j$(getProcessorCount)
+	make install
+	cd - >/dev/null
+}
+
 # Install Composer
 installComposer() {
 	installComposer_version="$(getWantedPHPModuleVersion @composer)"
@@ -2658,12 +2670,14 @@ installRemoteModule() {
 			case "$DISTRO" in
 				alpine)
 					if ! test -f /usr/local/lib/libmpdec.so; then
-						installRemoteModule_src="$(getPackageSource https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz)"
-						cd -- "$installRemoteModule_src"
-						./configure --disable-cxx
-						make -j$(getProcessorCount)
-						make install
-						cd - >/dev/null
+						installLibMPDec
+					fi
+					;;
+				debian)
+					if test $DISTRO_MAJMIN_VERSION -ge 1200; then
+						if test -z "$(ldconfig -p | grep -E '\slibmpdec.so\s')"; then
+							installLibMPDec
+						fi
 					fi
 					;;
 			esac
