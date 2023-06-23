@@ -1,7 +1,9 @@
-cassandra !jessie !stretch !buster !bullseye
+cassandra !jessie !stretch !buster !bullseye !bookworm
 ddtrace !jessie
+decimal !bookworm
 geos !alpine3.9 !alpine3.10
 lz4 !jessie
+memcached !bookworm
 memprof !alpine3.9 !alpine3.10 !alpine3.11 !alpine3.12 !alpine3.13 !alpine3.14 !alpine3.15
 parallel zts
 parle !jessie
