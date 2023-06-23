@@ -207,7 +207,7 @@ install-php-extensions @fix_letsencrypt
 | csv |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; |
 | dba | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ddtrace[*](#special-requirements-for-ddtrace) |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| decimal[*](#special-requirements-for-decimal) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| decimal |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ds |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | enchant | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -417,7 +417,6 @@ Some extensions have special requirements:
 |---|---|
 | <a name="special-requirements-for-cassandra"></a>cassandra | &bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images<br />&bull; Not available in `buster` docker images<br />&bull; Not available in `bullseye` docker images<br />&bull; Not available in `bookworm` docker images |
 | <a name="special-requirements-for-ddtrace"></a>ddtrace | Not available in `jessie` docker images |
-| <a name="special-requirements-for-decimal"></a>decimal | Not available in `bookworm` docker images |
 | <a name="special-requirements-for-geos"></a>geos | &bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images |
 | <a name="special-requirements-for-lz4"></a>lz4 | Not available in `jessie` docker images |
 | <a name="special-requirements-for-memcached"></a>memcached | Not available in `bookworm` docker images |
