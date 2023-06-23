@@ -1968,12 +1968,18 @@ installMicrosoftSqlServerODBC() {
 			rm -rf /tmp/src/msodbcsql.apk
 			;;
 		debian)
+			if test $DISTRO_VERSION_NUMBER -eq 12; then
+				DISTRO_VERSION_NUMBER=11
+			fi
+
 			# https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#debian17
 			printf -- '- installing the Microsoft APT key\n'
-			if test $DISTRO_VERSION_NUMBER -ge 11; then
-				# apt-key is deprecated
+			if test $DISTRO_VERSION_NUMBER -eq 11; then
 				curl -sSLf -o /etc/apt/trusted.gpg.d/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
+			elif test $DISTRO_VERSION_NUMBER -ge 12; then
+				curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor --yes --output /usr/share/keyrings/microsoft-prod.gpg
 			else
+				# apt-key is deprecated
 				curl -sSLf https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 			fi
 			if ! test -f /etc/apt/sources.list.d/mssql-release.list; then
@@ -1984,11 +1990,15 @@ installMicrosoftSqlServerODBC() {
 			printf -- '- installing the APT package\n'
 			if test $PHP_MAJMIN_VERSION -le 703; then
 				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS msodbcsql17
-			elif test $DISTRO_VERSION_NUMBER -ge 9 && $DISTRO_VERSION_NUMBER -le 11; then
+			elif test $DISTRO_VERSION_NUMBER -ge 9 && test $DISTRO_VERSION_NUMBER -le 11; then
 				# On Debian 9 and 11 we have both msodbcsql17 and msodbcsql18: let's install just one
 				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS msodbcsql18
 			else
 				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS '^msodbcsql[0-9]+$'
+			fi
+
+			if test $DISTRO_VERSION_NUMBER -eq 11; then
+				setDistro
 			fi
 			;;
 	esac
