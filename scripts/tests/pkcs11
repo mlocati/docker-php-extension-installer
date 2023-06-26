@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$module = new Pkcs11\Module('/usr/lib/softhsm/libsofthsm2.so');
+$moduleInfo = $module->getInfo();
+if (!is_array($moduleInfo)) {
+    fwrite(STDERR, "Pkcs11\\Module::getInfo() should return an array\n");
+}
+if (!isset($moduleInfo['manufacturerID']) || $moduleInfo['manufacturerID'] !== 'SoftHSM') {
+    fwrite(STDERR, "Unexpected return value of Pkcs11\\Module::getInfo()\n");
+}

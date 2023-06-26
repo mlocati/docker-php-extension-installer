@@ -1123,6 +1123,12 @@ buildRequiredPackageLists() {
 			php_trie@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
 				;;
+			pkcs11@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent softhsm"
+				;;
+			pkcs11@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsofthsm2"
+				;;
 			pspell@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-libs $(expandASpellDictionaries)"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile aspell-dev"
