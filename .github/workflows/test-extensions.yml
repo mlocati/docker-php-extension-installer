@@ -192,3 +192,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - run: ./install-php-extensions ${{ matrix.source }}
+  test_upgrading_icu_data_en:
+    name: Test that icu-data-en can be upgraded
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - run: docker run --rm --volume "$(pwd):/app" --workdir /app php:8.2-cli-alpine ./scripts/test-icu-data-en-upgradable
