@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Let's set a sane environment
+set -o errexit
+set -o nounset
+
+IPE_ICU_EN_ONLY=1 CI=true ./install-php-extensions intl
+
+apk update
+apk add --simulate chromium
