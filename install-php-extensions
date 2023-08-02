@@ -1188,6 +1188,9 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.1"
 				fi
 				;;
+			seasclick@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				;;
 			simdjson@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
 				;;
@@ -1639,6 +1642,9 @@ getModuleFullPath() {
 	case "$1" in
 		apcu_bc)
 			getModuleFullPath_path="$PHP_EXTDIR/apc.so"
+			;;
+		seasclick)
+			getModuleFullPath_path="$PHP_EXTDIR/SeasClick.so"
 			;;
 		*)
 			getModuleFullPath_path="$PHP_EXTDIR/$1.so"
@@ -3286,6 +3292,13 @@ installRemoteModule() {
 			sed -i "s/00000000-0000-0000-0000-000000000000/$(cat /proc/sys/kernel/random/uuid)/" "$PHP_EXTDIR/relay.so"
 			installRemoteModule_ini_extra="$(grep -vE '^[ \t]*extension[ \t]*=' $installRemoteModule_src/relay.ini)"
 			installRemoteModule_manuallyInstalled=1
+			;;
+		seasclick)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version=0.1.0
+				fi
+			fi
 			;;
 		snappy)
 			if test -z "$installRemoteModule_path"; then
