@@ -2837,7 +2837,7 @@ installRemoteModule() {
 			fi
 			if test -z "$installRemoteModule_version"; then
 				# See https://github.com/protocolbuffers/protobuf/issues/10619
-				installRemoteModule_version=1.56.0
+				installRemoteModule_version=1.57.0
 			fi
 			if test -z "$installRemoteModule_version" || test "$installRemoteModule_version" = 1.35.0; then
 				case "$DISTRO_VERSION" in
