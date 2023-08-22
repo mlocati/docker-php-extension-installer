@@ -2793,7 +2793,7 @@ installRemoteModule() {
 		geos)
 			if test -z "$installRemoteModule_path"; then
 				if test -z "$installRemoteModule_version"; then
-					installRemoteModule_version=71b5f9001512e16d3cf4657b517e8a051d6ef36f
+					installRemoteModule_version=0def35611f773c951432f1f06a155471a5cb7611
 				fi
 				installRemoteModule_src="$(getPackageSource https://git.osgeo.org/gitea/geos/php-geos/archive/$installRemoteModule_version.tar.gz)"
 				cd "$installRemoteModule_src"
