@@ -3165,7 +3165,7 @@ installRemoteModule() {
 					installRemoteModule_version=3.12.4
 				else
 					# See https://github.com/protocolbuffers/protobuf/issues/10619
-					installRemoteModule_version=3.24.1
+					installRemoteModule_version=3.24.2
 				fi
 			fi
 			;;
