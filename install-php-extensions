@@ -722,7 +722,6 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			ddtrace@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent curl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-openssl-dev"
 				if test $DISTRO_MAJMIN_VERSION -ge 1200; then
 					# Debian bookworm is the minimum version that comes with cargo 1.64.0+
@@ -2668,12 +2667,18 @@ installRemoteModule() {
 							if test $DISTRO_MAJMIN_VERSION -lt 317; then
 								# Alpine 3.17 is the minimum version that comes with cargo 1.64.0+
 								installRemoteModule_version=0.87.2
+							elif test $DISTRO_MAJMIN_VERSION -lt 318; then
+								# Alpine 3.18 is the minimum version that comes with cargo 1.71.0+
+								installRemoteModule_version=0.89.0
 							fi
 							;;
 						debian)
 							if test $DISTRO_MAJMIN_VERSION -lt 1200; then
 								# Debian bookworm is the minimum version that comes with cargo 1.64.0+
 								installRemoteModule_version=0.87.2
+							elif test $DISTRO_MAJMIN_VERSION -le 1300; then
+								# Newer ddtrace versions require cargo 1.71.0+, but bookworm comes with cargo 1.65.0
+								installRemoteModule_version=0.89.0
 							fi
 							;;
 					esac
