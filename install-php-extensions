@@ -745,7 +745,7 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			ecma_intl@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs $buildRequiredPackageLists_icuPersistent"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev libidn-dev"
 				;;
 			ecma_intl@debian)
