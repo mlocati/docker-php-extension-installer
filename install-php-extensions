@@ -744,6 +744,14 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmpdec-dev"
 				fi
 				;;
+			ecma_intl@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev libidn-dev"
+				;;
+			ecma_intl@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libicu[0-9]+$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev"
+				;;
 			enchant@alpine)
 				if test $DISTRO_MAJMIN_VERSION -ge 312; then
 					if test $PHP_MAJMIN_VERSION -ge 800; then
@@ -2706,6 +2714,11 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 702; then
 					installRemoteModule_version=1.3.0
 				fi
+			fi
+			;;
+		ecma_intl)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=alpha
 			fi
 			;;
 		event)

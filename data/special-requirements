@@ -1,5 +1,6 @@
 cassandra !jessie !stretch !buster !bullseye !bookworm
 ddtrace !jessie
+ecma_intl !buster !bullseye
 geos !alpine3.9 !alpine3.10
 lz4 !jessie
 memcached !bookworm
