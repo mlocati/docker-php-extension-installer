@@ -25,6 +25,11 @@ The `decimal` PHP extension requires the `libmpdec` system library.
 It's not available on Alpine Linux, so we install it manually.
 We need to monitor new releases at https://www.bytereef.org/mpdecimal/changelog.html
 
+### ecma_intl
+
+The only available versions of this PHP extension are all alpha.
+We should switch to the stable release once it will be available.
+
 ### gearman
 
 The `gearman` PHP extension requires the `libgearman` system library.
