@@ -2855,10 +2855,6 @@ installRemoteModule() {
 					esac
 				fi
 			fi
-			if test -z "$installRemoteModule_version"; then
-				# See https://github.com/protocolbuffers/protobuf/issues/10619
-				installRemoteModule_version=1.57.0
-			fi
 			if test -z "$installRemoteModule_version" || test "$installRemoteModule_version" = 1.35.0; then
 				case "$DISTRO_VERSION" in
 					alpine@3.13)
@@ -3181,9 +3177,6 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=3.12.4
-				else
-					# See https://github.com/protocolbuffers/protobuf/issues/10619
-					installRemoteModule_version=3.24.2
 				fi
 			fi
 			;;
