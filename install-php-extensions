@@ -1171,6 +1171,10 @@ buildRequiredPackageLists() {
 							;;
 					esac
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zstd-dev"
+					if test $PHP_MAJMIN_VERSION -ge 702; then
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent lz4-libs"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile lz4-dev"
+					fi
 				fi
 				;;
 			redis@debian)
@@ -1187,6 +1191,10 @@ buildRequiredPackageLists() {
 							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzstd-dev"
 							;;
 					esac
+				fi
+				if test $PHP_MAJMIN_VERSION -ge 702; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblz4-1"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblz4-dev"
 				fi
 				;;
 			relay@alpine)
@@ -3239,19 +3247,21 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=4.3.0
+				elif test $PHP_MAJMIN_VERSION -le 701; then
+					installRemoteModule_version=5.3.7
 				fi
 			else
 				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
 			# Enable igbinary serializer support?
 			if php --ri igbinary >/dev/null 2>/dev/null; then
-				addConfigureOption 'enable-redis-igbinary' 'yes'
+				addConfigureOption enable-redis-igbinary yes
 			else
-				addConfigureOption 'enable-redis-igbinary' 'no'
+				addConfigureOption enable-redis-igbinary no
 			fi
 			# Enable lzf compression support?
-			addConfigureOption 'enable-redis-lzf' 'yes'
-			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '5.0.0') -ge 0; then
+			addConfigureOption enable-redis-lzf yes
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 5.0.0) -ge 0; then
 				if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$TARGET_TRIPLET/libzstd.so"; then
 					installRemoteModule_zstdVersion=1.4.4
 					installRemoteModule_zstdVersionMajor=$(echo $installRemoteModule_zstdVersion | cut -d. -f1)
@@ -3267,7 +3277,19 @@ installRemoteModule() {
 					cd - >/dev/null
 				fi
 				# Enable zstd compression support?
-				addConfigureOption 'enable-redis-zstd' 'yes'
+				addConfigureOption enable-redis-zstd yes
+				if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 6.0.0) -ge 0; then
+					# Enable msgpack serializer support?
+					if php --ri msgpack >/dev/null 2>/dev/null; then
+						addConfigureOption enable-redis-msgpack yes
+					else
+						addConfigureOption enable-redis-msgpack no
+					fi
+					# Enable lz4 compression?
+					addConfigureOption enable-redis-lz4 yes
+					# Use system liblz4?
+					addConfigureOption with-liblz4 yes
+				fi
 			fi
 			;;
 		relay)
