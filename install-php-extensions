@@ -1332,23 +1332,38 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake gperf zlib1g-dev $buildRequiredPackageLists_libssldev"
 				;;
 			tensor@alpine)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent lapack libexecinfo openblas"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile lapack-dev libexecinfo-dev openblas-dev"
-				if test $DISTRO_MAJMIN_VERSION -le 310; then
-					if ! stringInList --force-overwrite "$IPE_APK_FLAGS"; then
-						IPE_APK_FLAGS="$IPE_APK_FLAGS --force-overwrite"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent openblas"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile lapack-dev openblas-dev"
+				if test $DISTRO_MAJMIN_VERSION -le 317; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent lapack"
+					if test $DISTRO_MAJMIN_VERSION -le 316; then
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libexecinfo"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libexecinfo-dev"
+						if test $DISTRO_MAJMIN_VERSION -le 310; then
+							if ! stringInList --force-overwrite "$IPE_APK_FLAGS"; then
+								IPE_APK_FLAGS="$IPE_APK_FLAGS --force-overwrite"
+							fi
+						fi
 					fi
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblapack"
 				fi
 				;;
 			tensor@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblapacke libopenblas-base"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblapacke"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblapack-dev libopenblas-dev liblapacke-dev"
-				if test $DISTRO_VERSION_NUMBER -ge 11; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-10"
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-10-dev"
-				elif test $DISTRO_VERSION_NUMBER -ge 10; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-8"
+				if test $DISTRO_VERSION_NUMBER -le 9; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-6 libopenblas-base"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-6-dev"
+				elif test $DISTRO_VERSION_NUMBER -le 10; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-8 libopenblas-base"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-8-dev"
+				elif test $DISTRO_VERSION_NUMBER -le 11; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-10 libopenblas-base"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-10-dev"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-12 libopenblas0"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-12-dev"
 				fi
 				;;
 			tidy@alpine)
@@ -3659,6 +3674,15 @@ installRemoteModule() {
 					installRemoteModule_version=2.2.3
 				fi
 			fi
+			case "$DISTRO" in
+				alpine)
+					if test $DISTRO_MAJMIN_VERSION -ge 315 && test $DISTRO_MAJMIN_VERSION -le 317; then
+						if test -e /usr/lib/liblapacke.so.3 && ! test -e /usr/lib/liblapacke.so; then
+							ln -s /usr/lib/liblapacke.so.3 /usr/lib/liblapacke.so
+						fi
+					fi
+					;;
+			esac
 			;;
 		tideways)
 			case "$DISTRO" in
