@@ -309,7 +309,7 @@ install-php-extensions @fix_letsencrypt
 | sysvmsg | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvsem | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sysvshm | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| tensor[*](#special-requirements-for-tensor) |  |  |  |  | &check; | &check; | &check; | &check; |  |  |
+| tensor |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | tideways | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | tidy | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | timezonedb | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -434,7 +434,6 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-simdjson"></a>simdjson | &bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images |
 | <a name="special-requirements-for-sodium"></a>sodium | Not available in `jessie` docker images |
 | <a name="special-requirements-for-sqlsrv"></a>sqlsrv | &bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.1-alpine3.10` docker images<br />&bull; Not available in ARM architectures |
-| <a name="special-requirements-for-tensor"></a>tensor | &bull; Not available in `alpine3.15` docker images<br />&bull; Not available in `alpine3.16` docker images |
 | <a name="special-requirements-for-vips"></a>vips | &bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `jessie` docker images |
 <!-- END OF SPECIAL REQUIREMENTS -->
 
