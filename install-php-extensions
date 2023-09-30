@@ -1032,6 +1032,9 @@ buildRequiredPackageLists() {
 			memcached@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmemcachedutil2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmemcached-dev zlib1g-dev"
+				if test $DISTRO_MAJMIN_VERSION -ge 12; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev"
+				fi
 				;;
 			mongo@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libsasl $buildRequiredPackageLists_libssl"
