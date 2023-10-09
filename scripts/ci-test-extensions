@@ -185,7 +185,7 @@ getDockerImageName() {
 			if test "${getDockerImageName_log#*manifest unknown}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*manifest for * not found}" != "$getDockerImageName_log"; then
 				return
 			fi
-			printf '%s\n' "$getDockerImageName_log" >&2
+			printf '%s\n' "$getDockerImageName_log"
 			exit 1
 		fi
 	fi
@@ -314,7 +314,7 @@ testExtension() {
 testExtensionFor() {
 	printf 'PHP version: %s\n' "$2"
 	if test -n "$(printf '%s' "$2" | sed -E 's/^[0-9]+\.[0-9]+$//')"; then
-		printf '  INVALID PHP VERSION: %s\n' "$2" >&2
+		printf '  INVALID PHP VERSION: %s\n' "$2"
 		return 1
 	fi
 	testExtensionFor_Image="$(getDockerImageName "$1" "$2")"
@@ -336,8 +336,11 @@ testExtensionFor() {
 		IPE_SUMMARY_GOOD="$(printf '%s- %s (%s)\n ' "${IPE_SUMMARY_GOOD% }" "$1" "$testExtensionFor_Image")"
 		return 0
 	fi
-	printf '\n\n###############\n##           ##\n##  FAILED!  ##\n##           ##\n###############\n' >&2
-	cat "$testExtensionFor_out" >&2
+	printf '\n\n###############\n##           ##\n##  FAILED!  ##\n##           ##\n###############\n'
+	echo '::group::Error details'
+	cat "$testExtensionFor_out"
+	echo '::endgroup::'
+	echo ''
 	rm -rf "$testExtensionFor_out"
 	IPE_SUMMARY_BAD="$(printf '%s- %s (%s)\n ' "${IPE_SUMMARY_BAD% }" "$1" "$testExtensionFor_Image")"
 	return 1
@@ -345,12 +348,12 @@ testExtensionFor() {
 
 echo 'Checking environment'
 if test -z "${GITHUB_WORKSPACE:-}"; then
-	echo 'Not in a CI environment' >&2
+	echo 'Not in a CI environment'
 	exit 1
 fi
 CI_BUILD_DIR="$GITHUB_WORKSPACE"
 if test -z "${IPETEST_DOCKER_DISTRO:-}"; then
-	echo 'IPETEST_DOCKER_DISTRO environment variable not set' >&2
+	echo 'IPETEST_DOCKER_DISTRO environment variable not set'
 	exit 1
 fi
 
@@ -359,7 +362,7 @@ fi
 case "${1:-}" in
 	from-commits)
 		if test -z "${2:-}"; then
-			echo 'Missing commit range of the push event' >&2
+			echo 'Missing commit range of the push event'
 			exit 1
 		fi
 		CI_COMMIT_RANGE="$2"
@@ -378,9 +381,9 @@ case "${1:-}" in
 		;;
 	*)
 		if test -z "${1:-}"; then
-			printf 'Missing source of extensions to be tested\n' >&2
+			printf 'Missing source of extensions to be tested\n'
 		else
-			printf '"%s" is an unknown source of extensions to be tested\n' "$1" >&2
+			printf '"%s" is an unknown source of extensions to be tested\n' "$1"
 		fi
 		exit 1
 		;;
@@ -411,11 +414,11 @@ else
 	printf 'Passed extensions:\n%s' "${IPE_SUMMARY_GOOD% }"
 fi
 if test -z "$IPE_SUMMARY_BAD"; then
-	printf 'Passed extensions:\n(none)\n'
+	printf 'Failed extensions:\n(none)\n'
 else
 	printf 'Failed extensions:\n%s' "${IPE_SUMMARY_BAD% }"
 fi
- 
+
 if test $SOME_TEST_FAILED -ne 0; then
 	exit 1
 fi
