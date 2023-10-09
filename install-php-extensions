@@ -1624,6 +1624,10 @@ expandInstalledSystemPackageName() {
 # Output:
 #   The number of processor cores available
 getProcessorCount() {
+	if test -n "${IPE_PROCESSOR_COUNT:-}"; then
+		echo $IPE_PROCESSOR_COUNT
+		return
+	fi
 	if command -v nproc >/dev/null 2>&1; then
 		nproc
 	else
