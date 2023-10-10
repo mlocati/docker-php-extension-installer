@@ -715,18 +715,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
 				;;
 			ddtrace@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgcc"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev"
-				if test $DISTRO_MAJMIN_VERSION -ge 317; then
-					# Alpine 3.17 is the minimum version that comes with cargo 1.64.0+
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cargo"
-				fi
 				;;
 			ddtrace@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-openssl-dev"
-				if test $DISTRO_MAJMIN_VERSION -ge 1200; then
-					# Debian bookworm is the minimum version that comes with cargo 1.64.0+
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cargo"
-				fi
 				;;
 			dba@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent db"
@@ -2295,6 +2288,25 @@ installSourceGuardian() {
 	exit 1
 }
 
+# Install Cargo (if not yet installed)
+installCargo() {
+	if command -v cargo >/dev/null; then
+		return
+	fi
+	printf '# Installing cargo\n'
+	case "$DISTRO" in
+		alpine)
+			# see https://github.com/hyperledger/indy-vdr/issues/69#issuecomment-998104850
+			export RUSTFLAGS='-C target-feature=-crt-static'
+			;;
+	esac
+	curl https://sh.rustup.rs -sSf | sh -s -- -y -q
+	. "$HOME/.cargo/env"
+	if test -z "${IPE_UNINSTALL_CARGO:-}"; then
+		IPE_UNINSTALL_CARGO=y
+	fi
+}
+
 # Install a bundled PHP module given its handle
 #
 # Arguments:
@@ -2705,26 +2717,7 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -lt 700; then
 					installRemoteModule_version=0.75.0
 				else
-					case "$DISTRO" in
-						alpine)
-							if test $DISTRO_MAJMIN_VERSION -lt 317; then
-								# Alpine 3.17 is the minimum version that comes with cargo 1.64.0+
-								installRemoteModule_version=0.87.2
-							elif test $DISTRO_MAJMIN_VERSION -lt 318; then
-								# Alpine 3.18 is the minimum version that comes with cargo 1.71.0+
-								installRemoteModule_version=0.89.0
-							fi
-							;;
-						debian)
-							if test $DISTRO_MAJMIN_VERSION -lt 1200; then
-								# Debian bookworm is the minimum version that comes with cargo 1.64.0+
-								installRemoteModule_version=0.87.2
-							elif test $DISTRO_MAJMIN_VERSION -le 1300; then
-								# Newer ddtrace versions require cargo 1.71.0+, but bookworm comes with cargo 1.65.0
-								installRemoteModule_version=0.89.0
-							fi
-							;;
-					esac
+					installCargo
 				fi
 			fi
 			;;
@@ -4243,6 +4236,10 @@ fixLetsEncrypt() {
 
 # Cleanup everything at the end of the execution
 cleanup() {
+	if test "${IPE_UNINSTALL_CARGO:-}" = y; then
+		. "$HOME/.cargo/env"
+		rustup self uninstall -y
+	fi
 	if test -n "$UNNEEDED_PACKAGE_LINKS"; then
 		printf '### REMOVING UNNEEDED PACKAGE LINKS ###\n'
 		for cleanup_link in $UNNEEDED_PACKAGE_LINKS; do
