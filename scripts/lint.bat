@@ -16,7 +16,7 @@ if errorlevel 1 (
     echo Docker is not installed, or it's not running >&2
     set rc=1
 ) else (
-    docker run --rm -v "%SRC_DIR%:/src" -w /src --entrypoint /src/scripts/invoke-shfmt mvdan/shfmt:v3.4.0-alpine fix
+    docker run --rm -v "%SRC_DIR%:/src" -w /src --entrypoint /src/scripts/invoke-shfmt mvdan/shfmt:v3.7.0-alpine fix
     if errorlevel 1 (
         echo ERROR! >&2
         set rc=1
