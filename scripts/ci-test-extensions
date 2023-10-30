@@ -23,7 +23,7 @@ set -o nounset
 # $2: the PHP version
 shouldProcessPhpVersionForDistro() {
 	case "$2@$1" in
-		8.1@alpine3.12)
+		8.1@alpine3.12 8.3@buster)
 			return 1
 			;;
 		*)
