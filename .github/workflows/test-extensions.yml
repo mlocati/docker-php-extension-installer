@@ -114,6 +114,7 @@ jobs:
           - 3.0.0
           - ^2
           - ^2.8
+          - ^2.8@stable
     steps:
       - name: Checkout
         uses: actions/checkout@v2
