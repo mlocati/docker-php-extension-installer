@@ -3107,6 +3107,8 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 704; then
 					installRemoteModule_version=4.10.0
+				elif test $PHP_MAJMIN_VERSION -lt 801; then
+					installRemoteModule_version=22.0.0
 				fi
 			else
 				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
@@ -3118,28 +3120,28 @@ installRemoteModule() {
 				installRemoteModule_sockets=no
 			fi
 			installRemoteModule_openssl=yes
-			# enable sockets supports?
+			# enable sockets supports? (v < 22.1.0) / enable coroutine sockets? (v >= 22.1.0)
 			addConfigureOption enable-sockets $installRemoteModule_sockets
 			# enable openssl support?
 			addConfigureOption enable-openssl $installRemoteModule_openssl
 			# enable http2 support?
 			addConfigureOption enable-http2 yes
-			# enable mysqlnd support?
+			# enable mysqlnd support? (v < 22.1.0) / enable coroutine mysqlnd? (v >= 22.1.0)
 			addConfigureOption enable-mysqlnd yes
-			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '22.8.0') -ge 0; then
-				#enable hook curl support?
-				addConfigureOption enable-hook-curl yes
-				# enable postgres support?
-				addConfigureOption with-postgres yes
-			else
+			if test -n "$installRemoteModule_version" && test $(compareVersions "$installRemoteModule_version" '22.0.0') -lt 0; then
 				# enable json support?
 				addConfigureOption enable-swoole-json yes
 				# enable curl support?
 				addConfigureOption enable-swoole-curl yes
-				if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '4.8.0') -ge 0; then
+				if test $(compareVersions "$installRemoteModule_version" '4.8.0') -ge 0; then
 					# enable postgres support?
 					addConfigureOption with-postgres yes
 				fi
+			else
+				#enable hook curl support? (v < 22.1.0) / enable coroutine curl? (v >= 22.1.0)
+				addConfigureOption enable-hook-curl yes
+				# enable postgres support? (v < 22.1.0) / enable coroutine postgres? (v >= 22.1.0)
+				addConfigureOption with-postgres yes
 			fi
 			;;
 		opentelemetry)
