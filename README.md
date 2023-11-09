@@ -96,6 +96,15 @@ install-php-extensions xdebug-^2
 install-php-extensions xdebug-^2.8
 ```
 
+Please remark that with the syntax above you'll get the vary latest compatible version, which may be unstable. In order to install the most recent *stable* version, you can append `@stable`:
+
+```sh
+# Install the most recent STABLE xdebug 3.x version (for example 3.2.2)
+install-php-extensions xdebug-^3@stable
+```
+
+(valid suffixes are: `@snapshot`, `@devel`, `@alpha`, `@beta`, and `@stable`)
+
 Pre-release versions extensions available on `PECL` can be setup by suffixing the extension's name with its state i.e. `alpha`, `beta`, `rc`, `preview`, `devel` or `snapshot`.
 For example:
 
