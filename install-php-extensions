@@ -3181,28 +3181,88 @@ installRemoteModule() {
 				installRemoteModule_sockets=no
 			fi
 			installRemoteModule_openssl=yes
-			# enable sockets supports? (v < 22.1.0) / enable coroutine sockets? (v >= 22.1.0)
-			addConfigureOption enable-sockets $installRemoteModule_sockets
-			# enable openssl support?
-			addConfigureOption enable-openssl $installRemoteModule_openssl
-			# enable http2 support?
-			addConfigureOption enable-http2 yes
-			# enable mysqlnd support? (v < 22.1.0) / enable coroutine mysqlnd? (v >= 22.1.0)
-			addConfigureOption enable-mysqlnd yes
-			if test -n "$installRemoteModule_version" && test $(compareVersions "$installRemoteModule_version" '22.0.0') -lt 0; then
+			if test -n "$installRemoteModule_version" && test $(compareVersions "$installRemoteModule_version" 22.1.2) -ge 0; then
+				# enable coroutine sockets?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable http2 protocol?
+				addConfigureOption enable-http2 yes
+				# enable coroutine mysqlnd?
+				addConfigureOption enable-mysqlnd yes
+				# enable coroutine curl?
+				addConfigureOption enable-hook-curl yes
+				# enable coroutine postgres?
+				addConfigureOption with-postgres yes
+			elif test $(compareVersions "$installRemoteModule_version" 22.1.1) -ge 0; then
+				# enable c-ares support?
+				addConfigureOption enable-cares yes
+				# enable coroutine sockets?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable http2 protocol?
+				addConfigureOption enable-http2 yes
+				# enable coroutine mysqlnd?
+				addConfigureOption enable-mysqlnd yes
+				# enable coroutine curl?
+				addConfigureOption enable-hook-curl yes
+				# enable coroutine postgres?
+				addConfigureOption with-postgres yes
+			elif test $(compareVersions "$installRemoteModule_version" 22.1.0) -ge 0; then
+				# enable coroutine sockets?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable http2 protocol?
+				addConfigureOption enable-http2 yes
+				# enable coroutine mysqlnd?
+				addConfigureOption enable-mysqlnd yes
+				# enable coroutine curl?
+				addConfigureOption enable-hook-curl yes
+				# enable coroutine postgres?
+				addConfigureOption with-postgres yes
+			elif test $(compareVersions "$installRemoteModule_version" 22.0.0) -ge 0; then
+				# enable sockets supports?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable hook curl support?
+				addConfigureOption enable-hook-curl yes
+				# enable postgres support?
+				addConfigureOption with-postgres yes
+			elif test $(compareVersions "$installRemoteModule_version" 4.8.0) -ge 0; then
+				# enable sockets supports?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
 				# enable json support?
 				addConfigureOption enable-swoole-json yes
 				# enable curl support?
 				addConfigureOption enable-swoole-curl yes
-				if test $(compareVersions "$installRemoteModule_version" '4.8.0') -ge 0; then
-					# enable postgres support?
-					addConfigureOption with-postgres yes
-				fi
-			else
-				#enable hook curl support? (v < 22.1.0) / enable coroutine curl? (v >= 22.1.0)
-				addConfigureOption enable-hook-curl yes
-				# enable postgres support? (v < 22.1.0) / enable coroutine postgres? (v >= 22.1.0)
+				# enable postgres support?
 				addConfigureOption with-postgres yes
+			else
+				# enable sockets supports?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable http2 support?
+				addConfigureOption enable-http2 yes
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable json support?
+				addConfigureOption enable-swoole-json yes
+				# enable curl support?
+				addConfigureOption enable-swoole-curl yes
 			fi
 			;;
 		opentelemetry)
