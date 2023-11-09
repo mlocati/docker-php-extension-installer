@@ -371,19 +371,40 @@ resolveWantedPHPModuleVersion() {
 		printf '%s' "$resolveWantedPHPModuleVersion_raw"
 		return
 	fi
+	case "$resolveWantedPHPModuleVersion_afterCaret" in
+		?*@snapshot | ?*@devel | ?*@alpha | ?*@beta | ?*@stable)
+			resolveWantedPHPModuleVersion_wantedStability="${resolveWantedPHPModuleVersion_afterCaret##*@}"
+			resolveWantedPHPModuleVersion_wantedVersion="${resolveWantedPHPModuleVersion_afterCaret%@*}"
+			;;
+		*)
+			resolveWantedPHPModuleVersion_wantedStability=''
+			resolveWantedPHPModuleVersion_wantedVersion="$resolveWantedPHPModuleVersion_afterCaret"
+			;;
+	esac
 	resolveWantedPHPModuleVersion_xml="$(curl -sSLf "http://pecl.php.net/rest/r/$1/allreleases.xml")"
-	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_xml" | tr -s ' \t\r\n' ' ' | sed -r 's# *<#\n<#g' | grep '<v>' | sed 's#<v>##g' | sed 's# ##g')"
+	# remove line endings, collapse spaces
+	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_xml" | tr -s ' \t\r\n' ' ')"
+	# one line per release (eg <r><v>1.2.3</v><s>stable</s></r>)
+	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_versions" | sed -r 's#<r#\n<r#g')"
+	if test -n "$resolveWantedPHPModuleVersion_wantedStability"; then
+		# keep the lines with the wanted stability
+		resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_versions" | grep "<s>$resolveWantedPHPModuleVersion_wantedStability</s>")"
+	fi
+	# remove everything's up to '<v>' (included)
+	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_versions" | sed 's#^.*<v>##')"
+	# keep just the versions
+	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_versions" | cut -d'<' -f1)"
 	resetIFS
 	for resolveWantedPHPModuleVersion_version in $resolveWantedPHPModuleVersion_versions; do
-		resolveWantedPHPModuleVersion_suffix="${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_afterCaret}"
-		if test "$resolveWantedPHPModuleVersion_version" != "${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_afterCaret.}"; then
+		resolveWantedPHPModuleVersion_suffix="${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_wantedVersion}"
+		if test "$resolveWantedPHPModuleVersion_version" != "${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_wantedVersion.}"; then
 			# Example: looking for 1.0, found 1.0.1
 			printf '%s' "$resolveWantedPHPModuleVersion_version"
 			return
 		fi
 	done
 	for resolveWantedPHPModuleVersion_version in $resolveWantedPHPModuleVersion_versions; do
-		resolveWantedPHPModuleVersion_suffix="${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_afterCaret}"
+		resolveWantedPHPModuleVersion_suffix="${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_wantedVersion}"
 		if test "$resolveWantedPHPModuleVersion_version" = "$resolveWantedPHPModuleVersion_suffix"; then
 			continue
 		fi
