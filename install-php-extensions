@@ -1060,10 +1060,18 @@ buildRequiredPackageLists() {
 			mongodb@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs $buildRequiredPackageLists_icuPersistent libsasl $buildRequiredPackageLists_libssl snappy"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev cyrus-sasl-dev snappy-dev $buildRequiredPackageLists_libssldev zlib-dev"
+				if test $PHP_MAJMIN_VERSION -ge 704; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent zstd-libs"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zstd-dev"
+				fi
 				;;
 			mongodb@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libsnappy[0-9]+(v[0-9]+)?$ ^libicu[0-9]+$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libicu-dev libsasl2-dev libsnappy-dev $buildRequiredPackageLists_libssldev zlib1g-dev"
+				if test $PHP_MAJMIN_VERSION -ge 704; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libzstd[0-9]*$"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzstd-dev"
+				fi
 				;;
 			mosquitto@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent mosquitto-libs"
@@ -1219,6 +1227,9 @@ buildRequiredPackageLists() {
 				if test $DISTRO_MAJMIN_VERSION -ge 317; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssl1.1"
 				fi
+				;;
+			saxon@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_volatile unzip"
 				;;
 			seasclick@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
@@ -3097,7 +3108,33 @@ installRemoteModule() {
 					installRemoteModule_version=1.9.2
 				elif test $PHP_MAJMIN_VERSION -le 701; then
 					installRemoteModule_version=1.11.1
+				elif test $PHP_MAJMIN_VERSION -le 703; then
+					installRemoteModule_version=1.16.2
 				fi
+			fi
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 1.17.0) -ge 0; then
+				# Enable developer flags? (yes/no)
+				addConfigureOption enable-mongodb-developer-flags no
+				# Enable code coverage? (yes/no)
+				addConfigureOption enable-mongodb-coverage no
+				# Use system libraries for libbson, libmongoc, and libmongocrypt? (yes/no)
+				addConfigureOption with-mongodb-system-libs no
+				# Enable client-side encryption? (auto/yes/no)
+				addConfigureOption with-mongodb-client-side-encryption yes
+				# Enable Snappy for compression? (auto/yes/no)
+				addConfigureOption with-mongodb-snappy yes
+				# Enable zlib for compression? (auto/system/bundled/no)
+				addConfigureOption with-mongodb-zlib yes
+				# Enable zstd for compression? (auto/yes/no)
+				addConfigureOption with-mongodb-zstd yes
+				# Enable SASL for Kerberos authentication? (auto/cyrus/no)
+				addConfigureOption with-mongodb-sasl yes
+				# Enable crypto and TLS? (auto/openssl/libressl/darwin/no)
+				addConfigureOption with-mongodb-ssl yes
+				# Use system crypto profile (OpenSSL only)? (yes/no)
+				addConfigureOption enable-mongodb-crypto-system-profile yes
+				# Use bundled or system utf8proc for SCRAM-SHA-256 SASLprep? (bundled/system)
+				addConfigureOption with-mongodb-utf8proc bundled
 			fi
 			;;
 		mosquitto)
@@ -3365,6 +3402,45 @@ installRemoteModule() {
 			cp -- "$installRemoteModule_src/relay-pkg.so" "$PHP_EXTDIR/relay.so"
 			sed -i "s/00000000-0000-0000-0000-000000000000/$(cat /proc/sys/kernel/random/uuid)/" "$PHP_EXTDIR/relay.so"
 			installRemoteModule_ini_extra="$(grep -vE '^[ \t]*extension[ \t]*=' $installRemoteModule_src/relay.ini)"
+			installRemoteModule_manuallyInstalled=1
+			;;
+		saxon)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 506; then
+					installRemoteModule_version='11.6'
+				else
+					installRemoteModule_version='12.3'
+				fi
+			fi
+			installRemoteModule_majorVersion="${installRemoteModule_version%%.*}"
+			if test "$installRemoteModule_majorVersion" -ge 12; then
+				case $(uname -m) in
+					aarch64 | arm64 | armv8)
+						installRemoteModule_url=https://downloads.saxonica.com/SaxonC/EE/${installRemoteModule_majorVersion}/libsaxon-EEC-linux-aarch64-v${installRemoteModule_version}.zip
+						;;
+					*)
+						installRemoteModule_url=https://downloads.saxonica.com/SaxonC/EE/${installRemoteModule_majorVersion}/libsaxon-EEC-linux-x86_64-v${installRemoteModule_version}.zip
+						;;
+				esac
+			else
+				installRemoteModule_url=https://downloads.saxonica.com/SaxonC/EE/${installRemoteModule_majorVersion}/libsaxon-EEC-setup64-v${installRemoteModule_version}.zip
+			fi
+			installRemoteModule_dir="$(getPackageSource $installRemoteModule_url)"
+			if ! test -f /usr/lib/libsaxon-*.so; then
+				if test "$installRemoteModule_majorVersion" -ge 12; then
+					cp $installRemoteModule_dir/libs/nix/*.so /usr/lib/
+				else
+					cp $installRemoteModule_dir/*.so /usr/lib/
+				fi
+				ldconfig || true
+			fi
+			set -x
+			cd "$installRemoteModule_dir/Saxon.C.API"
+			exit
+			phpize
+			./configure --enable-saxon
+			make -j$(getProcessorCount) install
+			cd - >/dev/null
 			installRemoteModule_manuallyInstalled=1
 			;;
 		seasclick)
@@ -4360,6 +4436,7 @@ fi
 if test $USE_PICKLE -gt 1; then
 	buildPickle
 fi
+
 for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 	case "$PHP_MODULE_TO_INSTALL" in
 		@fix_letsencrypt)
