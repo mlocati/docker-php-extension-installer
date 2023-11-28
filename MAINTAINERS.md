@@ -125,6 +125,11 @@ We need to monitor new releases at https://docs.microsoft.com/en-us/sql/connect/
 The only available versions of the `uv` PHP extension are all beta.
 We should switch to the stable release once it will be available.
 
+### vld
+
+The only available versions of this PHP extension are all beta.
+We should switch to the stable release once it will be available.
+
 ## xdiff
 
 The `xdiff` PHP extension uses the LibXDiff library.
