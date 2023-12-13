@@ -3598,6 +3598,12 @@ installRemoteModule() {
 					fi
 					;;
 			esac
+			if test $PHP_MAJMIN_VERSION -eq 803; then
+				# see https://github.com/swoole/docker-swoole/issues/45
+				installRemoteModule_curl=no
+			else
+				installRemoteModule_curl=yes
+			fi
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 5.0.1) -ge 0; then
 				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
@@ -3606,7 +3612,7 @@ installRemoteModule() {
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl yes
+				addConfigureOption enable-swoole-curl $installRemoteModule_curl
 				# enable cares support?
 				addConfigureOption enable-cares yes
 				# enable brotli support?
@@ -3619,7 +3625,7 @@ installRemoteModule() {
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl yes
+				addConfigureOption enable-swoole-curl $installRemoteModule_curl
 				# enable cares support?
 				addConfigureOption enable-cares yes
 			elif test $(compareVersions "$installRemoteModule_version" 4.8.11) -ge 0; then
@@ -3634,7 +3640,7 @@ installRemoteModule() {
 				# enable json support?
 				addConfigureOption enable-swoole-json yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl yes
+				addConfigureOption enable-swoole-curl $installRemoteModule_curl
 				# enable cares support?
 				addConfigureOption enable-cares yes
 			elif test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
@@ -3649,7 +3655,7 @@ installRemoteModule() {
 				# enable json support?
 				addConfigureOption enable-swoole-json yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl yes
+				addConfigureOption enable-swoole-curl $installRemoteModule_curl
 			elif test $(compareVersions "$installRemoteModule_version" 4.4.0) -ge 0; then
 				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
