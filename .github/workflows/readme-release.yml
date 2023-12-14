@@ -82,6 +82,7 @@ jobs:
             for CHANGED_FILE in $(git diff --name-only "refs/tags/$VERSIONTAG_LAST" HEAD); do
               case "$CHANGED_FILE" in
                 install-php-extensions)
+                Dockerfile)
                   CREATE_TAG=y
                   ;;
               esac
@@ -143,7 +144,7 @@ jobs:
             RELEASE_NOTES='First version'
           else
             printf 'Generating release notes for commits between %s and %s\n' "$VERSIONTAG_PREVIOUS" "$VERSIONTAG_THIS"
-            RELEASE_NOTES="$(git log --format='- %s' --no-merges --reverse "refs/tags/$VERSIONTAG_PREVIOUS...refs/tags/$VERSIONTAG_THIS" -- ./install-php-extensions | grep -vE '^- \[minor\]')"
+            RELEASE_NOTES="$(git log --format='- %s' --no-merges --reverse "refs/tags/$VERSIONTAG_PREVIOUS...refs/tags/$VERSIONTAG_THIS" -- ./install-php-extensions ./Dockerfile | grep -vE '^- \[minor\]')"
           fi
           printf 'Release notes:\n%s\n' "$RELEASE_NOTES"
           printf 'RELEASE_NAME=v%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
