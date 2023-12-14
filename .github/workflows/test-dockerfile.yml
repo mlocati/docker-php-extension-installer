@@ -1,0 +1,38 @@
+name: Build Docker image
+
+on:
+  pull_request:
+    paths:
+    - Dockerfile
+    - .github/workflows/test-dockerfile.yml
+
+jobs:
+  build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Build image
+        run: docker build --tag test:latest .
+      -
+        name: Save image contents
+        run: docker save --output /tmp/image.tar test:latest
+      -
+        name: Extract layer
+        run: tar -C /tmp -x -f /tmp/image.tar --wildcards '*layer.tar' --strip-components=1
+      -
+        name: Check layer contents
+        run: |
+          ENTRY="$(tar -v -t -f /tmp/layer.tar --wildcards '*bin/install-php-extensions')"
+          if [ -z "$ENTRY" ]; then
+            echo 'File not found'
+            exit 1
+          fi
+          if ! printf '%s' "$ENTRY" | grep -E '^.r.xr.xr.x '; then
+            printf 'Invalid entry permissions:\n%s\n' "$ENTRY"
+            exit 1
+          fi
+          echo 'Entry is correct.'
