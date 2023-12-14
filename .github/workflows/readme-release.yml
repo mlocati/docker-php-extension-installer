@@ -81,8 +81,7 @@ jobs:
             CREATE_TAG=n
             for CHANGED_FILE in $(git diff --name-only "refs/tags/$VERSIONTAG_LAST" HEAD); do
               case "$CHANGED_FILE" in
-                install-php-extensions)
-                Dockerfile)
+                install-php-extensions | Dockerfile)
                   CREATE_TAG=y
                   ;;
               esac
