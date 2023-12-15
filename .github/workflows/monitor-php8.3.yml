@@ -15,6 +15,7 @@ jobs:
         distro:
           - alpine3.17
           - alpine3.18
+          - alpine3.19
           - bullseye
           - bookworm
     name: Check on ${{ matrix.distro }}
