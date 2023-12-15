@@ -237,7 +237,7 @@ install-php-extensions @fix_letsencrypt
 | grpc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | http | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | igbinary | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| imagick | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
+| imagick[*](#special-requirements-for-imagick) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | imap | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | inotify | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | interbase | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |
@@ -435,6 +435,7 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-ddtrace"></a>ddtrace | Not available in `jessie` docker images |
 | <a name="special-requirements-for-ecma_intl"></a>ecma_intl | &bull; Not available in `buster` docker images<br />&bull; Not available in `bullseye` docker images |
 | <a name="special-requirements-for-geos"></a>geos | &bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images |
+| <a name="special-requirements-for-imagick"></a>imagick | Not available in `alpine3.19` docker images |
 | <a name="special-requirements-for-lz4"></a>lz4 | Not available in `jessie` docker images |
 | <a name="special-requirements-for-memprof"></a>memprof | &bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images<br />&bull; Not available in `alpine3.11` docker images<br />&bull; Not available in `alpine3.12` docker images<br />&bull; Not available in `alpine3.13` docker images<br />&bull; Not available in `alpine3.14` docker images<br />&bull; Not available in `alpine3.15` docker images |
 | <a name="special-requirements-for-parallel"></a>parallel | Requires images with PHP compiled with thread-safety enabled (`zts`) |
