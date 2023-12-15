@@ -941,6 +941,9 @@ buildRequiredPackageLists() {
 			imagick@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent imagemagick libgomp"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile imagemagick-dev"
+				if [ $DISTRO_MAJMIN_VERSION -ge 319 ]; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ghostscript libheif libjxl libraw librsvg"
+				fi
 				;;
 			imagick@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-6.q16-[0-9]+$ ^libmagickcore-6.q16-[0-9]+-extra$"
