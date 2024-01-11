@@ -3572,8 +3572,10 @@ installRemoteModule() {
 			;;
 		solr)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -le 506; then
+				if test $PHP_MAJMIN_VERSION -lt 700; then
 					installRemoteModule_version=2.4.0
+				elif test $PHP_MAJMIN_VERSION -lt 704; then
+					installRemoteModule_version=2.6.0
 				fi
 			fi
 			;;
