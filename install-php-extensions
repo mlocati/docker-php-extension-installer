@@ -812,10 +812,10 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libffi-dev"
 				;;
 			ftp@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libevent-dev $buildRequiredPackageLists_libssldev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev"
 				;;
 			ftp@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libevent-dev $buildRequiredPackageLists_libssldev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev"
 				;;
 			gd@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetype libjpeg-turbo libpng libxpm"
