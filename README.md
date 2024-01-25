@@ -225,6 +225,7 @@ install-php-extensions @fix_letsencrypt
 | excimer |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ffi |  |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; |
+| ftp |  |  |  |  |  |  |  |  |  | &check; | &check; |
 | gd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | gearman | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
 | geoip | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |
@@ -345,7 +346,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 142*
+*Number of supported extensions: 143*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
