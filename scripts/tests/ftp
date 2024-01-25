@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$rc = 0;
+echo 'Checking if ftp_ssl_connect() exists... ';
+if (!function_exists('ftp_ssl_connect')) {
+    $rc = 1;
+    echo "NO!\n";
+} else {
+    echo "yes.\n";
+}
+
+exit($rc);

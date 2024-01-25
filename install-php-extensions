@@ -811,6 +811,12 @@ buildRequiredPackageLists() {
 			ffi@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libffi-dev"
 				;;
+			ftp@alpine)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libevent-dev $buildRequiredPackageLists_libssldev"
+				;;
+			ftp@debian)
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libevent-dev $buildRequiredPackageLists_libssldev"
+				;;
 			gd@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent freetype libjpeg-turbo libpng libxpm"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile freetype-dev libjpeg-turbo-dev libpng-dev libxpm-dev"
@@ -2400,6 +2406,9 @@ EOF
 				make install
 				cd - >/dev/null
 			fi
+			;;
+		ftp)
+			docker-php-ext-configure ftp --with-openssl-dir=/usr
 			;;
 		gd)
 			if test $PHP_MAJMIN_VERSION -le 506; then
