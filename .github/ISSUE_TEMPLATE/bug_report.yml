@@ -40,5 +40,8 @@ body:
   - type: textarea
     attributes:
       label: Minimal Dockerfile
-      description: Please provide the relevant parts of your Dockerfile to reproduce the issue
+      description: |
+        Please provide the relevant parts of your Dockerfile to reproduce the issue.
+        Please don't post your whole Dockerfile: it'll take more time from the maintainers to check what's going wrong.
+        And it's time you won't pay for.
       render: Dockerfile
