@@ -357,74 +357,80 @@ getModuleSourceCodePath() {
 	fi
 }
 
-# Get the wanted PHP module version, resolving it if it starts with '^'
+# Get the actual PHP module version, resolving it if it starts with '^'
 #
 # Arguments:
-#   $1: the name of the module to be normalized
+#   $1: the name of the module
+#   $2: the wanted version (optional, if omitted we'll use getWantedPHPModuleVersion)
 #
 # Output:
 #   The version to be used
-resolveWantedPHPModuleVersion() {
-	resolveWantedPHPModuleVersion_raw="$(getWantedPHPModuleVersion "$1")"
-	resolveWantedPHPModuleVersion_afterCaret="${resolveWantedPHPModuleVersion_raw#^}"
-	if test "$resolveWantedPHPModuleVersion_raw" = "$resolveWantedPHPModuleVersion_afterCaret"; then
-		printf '%s' "$resolveWantedPHPModuleVersion_raw"
+resolvePHPModuleVersion() {
+	resolvePHPModuleVersion_module="$1"
+	if test $# -lt 2; then
+		resolvePHPModuleVersion_raw="$(getWantedPHPModuleVersion "$installRemoteModule_module")"
+	else
+		resolvePHPModuleVersion_raw="$2"
+	fi
+	resolvePHPModuleVersion_afterCaret="${resolvePHPModuleVersion_raw#^}"
+	if test "$resolvePHPModuleVersion_raw" = "$resolvePHPModuleVersion_afterCaret"; then
+		printf '%s' "$resolvePHPModuleVersion_raw"
 		return
 	fi
-	case "$resolveWantedPHPModuleVersion_afterCaret" in
+	case "$resolvePHPModuleVersion_afterCaret" in
 		?*@snapshot | ?*@devel | ?*@alpha | ?*@beta | ?*@stable)
-			resolveWantedPHPModuleVersion_wantedStability="${resolveWantedPHPModuleVersion_afterCaret##*@}"
-			resolveWantedPHPModuleVersion_wantedVersion="${resolveWantedPHPModuleVersion_afterCaret%@*}"
+			resolvePHPModuleVersion_wantedStability="${resolvePHPModuleVersion_afterCaret##*@}"
+			resolvePHPModuleVersion_wantedVersion="${resolvePHPModuleVersion_afterCaret%@*}"
 			;;
 		*)
-			resolveWantedPHPModuleVersion_wantedStability=''
-			resolveWantedPHPModuleVersion_wantedVersion="$resolveWantedPHPModuleVersion_afterCaret"
+			resolvePHPModuleVersion_wantedStability=''
+			resolvePHPModuleVersion_wantedVersion="$resolvePHPModuleVersion_afterCaret"
 			;;
 	esac
-	resolveWantedPHPModuleVersion_xml="$(curl -sSLf "http://pecl.php.net/rest/r/$1/allreleases.xml")"
+	resolvePHPModuleVersion_xml="$(curl -sSLf "http://pecl.php.net/rest/r/$resolvePHPModuleVersion_module/allreleases.xml")"
 	# remove line endings, collapse spaces
-	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_xml" | tr -s ' \t\r\n' ' ')"
+	resolvePHPModuleVersion_versions="$(printf '%s' "$resolvePHPModuleVersion_xml" | tr -s ' \t\r\n' ' ')"
 	# one line per release (eg <r><v>1.2.3</v><s>stable</s></r>)
-	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_versions" | sed -r 's#<r#\n<r#g')"
-	if test -n "$resolveWantedPHPModuleVersion_wantedStability"; then
+	resolvePHPModuleVersion_versions="$(printf '%s' "$resolvePHPModuleVersion_versions" | sed -r 's#<r#\n<r#g')"
+	if test -n "$resolvePHPModuleVersion_wantedStability"; then
 		# keep the lines with the wanted stability
-		resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_versions" | grep "<s>$resolveWantedPHPModuleVersion_wantedStability</s>")"
+		resolvePHPModuleVersion_versions="$(printf '%s' "$resolvePHPModuleVersion_versions" | grep "<s>$resolvePHPModuleVersion_wantedStability</s>")"
 	fi
 	# remove everything's up to '<v>' (included)
-	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_versions" | sed 's#^.*<v>##')"
+	resolvePHPModuleVersion_versions="$(printf '%s' "$resolvePHPModuleVersion_versions" | sed 's#^.*<v>##')"
 	# keep just the versions
-	resolveWantedPHPModuleVersion_versions="$(printf '%s' "$resolveWantedPHPModuleVersion_versions" | cut -d'<' -f1)"
+	resolvePHPModuleVersion_versions="$(printf '%s' "$resolvePHPModuleVersion_versions" | cut -d'<' -f1)"
 	resetIFS
-	for resolveWantedPHPModuleVersion_version in $resolveWantedPHPModuleVersion_versions; do
-		resolveWantedPHPModuleVersion_suffix="${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_wantedVersion}"
-		if test "$resolveWantedPHPModuleVersion_version" != "${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_wantedVersion.}"; then
+	for resolvePHPModuleVersion_version in $resolvePHPModuleVersion_versions; do
+		resolvePHPModuleVersion_suffix="${resolvePHPModuleVersion_version#$resolvePHPModuleVersion_wantedVersion}"
+		if test "$resolvePHPModuleVersion_version" != "${resolvePHPModuleVersion_version#$resolvePHPModuleVersion_wantedVersion.}"; then
 			# Example: looking for 1.0, found 1.0.1
-			printf '%s' "$resolveWantedPHPModuleVersion_version"
+			printf '%s' "$resolvePHPModuleVersion_version"
 			return
 		fi
 	done
-	for resolveWantedPHPModuleVersion_version in $resolveWantedPHPModuleVersion_versions; do
-		resolveWantedPHPModuleVersion_suffix="${resolveWantedPHPModuleVersion_version#$resolveWantedPHPModuleVersion_wantedVersion}"
-		if test "$resolveWantedPHPModuleVersion_version" = "$resolveWantedPHPModuleVersion_suffix"; then
+	for resolvePHPModuleVersion_version in $resolvePHPModuleVersion_versions; do
+		resolvePHPModuleVersion_suffix="${resolvePHPModuleVersion_version#$resolvePHPModuleVersion_wantedVersion}"
+		if test "$resolvePHPModuleVersion_version" = "$resolvePHPModuleVersion_suffix"; then
 			continue
 		fi
-		if test -z "$resolveWantedPHPModuleVersion_suffix"; then
+		if test -z "$resolvePHPModuleVersion_suffix"; then
 			# Example: looking for 1.0, found exactly it
-			printf '%s' "$resolveWantedPHPModuleVersion_version"
+			printf '%s' "$resolvePHPModuleVersion_version"
 			return
 		fi
-		case "$resolveWantedPHPModuleVersion_suffix" in
+		case "$resolvePHPModuleVersion_suffix" in
 			[0-9])
 				# Example: looking for 1.1, but this is 1.10
 				;;
 			*)
 				# Example: looking for 1.1, this is 1.1rc1
-				printf '%s' "$resolveWantedPHPModuleVersion_version"
+				printf '%s' "$resolvePHPModuleVersion_version"
 				return
 				;;
 		esac
 	done
-	printf 'Unable to find a version of "%s" compatible with "%s"\nAvailable versions are:\n%s\n' "$1" "$resolveWantedPHPModuleVersion_raw" "$resolveWantedPHPModuleVersion_versions" >&2
+	printf 'Unable to find a version of "%s" compatible with "%s"\nAvailable versions are:\n%s\n' "$resolvePHPModuleVersion_module" "$resolvePHPModuleVersion_raw" "$resolvePHPModuleVersion_versions" >&2
 	exit 1
 }
 
@@ -2632,7 +2638,7 @@ getPackageSource() {
 installRemoteModule() {
 	installRemoteModule_module="$1"
 	printf '### INSTALLING REMOTE MODULE %s ###\n' "$installRemoteModule_module"
-	installRemoteModule_version="$(resolveWantedPHPModuleVersion "$installRemoteModule_module")"
+	installRemoteModule_version="$(resolvePHPModuleVersion "$installRemoteModule_module")"
 	installRemoteModule_path="$(getModuleSourceCodePath "$installRemoteModule_module")"
 	rm -rf "$CONFIGURE_FILE"
 	installRemoteModule_manuallyInstalled=0
@@ -3515,7 +3521,6 @@ installRemoteModule() {
 				fi
 				ldconfig || true
 			fi
-			set -x
 			cd "$installRemoteModule_dir/Saxon.C.API"
 			exit
 			phpize
@@ -3663,6 +3668,9 @@ installRemoteModule() {
 					installRemoteModule_version=4.5.10
 				elif test $PHP_MAJMIN_VERSION -le 704; then
 					installRemoteModule_version=4.8.11
+				elif test $PHP_BITS -eq 32; then
+					# See https://github.com/swoole/swoole-src/issues/5198#issuecomment-1820162178
+					installRemoteModule_version="$(resolvePHPModuleVersion "$installRemoteModule_module" '^5.0')"
 				fi
 			else
 				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
