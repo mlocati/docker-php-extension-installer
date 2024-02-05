@@ -387,7 +387,8 @@ resolvePHPModuleVersion() {
 			resolvePHPModuleVersion_wantedVersion="$resolvePHPModuleVersion_afterCaret"
 			;;
 	esac
-	resolvePHPModuleVersion_xml="$(curl -sSLf "http://pecl.php.net/rest/r/$resolvePHPModuleVersion_module/allreleases.xml")"
+	resolvePHPModuleVersion_peclModule="$(getPeclModuleName "$resolvePHPModuleVersion_module")"
+	resolvePHPModuleVersion_xml="$(curl -sSLf "http://pecl.php.net/rest/r/$resolvePHPModuleVersion_peclModule/allreleases.xml")"
 	# remove line endings, collapse spaces
 	resolvePHPModuleVersion_versions="$(printf '%s' "$resolvePHPModuleVersion_xml" | tr -s ' \t\r\n' ' ')"
 	# one line per release (eg <r><v>1.2.3</v><s>stable</s></r>)
@@ -449,7 +450,8 @@ resolvePeclStabilityVersion() {
 			return
 			;;
 	esac
-	peclStabilityFlagToVersion_url="http://pecl.php.net/rest/r/$1/$2.txt"
+	resolvePeclStabilityVersion_peclModule="$(getPeclModuleName "$1")"
+	peclStabilityFlagToVersion_url="http://pecl.php.net/rest/r/$resolvePeclStabilityVersion_peclModule/$2.txt"
 	if ! peclStabilityFlagToVersion_result="$(curl -sSLf "$peclStabilityFlagToVersion_url")"; then
 		peclStabilityFlagToVersion_result=''
 	fi
@@ -2760,9 +2762,12 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 700; then
 					installRemoteModule_version=0.75.0
-				else
-					installCargo
 				fi
+			else
+				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
+			fi
+			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 0.75.0) -ge 0; then
+				installCargo
 			fi
 			;;
 		decimal)
