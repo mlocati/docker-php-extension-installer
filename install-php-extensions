@@ -862,7 +862,10 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libwebp[0-9]+$"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
 					if test $PHP_MAJMIN_VERSION -ge 801; then
-						if ! isLibaomInstalled || ! isLibdav1dInstalled || ! isLibyuvInstalled || ! isLibavifInstalled; then
+						if test $DISTRO_VERSION_NUMBER -ge 12; then
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libavif[0-9]+$ ^libaom[0-9]+$ ^libdav1d[0-9]+$"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libavif-dev libaom-dev libdav1d-dev"
+						elif ! isLibaomInstalled || ! isLibdav1dInstalled || ! isLibyuvInstalled || ! isLibavifInstalled; then
 							case "${IPE_GD_WITHOUTAVIF:-}" in
 								1 | y* | Y*) ;;
 								*)
@@ -2102,7 +2105,7 @@ installMicrosoftSqlServerODBC() {
 #   0 (true)
 #   1 (false)
 isLibaomInstalled() {
-	if ! test -f /usr/local/lib/libaom.so && ! test -f /usr/lib/libaom.so; then
+	if ! test -f /usr/local/lib/libaom.so && ! test -f /usr/lib/libaom.so && ! test -f /usr/lib/x86_64*/libaom.so; then
 		return 1
 	fi
 	if ! test -f /usr/local/include/aom/aom_codec.h && ! test -f /usr/include/aom/aom_codec.h; then
@@ -2159,7 +2162,7 @@ installLibdav1d() {
 #   0 (true)
 #   1 (false)
 isLibyuvInstalled() {
-	if ! test -f /usr/local/lib/libyuv.so && ! test -f /usr/lib/libyuv.so && ! test -f /usr/lib/x86_64*/libyuv.so; then
+	if ! test -f /usr/local/lib/libyuv.so && ! test -f /usr/lib/libyuv.so && ! test -f /usr/lib/x86_64*/libyuv.so && ! test -f /usr/lib/x86_64*/libyuv.so.*; then
 		return 1
 	fi
 	if ! test -f /usr/local/include/libyuv.h && ! test -f /usr/include/libyuv.h; then
@@ -2432,6 +2435,11 @@ EOF
 				case "$DISTRO" in
 					alpine)
 						if test $DISTRO_MAJMIN_VERSION -ge 315; then
+							installBundledModule_tmp=1
+						fi
+						;;
+					debian)
+						if test $DISTRO_VERSION_NUMBER -ge 12; then
 							installBundledModule_tmp=1
 						fi
 						;;
