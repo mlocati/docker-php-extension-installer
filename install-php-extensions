@@ -2118,8 +2118,8 @@ isLibaomInstalled() {
 installLibaom() {
 	printf 'Installing libaom\n'
 	installLibaom_dir="$(getPackageSource https://aomedia.googlesource.com/aom/+archive/v3.8.1.tar.gz)"
-	mkdir -- "$installLibaom_dir/my.build"
-	cd -- "$installLibaom_dir/my.build"
+	mkdir -p -- "$installLibaom_dir/build"
+	cd -- "$installLibaom_dir/build"
 	cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TESTDATA=0 -DENABLE_TESTS=0 -DENABLE_TOOLS=0 -DCMAKE_INSTALL_LIBDIR:PATH=lib ..
 	ninja -j $(getProcessorCount) install
 	cd - >/dev/null
