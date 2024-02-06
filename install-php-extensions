@@ -2117,7 +2117,18 @@ isLibaomInstalled() {
 # Install libaom
 installLibaom() {
 	printf 'Installing libaom\n'
-	installLibaom_dir="$(getPackageSource https://aomedia.googlesource.com/aom/+archive/v3.8.1.tar.gz)"
+	installLibaom_version=3.8.1
+	case "$DISTRO_VERSION" in
+		debian@10)
+			case $(uname -m) in
+				aarch* | arm*)
+					#see https://bugs.chromium.org/p/aomedia/issues/detail?id=3543
+					installLibaom_version=3.5.0
+					;;
+			esac
+			;;
+	esac
+	installLibaom_dir="$(getPackageSource https://aomedia.googlesource.com/aom/+archive/v$installLibaom_version.tar.gz)"
 	mkdir -- "$installLibaom_dir/my.build"
 	cd -- "$installLibaom_dir/my.build"
 	cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TESTDATA=0 -DENABLE_TESTS=0 -DENABLE_TOOLS=0 -DCMAKE_INSTALL_LIBDIR:PATH=lib ..
