@@ -3520,7 +3520,7 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version='11.6'
 				else
-					installRemoteModule_version='12.3'
+					installRemoteModule_version='12.4.2'
 				fi
 			fi
 			installRemoteModule_majorVersion="${installRemoteModule_version%%.*}"
