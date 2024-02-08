@@ -3546,7 +3546,6 @@ installRemoteModule() {
 				ldconfig || true
 			fi
 			cd "$installRemoteModule_dir/Saxon.C.API"
-			exit
 			phpize
 			./configure --enable-saxon
 			make -j$(getProcessorCount) install
