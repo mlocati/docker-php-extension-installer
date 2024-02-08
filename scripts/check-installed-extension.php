@@ -6,6 +6,7 @@ $nameMap = [
     'opcache' => 'Zend OPcache',
     'apcu_bc' => 'apc',
     'ioncube_loader' => 'ionCube Loader',
+    'saxon' => 'saxonc',
 ];
 if (PHP_VERSION_ID < 70000) {
     $nameMap['sodium'] = 'libsodium';

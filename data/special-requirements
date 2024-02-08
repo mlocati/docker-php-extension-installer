@@ -8,6 +8,7 @@ parallel zts
 parle !jessie
 pdo_sqlsrv !arm
 pthreads zts
+saxon !alpine
 simdjson !jessie !stretch
 sodium !jessie
 sqlsrv !7.1-alpine3.9 !7.1-alpine3.10 !arm
