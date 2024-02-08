@@ -3517,8 +3517,8 @@ installRemoteModule() {
 			;;
 		saxon)
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -le 506; then
-					installRemoteModule_version='11.6'
+				if test $PHP_MAJMIN_VERSION -ge 800; then
+					installRemoteModule_version='12.4.2'
 				else
 					installRemoteModule_version='12.3'
 				fi
@@ -3546,7 +3546,6 @@ installRemoteModule() {
 				ldconfig || true
 			fi
 			cd "$installRemoteModule_dir/Saxon.C.API"
-			exit
 			phpize
 			./configure --enable-saxon
 			make -j$(getProcessorCount) install

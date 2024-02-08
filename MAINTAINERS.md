@@ -99,6 +99,11 @@ We should switch to the stable release once it will be available.
 The only available versions of the `parle` PHP extension are all beta.
 We should switch to the stable release once it will be available.
 
+### saxon
+
+The `saxon` PHP extension is not available in the PECL archive, so we install it manually.
+We need to monitor new releases at https://www.saxonica.com/download/c.xml
+
 ### snappy
 
 The `snappy` PHP extension is not available in the PECL archive, so we install it manually.
