@@ -296,6 +296,7 @@ install-php-extensions @fix_letsencrypt
 | recode | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |
 | redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | relay |  |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; |
+| saxon[*](#special-requirements-for-saxon) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | seasclick | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | seaslog | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | shmop | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -346,7 +347,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 143*
+*Number of supported extensions: 144*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
@@ -442,6 +443,7 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-parle"></a>parle | Not available in `jessie` docker images |
 | <a name="special-requirements-for-pdo_sqlsrv"></a>pdo_sqlsrv | Not available in ARM architectures |
 | <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`) |
+| <a name="special-requirements-for-saxon"></a>saxon | Not available in `alpine` docker images |
 | <a name="special-requirements-for-simdjson"></a>simdjson | &bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images |
 | <a name="special-requirements-for-sodium"></a>sodium | Not available in `jessie` docker images |
 | <a name="special-requirements-for-sqlsrv"></a>sqlsrv | &bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.1-alpine3.10` docker images<br />&bull; Not available in ARM architectures |
