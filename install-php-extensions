@@ -2988,6 +2988,12 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		imap)
+			# Include Kerberos Support
+			addConfigureOption with-kerberos yes
+			# Include SSL Support
+			addConfigureOption with-imap-ssl yes
+			;;
 		inotify)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
