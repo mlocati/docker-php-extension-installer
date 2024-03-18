@@ -2006,7 +2006,7 @@ installOracleInstantClient() {
 		printf 'Downloading Oracle Instant SDK v%s... ' "$installOracleInstantClient_version"
 		installOracleInstantClient_src="$(getPackageSource $installOracleInstantClient_sdk)"
 		ln -sf "$installOracleInstantClient_src/sdk" "$ORACLE_INSTANTCLIENT_LIBPATH/sdk"
-		UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS '$ORACLE_INSTANTCLIENT_LIBPATH/sdk'"
+		UNNEEDED_PACKAGE_LINKS="$UNNEEDED_PACKAGE_LINKS $ORACLE_INSTANTCLIENT_LIBPATH/sdk"
 		echo 'done.'
 	fi
 	case "$DISTRO" in
