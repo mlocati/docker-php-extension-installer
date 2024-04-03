@@ -678,8 +678,8 @@ buildRequiredPackageLists() {
 			if test $# -gt 1 || test "${1:-}" != '@composer'; then
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 			fi
-			if test -n "$(apk info 2>/dev/null | grep -E ^libssl)"; then
-				buildRequiredPackageLists_libssl='^libssl[0-9]+(\.[0-9]+)*$'
+			if test -z "$(apk info 2>/dev/null | grep -E ^libssl)"; then
+				buildRequiredPackageLists_libssl="$(apk search | grep -E "^libssl" | cut -d'-' -f1 | uniq)"
 			elif test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libtls')" && test -z "$(apk info 2>/dev/null | grep -E '^libressl.*-libssl')" && test -z "$(apk info 2>/dev/null | grep -E '^libretls-')"; then
 				buildRequiredPackageLists_libssl=$(apk search -q libressl*-libtls)
 			else
