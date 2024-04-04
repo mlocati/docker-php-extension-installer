@@ -226,7 +226,7 @@ install-php-extensions @fix_letsencrypt
 | ffi |  |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; |
 | ftp |  |  |  |  |  |  |  |  |  | &check; | &check; |
 | gd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| gearman | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
+| gearman | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | geoip | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |
 | geos[*](#special-requirements-for-geos) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | geospatial | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
