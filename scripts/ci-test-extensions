@@ -86,7 +86,7 @@ extractExtensionsFromData() {
 	IFS='
 '
 	extractExtensionsFromData_foundAt=
-	for extractExtensionsFromData_line in $(git -C "$CI_BUILD_DIR" diff --no-indent-heuristic --minimal --no-color --word-diff=none -no-renames --unified=0 "$CI_COMMIT_RANGE" -- data/supported-extensions); do
+	for extractExtensionsFromData_line in $(git -C "$CI_BUILD_DIR" diff --no-indent-heuristic --minimal --no-color --word-diff=none --no-renames --unified=0 "$CI_COMMIT_RANGE" -- data/supported-extensions); do
 		if test -n "$extractExtensionsFromData_line"; then
 			if test -z "$extractExtensionsFromData_foundAt"; then
 				if test -z "${extractExtensionsFromData_line##@@*}"; then
