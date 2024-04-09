@@ -3929,7 +3929,7 @@ installRemoteModule() {
 							installRemoteModule_architecture=alpine-arm64
 							;;
 						*)
-							installRemoteModule_architecture=alpine
+							installRemoteModule_architecture=alpine-x86_64
 							;;
 					esac
 					;;
@@ -3945,6 +3945,10 @@ installRemoteModule() {
 					;;
 			esac
 			installRemoteModule_url="$(curl -sSLf -o - https://tideways.com/profiler/downloads | grep -Eo "\"[^\"]+/tideways-php-([0-9]+\.[0-9]+\.[0-9]+)-$installRemoteModule_architecture.tar.gz\"" | cut -d'"' -f2)"
+			if test -z "$installRemoteModule_url"; then
+				echo 'Failed to find the tideways tarball to be downloaded'
+				exit 1
+			fi
 			printf 'Downloading tideways from %s\n' "$installRemoteModule_url"
 			installRemoteModule_src="$(getPackageSource $installRemoteModule_url)"
 			if test -d "$installRemoteModule_src/dist"; then
