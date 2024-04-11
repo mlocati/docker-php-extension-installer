@@ -79,11 +79,6 @@ We need to monitor new releases at https://github.com/kjdev/php-ext-lz4/tags
 The only available versions of the `mosquitto` PHP extension are all alpha/beta.
 We should switch to the stable release once it will be available.
 
-### opentelemetry
-
-The only available versions are all beta.
-We should switch to the stable release once it will be available.
-
 ## php_trie
 
 The `php_trie` PHP extension uses the HAT-trie library.
