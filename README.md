@@ -264,6 +264,7 @@ install-php-extensions @fix_letsencrypt
 | mssql | &check; | &check; |  |  |  |  |  |  |  |  |  |
 | mysql | &check; | &check; |  |  |  |  |  |  |  |  |  |
 | mysqli | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| newrelic |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | oauth | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | oci8 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -346,7 +347,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 144*
+*Number of supported extensions: 145*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
