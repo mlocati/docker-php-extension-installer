@@ -2364,6 +2364,32 @@ installCargo() {
 	fi
 }
 
+installNewRelic() {
+	printf '# Installing newrelic\n'
+	installNewRelic_search='\bnewrelic-php[0-9.]*-[0-9]+(\.[0-9]+)*-linux'
+	case "$DISTRO" in
+		alpine)
+			installNewRelic_search="$installNewRelic_search-musl"
+			;;
+	esac
+	installNewRelic_file="$(curl -sSLf -o- https://download.newrelic.com/php_agent/release/ | sed -E 's/<[^>]*>//g' | grep -Eo "$installNewRelic_search.tar.gz" | sort | head -1)"
+	installNewRelic_url="https://download.newrelic.com/php_agent/release/$installNewRelic_file"
+	installNewRelic_src="$(getPackageSource "$installNewRelic_url")"
+	cd -- "$installNewRelic_src"
+	NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_SILENT=1 ./newrelic-install install
+	cd - >/dev/null
+	cat <<EOT
+NewRelic has been installed from $installNewRelic_url
+You may need to:
+- change the owner/permissions of /var/log/newrelic
+  (for example: chown -R www-data:www-data /var/log/newrelic)
+- set the value of the newrelic.license configuration key in
+  $PHP_INI_DIR/conf.d/newrelic.ini
+  (if you didn't set the NR_INSTALL_KEY environment variable)
+
+EOT
+}
+
 # Install a bundled PHP module given its handle
 #
 # Arguments:
@@ -3205,6 +3231,10 @@ installRemoteModule() {
 					installRemoteModule_version=0.5.7
 				fi
 			fi
+			;;
+		newrelic)
+			installNewRelic
+			installRemoteModule_manuallyInstalled=2
 			;;
 		oauth)
 			if test -z "$installRemoteModule_version"; then
@@ -4190,8 +4220,10 @@ installRemoteModule() {
 		installPeclPackage "$installRemoteModule_module" "$installRemoteModule_version" "$installRemoteModule_cppflags" "$installRemoteModule_path"
 	fi
 	postProcessModule "$installRemoteModule_module"
-	checkModuleWorking "$installRemoteModule_module" "$installRemoteModule_ini_basename" "$installRemoteModule_ini_extra"
-	enablePhpExtension "$installRemoteModule_module" "$installRemoteModule_ini_basename" "$installRemoteModule_ini_extra"
+	if test $installRemoteModule_manuallyInstalled -lt 2; then
+		checkModuleWorking "$installRemoteModule_module" "$installRemoteModule_ini_basename" "$installRemoteModule_ini_extra"
+		enablePhpExtension "$installRemoteModule_module" "$installRemoteModule_ini_basename" "$installRemoteModule_ini_extra"
+	fi
 }
 
 # Check if a module/helper may be installed using the pecl archive
