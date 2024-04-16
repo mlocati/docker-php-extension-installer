@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$rc = 0;
+echo 'Checking if newrelic_start_transaction() exists... ';
+if (!function_exists('newrelic_start_transaction')) {
+    $rc = 1;
+    echo "NO!\n";
+} else {
+    echo "yes.\n";
+}
+
+exit($rc);
