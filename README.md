@@ -418,6 +418,7 @@ Here's the list of all the supported environment variables:
 | http, intl, mongodb | `IPE_ICU_EN_ONLY=1` | Some extensions require the ICU library, use this flag to install a smaller, but English-only, ICU library on Alpine 3.16 and later |
 | pspell | `IPE_ASPELL_LANGUAGES='...'` | Configure the languages to be made available (for example: `IPE_ASPELL_LANGUAGES='en fr'`). If omitted, we'll assume `en` |
 | | `IPE_DEB_ARCHIVE` & `IPE_DEB_ARCHIVE_SECURITY` | The APT packages of very old Debian versions (eg Jessie) may have been archived: you can use these environment variables to specify custom URLs of these APT archives |
+| newrelic | `IPE_NEWRELIC_DAEMON=1` | Install the NewRelic daemon  |
 | newrelic | `NR_INSTALL_KEY` | Your New Relic license key |
 
 ## Special requirements

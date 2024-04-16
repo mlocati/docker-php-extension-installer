@@ -2377,6 +2377,11 @@ installNewRelic() {
 	installNewRelic_src="$(getPackageSource "$installNewRelic_url")"
 	cd -- "$installNewRelic_src"
 	NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_SILENT=1 ./newrelic-install install
+	case "${IPE_NEWRELIC_DAEMON:-}" in
+		1 | y* | Y*)
+			NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_SILENT=1 ./newrelic-install install_daemon
+			;;
+	esac
 	cd - >/dev/null
 	cat <<EOT
 NewRelic has been installed from $installNewRelic_url
