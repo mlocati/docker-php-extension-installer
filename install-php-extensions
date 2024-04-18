@@ -1314,6 +1314,9 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-gnutls-dev libxml2-dev"
 				;;
+			sourceguardian@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent eudev-dev"
+				;;
 			spx@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev"
 				;;
