@@ -2640,13 +2640,18 @@ EOF
 			esac
 			;;
 	esac
-	php -r 'return;' >/dev/null 2>/dev/null || true
-	installBundledModule_errAfter="$(php -r 'return;' 2>&1 || true)"
-	if test "$installBundledModule_errAfter" != "$installBundledModule_errBefore"; then
-		printf 'PHP has problems after installing the "%s" extension:\n%s\n' "$1" "$installBundledModule_errAfter" >&2
-		rm "$PHP_INI_DIR/conf.d/docker-php-ext-$1.ini" || true
-		return 1
-	fi
+	case "${IPE_SKIP_CHECK:-}" in
+		1 | y* | Y*) ;;
+		*)
+			php -r 'return;' >/dev/null 2>/dev/null || true
+			installBundledModule_errAfter="$(php -r 'return;' 2>&1 || true)"
+			if test "$installBundledModule_errAfter" != "$installBundledModule_errBefore"; then
+				printf 'PHP has problems after installing the "%s" extension:\n%s\n' "$1" "$installBundledModule_errAfter" >&2
+				rm "$PHP_INI_DIR/conf.d/docker-php-ext-$1.ini" || true
+				return 1
+			fi
+			;;
+	esac
 }
 
 # Fetch a tar.gz file, extract it and returns the path of the extracted folder.
@@ -4229,7 +4234,12 @@ installRemoteModule() {
 	fi
 	postProcessModule "$installRemoteModule_module"
 	if test $installRemoteModule_manuallyInstalled -lt 2; then
-		checkModuleWorking "$installRemoteModule_module" "$installRemoteModule_ini_basename" "$installRemoteModule_ini_extra"
+		case "${IPE_SKIP_CHECK:-}" in
+			1 | y* | Y*) ;;
+			*)
+				checkModuleWorking "$installRemoteModule_module" "$installRemoteModule_ini_basename" "$installRemoteModule_ini_extra"
+				;;
+		esac
 		enablePhpExtension "$installRemoteModule_module" "$installRemoteModule_ini_basename" "$installRemoteModule_ini_extra"
 	fi
 }
