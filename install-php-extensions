@@ -1458,6 +1458,14 @@ buildRequiredPackageLists() {
 			wddx@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
+			wikidiff2@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git"
+				;;
+			wikidiff2@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libthai0"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git libthai-dev"
+				;;
 			xdebug@alpine)
 				if test $PHP_MAJMIN_VERSION -ge 800; then
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile linux-headers"
@@ -2227,6 +2235,59 @@ installLibMPDec() {
 	installLibMPDec_src="$(getPackageSource https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz)"
 	cd -- "$installLibMPDec_src"
 	./configure --disable-cxx
+	make -j$(getProcessorCount)
+	make install
+	cd - >/dev/null
+}
+
+# Check if libdatrie is installed
+#
+# Return:
+#   0 (true)
+#   1 (false)
+isLibDatrieInstalled() {
+	if ! test -f /usr/local/lib/libdatrie.so && ! test -f /usr/lib/libdatrie.so && ! test -f /usr/lib/x86_64*/libdatrie.so; then
+		return 1
+	fi
+	if ! test -f /usr/local/include/datrie/trie.h && ! test -f /usr/include/datrie/trie.h; then
+		return 1
+	fi
+	return 0
+}
+
+# Install libdatrie
+installLibDatrie() {
+	printf 'Installing libdatrie\n'
+	installLibDatrie_src="$(getPackageSource https://github.com/tlwg/libdatrie/releases/download/v0.2.13/libdatrie-0.2.13.tar.xz)"
+	cd -- "$installLibDatrie_src"
+	./configure
+	make -j$(getProcessorCount)
+	make install
+	cd - >/dev/null
+}
+
+# Check if libdatrie is installed
+#
+# Return:
+#   0 (true)
+#   1 (false)
+isLibThaiInstalled() {
+	return 1
+	if ! test -f /usr/local/lib/libthai.so && ! test -f /usr/lib/libthai.so && ! test -f /usr/lib/x86_64*/libthai.so; then
+		return 1
+	fi
+	if ! test -f /usr/local/include/thai/thailib.h && ! test -f /usr/include/thai/thailib.h; then
+		return 1
+	fi
+	return 0
+}
+
+# Install libdatrie
+installLibThai() {
+	printf 'Installing libthai\n'
+	installLibThai_src="$(getPackageSource https://github.com/tlwg/libthai/releases/download/v0.1.29/libthai-0.1.29.tar.xz)"
+	cd -- "$installLibThai_src"
+	./configure
 	make -j$(getProcessorCount)
 	make install
 	cd - >/dev/null
@@ -4053,6 +4114,33 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		wikidiff2)
+			case "$DISTRO" in
+				alpine)
+					if ! isLibDatrieInstalled; then
+						installLibDatrie
+					fi
+					if ! isLibThaiInstalled; then
+						installLibThai
+					fi
+					;;
+			esac
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 702; then
+					installRemoteModule_version=1.13.0
+				else
+					installRemoteModule_version="$(git -c versionsort.suffix=- ls-remote --tags --refs --quiet --exit-code --sort=version:refname https://github.com/wikimedia/mediawiki-php-wikidiff2.git 'refs/tags/*.*.*' | tail -1 | cut -d/ -f3)"
+				fi
+			fi
+			installRemoteModule_src="$(getPackageSource "https://codeload.github.com/wikimedia/mediawiki-php-wikidiff2/tar.gz/refs/tags/$installRemoteModule_version")"
+			cd -- "$installRemoteModule_src"
+			phpize
+			./configure
+			make -j$(getProcessorCount)
+			make install
+			cd - >/dev/null
+			installRemoteModule_manuallyInstalled=1
+			;;
 		xdebug)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 500; then
@@ -4507,7 +4595,7 @@ fixLetsEncrypt() {
 					invokeAptGetUpdate
 				fi
 				printf -- '- installing newer ca-certificates package\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS ca-certificates
+				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends ${IPE_APTGET_INSTALLOPTIONS:-} ca-certificates
 			fi
 			;;
 		*)
