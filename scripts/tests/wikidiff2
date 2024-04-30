@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$diff = wikidiff2_inline_json_diff("a\nb\nc", "a\nd\nc", 1);
+$data = json_decode($diff, true);
+if (!is_array($data)) {
+    fwrite(STDERR, "Unexpected result of wikidiff2_inline_json_diff():\n{$diff}\n");
+    exit(1);
+}
+echo "wikidiff2 works as expected\n";
+exit(0);
