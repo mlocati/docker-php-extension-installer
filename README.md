@@ -331,6 +331,7 @@ install-php-extensions @fix_letsencrypt
 | vips[*](#special-requirements-for-vips) |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | vld | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | wddx | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |
+| wikidiff2[*](#special-requirements-for-wikidiff2) |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xdebug | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xdiff | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | xhprof | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -347,7 +348,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 145*
+*Number of supported extensions: 146*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
@@ -451,6 +452,7 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-sodium"></a>sodium | Not available in `jessie` docker images |
 | <a name="special-requirements-for-sqlsrv"></a>sqlsrv | &bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.1-alpine3.10` docker images<br />&bull; Not available in ARM architectures |
 | <a name="special-requirements-for-vips"></a>vips | &bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `jessie` docker images |
+| <a name="special-requirements-for-wikidiff2"></a>wikidiff2 | &bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images |
 <!-- END OF SPECIAL REQUIREMENTS -->
 
 ### How do I know which Linux distribution I am using?
