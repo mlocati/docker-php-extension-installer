@@ -1622,7 +1622,7 @@ expandPackagesToBeInstalled() {
 			resetIFS
 			;;
 		debian)
-			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS $@ 2>&1 || printf '\nE: apt-get failed\n')"
+			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -sy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS $@ 2>&1 || printf '\nE: apt-get failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^E:')"; then
 				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
 				printf '%s ' "$@" >&2
@@ -1917,7 +1917,7 @@ installRequiredPackages() {
 			done
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
+			DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
 			;;
 	esac
 }
@@ -4595,7 +4595,7 @@ fixLetsEncrypt() {
 					invokeAptGetUpdate
 				fi
 				printf -- '- installing newer ca-certificates package\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends ${IPE_APTGET_INSTALLOPTIONS:-} ca-certificates
+				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends ${IPE_APTGET_INSTALLOPTIONS:-} ca-certificates
 			fi
 			;;
 		*)
@@ -4644,7 +4644,7 @@ cleanup() {
 			fi
 			if test -n "$PACKAGES_PREVIOUS"; then
 				printf '### RESTORING PREVIOUSLY INSTALLED PACKAGES ###\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends --no-upgrade $IPE_APTGET_INSTALLOPTIONS $PACKAGES_PREVIOUS
+				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends --no-upgrade $IPE_APTGET_INSTALLOPTIONS $PACKAGES_PREVIOUS
 			fi
 			;;
 	esac
