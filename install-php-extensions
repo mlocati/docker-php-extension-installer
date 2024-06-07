@@ -1364,7 +1364,8 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-ares-dev"
 				fi
 				if test $PHP_MAJMIN_VERSION -ge 800; then
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev"
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libbrotli1"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev libbrotli-dev"
 				fi
 				;;
 			sybase_ct@alpine)
@@ -3811,6 +3812,14 @@ installRemoteModule() {
 				elif test $PHP_BITS -eq 32; then
 					# See https://github.com/swoole/swoole-src/issues/5198#issuecomment-1820162178
 					installRemoteModule_version="$(resolvePHPModuleVersion "$installRemoteModule_module" '^5.0')"
+				else
+					case "$DISTRO" in
+						alpine)
+							if test $DISTRO_MAJMIN_VERSION -le 312; then
+								installRemoteModule_version=5.1.2
+							fi
+							;;
+					esac
 				fi
 			else
 				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
@@ -3829,8 +3838,8 @@ installRemoteModule() {
 					fi
 					;;
 			esac
-			if test $PHP_MAJMIN_VERSION -eq 803; then
-				# see https://github.com/swoole/docker-swoole/issues/45
+			if test $PHP_MAJMIN_VERSION -ge 800; then
+				# see https://github.com/swoole/swoole-src/issues/5365
 				installRemoteModule_curl=no
 			else
 				installRemoteModule_curl=yes
