@@ -1364,6 +1364,7 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-ares-dev"
 				fi
 				if test $PHP_MAJMIN_VERSION -ge 800; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libbrotli1"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev libbrotli-dev"
 				fi
 				;;
