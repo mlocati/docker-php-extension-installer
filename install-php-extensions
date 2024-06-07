@@ -3837,8 +3837,8 @@ installRemoteModule() {
 					fi
 					;;
 			esac
-			if test $PHP_MAJMIN_VERSION -eq 803; then
-				# see https://github.com/swoole/docker-swoole/issues/45
+			if test $PHP_MAJMIN_VERSION -ge 800; then
+				# see https://github.com/swoole/swoole-src/issues/5365
 				installRemoteModule_curl=no
 			else
 				installRemoteModule_curl=yes
