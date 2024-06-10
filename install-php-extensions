@@ -2447,6 +2447,12 @@ installNewRelic() {
 			NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_SILENT=1 ./newrelic-install install_daemon
 			;;
 	esac
+	case "${IPE_NEWRELIC_KEEPLOG:-}" in
+		1 | y* | Y*) ;;
+		*)
+			rm -f /tmp/nrinstall-*.tar
+			;;
+	esac
 	cd - >/dev/null
 	cat <<EOT
 NewRelic has been installed from $installNewRelic_url
