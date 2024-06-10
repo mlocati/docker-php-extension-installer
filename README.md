@@ -421,6 +421,7 @@ Here's the list of all the supported environment variables:
 | pspell | `IPE_ASPELL_LANGUAGES='...'` | Configure the languages to be made available (for example: `IPE_ASPELL_LANGUAGES='en fr'`). If omitted, we'll assume `en` |
 | | `IPE_DEB_ARCHIVE` & `IPE_DEB_ARCHIVE_SECURITY` | The APT packages of very old Debian versions (eg Jessie) may have been archived: you can use these environment variables to specify custom URLs of these APT archives |
 | newrelic | `IPE_NEWRELIC_DAEMON=1` | Install the NewRelic daemon  |
+| newrelic | `IPE_NEWRELIC_KEEPLOG=1` | Keep the log files of NewRelic setup (`/tmp/nrinstall-….tar`)  |
 | newrelic | `NR_INSTALL_KEY` | Your New Relic license key |
 
 ## Special requirements
