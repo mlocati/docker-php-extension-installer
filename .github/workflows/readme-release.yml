@@ -22,7 +22,7 @@ jobs:
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
           || (github.event_name == 'create' && github.event.ref_type == 'tag')
           || github.event_name == 'repository_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: master
           fetch-depth: 0
