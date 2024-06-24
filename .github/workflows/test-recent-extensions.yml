@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
       - name: Retrieve recently updated extensions
         run: ./scripts/ci-retrieve-recent-extensions >extensions-updated.txt
       - name: Filter supported extensions
@@ -58,7 +58,7 @@ jobs:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
       - name: Loading list of extensions to be tested
         uses: actions/download-artifact@v1
         with:
