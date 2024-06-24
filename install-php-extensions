@@ -1354,6 +1354,9 @@ buildRequiredPackageLists() {
 				if test $PHP_MAJMIN_VERSION -ge 702; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-ares"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile c-ares-dev"
+					if test $PHP_MAJMIN_VERSION -ge 801; then
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile sqlite-dev"
+					fi
 				fi
 				;;
 			swoole@debian)
@@ -1362,10 +1365,13 @@ buildRequiredPackageLists() {
 				if test $PHP_MAJMIN_VERSION -ge 702; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-ares2"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-ares-dev"
-				fi
-				if test $PHP_MAJMIN_VERSION -ge 800; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libbrotli1"
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev libbrotli-dev"
+					if test $PHP_MAJMIN_VERSION -ge 800; then
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libbrotli1"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev libbrotli-dev"
+						if test $PHP_MAJMIN_VERSION -ge 801; then
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsqlite3-dev"
+						fi
+					fi
 				fi
 				;;
 			sybase_ct@alpine)
@@ -3827,6 +3833,13 @@ installRemoteModule() {
 							;;
 					esac
 				fi
+				if test -z "$installRemoteModule_version"; then
+					if test $PHP_MAJMIN_VERSION -le 800; then
+						installRemoteModule_version=5.1.3
+					else
+						installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" stable)"
+					fi
+				fi
 			else
 				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
@@ -3838,7 +3851,7 @@ installRemoteModule() {
 			installRemoteModule_openssl=yes
 			case "$DISTRO_VERSION" in
 				alpine@3.7 | alpine@3.8)
-					if test -n "$installRemoteModule_version" && test $(compareVersions "$installRemoteModule_version" 4.6.0) -lt 0; then
+					if test $(compareVersions "$installRemoteModule_version" 4.6.0) -lt 0; then
 						# see https://github.com/swoole/swoole-src/issues/3934
 						installRemoteModule_openssl=no
 					fi
@@ -3850,7 +3863,73 @@ installRemoteModule() {
 			else
 				installRemoteModule_curl=yes
 			fi
-			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 5.0.1) -ge 0; then
+			if test $PHP_THREADSAFE -eq 1; then
+				installRemoteModule_zts=yes
+			else
+				installRemoteModule_zts=no
+			fi
+			installRemoteModule_sqlite=yes
+			case "$DISTRO" in
+				alpine)
+					if test $DISTRO_MAJMIN_VERSION -lt 317; then
+						# we need sqlite3 >= 3.7.7
+						installRemoteModule_sqlite=no
+					fi
+					;;
+				debian)
+					if test $DISTRO_MAJMIN_VERSION -lt 1200; then
+						# we need sqlite3 >= 3.7.7
+						installRemoteModule_sqlite=no
+					fi
+					;;
+			esac
+			if test $(compareVersions "$installRemoteModule_version" 6.0.0) -ge 0; then
+				# enable sockets supports?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable curl support?
+				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				# enable cares support?
+				addConfigureOption enable-cares yes
+				# enable brotli support?
+				addConfigureOption enable-brotli yes
+				# enable PostgreSQL database support?
+				addConfigureOption enable-swoole-pgsql yes
+				# enable ODBC database support?
+				addConfigureOption with-swoole-odbc no
+				# enable Oracle database support?
+				addConfigureOption with-swoole-oracle no
+				# enable Sqlite database support?
+				addConfigureOption enable-swoole-sqlite $installRemoteModule_sqlite
+				# enable swoole thread support (need php zts support)?
+				addConfigureOption enable-swoole-thread $installRemoteModule_zts
+				# enable iouring for file async support?
+				addConfigureOption enable-iouring yes
+			elif test $(compareVersions "$installRemoteModule_version" 5.1.0) -ge 0; then
+				# enable sockets supports?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# enable openssl support?
+				addConfigureOption enable-openssl $installRemoteModule_openssl
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable curl support?
+				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				# enable cares support?
+				addConfigureOption enable-cares yes
+				# enable brotli support?
+				addConfigureOption enable-brotli yes
+				# enable PostgreSQL database support?
+				addConfigureOption enable-swoole-pgsql yes
+				# enable ODBC database support?
+				addConfigureOption with-swoole-odbc no
+				# enable Oracle database support?
+				addConfigureOption with-swoole-oracle no
+				# enable Sqlite database support?
+				addConfigureOption enable-swoole-sqlite $installRemoteModule_sqlite
+			elif test $(compareVersions "$installRemoteModule_version" 5.0.1) -ge 0; then
 				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
