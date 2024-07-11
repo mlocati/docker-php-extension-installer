@@ -3066,6 +3066,10 @@ installRemoteModule() {
 					esac
 				fi
 			fi
+			if test -z "$installRemoteModule_version"; then
+				# https://github.com/grpc/grpc/issues/37178
+				installRemoteModule_version=1.64.1
+			fi
 			if test -z "$installRemoteModule_version" || test "$installRemoteModule_version" = 1.35.0; then
 				case "$DISTRO_VERSION" in
 					alpine@3.13)
