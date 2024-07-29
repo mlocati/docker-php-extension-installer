@@ -2895,6 +2895,16 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -lt 700; then
 					installRemoteModule_version=0.75.0
 				fi
+				if test -z "$installRemoteModule_version"; then
+					case "$DISTRO" in
+						alpine)
+							if test $DISTRO_MAJMIN_VERSION -le 312; then
+								# cc is not supported due to a memcmp related bug
+								installRemoteModule_version=1.1.0
+							fi
+							;;
+					esac
+				fi
 			else
 				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
