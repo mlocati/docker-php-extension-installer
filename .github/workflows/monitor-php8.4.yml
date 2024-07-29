@@ -1,11 +1,11 @@
-name: Monitor PHP 8.3
+name: Monitor PHP 8.4
 
 on:
   schedule:
     - cron: "0 6 * * *"
   repository_dispatch:
     types:
-      - monitor-php8.3
+      - monitor-php8.4
 
 jobs:
   test_extensions:
@@ -13,8 +13,6 @@ jobs:
       fail-fast: false
       matrix:
         distro:
-          - alpine3.17
-          - alpine3.18
           - alpine3.19
           - alpine3.20
           - bullseye
@@ -23,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
-      IPETEST_ONLY_PHPVERSIONS: "8.3"
+      IPETEST_ONLY_PHPVERSIONS: "8.4"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,4 +33,4 @@ jobs:
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_TO }}
-          message: Testing packages against PHP 8.3 failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.3.yml
+          message: Testing packages against PHP 8.4 failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.4.yml
