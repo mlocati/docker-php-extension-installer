@@ -2538,7 +2538,11 @@ EOF
 			fi
 			;;
 		ftp)
-			docker-php-ext-configure ftp --with-openssl-dir=/usr
+			if test $PHP_MAJMIN_VERSION -ge 804; then
+				docker-php-ext-configure ftp --with-ftp-ssl=/usr
+			else
+				docker-php-ext-configure ftp --with-openssl-dir=/usr
+			fi
 			;;
 		gd)
 			if test $PHP_MAJMIN_VERSION -le 506; then
