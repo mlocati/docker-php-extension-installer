@@ -77,7 +77,7 @@ sortVersionList() {
 		if test -z "$sortVersionList_list"; then
 			sortVersionList_list="$sortVersionList_version"
 		else
-			sortVersionList_list="$sortVersionList_list $sortVersionList_version"
+			sortVersionList_list="$sortVersionList_version $sortVersionList_list"
 		fi
 	done
 	printf '%s' "$sortVersionList_list"
