@@ -153,6 +153,9 @@ getDockerImageName() {
 		return
 	fi
 	case "$2" in
+		8.4)
+			getDockerImageName_version="$2-rc"
+			;;
 		*)
 			getDockerImageName_version="$2"
 			;;
