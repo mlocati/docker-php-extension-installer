@@ -221,7 +221,7 @@ install-php-extensions @fix_letsencrypt
 | enchant | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ev | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | event | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| excimer |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
+| excimer | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
 | exif | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ffi | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |
 | ftp | &check; | &check; | &check; |  |  |  |  |  |  |  |  |  |
