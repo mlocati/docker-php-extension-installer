@@ -2869,7 +2869,7 @@ installRemoteModule() {
 				if test $(compareVersions "$(cmake --version | head -n1 | sed -E 's/^.* //')" '3.7') -lt 0; then
 					installRemoteModule_tmp=0.29.0
 				else
-					installRemoteModule_tmp=0.31.0
+					installRemoteModule_tmp=0.31.1
 				fi
 				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/$installRemoteModule_tmp.tar.gz)"
 				make -s -j$(getProcessorCount) cmake_build
