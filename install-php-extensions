@@ -662,9 +662,11 @@ expandASpellDictionaries() {
 #   PACKAGES_PERSISTENT_PRE the list of packages required at runtume that are already installed
 #   PACKAGES_VOLATILE the list of packages required at compile time that must be installed
 #   PACKAGES_PREVIOUS the list of packages (with their version) that are installed right now (calculated only on Debian and only if PACKAGES_PERSISTENT_NEW or PACKAGES_VOLATILE are not empty)
+#   COMPILE_LIBS
 buildRequiredPackageLists() {
 	buildRequiredPackageLists_persistent=''
 	buildRequiredPackageLists_volatile=''
+	COMPILE_LIBS=''
 	case "$DISTRO" in
 		alpine)
 			apk update
@@ -844,6 +846,18 @@ buildRequiredPackageLists() {
 							case "${IPE_GD_WITHOUTAVIF:-}" in
 								1 | y* | Y*) ;;
 								*)
+									if ! isLibaomInstalled; then
+										COMPILE_LIBS="$COMPILE_LIBS libaom"
+									fi
+									if ! isLibdav1dInstalled; then
+										COMPILE_LIBS="$COMPILE_LIBS libdav1d"
+									fi
+									if ! isLibyuvInstalled; then
+										COMPILE_LIBS="$COMPILE_LIBS libyuv"
+									fi
+									if ! isLibavifInstalled; then
+										COMPILE_LIBS="$COMPILE_LIBS libavif"
+									fi
 									buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
 									buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake nasm meson"
 									;;
@@ -869,6 +883,18 @@ buildRequiredPackageLists() {
 							case "${IPE_GD_WITHOUTAVIF:-}" in
 								1 | y* | Y*) ;;
 								*)
+									if ! isLibaomInstalled; then
+										COMPILE_LIBS="$COMPILE_LIBS libaom"
+									fi
+									if ! isLibdav1dInstalled; then
+										COMPILE_LIBS="$COMPILE_LIBS libdav1d"
+									fi
+									if ! isLibyuvInstalled; then
+										COMPILE_LIBS="$COMPILE_LIBS libyuv"
+									fi
+									if ! isLibavifInstalled; then
+										COMPILE_LIBS="$COMPILE_LIBS libavif"
+									fi
 									buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake nasm meson"
 									;;
 							esac
@@ -2472,6 +2498,22 @@ You may need to:
 EOT
 }
 
+# Compile the libraries specified in the COMPILE_LIBS variable
+compileLibs() {
+	if stringInList libaom "$COMPILE_LIBS"; then
+		installLibaom
+	fi
+	if stringInList libdav1d "$COMPILE_LIBS"; then
+		installLibdav1d
+	fi
+	if stringInList libyuv "$COMPILE_LIBS"; then
+		installLibyuv
+	fi
+	if stringInList libavif "$COMPILE_LIBS"; then
+		installLibavif
+	fi
+}
+
 # Install a bundled PHP module given its handle
 #
 # Arguments:
@@ -2568,23 +2610,6 @@ EOF
 						;;
 				esac
 				if test $installBundledModule_tmp -eq 0; then
-					case "${IPE_GD_WITHOUTAVIF:-}" in
-						1 | y* | Y*) ;;
-						*)
-							if ! isLibaomInstalled; then
-								installLibaom
-							fi
-							if ! isLibdav1dInstalled; then
-								installLibdav1d
-							fi
-							if ! isLibyuvInstalled; then
-								installLibyuv
-							fi
-							if ! isLibavifInstalled; then
-								installLibavif
-							fi
-							;;
-					esac
 					if isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
 						installBundledModule_tmp=1
 					fi
@@ -4828,6 +4853,8 @@ fi
 if test $USE_PICKLE -gt 1; then
 	buildPickle
 fi
+
+compileLibs
 
 for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
 	case "$PHP_MODULE_TO_INSTALL" in
