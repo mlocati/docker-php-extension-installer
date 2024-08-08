@@ -127,13 +127,20 @@ filterUnsupportedExensionsForDistro() {
 			;;
 	esac
 
-	for filterUnsupportedExensionsForDistro_extension in $EXTENSIONS_TO_BE_TESTED; do
-		if stringInList "!$IPETEST_DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
-			printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$IPETEST_DOCKER_DISTRO"
-		elif stringInList "!$filterUnsupportedExensionsForDistro_baseDistro" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
-			printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$filterUnsupportedExensionsForDistro_baseDistro"
-		else
-			filterUnsupportedExensionsForDistro_filtered="$filterUnsupportedExensionsForDistro_filtered $filterUnsupportedExensionsForDistro_extension"
+	for filterUnsupportedExensionsForDistro_extensions in $EXTENSIONS_TO_BE_TESTED; do
+		filterUnsupportedExensionsForDistro_ok=1
+		IFS='+'
+		for filterUnsupportedExensionsForDistro_extension in $filterUnsupportedExensionsForDistro_extensions; do
+			if stringInList "!$IPETEST_DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
+				printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$IPETEST_DOCKER_DISTRO"
+				filterUnsupportedExensionsForDistro_ok=0
+			elif stringInList "!$filterUnsupportedExensionsForDistro_baseDistro" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
+				printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$filterUnsupportedExensionsForDistro_baseDistro"
+				filterUnsupportedExensionsForDistro_ok=0
+			fi
+		done
+		if test $filterUnsupportedExensionsForDistro_ok -eq 1; then
+			filterUnsupportedExensionsForDistro_filtered="$filterUnsupportedExensionsForDistro_filtered $filterUnsupportedExensionsForDistro_extensions"
 		fi
 	done
 	resetIFS
@@ -164,10 +171,13 @@ getDockerImageName() {
 	getDockerImageName_reqs="$CI_BUILD_DIR/data/special-requirements"
 	if test -f "$getDockerImageName_reqs"; then
 		IFS=' '
-		for getDockerImageName_testExtension in $1; do
-			if test -n "$(cat "$getDockerImageName_reqs" | grep -E "^$getDockerImageName_testExtension[ \t]+zts[ \t]*$")"; then
-				getDockerImageName_suffix='zts'
-			fi
+		for getDockerImageName_testExtensions in $1; do
+			IFS='+'
+			for getDockerImageName_testExtension in $getDockerImageName_testExtensions; do
+				if test -n "$(cat "$getDockerImageName_reqs" | grep -E "^$getDockerImageName_testExtension[ \t]+zts[ \t]*$")"; then
+					getDockerImageName_suffix='zts'
+				fi
+			done
 		done
 	fi
 	getDockerImageName_imageName="$(printf 'php:%s-%s-%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$IPETEST_DOCKER_DISTRO")"
