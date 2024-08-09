@@ -6,11 +6,10 @@ lz4 !jessie
 memprof !alpine3.9 !alpine3.10 !alpine3.11 !alpine3.12 !alpine3.13 !alpine3.14 !alpine3.15
 parallel zts
 parle !jessie
-pdo_sqlsrv !arm
 pthreads zts
 saxon !alpine
 simdjson !jessie !stretch
 sodium !jessie
-sqlsrv !7.1-alpine3.9 !7.1-alpine3.10 !arm
+sqlsrv !7.1-alpine3.9 !7.1-alpine3.10
 vips !alpine3.9 !jessie
 wikidiff2 !jessie !stretch
