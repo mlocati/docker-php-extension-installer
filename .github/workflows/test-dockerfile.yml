@@ -22,11 +22,16 @@ jobs:
         run: docker save --output /tmp/image.tar test:latest
       -
         name: Extract layer
-        run: tar -C /tmp -x -f /tmp/image.tar --wildcards '*layer.tar' --strip-components=1
+        run: |
+          tar -C /tmp -x -f /tmp/image.tar --strip-components=1
+          if [ ! -d /tmp/sha256 ]; then 
+            echo 'Cannot extract docker archive.'
+            exit 1 
+          fi
       -
         name: Check layer contents
         run: |
-          ENTRY="$(tar -v -t -f /tmp/layer.tar --wildcards '*bin/install-php-extensions')"
+          ENTRY="$(find /tmp/sha256 -type f -exec tar -vtf {} \; 2>/dev/null | grep install-php-extensions)"
           if [ -z "$ENTRY" ]; then
             echo 'File not found'
             exit 1
