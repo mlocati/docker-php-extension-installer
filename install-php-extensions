@@ -1010,6 +1010,9 @@ buildRequiredPackageLists() {
 				;;
 			interbase@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev ncurses-dev"
+				if ! isFirebirdInstalled; then
+					COMPILE_LIBS="$COMPILE_LIBS firebird"
+				fi
 				;;
 			interbase@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
@@ -1185,6 +1188,20 @@ buildRequiredPackageLists() {
 				;;
 			pdo_firebird@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev ncurses-dev"
+				if ! isFirebirdInstalled; then
+					COMPILE_LIBS="$COMPILE_LIBS firebird"
+					if test $PHP_MAJMIN_VERSION -ge 804; then
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib-dev"
+						if ! isLibTommathInstalled; then
+							COMPILE_LIBS="$COMPILE_LIBS libtommath"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
+						fi
+						if ! isLibTomcryptInstalled; then
+							COMPILE_LIBS="$COMPILE_LIBS libtomcrypt"
+						fi
+					fi
+				fi
 				;;
 			pdo_firebird@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
@@ -2326,6 +2343,72 @@ installLibThai() {
 	cd - >/dev/null
 }
 
+isLibTommathInstalled() {
+	if test -f /usr/local/lib/libtommath.a && test -f /usr/local/include/tommath.h; then
+		return 0
+	fi
+	return 1
+}
+
+installLibTommath() {
+	printf 'Installing libtommath\n'
+	installLibTommath_src="$(getPackageSource https://github.com/libtom/libtommath/releases/download/v1.3.0/ltm-1.3.0.tar.xz)"
+	mkdir -p "$installLibTommath_src/build"
+	cd -- "$installLibTommath_src/build"
+	CFLAGS='-fPIC' cmake -DCMAKE_BUILD_TYPE=Release ..
+	make -j$(getProcessorCount)
+	make install
+	cd - >/dev/null
+}
+
+isLibTomcryptInstalled() {
+	if test -f /usr/local/lib/libtomcrypt.a && test -f /usr/local/include/tomcrypt.h; then
+		return 0
+	fi
+	return 1
+}
+
+installLibTomcrypt() {
+	printf 'Installing libtomcrypt\n'
+	installLibTomcrypt_src="$(getPackageSource https://github.com/libtom/libtomcrypt/releases/download/v1.18.2/crypt-1.18.2.tar.xz)"
+	cd -- "$installLibTomcrypt_src"
+	CFLAGS='-fPIC' make -j$(getProcessorCount)
+	make install
+}
+
+isFirebirdInstalled() {
+	if test -f /usr/lib/libfbclient.so && test -f /usr/include/ibase.h; then
+		return 0
+	fi
+	if test -d /tmp/src/firebird; then
+		return 0
+	fi
+	return 1
+}
+
+installFirebird() {
+	printf 'Installing firebird\n'
+	if test $PHP_MAJMIN_VERSION -ge 804; then
+		installFirebird_src="$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/v5.0.1/Firebird-5.0.1.1469-0-source.tar.xz)"
+		cd -- "$installFirebird_src"
+		./configure --enable-client-only
+		make -j$(getProcessorCount)
+		cp -Rd gen/Release/firebird/include/* /usr/include
+		cp -Rd gen/Release/firebird/lib/* /usr/lib
+		cd - >/dev/null
+	else
+		mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R2_5_9/Firebird-2.5.9.27139-0.tar.bz2)" /tmp/src/firebird
+		cd /tmp/src/firebird
+		# Patch rwlock.h (this has been fixed in later release of firebird 3.x)
+		sed -i '194s/.*/#if 0/' src/common/classes/rwlock.h
+		./configure --with-system-icu
+		# -j option can't be used: make targets must be compiled sequentially
+		make -s btyacc_binary gpre_boot libfbstatic libfbclient
+		cp gen/firebird/lib/libfbclient.so /usr/lib/
+		ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
+		cd - >/dev/null
+	fi
+}
 # Install Composer
 installComposer() {
 	installComposer_version="$(getWantedPHPModuleVersion @composer)"
@@ -2512,6 +2595,15 @@ compileLibs() {
 	if stringInList libavif "$COMPILE_LIBS"; then
 		installLibavif
 	fi
+	if stringInList libtommath "$COMPILE_LIBS"; then
+		installLibTommath
+	fi
+	if stringInList libtomcrypt "$COMPILE_LIBS"; then
+		installLibTomcrypt
+	fi
+	if stringInList firebird "$COMPILE_LIBS"; then
+		installFirebird
+	fi
 }
 
 # Install a bundled PHP module given its handle
@@ -2645,19 +2737,9 @@ EOF
 		interbase | pdo_firebird)
 			case "$DISTRO" in
 				alpine)
-					if ! test -d /tmp/src/firebird; then
-						mv "$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/R2_5_9/Firebird-2.5.9.27139-0.tar.bz2)" /tmp/src/firebird
-						cd /tmp/src/firebird
-						# Patch rwlock.h (this has been fixed in later release of firebird 3.x)
-						sed -i '194s/.*/#if 0/' src/common/classes/rwlock.h
-						./configure --with-system-icu
-						# -j option can't be used: make targets must be compiled sequentially
-						make -s btyacc_binary gpre_boot libfbstatic libfbclient
-						cp gen/firebird/lib/libfbclient.so /usr/lib/
-						ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
-						cd - >/dev/null
+					if test $PHP_MAJMIN_VERSION -lt 804; then
+						CFLAGS='-I/tmp/src/firebird/src/jrd -I/tmp/src/firebird/src/include -I/tmp/src/firebird/src/include/gen' docker-php-ext-configure $1
 					fi
-					CFLAGS='-I/tmp/src/firebird/src/jrd -I/tmp/src/firebird/src/include -I/tmp/src/firebird/src/include/gen' docker-php-ext-configure $1
 					;;
 			esac
 			;;
