@@ -285,6 +285,7 @@ install-php-extensions @fix_letsencrypt
 | pdo_sqlsrv | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | php_trie | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |
+| phpy[*](#special-requirements-for-phpy) | &check; | &check; | &check; | &check; |  |  |  |  |  |  |  |  |
 | pkcs11 | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |
 | pq | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | propro |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -348,7 +349,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 146*
+*Number of supported extensions: 147*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
@@ -446,6 +447,7 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-memprof"></a>memprof | &bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images<br />&bull; Not available in `alpine3.11` docker images<br />&bull; Not available in `alpine3.12` docker images<br />&bull; Not available in `alpine3.13` docker images<br />&bull; Not available in `alpine3.14` docker images<br />&bull; Not available in `alpine3.15` docker images |
 | <a name="special-requirements-for-parallel"></a>parallel | Requires images with PHP compiled with thread-safety enabled (`zts`) |
 | <a name="special-requirements-for-parle"></a>parle | Not available in `jessie` docker images |
+| <a name="special-requirements-for-phpy"></a>phpy | Not available in `buster` docker images |
 | <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`) |
 | <a name="special-requirements-for-saxon"></a>saxon | Not available in `alpine` docker images |
 | <a name="special-requirements-for-simdjson"></a>simdjson | &bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images |
