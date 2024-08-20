@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+try {
+    $rc = 0;
+    if (!class_exists('PyCore', false)) {
+        throw new RuntimeException("PyCore class doesn't exist");
+    }
+    $os = PyCore::import('os');
+    $osType = gettype($os);
+    if ($osType !== 'object') {
+        throw new RuntimeException("PyCore::import() should return an object, not {$osType}");
+    }
+    $osClass = get_class($os);
+    if ($osClass !== 'PyModule') {
+        throw new RuntimeException("PyCore::import() should return a PyModule instance, not {$osClass}");
+    }
+    $uname = $os->uname();
+    $unameType = gettype($uname);
+    if ($unameType !== 'object') {
+        throw new RuntimeException("os::uname() should return an object, not {$unameType}");
+    }
+    $unameClass = get_class($uname);
+    if ($unameClass !== 'PyTuple') {
+        throw new RuntimeException("os::uname() should return a PyTuple instance, not {$unameClass}");
+    }
+    if ($uname->count() < 5) {
+        throw new RuntimeException('os::uname() should return a PyTuple with at leasd 5 elements');
+    }
+    $sysname = (string) $uname[0];
+    $sysNames = ['Linux'];
+    if (!in_array($sysname, $sysNames, true)) {
+        throw new RuntimeException("os::uname()[0] should be '" . implode("' or '", $sysNames) . "', '{$sysname}' received");
+    }
+} catch (RuntimeException $x) {
+    fwrite(STDERR, rtrim($x->getMessage()) . "\n");
+    exit(1);
+}
+echo "phpy seems ok.\n";

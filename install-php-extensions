@@ -1218,6 +1218,20 @@ buildRequiredPackageLists() {
 			php_trie@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
 				;;
+			phpy@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent python3"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile python3-dev"
+				;;
+			phpy@debian)
+				if test $DISTRO_VERSION_NUMBER -ge 12; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpython3.11"
+				elif test $DISTRO_VERSION_NUMBER -ge 11; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpython3.9"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpython3.7"
+				fi
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile python3-dev"
+				;;
 			pkcs11@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent softhsm"
 				;;
