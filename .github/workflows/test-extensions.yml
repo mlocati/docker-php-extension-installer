@@ -31,10 +31,10 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.21.0"
+          go-version: ">=1.22.6"
           cache: false
       - name: Install shfmt
-        run: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt@v3.7.0
+        run: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt@v3.9.0
       - name: Checkout
         uses: actions/checkout@v4
       - name: Check coding style
