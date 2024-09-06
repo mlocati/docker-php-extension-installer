@@ -243,7 +243,7 @@ install-php-extensions @fix_letsencrypt
 | interbase |  |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | intl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | ion | &check; | &check; | &check; | &check; |  |  |  |  |  |  |  |  |
-| ioncube_loader |  |  | &check; | &check; |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| ioncube_loader |  | &check; | &check; | &check; |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | jsmin |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | json_post | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | jsonpath | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |
