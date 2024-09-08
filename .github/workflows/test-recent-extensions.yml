@@ -6,6 +6,7 @@ on:
   repository_dispatch:
     types:
       - test-recent-extensions
+  workflow_dispatch:
 
 jobs:
   determine_extension_list:

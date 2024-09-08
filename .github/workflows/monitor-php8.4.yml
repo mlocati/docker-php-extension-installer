@@ -6,6 +6,7 @@ on:
   repository_dispatch:
     types:
       - monitor-php8.4
+  workflow_dispatch:
 
 jobs:
   test_extensions:
