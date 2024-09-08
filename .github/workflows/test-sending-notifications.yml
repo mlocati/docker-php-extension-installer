@@ -4,6 +4,7 @@ on:
   repository_dispatch:
     types:
       - test-sending-notifications
+  workflow_dispatch:
 
 jobs:
   send_sampe_notification:

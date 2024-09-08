@@ -10,6 +10,7 @@ on:
   repository_dispatch:
     types:
       - readme-release
+  workflow_dispatch:
 
 jobs:
   readme-release:
