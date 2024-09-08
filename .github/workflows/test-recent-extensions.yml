@@ -27,10 +27,12 @@ jobs:
           fi
           printf "$EXTENSIONS_TO_TEST" > extensions-to-test.txt
       - name: Persist list of extensions to be tested
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: artifact
           path: extensions-to-test.txt
+          if-no-files-found: error
+          retention-days: 1
   test_extensions:
     runs-on: ubuntu-latest
     needs: determine_extension_list
@@ -62,12 +64,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Loading list of extensions to be tested
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: artifact
       - name: Test extensions
         run: |
-          EXTENSIONS_TO_TEST="$(cat artifact/extensions-to-test.txt)"
+          EXTENSIONS_TO_TEST="$(cat extensions-to-test.txt)"
           if test -z "$EXTENSIONS_TO_TEST"; then
             echo 'No extensions to be tested'
           else
