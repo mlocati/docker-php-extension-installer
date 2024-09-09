@@ -18,7 +18,8 @@ jobs:
     env:
       VERSIONTAG_THIS: ""
     steps:
-      - name: Checkout
+      -
+        name: Checkout
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
           || (github.event_name == 'create' && github.event.ref_type == 'tag')
@@ -27,7 +28,8 @@ jobs:
         with:
           ref: master
           fetch-depth: 0
-      - name: Update README
+      -
+        name: Update README
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
           || github.event_name == 'repository_dispatch'
@@ -43,7 +45,8 @@ jobs:
             git commit -m '[skip ci] Automatically update README.md'
             git push
           fi
-      - name: Look for the recent version tags
+      -
+        name: Look for the recent version tags
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
           || (github.event_name == 'create' && github.event.ref_type == 'tag')
@@ -69,7 +72,8 @@ jobs:
           fi
           printf 'VERSIONTAG_LAST=%s\n' "$VERSIONTAG_LAST" >> "$GITHUB_ENV"
           printf 'VERSIONTAG_PENULTIMATE=%s\n' "$VERSIONTAG_PENULTIMATE" >> "$GITHUB_ENV"
-      - name: Check if we need to create a version tag after a push
+      -
+        name: Check if we need to create a version tag after a push
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           VERSIONTAG_THIS=
@@ -96,17 +100,20 @@ jobs:
           fi
           printf 'VERSIONTAG_THIS=%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
           printf 'VERSIONTAG_PREVIOUS=%s\n' "$VERSIONTAG_LAST" >> "$GITHUB_ENV"
-      - name: Sleep for a while before creating a tag
+      -
+        name: Sleep for a while before creating a tag
         if: env.VERSIONTAG_THIS != ''
         uses: juliangruber/sleep-action@v1
         with:
           time: 30s
-      - name: Create version tag after a push in the local repository
+      -
+        name: Create version tag after a push in the local repository
         if: env.VERSIONTAG_THIS != ''
         run: |
           git tag -- "$VERSIONTAG_THIS"
           printf 'VERSIONTAG_THIS_SHA=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-      - name: Create version tag after a push in the remote repository
+      -
+        name: Create version tag after a push in the remote repository
         if: env.VERSIONTAG_THIS != ''
         uses: actions/github-script@v3
         with:
@@ -118,7 +125,8 @@ jobs:
               ref: `refs/tags/${process.env.VERSIONTAG_THIS}`,
               sha: process.env.VERSIONTAG_THIS_SHA
             })
-      - name: Check format of received tag
+      -
+        name: Check format of received tag
         if: github.event_name == 'create' && github.event.ref_type == 'tag'
         run: |
           VERSIONTAG_THIS="${GITHUB_REF#refs/tags/}"
@@ -135,7 +143,8 @@ jobs:
           fi
           printf 'VERSIONTAG_THIS=%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
           printf 'VERSIONTAG_PREVIOUS=%s\n' "$VERSIONTAG_PENULTIMATE" >> "$GITHUB_ENV"
-      - name: Extract release notes
+      -
+        name: Extract release notes
         if: env.VERSIONTAG_THIS != ''
         run: |
           printf 'Generating release notes for tag %s\n' "$VERSIONTAG_THIS"
@@ -149,16 +158,19 @@ jobs:
           printf 'Release notes:\n%s\n' "$RELEASE_NOTES"
           printf 'RELEASE_NAME=v%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
           printf 'RELEASE_NOTES<<EOF\n%s\nEOF\n' "$RELEASE_NOTES" >> "$GITHUB_ENV"
-      - name: Set script version
+      -
+        name: Set script version
         if: env.VERSIONTAG_THIS != ''
         run: sed -i -E "s/^(IPE_VERSION=)master$/\1$VERSIONTAG_THIS/" install-php-extensions
-      - name: Login to Docker Hub
+      -
+        name: Login to Docker Hub
         if: env.VERSIONTAG_THIS != ''
         uses: docker/login-action@v3
         with:
           username: mlocati
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build docker image
+      -
+        name: Build docker image
         if: env.VERSIONTAG_THIS != ''
         run: >
           docker build
@@ -167,10 +179,12 @@ jobs:
           --tag "mlocati/php-extension-installer:${VERSIONTAG_THIS%%.*}"
           --tag mlocati/php-extension-installer:latest
           .
-      - name: Push docker image to Docker Hub
+      -
+        name: Push docker image to Docker Hub
         if: env.VERSIONTAG_THIS != ''
         run: docker push --all-tags mlocati/php-extension-installer
-      - name: Create release
+      -
+        name: Create release
         if: env.VERSIONTAG_THIS != ''
         uses: softprops/action-gh-release@v2
         with:
