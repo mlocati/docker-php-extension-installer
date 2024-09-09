@@ -171,24 +171,15 @@ jobs:
         if: env.VERSIONTAG_THIS != ''
         run: docker push --all-tags mlocati/php-extension-installer
       - name: Create release
-        id: create_release
         if: env.VERSIONTAG_THIS != ''
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSIONTAG_THIS }}
-          release_name: ${{ env.RELEASE_NAME }}
+          name: ${{ env.RELEASE_NAME }}
           body: ${{ env.RELEASE_NOTES }}
           draft: false
           prerelease: false
-      - name: Upload release asset
-        if: env.VERSIONTAG_THIS != ''
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./install-php-extensions
-          asset_name: install-php-extensions
-          asset_content_type: application/octet-stream
+          generate_release_notes: false
+          fail_on_unmatched_files: true
+          files: |
+            install-php-extensions
