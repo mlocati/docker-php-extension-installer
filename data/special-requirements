@@ -14,3 +14,4 @@ sodium !jessie
 sqlsrv !7.1-alpine3.9 !7.1-alpine3.10
 vips !alpine3.9 !jessie
 wikidiff2 !jessie !stretch
+xpass !buster

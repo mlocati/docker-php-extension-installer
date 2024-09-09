@@ -1554,6 +1554,12 @@ buildRequiredPackageLists() {
 			xmlrpc@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
 				;;
+			xpass@alpine)
+				if ! isLibXCryptInstalled; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile linux-headers"
+					COMPILE_LIBS="$COMPILE_LIBS libxcrypt"
+				fi
+				;;
 			xsl@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libxslt"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxslt-dev libgcrypt-dev"
@@ -2423,6 +2429,25 @@ installFirebird() {
 		cd - >/dev/null
 	fi
 }
+
+isLibXCryptInstalled() {
+	if ! test -f /usr/local/lib/libcrypt.so && ! test -f /usr/lib/libcrypt.so && ! test -f /usr/lib/x86_64*/libcrypt.so; then
+		return 1
+	fi
+	return 0
+}
+
+installLibXCrypt() {
+	printf 'Installing libxcrypt\n'
+	installLibXCrypt_version=4.4.36
+	installLibXCrypt_src="$(getPackageSource "https://github.com/besser82/libxcrypt/releases/download/v$installLibXCrypt_version/libxcrypt-$installLibXCrypt_version.tar.xz")"
+	cd -- "$installLibXCrypt_src"
+	./configure --prefix /usr
+	make -j$(getProcessorCount)
+	make install
+	cd - >/dev/null
+}
+
 # Install Composer
 installComposer() {
 	installComposer_version="$(getWantedPHPModuleVersion @composer)"
@@ -2617,6 +2642,9 @@ compileLibs() {
 	fi
 	if stringInList firebird "$COMPILE_LIBS"; then
 		installFirebird
+	fi
+	if stringInList libxcrypt "$COMPILE_LIBS"; then
+		installLibXCrypt
 	fi
 }
 
