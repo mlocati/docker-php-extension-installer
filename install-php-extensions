@@ -3729,6 +3729,8 @@ installRemoteModule() {
 					installRemoteModule_version=4.3.0
 				elif test $PHP_MAJMIN_VERSION -le 701; then
 					installRemoteModule_version=5.3.7
+				elif test $PHP_MAJMIN_VERSION -le 703; then
+					installRemoteModule_version=6.0.2
 				fi
 			else
 				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
