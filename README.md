@@ -265,7 +265,7 @@ install-php-extensions @fix_letsencrypt
 | mysql |  |  |  |  |  |  |  |  |  |  | &check; | &check; |
 | mysqli | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | newrelic |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
-| oauth |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| oauth | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | oci8 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | opcache | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
