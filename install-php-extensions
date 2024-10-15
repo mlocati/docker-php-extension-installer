@@ -597,6 +597,10 @@ sortModulesToInstall() {
 	checkRequiredModule relay igbinary
 	# pq requires raphf
 	checkRequiredModule pq raphf
+	# phalcon up to v5.0.0beta3 requires psr
+	if test $PHP_MAJMINPAT_VERSION -lt 70401; then
+		checkRequiredModule phalcon psr
+	fi
 	# Some module installation may use sockets if available: move it before other modules
 	if stringInList 'sockets' "$PHP_MODULES_TO_INSTALL"; then
 		PHP_MODULES_TO_INSTALL="$(removeStringFromList 'sockets' "$PHP_MODULES_TO_INSTALL")"
@@ -3641,6 +3645,15 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=0.9.0
+				fi
+			fi
+			;;
+		phalcon)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMINPAT_VERSION -lt 70401; then
+					installRemoteModule_version=4.1.2
+				elif test $PHP_MAJMIN_VERSION -lt 800; then
+					installRemoteModule_version=5.4.0
 				fi
 			fi
 			;;
