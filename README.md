@@ -284,6 +284,7 @@ install-php-extensions @fix_letsencrypt
 | pdo_pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_sqlsrv | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| phalcon |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |
 | php_trie | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |
 | phpy[*](#special-requirements-for-phpy) | &check; | &check; | &check; | &check; |  |  |  |  |  |  |  |  |
 | pkcs11 | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |
@@ -351,7 +352,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 149*
+*Number of supported extensions: 150*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
