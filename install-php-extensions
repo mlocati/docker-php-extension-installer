@@ -2202,17 +2202,7 @@ isLibaomInstalled() {
 # Install libaom
 installLibaom() {
 	printf 'Installing libaom\n'
-	installLibaom_version=3.8.1
-	case "$DISTRO_VERSION" in
-		debian@10)
-			case $(uname -m) in
-				aarch* | arm*)
-					#see https://bugs.chromium.org/p/aomedia/issues/detail?id=3543
-					installLibaom_version=3.5.0
-					;;
-			esac
-			;;
-	esac
+	installLibaom_version=3.10.0
 	installLibaom_dir="$(getPackageSource https://aomedia.googlesource.com/aom/+archive/v$installLibaom_version.tar.gz)"
 	mkdir -- "$installLibaom_dir/my.build"
 	cd -- "$installLibaom_dir/my.build"
