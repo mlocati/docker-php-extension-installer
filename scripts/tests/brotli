@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+foreach ([
+    'brotli_compress',
+    'brotli_uncompress',
+] as $function) {
+    if (!function_exists($function)) {
+        fwrite(STDERR, "Missing function: {$function}\n");
+        exit(1);
+    }
+}
+$data = 'This is some data to be compressed';
+$compressed = brotli_compress($data, BROTLI_COMPRESS_LEVEL_MAX, BROTLI_TEXT);
+$uncompressed = brotli_uncompress($compressed);
+if ($uncompressed !== $data) {
+    fwrite(STDERR, "brotli_compress() -> brotli_uncompress() failure!\n");
+    exit(1);
+}
+echo "brotli_compress() -> brotli_uncompress() works\n";
+
+return 0;
