@@ -787,8 +787,11 @@ buildRequiredPackageLists() {
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile enchant2-dev"
 					else
 						# The system provides libenchant2, supported since PHP 8.0: we need to build libenchant1 on our own
-						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent glib aspell-libs libhunspell"
-						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile glib-dev aspell-dev hunspell-dev"
+						if ! isLibenchant1Installed; then
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent glib aspell-libs libhunspell"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile glib-dev aspell-dev hunspell-dev"
+							COMPILE_LIBS="$COMPILE_LIBS libenchant1"
+						fi
 					fi
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent enchant"
@@ -801,9 +804,12 @@ buildRequiredPackageLists() {
 						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libenchant-2-2"
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libenchant-2-dev"
 					else
-						# The system provides libenchant2, supported since PHP 8.0: we need to build libenchant1 on our own
-						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-en libhunspell-1.7-0"
-						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libglib2.0-dev libaspell-dev libhunspell-dev"
+						if ! isLibenchant1Installed; then
+							# The system provides libenchant2, supported since PHP 8.0: we need to build libenchant1 on our own
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent aspell-en libhunspell-1.7-0"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libglib2.0-dev libaspell-dev libhunspell-dev"
+							COMPILE_LIBS="$COMPILE_LIBS libenchant1"
+						fi
 					fi
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libenchant1c2a"
@@ -2442,6 +2448,23 @@ installLibXCrypt() {
 	cd - >/dev/null
 }
 
+isLibenchant1Installed() {
+	if test -f /usr/lib/libenchant.so || test -f /usr/local/lib/libenchant.so; then
+		return 0
+	fi
+	return 1
+}
+
+installLibenchant1() {
+	printf 'Installing libenchant1\n'
+	installLibenchant1_src="$(getPackageSource https://github.com/rrthomas/enchant/releases/download/enchant-1-6-1/enchant-1.6.1.tar.gz)"
+	cd -- "$installLibenchant1_src"
+	./configure
+	make -j$(getProcessorCount)
+	make install
+	cd - >/dev/null
+}
+
 # Install Composer
 installComposer() {
 	installComposer_version="$(getWantedPHPModuleVersion @composer)"
@@ -2640,6 +2663,9 @@ compileLibs() {
 	if stringInList libxcrypt "$COMPILE_LIBS"; then
 		installLibXCrypt
 	fi
+	if stringInList libenchant1 "$COMPILE_LIBS"; then
+		installLibenchant1
+	fi
 }
 
 # Install a bundled PHP module given its handle
@@ -2680,32 +2706,6 @@ installBundledModule() {
 EOF
 			fi
 			docker-php-ext-configure dba --with-db4
-			;;
-		enchant)
-			installBundledModule_tmp=0
-			if test $PHP_MAJMIN_VERSION -lt 800; then
-				case "$DISTRO" in
-					alpine)
-						if test $DISTRO_MAJMIN_VERSION -ge 312; then
-							installBundledModule_tmp=1
-						fi
-						;;
-					debian)
-						if test $DISTRO_VERSION_NUMBER -ge 11; then
-							installBundledModule_tmp=1
-						fi
-						;;
-				esac
-			fi
-			if test $installBundledModule_tmp -eq 1 && ! test -f /usr/lib/libenchant.so && ! test -f /usr/local/lib/libenchant.so; then
-				# We need to install libenchant1 from source
-				installBundledModule_src="$(getPackageSource https://github.com/AbiWord/enchant/releases/download/enchant-1-6-1/enchant-1.6.1.tar.gz)"
-				cd -- "$installBundledModule_src"
-				./configure
-				make -j$(getProcessorCount)
-				make install
-				cd - >/dev/null
-			fi
 			;;
 		ftp)
 			if test $PHP_MAJMIN_VERSION -ge 804; then
