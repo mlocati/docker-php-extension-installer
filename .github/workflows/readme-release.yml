@@ -185,7 +185,16 @@ jobs:
             mlocati/php-extension-installer:${VERSIONTAG_THIS%.*}
             mlocati/php-extension-installer:${VERSIONTAG_THIS%%.*}
             mlocati/php-extension-installer:latest
-          platforms: linux/amd64,linux/arm64
+          # Build for all platforms also supported by php images (https://hub.docker.com/_/php/tags)
+          platforms: |
+              linux/386
+              linux/amd64
+              linux/arm/v5
+              linux/arm/v7
+              linux/arm64/v8
+              linux/mips64le
+              linux/ppc64le
+              linux/s390x
       -
         name: Create release
         if: env.VERSIONTAG_THIS != ''
