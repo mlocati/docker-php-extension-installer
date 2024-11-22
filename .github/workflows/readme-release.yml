@@ -176,16 +176,25 @@ jobs:
         with:
           install: true
       -
+        name: Define versions
+        if: env.VERSIONTAG_THIS != ''
+        id: define-versions
+        run: |
+          printf 'mayor-minor-patch=%s\n' "$VERSIONTAG_THIS" >>"$GITHUB_OUTPUT"
+          printf 'mayor-minor=%s\n' "${VERSIONTAG_THIS%.*}" >>"$GITHUB_OUTPUT"
+          printf 'mayor=%s\n' "${VERSIONTAG_THIS%%.*}" >>"$GITHUB_OUTPUT"
+          printf 'latest=latest\n' "${VERSIONTAG_THIS%%.*}" >>"$GITHUB_OUTPUT"
+      -
         name: Build and push docker image
         if: env.VERSIONTAG_THIS != ''
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: |
-            mlocati/php-extension-installer:$VERSIONTAG_THIS
-            mlocati/php-extension-installer:${VERSIONTAG_THIS%.*}
-            mlocati/php-extension-installer:${VERSIONTAG_THIS%%.*}
-            mlocati/php-extension-installer:latest
+            mlocati/php-extension-installer:${{ steps.define-versions.outputs.mayor-minor-patch }}
+            mlocati/php-extension-installer:${{ steps.define-versions.outputs.mayor-minor }}
+            mlocati/php-extension-installer:${{ steps.define-versions.outputs.mayor }}
+            mlocati/php-extension-installer:${{ steps.define-versions.outputs.latest }}
           # Build for all platforms also supported by php images (https://hub.docker.com/_/php/tags)
           platforms: |
               linux/386
