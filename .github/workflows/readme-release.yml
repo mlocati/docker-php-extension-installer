@@ -153,7 +153,9 @@ jobs:
             RELEASE_NOTES='First version'
           else
             printf 'Generating release notes for commits between %s and %s\n' "$VERSIONTAG_PREVIOUS" "$VERSIONTAG_THIS"
-            RELEASE_NOTES="$(git log --format='- %s' --no-merges --reverse "refs/tags/$VERSIONTAG_PREVIOUS...refs/tags/$VERSIONTAG_THIS" -- ./install-php-extensions ./Dockerfile | grep -vE '^- \[minor\]')"
+            if ! RELEASE_NOTES="$(git log --format='- %s' --no-merges --reverse "refs/tags/$VERSIONTAG_PREVIOUS...refs/tags/$VERSIONTAG_THIS" -- ./install-php-extensions ./Dockerfile | grep -vE '^- \[minor\]')"; then
+              RELEASE_NOTES=
+            fi
           fi
           printf 'Release notes:\n%s\n' "$RELEASE_NOTES"
           printf 'RELEASE_NAME=v%s\n' "$VERSIONTAG_THIS" >> "$GITHUB_ENV"
