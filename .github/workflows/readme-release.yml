@@ -189,6 +189,7 @@ jobs:
         if: env.VERSIONTAG_THIS != ''
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
           tags: |
             mlocati/php-extension-installer:${{ steps.define-versions.outputs.mayor-minor-patch }}
