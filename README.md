@@ -54,26 +54,45 @@ RUN ( curl -sSLf https://github.com/mlocati/docker-php-extension-installer/relea
 
 ### Copying the script from a Docker image
 
-```Dockerfile
-FROM php:7.2-cli
+- using GitHub Container Registry
+  
+  ```Dockerfile
+  FROM php:8.4-cli
+  
+  COPY --from=ghcr.io/mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+  
+  RUN install-php-extensions gd xdebug
+  ```
+- using Docker Hub
+  
+  ```Dockerfile
+  FROM php:8.4-cli
+  
+  COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+  
+  RUN install-php-extensions gd xdebug
+  ```
 
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-
-RUN install-php-extensions gd xdebug
-```
-
-**Warning**: by using this method you may use an outdated version of the `mlocati/php-extension-installer` image.
-You may want to run `docker pull mlocati/php-extension-installer` in order to use an up-to-date version.
+**Warning**: by using this method you may use an outdated version of the Docker image image.
+You may want to run `docker pull ghcr.io/mlocati/php-extension-installer` or `docker pull mlocati/php-extension-installer` in order to use an up-to-date version.
 
 ### Using the script of a Docker image
 
-```Dockerfile
-RUN  --mount=type=bind,from=mlocati/php-extension-installer:latest,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
+- using GitHub Container Registry
+  
+  ```Dockerfile
+  RUN  --mount=type=bind,from=ghcr.io/mlocati/php-extension-installer:latest,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
       install-php-extensions gd xdebug
-```
+  ```
+- using Docker Hub
+  
+  ```Dockerfile
+  RUN  --mount=type=bind,from=mlocati/php-extension-installer:latest,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
+      install-php-extensions gd xdebug
+  ```
 
-**Warning**: by using this method you may use an outdated version of the `mlocati/php-extension-installer` image.
-You may want to run `docker pull mlocati/php-extension-installer` in order to use an up-to-date version.
+**Warning**: by using this method you may use an outdated version of the Docker image image.
+You may want to run `docker pull ghcr.io/mlocati/php-extension-installer` or `docker pull mlocati/php-extension-installer` in order to use an up-to-date version.
 
 
 ## Installing specific versions of an extension
