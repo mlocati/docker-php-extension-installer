@@ -1434,6 +1434,12 @@ buildRequiredPackageLists() {
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile sqlite-dev"
 					fi
 				fi
+				# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
+				# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
+				if test $DISTRO_MAJMIN_VERSION -ge 320; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liburing"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liburing-dev"
+				fi
 				;;
 			swoole@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
@@ -1448,6 +1454,11 @@ buildRequiredPackageLists() {
 							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsqlite3-dev"
 						fi
 					fi
+				fi
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					# iouring support in swoole 6 requires liburing 2.5+: available since Debian Trixie (13)
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liburing2"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liburing-dev"
 				fi
 				;;
 			sybase_ct@alpine)
@@ -4064,17 +4075,27 @@ installRemoteModule() {
 				installRemoteModule_zts=no
 			fi
 			installRemoteModule_sqlite=yes
+			installRemoteModule_iouring=no
 			case "$DISTRO" in
 				alpine)
 					if test $DISTRO_MAJMIN_VERSION -lt 317; then
 						# we need sqlite3 >= 3.7.7
 						installRemoteModule_sqlite=no
 					fi
+					# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
+					# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
+					if test $DISTRO_MAJMIN_VERSION -ge 320; then
+						installRemoteModule_iouring=yes
+					fi
 					;;
 				debian)
 					if test $DISTRO_MAJMIN_VERSION -lt 1200; then
 						# we need sqlite3 >= 3.7.7
 						installRemoteModule_sqlite=no
+					fi
+					if test $DISTRO_VERSION_NUMBER -ge 13; then
+						# iouring support in swoole 6 requires liburing 2.5+: available since Debian Trixie (13)
+						installRemoteModule_iouring=yes
 					fi
 					;;
 			esac
@@ -4102,7 +4123,7 @@ installRemoteModule() {
 				# enable swoole thread support (need php zts support)?
 				addConfigureOption enable-swoole-thread $installRemoteModule_zts
 				# enable iouring for file async support?
-				addConfigureOption enable-iouring yes
+				addConfigureOption enable-iouring $installRemoteModule_iouring
 			elif test $(compareVersions "$installRemoteModule_version" 5.1.0) -ge 0; then
 				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
