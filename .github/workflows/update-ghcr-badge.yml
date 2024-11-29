@@ -29,7 +29,7 @@ jobs:
           $response = Invoke-WebRequest -Uri https://img.shields.io/badge/GitHub_Registry_pulls-$count-066da5 -ErrorAction Stop
           $newBadge = $response.Content.Trim()
           Write-Host -Object "Badge source: $newBadge"
-          $badgePath = 'assets/ghcr-badge.svg'
+          $badgePath = 'resources/ghcr-badge.svg'
           $badgeUpdated = $true
           if (Test-Path -LiteralPath $badgePath -PathType Leaf) {
             $oldBadge = (Get-Content -LiteralPath $badgePath -Encoding utf8 -Raw).Trim()
@@ -50,7 +50,7 @@ jobs:
         name: Commit
         if: steps.build-badge.outputs.updated == 'yes'
         run: |
-          git add assets/ghcr-badge.svg
+          git add resources/ghcr-badge.svg
           git config user.name GitHub
           git config user.email noreply@github.com
           git commit -m 'Update GitHub Registry badge'
