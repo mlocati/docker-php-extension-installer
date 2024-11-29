@@ -1722,7 +1722,7 @@ expandPackagesToBeInstalled() {
 			resetIFS
 			;;
 		debian)
-			expandPackagesToBeInstalled_log="$(DEBIAN_FRONTEND=noninteractive apt-get install -sy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS $@ 2>&1 || printf '\nE: apt-get failed\n')"
+			expandPackagesToBeInstalled_log="$(apt-get install -sy --no-install-recommends $@ 2>&1 || printf '\nE: apt-get failed\n')"
 			if test -n "$(printf '%s' "$expandPackagesToBeInstalled_log" | grep -E '^E:')"; then
 				printf 'FAILED TO LIST THE WHOLE PACKAGE LIST FOR\n' >&2
 				printf '%s ' "$@" >&2
@@ -1991,7 +1991,7 @@ markPreinstalledPackagesAsUsed() {
 			apk add $PACKAGES_PERSISTENT_PRE
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-mark manual $PACKAGES_PERSISTENT_PRE
+			apt-mark manual $PACKAGES_PERSISTENT_PRE
 			;;
 	esac
 }
@@ -2017,7 +2017,7 @@ installRequiredPackages() {
 			done
 			;;
 		debian)
-			DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
+			apt-get install -qqy --no-install-recommends $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
 			;;
 	esac
 }
@@ -2199,12 +2199,12 @@ installMicrosoftSqlServerODBC() {
 			fi
 			printf -- '- installing the APT package\n'
 			if test $PHP_MAJMIN_VERSION -le 703; then
-				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS msodbcsql17
+				ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends msodbcsql17
 			elif test $DISTRO_VERSION_NUMBER -ge 9 && test $DISTRO_VERSION_NUMBER -le 12; then
 				# On Debian 9 to 12 we have both msodbcsql17 and msodbcsql18: let's install just one
-				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS msodbcsql18
+				ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends msodbcsql18
 			else
-				DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends $IPE_APTGET_INSTALLOPTIONS '^msodbcsql[0-9]+$'
+				ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends '^msodbcsql[0-9]+$'
 			fi
 			;;
 	esac
@@ -2782,7 +2782,7 @@ EOF
 				debian@9)
 					installBundledModule_tmp="$(pwd)"
 					cd /tmp
-					apt-get download $IPE_APTGET_INSTALLOPTIONS libc-client2007e-dev
+					apt-get download libc-client2007e-dev
 					dpkg -i --ignore-depends=libssl-dev libc-client2007e-dev*
 					rm libc-client2007e-dev*
 					cd "$installBundledModule_tmp"
@@ -4838,23 +4838,18 @@ removeStringFromList() {
 }
 
 # Invoke apt-get update
-#
-# Set:
-# IPE_APTGET_INSTALLOPTIONS
 invokeAptGetUpdate() {
 	if test -n "${IPE_APTGETUPDATE_ALREADY:-}"; then
-		DEBIAN_FRONTEND=noninteractive apt-get update -q
+		apt-get update -q
 		return
 	fi
-	IPE_APTGET_INSTALLOPTIONS=''
-	invokeAptGetUpdate_fixdistro=''
+	IPE_APTGETUPDATE_ALREADY=y
 	if grep -q 'VERSION="8 (jessie)"' /etc/os-release; then
 		invokeAptGetUpdate_fixdistro=jessie
 	elif grep -q 'VERSION="9 (stretch)"' /etc/os-release; then
 		invokeAptGetUpdate_fixdistro=stretch
 	else
-		IPE_APTGETUPDATE_ALREADY=y
-		DEBIAN_FRONTEND=noninteractive apt-get update -q
+		invokeAptGetUpdate
 		return
 	fi
 	# See https://www.debian.org/distrib/archive.en.html for a list of mirrors
@@ -4869,19 +4864,18 @@ invokeAptGetUpdate() {
 	sed -ri "s;^(\s*deb\s+)http://security.debian.org/debian-security;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
 	sed -ri "s;^(\s*deb\s+)http://security.debian.org;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
 	invokeAptGetUpdate_tmp="$(mktemp)"
-	DEBIAN_FRONTEND=noninteractive apt-get update -q 2>"$invokeAptGetUpdate_tmp"
+	apt-get update -q 2>"$invokeAptGetUpdate_tmp"
 	if test -s "$invokeAptGetUpdate_tmp"; then
 		cat "$invokeAptGetUpdate_tmp" >&2
 		if grep -qE ' KEYEXPIRED [0-9]' "$invokeAptGetUpdate_tmp"; then
-			IPE_APTGET_INSTALLOPTIONS='-o APT::Get::AllowUnauthenticated=true'
 			echo '############' >&2
 			echo '# WARNING! #' >&2
 			echo '############' >&2
 			echo 'apt packages will be installed without checking authenticity!' >&2
+			printf 'APT::Get::AllowUnauthenticated "true";\n' >>/etc/apt/apt.conf.d/99unauthenticated
 		fi
 	fi
 	rm "$invokeAptGetUpdate_tmp"
-	IPE_APTGETUPDATE_ALREADY=y
 }
 
 # Fix the Let's Encrypt CA certificates on old distros
@@ -4912,7 +4906,7 @@ fixLetsEncrypt() {
 					invokeAptGetUpdate
 				fi
 				printf -- '- installing newer ca-certificates package\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends ${IPE_APTGET_INSTALLOPTIONS:-} ca-certificates
+				apt-get install -qqy --no-install-recommends ca-certificates
 			fi
 			;;
 		*)
@@ -4957,11 +4951,11 @@ cleanup() {
 		debian)
 			if test -n "$PACKAGES_VOLATILE"; then
 				printf '### REMOVING UNNEEDED PACKAGES ###\n'
-				DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y $PACKAGES_VOLATILE
+				apt-get remove --purge -y $PACKAGES_VOLATILE
 			fi
 			if test -n "$PACKAGES_PREVIOUS"; then
 				printf '### RESTORING PREVIOUSLY INSTALLED PACKAGES ###\n'
-				DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends --no-upgrade $IPE_APTGET_INSTALLOPTIONS $PACKAGES_PREVIOUS
+				apt-get install -qqy --no-install-recommends --no-upgrade $PACKAGES_PREVIOUS
 			fi
 			;;
 	esac
@@ -4986,6 +4980,8 @@ cleanup() {
 	esac
 }
 
+DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND
 resetIFS
 mkdir -p /tmp/src
 mkdir -p /tmp/pickle.tmp
