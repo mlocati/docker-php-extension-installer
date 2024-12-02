@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+if (!function_exists('md4c_toHtml')) {
+    fwrite(STDERR, "The function md4c_toHtml() does not exist\n");
+    exit(1);
+}
+
+$input = "# Test\n";
+$expected = "<h1>Test</h1>\n";
+$actual = md4c_toHtml($input);
+
+if ($actual !== $expected) {
+    fwrite(
+        STDERR,
+        <<<EOT
+Failed to convert {$input}
+Expected: {$expected}
+Actual  : {$actual}
+
+EOT
+    );
+    exit(1);
+}
+echo "md4c_toHtml() works just fine.\n";
