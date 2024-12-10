@@ -13,11 +13,17 @@ jobs:
     name: Determine extension list
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      -
+        name: Test failure
+        run: exit 1
+      -
+        name: Checkout
         uses: actions/checkout@v4
-      - name: Retrieve recently updated extensions
+      -
+        name: Retrieve recently updated extensions
         run: ./scripts/ci-retrieve-recent-extensions >extensions-updated.txt
-      - name: Filter supported extensions
+      -
+        name: Filter supported extensions
         run: |
           UPDATED_EXTENSIONS="$(cat extensions-updated.txt)"
           if test -z "$UPDATED_EXTENSIONS"; then
@@ -26,7 +32,8 @@ jobs:
             EXTENSIONS_TO_TEST="$(./scripts/ci-filter-supported-extensions "$UPDATED_EXTENSIONS")"
           fi
           printf "$EXTENSIONS_TO_TEST" > extensions-to-test.txt
-      - name: Persist list of extensions to be tested
+      -
+        name: Persist list of extensions to be tested
         uses: actions/upload-artifact@v4
         with:
           name: artifact
@@ -61,13 +68,16 @@ jobs:
     env:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
     steps:
-      - name: Checkout
+      -
+        name: Checkout
         uses: actions/checkout@v4
-      - name: Loading list of extensions to be tested
+      -
+        name: Loading list of extensions to be tested
         uses: actions/download-artifact@v4
         with:
           name: artifact
-      - name: Test extensions
+      -
+        name: Test extensions
         run: |
           EXTENSIONS_TO_TEST="$(cat extensions-to-test.txt)"
           if test -z "$EXTENSIONS_TO_TEST"; then
@@ -75,10 +85,14 @@ jobs:
           else
             ./scripts/ci-test-extensions from-list "$EXTENSIONS_TO_TEST"
           fi
-      - name: Notify failures
-        if: failure()
+  notify-failures:
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      -
+        name: Send error notification
         uses: appleboy/telegram-action@master
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_TO }}
-          message: Testing recent PHP packages failed on https://github.com/mlocati/docker-php-extension-installer
+          message: Testing recent PHP packages failed - See https://github.com/mlocati/docker-php-extension-installer/actions/runs/${{ github.run_id }}
