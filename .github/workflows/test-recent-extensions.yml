@@ -66,9 +66,6 @@ jobs:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
     steps:
       -
-        name: Test failure
-        run: exit 1
-      -
         name: Checkout
         uses: actions/checkout@v4
       -
