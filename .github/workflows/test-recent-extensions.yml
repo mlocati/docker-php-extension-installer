@@ -88,6 +88,7 @@ jobs:
   notify-failures:
     runs-on: ubuntu-latest
     if: failure()
+    needs: test_extensions
     steps:
       -
         name: Send error notification
