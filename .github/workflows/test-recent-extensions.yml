@@ -14,9 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Test failure
-        run: exit 1
-      -
         name: Checkout
         uses: actions/checkout@v4
       -
@@ -68,6 +65,9 @@ jobs:
     env:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
     steps:
+      -
+        name: Test failure
+        run: exit 1
       -
         name: Checkout
         uses: actions/checkout@v4
