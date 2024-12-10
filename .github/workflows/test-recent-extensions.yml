@@ -82,7 +82,8 @@ jobs:
           else
             ./scripts/ci-test-extensions from-list "$EXTENSIONS_TO_TEST"
           fi
-  notify-failures:
+  notify-failure:
+    name: Notify failure
     runs-on: ubuntu-latest
     if: failure()
     needs: test_extensions
