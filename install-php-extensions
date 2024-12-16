@@ -1431,7 +1431,8 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent c-ares"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile c-ares-dev"
 					if test $PHP_MAJMIN_VERSION -ge 801; then
-						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile sqlite-dev"
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent zstd-libs"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile sqlite-dev zstd-dev"
 					fi
 				fi
 				# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
@@ -1452,6 +1453,11 @@ buildRequiredPackageLists() {
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile zlib1g-dev libbrotli-dev"
 						if test $PHP_MAJMIN_VERSION -ge 801; then
 							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libsqlite3-dev"
+							if test $DISTRO_VERSION_NUMBER -ge 11; then
+								# swoole 6 requires libzstd >= 1.4.0, but on debian 10 (buster) we have 1.3.8
+								buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libzstd[0-9]*$"
+								buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzstd-dev"
+							fi
 						fi
 					fi
 				fi
@@ -4108,8 +4114,17 @@ installRemoteModule() {
 					fi
 					;;
 			esac
+			installRemoteModule_zstd=yes
+			case "$DISTRO" in
+				debian)
+					if test $DISTRO_VERSION_NUMBER -lt 11; then
+						# swoole 6 requires libzstd >= 1.4.0, but on debian 10 (buster) we have 1.3.8
+						installRemoteModule_zstd=no
+					fi
+					;;
+			esac
 			if test $(compareVersions "$installRemoteModule_version" 6.0.0) -ge 0; then
-				# enable sockets supports?
+				# enable sockets support?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
 				addConfigureOption enable-openssl $installRemoteModule_openssl
@@ -4121,6 +4136,8 @@ installRemoteModule() {
 				addConfigureOption enable-cares yes
 				# enable brotli support?
 				addConfigureOption enable-brotli yes
+				# enable zstd support?
+				addConfigureOption enable-zstd $installRemoteModule_zstd
 				# enable PostgreSQL database support?
 				addConfigureOption enable-swoole-pgsql yes
 				# enable ODBC database support?
