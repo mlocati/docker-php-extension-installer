@@ -1,0 +1,19 @@
+name: Check new issue
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  check-new-issue:
+    name: Check issue 
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        uses: ./actions/check-new-issue
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
