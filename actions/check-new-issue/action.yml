@@ -1,0 +1,9 @@
+name: Check new issue
+description: Action triggered when a new issue is opened
+inputs:
+  token:
+    required: true
+    description: The value of secrets.GITHUB_TOKEN
+runs:
+  using: node20
+  main: dist/index.js
