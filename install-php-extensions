@@ -3276,7 +3276,7 @@ installRemoteModule() {
 				if ! test -e /usr/local/lib/libidnkit.so; then
 					installRemoteModule_src="$(getPackageSource https://jprs.co.jp/idn/idnkit-2.3.tar.bz2)"
 					cd -- "$installRemoteModule_src"
-					./configure
+					CFLAGS=-Wno-incompatible-pointer-types ./configure
 					make -j$(getProcessorCount) install
 					cd - >/dev/null
 				fi
