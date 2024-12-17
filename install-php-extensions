@@ -3837,7 +3837,8 @@ installRemoteModule() {
 						installRemoteModule_distro=alpine3.17
 					fi
 					;;
-				debian)
+				debian | ubuntu)
+					installRemoteModule_distro=debian
 					case "$(dpkg -l 'libssl*' | grep -E '^ii ' | cut -d' ' -f3)" in
 						libssl3*)
 							installRemoteModule_flags=+libssl3
