@@ -139,8 +139,3 @@ We need to monitor new releases at http://www.xmailserver.org/xdiff-lib.html
 
 The only available versions of the `xmlrpc` PHP extension are all beta.
 We should switch to the stable release once it will be available.
-
-### zookeeper
-
-The latest stable release of the `zookeeper` PHP extension doesn't support PHP 7.3+, so we install the alpha version.
-We should switch to the stable release once it will be available.
