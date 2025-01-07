@@ -21,7 +21,7 @@ jobs:
         run: |
           $response = Invoke-WebRequest -Uri https://github.com/mlocati/docker-php-extension-installer/pkgs/container/php-extension-installer -ErrorAction Stop
           $html = $response.Content -replace '\s+', ' '
-          if (-not($html -match 'Total downloads.*?> *(?<count>\d+\w*)')) {
+          if (-not($html -match 'Total downloads.*?> *(?<count>\d+(\.\d+)?\w*)')) {
             throw 'Unable to find the total downloads count'
           }
           $count = $Matches.count
