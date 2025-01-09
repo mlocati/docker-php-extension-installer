@@ -449,10 +449,7 @@ Here's the list of all the supported environment variables:
 | newrelic | `IPE_NEWRELIC_DAEMON=1` | Install the NewRelic daemon  |
 | newrelic | `IPE_NEWRELIC_KEEPLOG=1` | Keep the log files of NewRelic setup (`/tmp/nrinstall-….tar`)  |
 | newrelic | `NR_INSTALL_KEY` | Your New Relic license key |
-| swoole | `IPE_SWOOLE_WITHOUT_IOURING=1` | The io_uring kernel functionality is considered unsafe by security experts [1][2]; By default Swoole 6 and later is configured with io_uring support, use this environment variable to skip io_uring |
-
-[1](https://security.googleblog.com/2023/06/learnings-from-kctf-vrps-42-linux.html)
-[2](https://i.blackhat.com/BH-US-23/Presentations/US-23-Lin-bad_io_uring.pdf)
+| swoole | `IPE_SWOOLE_WITHOUT_IOURING=1` | The io_uring kernel functionality is considered unsafe by security experts (see [here](https://security.googleblog.com/2023/06/learnings-from-kctf-vrps-42-linux.html) and [here](https://i.blackhat.com/BH-US-23/Presentations/US-23-Lin-bad_io_uring.pdf)). By default Swoole 6 and later is configured with io_uring support, use this environment variable to skip configuring io_uring |
 
 ## Special requirements
 
