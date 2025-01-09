@@ -1435,12 +1435,17 @@ buildRequiredPackageLists() {
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile sqlite-dev zstd-dev"
 					fi
 				fi
-				# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
-				# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
-				if test $DISTRO_MAJMIN_VERSION -ge 320; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liburing"
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liburing-dev"
-				fi
+				case "${IPE_SWOOLE_WITHOUT_IOURING:-}" in
+					1 | y* | Y*) ;;
+					*)
+					# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
+					# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
+					if test $DISTRO_MAJMIN_VERSION -ge 320; then
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liburing"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liburing-dev"
+					fi
+					;;
+				esac
 				;;
 			swoole@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
@@ -4099,21 +4104,31 @@ installRemoteModule() {
 						# we need sqlite3 >= 3.7.7
 						installRemoteModule_sqlite=no
 					fi
-					# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
-					# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
-					if test $DISTRO_MAJMIN_VERSION -ge 320; then
-						installRemoteModule_iouring=yes
-					fi
+					case "${IPE_SWOOLE_WITHOUT_IOURING:-}" in
+						1 | y* | Y*) ;;
+						*)
+							# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
+							# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
+							if test $DISTRO_MAJMIN_VERSION -ge 320; then
+								installRemoteModule_iouring=yes
+							fi
+							;;
+					esac
 					;;
 				debian)
 					if test $DISTRO_MAJMIN_VERSION -lt 1200; then
 						# we need sqlite3 >= 3.7.7
 						installRemoteModule_sqlite=no
 					fi
-					if test $DISTRO_VERSION_NUMBER -ge 13; then
-						# iouring support in swoole 6 requires liburing 2.5+: available since Debian Trixie (13)
-						installRemoteModule_iouring=yes
-					fi
+					case "${IPE_SWOOLE_WITHOUT_IOURING:-}" in
+						1 | y* | Y*) ;;
+						*)
+							if test $DISTRO_VERSION_NUMBER -ge 13; then
+								# iouring support in swoole 6 requires liburing 2.5+: available since Debian Trixie (13)
+								installRemoteModule_iouring=yes
+							fi
+							;;
+					esac
 					;;
 			esac
 			installRemoteModule_zstd=yes
