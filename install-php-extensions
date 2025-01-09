@@ -1438,13 +1438,13 @@ buildRequiredPackageLists() {
 				case "${IPE_SWOOLE_WITHOUT_IOURING:-}" in
 					1 | y* | Y*) ;;
 					*)
-					# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
-					# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
-					if test $DISTRO_MAJMIN_VERSION -ge 320; then
-						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liburing"
-						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liburing-dev"
-					fi
-					;;
+						# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
+						# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
+						if test $DISTRO_MAJMIN_VERSION -ge 320; then
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liburing"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liburing-dev"
+						fi
+						;;
 				esac
 				;;
 			swoole@debian)
