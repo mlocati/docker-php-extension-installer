@@ -2617,6 +2617,7 @@ installCargo() {
 	if command -v cargo >/dev/null; then
 		return
 	fi
+	installCargo_cargoversion=
 	if ! test -f "$HOME/.cargo/env"; then
 		printf '# Installing cargo\n'
 		case "$DISTRO" in
@@ -2626,8 +2627,21 @@ installCargo() {
 				;;
 		esac
 		curl https://sh.rustup.rs -sSf | sh -s -- -y -q
+		case "$DISTRO" in
+			alpine)
+				if test $DISTRO_MAJMIN_VERSION -le 310; then
+					# With version 1.84.0 we have this error:
+					# Error relocating /root/.rustup/toolchains/stable-x86_64-unknown-linux-musl/bin/cargo: posix_spawn_file_actions_addchdir_np: symbol not found
+					# See https://github.com/rust-lang/rust/pull/131851#issue-2595663507
+					installCargo_cargoversion=1.83.0
+				fi
+				;;
+		esac
 	fi
 	. "$HOME/.cargo/env"
+	if test -n "$installCargo_cargoversion"; then
+		rustup default -- "$installCargo_cargoversion"
+	fi
 	if test -z "${IPE_UNINSTALL_CARGO:-}"; then
 		IPE_UNINSTALL_CARGO=y
 	fi
