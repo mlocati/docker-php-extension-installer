@@ -4963,8 +4963,12 @@ fixLetsEncrypt() {
 # Cleanup everything at the end of the execution
 cleanup() {
 	if test "${IPE_UNINSTALL_CARGO:-}" = y; then
-		. "$HOME/.cargo/env"
-		rustup self uninstall -y
+		if test -f "$HOME/.cargo/env"; then
+			. "$HOME/.cargo/env"
+		fi
+		if command -v rustup >/dev/null; then
+			rustup self uninstall -y
+		fi
 	fi
 	if test -n "$UNNEEDED_PACKAGE_LINKS"; then
 		printf '### REMOVING UNNEEDED PACKAGE LINKS ###\n'
