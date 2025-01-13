@@ -2617,14 +2617,16 @@ installCargo() {
 	if command -v cargo >/dev/null; then
 		return
 	fi
-	printf '# Installing cargo\n'
-	case "$DISTRO" in
-		alpine)
-			# see https://github.com/hyperledger/indy-vdr/issues/69#issuecomment-998104850
-			export RUSTFLAGS='-C target-feature=-crt-static'
-			;;
-	esac
-	curl https://sh.rustup.rs -sSf | sh -s -- -y -q
+	if ! test -f "$HOME/.cargo/env"; then
+		printf '# Installing cargo\n'
+		case "$DISTRO" in
+			alpine)
+				# see https://github.com/hyperledger/indy-vdr/issues/69#issuecomment-998104850
+				export RUSTFLAGS='-C target-feature=-crt-static'
+				;;
+		esac
+		curl https://sh.rustup.rs -sSf | sh -s -- -y -q
+	fi
 	. "$HOME/.cargo/env"
 	if test -z "${IPE_UNINSTALL_CARGO:-}"; then
 		IPE_UNINSTALL_CARGO=y
