@@ -2649,14 +2649,20 @@ installCargo() {
 
 installNewRelic() {
 	printf '# Installing newrelic\n'
+	# see https://docs.newrelic.com/docs/apm/agents/php-agent/getting-started/php-agent-compatibility-requirements/
+	if test $PHP_MAJMIN_VERSION -le 701; then
+		installNewRelic_baseUrl=https://download.newrelic.com/php_agent/archive/10.21.0.11/
+	else
+		installNewRelic_baseUrl=https://download.newrelic.com/php_agent/release/
+	fi
 	installNewRelic_search='\bnewrelic-php[0-9.]*-[0-9]+(\.[0-9]+)*-linux'
 	case "$DISTRO" in
 		alpine)
 			installNewRelic_search="$installNewRelic_search-musl"
 			;;
 	esac
-	installNewRelic_file="$(curl -sSLf -o- https://download.newrelic.com/php_agent/release/ | sed -E 's/<[^>]*>//g' | grep -Eo "$installNewRelic_search.tar.gz" | sort | head -1)"
-	installNewRelic_url="https://download.newrelic.com/php_agent/release/$installNewRelic_file"
+	installNewRelic_file="$(curl -sSLf -o- "$installNewRelic_baseUrl" | sed -E 's/<[^>]*>//g' | grep -Eo "$installNewRelic_search.tar.gz" | sort | head -1)"
+	installNewRelic_url="$installNewRelic_baseUrl$installNewRelic_file"
 	installNewRelic_src="$(getPackageSource "$installNewRelic_url")"
 	cd -- "$installNewRelic_src"
 	NR_INSTALL_USE_CP_NOT_LN=1 NR_INSTALL_SILENT=1 ./newrelic-install install
