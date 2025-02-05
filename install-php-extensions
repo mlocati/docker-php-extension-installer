@@ -3703,6 +3703,7 @@ installRemoteModule() {
 					installRemoteModule_version=5.4.0
 				fi
 			fi
+			installRemoteModule_cppflags='-Wno-incompatible-pointer-types'
 			;;
 		php_trie)
 			if ! test -f /usr/local/include/hat-trie/include/tsl/htrie_map.h; then
