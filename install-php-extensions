@@ -3942,6 +3942,9 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		seaslog)
+			installRemoteModule_cppflags='-Wno-incompatible-pointer-types'
+			;;
 		smbclient)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
