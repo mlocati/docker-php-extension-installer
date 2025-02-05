@@ -2545,30 +2545,41 @@ actuallyInstallComposer() {
 
 # Install ionCube Loader
 installIonCubeLoader() {
+	installIonCubeLoader_version=''
+	if test $PHP_MAJMIN_VERSION -lt 804; then
+		# For 14.4.0 we have a Segmentation Fault
+		installIonCubeLoader_version=14.0.0
+	fi
+	installIonCubeLoader_versionForUrl=''
+	installIonCubeLoader_versionForMessage=latest
+	if test -n "$installIonCubeLoader_version"; then
+		installIonCubeLoader_versionForUrl="_$installIonCubeLoader_version"
+		installIonCubeLoader_versionForMessage="v$installIonCubeLoader_version"
+	fi
 	# See https://www.ioncube.com/loaders.php
 	case $PHP_BITS in
 		32)
 			case $(uname -m) in
 				aarch* | arm*)
-					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_armv7l.tar.gz"
+					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_armv7l$installIonCubeLoader_versionForUrl.tar.gz"
 					;;
 				*)
-					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86.tar.gz"
+					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86$installIonCubeLoader_versionForUrl.tar.gz"
 					;;
 			esac
 			;;
 		*)
 			case $(uname -m) in
 				aarch64 | arm64 | armv8)
-					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_aarch64.tar.gz"
+					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_aarch64$installIonCubeLoader_versionForUrl.tar.gz"
 					;;
 				*)
-					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz"
+					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64$installIonCubeLoader_versionForUrl.tar.gz"
 					;;
 			esac
 			;;
 	esac
-	printf 'Downloading ionCube Loader... '
+	printf 'Downloading ionCube Loader (%s)... ' "$installIonCubeLoader_versionForMessage"
 	installIonCubeLoader_dir="$(getPackageSource $installIonCubeLoader_url)"
 	echo 'done.'
 	installIonCubeLoader_so=$(php -r "printf('ioncube_loader_lin_%s.%s%s.so', PHP_MAJOR_VERSION, PHP_MINOR_VERSION, ZEND_THREAD_SAFE ? '_ts' : '');")
