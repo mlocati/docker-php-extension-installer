@@ -4116,9 +4116,9 @@ installRemoteModule() {
 			fi
 			installRemoteModule_sqlite=yes
 			installRemoteModule_iouring=no
+			installRemoteModule_curl=yes
 			case "$DISTRO" in
 				alpine)
-					installRemoteModule_curl=yes
 					if test $DISTRO_MAJMIN_VERSION -lt 317; then
 						# we need sqlite3 >= 3.7.7
 						installRemoteModule_sqlite=no
@@ -4138,8 +4138,6 @@ installRemoteModule() {
 					if test $PHP_MAJMIN_VERSION -ge 800; then
 						# see https://github.com/swoole/swoole-src/issues/5365
 						installRemoteModule_curl=no
-					else
-						installRemoteModule_curl=yes
 					fi
 					if test $DISTRO_MAJMIN_VERSION -lt 1200; then
 						# we need sqlite3 >= 3.7.7
