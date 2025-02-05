@@ -3347,7 +3347,7 @@ installRemoteModule() {
 					git submodule update -q
 					mkdir -p build
 					cd build
-					cmake -DCMAKE_BUILD_TYPE=Release .. -Wno-dev
+					CFLAGS='-Wno-incompatible-pointer-types -Wno-stringop-overflow -Wno-discarded-qualifiers' cmake -DCMAKE_BUILD_TYPE=Release .. -Wno-dev
 					make clean
 					make -j$(getProcessorCount) install
 				)
