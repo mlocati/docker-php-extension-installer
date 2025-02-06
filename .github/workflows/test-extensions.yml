@@ -40,7 +40,7 @@ jobs:
           cache: false
       -
         name: Install shfmt
-        run: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt@v3.9.0
+        run: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt@v3.10.0
       -
         name: Checkout
         uses: actions/checkout@v4
