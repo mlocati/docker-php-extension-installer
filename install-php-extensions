@@ -4584,6 +4584,17 @@ installRemoteModule() {
 				addConfigureOption enable-reader yes
 			fi
 			;;
+		xmldiff)
+			installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
+			if test -z "$installRemoteModule_version"; then
+				case "$DISTRO_VERSION" in
+					debian@8)
+						# The gcc version of Debian Jessie is too old => error: 'nullptr' was not declared in this scope
+						installRemoteModule_version=1.1.4
+						;;
+				esac
+			fi
+			;;
 		xmlrpc)
 			if test -z "$installRemoteModule_version"; then
 				installRemoteModule_version=beta
