@@ -294,6 +294,7 @@ install-php-extensions @fix_letsencrypt
 | opencensus |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | openswoole | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |
 | opentelemetry | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |  |
+| operator | &check; | &check; | &check; |  |  |  |  |  |  |  |  |  |
 | parallel[*](#special-requirements-for-parallel) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
 | parle[*](#special-requirements-for-parle) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | pcntl | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -374,7 +375,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 152*
+*Number of supported extensions: 153*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
