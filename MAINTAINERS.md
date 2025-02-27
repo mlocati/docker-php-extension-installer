@@ -89,6 +89,11 @@ We need to monitor new releases at https://github.com/Tessil/hat-trie/releases
 The only available versions of the `opencensus` PHP extension are all alpha.
 We should switch to the stable release once it will be available.
 
+### operator
+
+The only available versions of the `operator` PHP extension are all beta.
+We should switch to the stable release once it will be available.
+
 ### parle
 
 The only available versions of the `parle` PHP extension are all beta.

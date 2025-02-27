@@ -3676,6 +3676,11 @@ installRemoteModule() {
 				addConfigureOption enable-swoole-curl yes
 			fi
 			;;
+		operator)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=beta
+			fi
+			;;
 		parallel)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 701; then
