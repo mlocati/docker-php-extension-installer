@@ -23,8 +23,8 @@ try {
         throw new RuntimeException("os::uname() should return an object, not {$unameType}");
     }
     $unameClass = get_class($uname);
-    if ($unameClass !== 'PyTuple') {
-        throw new RuntimeException("os::uname() should return a PyTuple instance, not {$unameClass}");
+    if ($unameClass !== 'PyTuple' && $unameClass !== 'PyObject') {
+        throw new RuntimeException("os::uname() should return a PyTuple or a PyObject instance, not {$unameClass}");
     }
     if ($uname->count() < 5) {
         throw new RuntimeException('os::uname() should return a PyTuple with at leasd 5 elements');
