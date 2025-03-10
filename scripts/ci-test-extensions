@@ -269,8 +269,16 @@ getAllPHPVersionsForExtension() {
 	getAllPHPVersionsForExtension_reqs="$CI_BUILD_DIR/data/special-requirements"
 	if test -f "$getAllPHPVersionsForExtension_reqs"; then
 		getAllPHPVersionsForExtension_filtered_result=''
+		case "$IPETEST_DOCKER_DISTRO" in
+			alpine*)
+				getAllPHPVersionsForExtension_baseDistro="alpine"
+				;;
+			*)
+				getAllPHPVersionsForExtension_baseDistro="debian"
+				;;
+		esac
 		for getAllPHPVersionsForExtension_result_filter in $getAllPHPVersionsForExtension_result; do
-			if stringInList "!$getAllPHPVersionsForExtension_result_filter-$IPETEST_DOCKER_DISTRO" "$(cat "$getAllPHPVersionsForExtension_reqs" | grep -E "^$1[ \t]")"; then
+			if stringInList "!$getAllPHPVersionsForExtension_result_filter-$IPETEST_DOCKER_DISTRO" "$(cat "$getAllPHPVersionsForExtension_reqs" | grep -E "^$1[ \t]")" || stringInList "!$getAllPHPVersionsForExtension_result_filter-$getAllPHPVersionsForExtension_baseDistro" "$(cat "$getAllPHPVersionsForExtension_reqs" | grep -E "^$1[ \t]")"; then
 				printf 'Note: extension "%s" is not supported for distro "%s" using php "%s"\n' "$1" "$IPETEST_DOCKER_DISTRO" "$getAllPHPVersionsForExtension_result_filter" >/dev/stderr
 			else
 				getAllPHPVersionsForExtension_filtered_result="$getAllPHPVersionsForExtension_filtered_result $getAllPHPVersionsForExtension_result_filter"
