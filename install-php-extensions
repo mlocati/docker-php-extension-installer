@@ -2546,10 +2546,12 @@ actuallyInstallComposer() {
 # Install ionCube Loader
 installIonCubeLoader() {
 	installIonCubeLoader_version=''
-	if test $PHP_MAJMIN_VERSION -lt 804; then
-		# For 14.4.0 we have a Segmentation Fault
-		installIonCubeLoader_version=14.0.0
-	fi
+	case "$DISTRO" in
+		alpine)
+			# For 14.4.0 we have a Segmentation Fault
+			installIonCubeLoader_version=14.0.0
+			;;
+	esac
 	installIonCubeLoader_versionForUrl=''
 	installIonCubeLoader_versionForMessage=latest
 	if test -n "$installIonCubeLoader_version"; then
