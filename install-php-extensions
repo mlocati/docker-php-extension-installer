@@ -3333,6 +3333,11 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		imagick)
+			if test $PHP_MAJMIN_VERSION -ge 840; then
+				installRemoteModule_cppflags="-Dphp_strtolower=zend_str_tolower"
+			fi
+			;;
 		imap)
 			# Include Kerberos Support
 			addConfigureOption with-kerberos yes
