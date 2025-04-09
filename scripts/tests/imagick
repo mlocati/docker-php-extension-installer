@@ -7,6 +7,7 @@ $requiredFormats = array_map('strtoupper', [
     'BMP',
     'GIF',
     'JPG',
+    'PDF',
     'PNG',
     'SVG',
     'TIFF',
