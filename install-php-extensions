@@ -273,15 +273,6 @@ EOT
 #   Nothing
 processPHPModuleArgument() {
 	processPHPModuleArgument_arg="$1"
-	case "$processPHPModuleArgument_arg" in
-		imagick)
-			if test $PHP_MAJMIN_VERSION -ge 804; then
-				processPHPModuleArgument_arg=imagick/imagick@65e27f2bc02e7e8f1bf64e26e359e42a1331fca1
-			elif test $PHP_MAJMIN_VERSION -ge 803; then
-				processPHPModuleArgument_arg=imagick/imagick@28f27044e435a2b203e32675e942eb8de620ee58
-			fi
-			;;
-	esac
 	# Convert GitHub short form to long url,
 	# for example: from
 	# php-memcached-dev/php-memcached@8f106564e6bb005ca6100b12ccc89000daafa9d8
@@ -3338,6 +3329,13 @@ installRemoteModule() {
 			addConfigureOption with-kerberos yes
 			# Include SSL Support
 			addConfigureOption with-imap-ssl yes
+			;;
+		imagick)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 506; then
+					installRemoteModule_version=3.7.0
+				fi
+			fi
 			;;
 		inotify)
 			if test -z "$installRemoteModule_version"; then
