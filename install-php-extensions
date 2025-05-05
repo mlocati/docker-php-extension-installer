@@ -3275,6 +3275,7 @@ installRemoteModule() {
 			fi
 			;;
 		grpc)
+			installRemoteModule_cppflags='-Wno-maybe-uninitialized -Wno-attributes -Wno-return-type'
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=1.33.1
@@ -3286,15 +3287,11 @@ installRemoteModule() {
 						alpine@3.7 | alpine@3.8 | debian@9) # With newer version: "This package requires GCC 7 or higher"
 							installRemoteModule_version=1.52.1
 							;;
+						alpine@3.13) # With 1.71.0, 1.72.0: "src/core/call/call_filters.h:1002:69: internal compiler error: in assign_temp, at function.c:984"
+							installRemoteModule_version=1.70.0
+							;;
 					esac
 				fi
-			fi
-			if test -z "$installRemoteModule_version" || test "$installRemoteModule_version" = 1.35.0; then
-				case "$DISTRO_VERSION" in
-					alpine@3.13)
-						installRemoteModule_cppflags='-Wno-maybe-uninitialized'
-						;;
-				esac
 			fi
 			;;
 		http)
