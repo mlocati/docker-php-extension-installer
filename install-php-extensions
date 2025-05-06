@@ -2537,45 +2537,56 @@ actuallyInstallComposer() {
 # Install ionCube Loader
 installIonCubeLoader() {
 	installIonCubeLoader_version=''
+	installIonCubeLoader_soPrefix=ioncube_loader_lin
+	installIonCubeLoader_url='https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin'
 	case "$DISTRO" in
 		alpine)
-			# For 14.4.0 we have a Segmentation Fault
-			installIonCubeLoader_version=14.0.0
+			if test $DISTRO_MAJMIN_VERSION -le 312; then
+				installIonCubeLoader_version=14.0.0 # For 14.4.0 we have a Segmentation Fault
+			fi
+			if test -z "$installIonCubeLoader_version" || test $(compareVersions "$installIonCubeLoader_version" 14.4.0) -ge 0; then
+				installIonCubeLoader_url="${installIonCubeLoader_url}-musl"
+				installIonCubeLoader_soPrefix="${installIonCubeLoader_soPrefix}-musl"
+			fi
 			;;
 	esac
-	installIonCubeLoader_versionForUrl=''
-	installIonCubeLoader_versionForMessage=latest
-	if test -n "$installIonCubeLoader_version"; then
-		installIonCubeLoader_versionForUrl="_$installIonCubeLoader_version"
-		installIonCubeLoader_versionForMessage="v$installIonCubeLoader_version"
-	fi
-	# See https://www.ioncube.com/loaders.php
 	case $PHP_BITS in
 		32)
 			case $(uname -m) in
 				aarch* | arm*)
-					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_armv7l$installIonCubeLoader_versionForUrl.tar.gz"
+					installIonCubeLoader_url="${installIonCubeLoader_url}_armv7l"
 					;;
 				*)
-					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86$installIonCubeLoader_versionForUrl.tar.gz"
+					installIonCubeLoader_url="${installIonCubeLoader_url}_x86"
 					;;
 			esac
 			;;
 		*)
 			case $(uname -m) in
 				aarch64 | arm64 | armv8)
-					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_aarch64$installIonCubeLoader_versionForUrl.tar.gz"
+					installIonCubeLoader_url="${installIonCubeLoader_url}_aarch64"
 					;;
 				*)
-					installIonCubeLoader_url="https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64$installIonCubeLoader_versionForUrl.tar.gz"
+					installIonCubeLoader_url="${installIonCubeLoader_url}_x86-64"
 					;;
 			esac
 			;;
 	esac
-	printf 'Downloading ionCube Loader (%s)... ' "$installIonCubeLoader_versionForMessage"
+	installIonCubeLoader_versionDisplayName=latest
+	if test -n "$installIonCubeLoader_version"; then
+		installIonCubeLoader_url="${installIonCubeLoader_url}_${installIonCubeLoader_version}"
+		installIonCubeLoader_versionDisplayName="v$installIonCubeLoader_version"
+	fi
+	installIonCubeLoader_url="${installIonCubeLoader_url}.tar.gz"
+	# See https://www.ioncube.com/loaders.php
+	printf 'Downloading ionCube Loader (%s)... ' "$installIonCubeLoader_versionDisplayName"
 	installIonCubeLoader_dir="$(getPackageSource $installIonCubeLoader_url)"
 	echo 'done.'
-	installIonCubeLoader_so=$(php -r "printf('ioncube_loader_lin_%s.%s%s.so', PHP_MAJOR_VERSION, PHP_MINOR_VERSION, ZEND_THREAD_SAFE ? '_ts' : '');")
+	installIonCubeLoader_so="${installIonCubeLoader_soPrefix}_${PHP_MAJDOTMIN_VERSION}"
+	if test $PHP_THREADSAFE -eq 1; then
+		installIonCubeLoader_so="${installIonCubeLoader_so}_ts"
+	fi
+	installIonCubeLoader_so="${installIonCubeLoader_so}.so"
 	cp "$installIonCubeLoader_dir/$installIonCubeLoader_so" "$(getPHPExtensionsDir)/ioncube_loader.so"
 }
 
