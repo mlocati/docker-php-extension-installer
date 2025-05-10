@@ -3916,7 +3916,7 @@ installRemoteModule() {
 		saxon)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -ge 800; then
-					installRemoteModule_version='12.4.2'
+					installRemoteModule_version='12.5.0'
 				else
 					installRemoteModule_version='12.3'
 				fi
