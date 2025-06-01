@@ -2020,10 +2020,10 @@ installRequiredPackages() {
 			;;
 		debian)
 			if test "$DISTRO_VERSION" = debian@8 || test "$DISTRO_VERSION" = debian@9; then
-        			apt-get install -qqy --no-install-recommends --allow-unauthenticated $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
-                	else
-        			apt-get install -qqy --no-install-recommends $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
-                	fi
+				apt-get install -qqy --no-install-recommends --allow-unauthenticated $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
+			else
+				apt-get install -qqy --no-install-recommends $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
+			fi
 			;;
 	esac
 }
