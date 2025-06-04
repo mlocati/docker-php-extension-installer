@@ -4971,7 +4971,7 @@ invokeAptGetUpdate() {
 	apt-get update -q 2>"$invokeAptGetUpdate_tmp"
 	if test -s "$invokeAptGetUpdate_tmp"; then
 		cat "$invokeAptGetUpdate_tmp" >&2
-		if grep -qE ' KEYEXPIRED [0-9]' "$invokeAptGetUpdate_tmp"; then
+		if grep -qE ' KEYEXPIRED [0-9A-Z]' "$invokeAptGetUpdate_tmp" || grep -qE ' EXPKEYSIG [0-9A-Z]' "$invokeAptGetUpdate_tmp"; then
 			echo '############' >&2
 			echo '# WARNING! #' >&2
 			echo '############' >&2
