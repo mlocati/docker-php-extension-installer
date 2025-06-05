@@ -3227,6 +3227,19 @@ installRemoteModule() {
 			# event must be loaded after sockets
 			installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
 			;;
+		excimer)
+			if test -z "$installRemoteModule_version"; then
+				case "$DISTRO" in
+					alpine)
+						if test $DISTRO_MAJMIN_VERSION -le 313; then
+							# With newer versions we have:
+							# configure: error: excimer requires timer_create or kevent
+							installRemoteModule_version=1.2.3
+						fi
+						;;
+				esac
+			fi
+			;;
 		gearman)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
