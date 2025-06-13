@@ -178,6 +178,31 @@ Accepted formats are:
   tar xzf /tmp/source.tgz -C /tmp
   install-php-extensions /tmp/php-memcached-3.1.5
 
+## Bundled extensions or not?
+
+There are some extensions that are bundled in the PHP source code (for example, `gd` and `zip`).
+
+Some of these extensions are also available on PECL and/or a source code repository.
+
+By default, `install-php-extensions` installs the bundled version.
+
+If instead you want to use a remote version:
+
+- for using PECL: just append the stability to the package name. For example:
+  ```
+  install-php-extensions zip-stable
+  ```
+- for installing from source code: use the syntax [specified above](#installing-an-extension-from-its-source-code). For example:
+  ```
+  install-php-extensions php/pecl-database-oci8@7aa1061
+  ```
+
+`install-php-extensions` supports installing remote versions instead of bundled ones for these extensions:
+
+- pdo_oci
+- oci8
+- zip
+
 ## Installing composer
 
 You can also install [composer](https://getcomposer.org/), and you also can specify a major version of it, or a full version.

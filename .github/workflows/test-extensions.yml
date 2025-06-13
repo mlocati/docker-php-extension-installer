@@ -167,6 +167,37 @@ jobs:
       -
         run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.4-alpine ./scripts/test-installcomposer "${{ matrix.composer_version }}"
 
+  test_bundled_vs_remote:
+    name: Test installing remote ${{ matrix.extension-name }} insead of bundled
+    container: php:8.4-cli-alpine
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          -
+            extension-name: oci8
+            source: php/pecl-database-oci8@7aa1061
+          -
+            extension-name: pdo_oci
+            source: php/pecl-database-pdo_oci@ffd7598
+          -
+            extension-name: zip
+            source: zip-1.22.6
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Install extension
+        run: ./install-php-extensions "${{ matrix.source }}"
+      -
+        name: Inspect extension
+        run: php --ri "${{ matrix.extension-name }}"
+
   test_marking_packages:
     name: Test marking pre-installed packages
     needs:
