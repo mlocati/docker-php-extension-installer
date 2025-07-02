@@ -9,7 +9,7 @@ SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 . "$SCRIPTS_DIR/common"
 
 printf 'Downloading PECL feed... ' >&2
-XML="$(curl --fail  --silent --show-error --location https://pecl.php.net/feeds/latest.rss)"
+XML="$(curl --fail  --silent --show-error --compressed --location https://pecl.php.net/feeds/latest.rss)"
 printf 'done.\n' >&2
 
 printf 'Formatting XML... ' >&2
