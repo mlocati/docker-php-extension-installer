@@ -125,6 +125,11 @@ The `pdo_sqlsrv` and `sqlsrv` PHP extensions require the Microsoft ODBC Driver f
 On Alpine Linux there's no way to automatically install its latest version, so we install it manually.
 We need to monitor new releases at https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine18
 
+### translit
+
+The only available versions of the `translit` PHP extension are all beta.
+We should switch to the stable release once it will be available.
+
 ### uv
 
 The only available versions of the `uv` PHP extension are all beta.
