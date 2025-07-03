@@ -4545,6 +4545,17 @@ installRemoteModule() {
 			mv "$installRemoteModule_src" $(getPHPExtensionsDir)/tideways.so
 			installRemoteModule_manuallyInstalled=1
 			;;
+		translit)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 506; then
+					installRemoteModule_version=0.6.1
+				elif test $PHP_MAJMIN_VERSION -lt 700; then
+					installRemoteModule_version=0.6.3
+				else
+					installRemoteModule_version=beta
+				fi
+			fi
+			;;
 		uopz)
 			installRemoteModule_cppflags='-Wno-incompatible-pointer-types'
 			if test -z "$installRemoteModule_version"; then
