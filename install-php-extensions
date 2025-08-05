@@ -5026,21 +5026,29 @@ invokeAptGetUpdate() {
 		invokeAptGetUpdate_fixdistro=jessie
 	elif grep -q 'VERSION="9 (stretch)"' /etc/os-release; then
 		invokeAptGetUpdate_fixdistro=stretch
+	elif grep -q 'VERSION="10 (buster)"' /etc/os-release; then
+		invokeAptGetUpdate_fixdistro=buster
 	else
 		invokeAptGetUpdate
 		return
 	fi
 	# See https://www.debian.org/distrib/archive.en.html for a list of mirrors
 	if test -z "${IPE_DEB_ARCHIVE:-}"; then
-		IPE_DEB_ARCHIVE=http://archive.kernel.org/debian-archive
+		IPE_DEB_ARCHIVE=http://archive.debian.org/debian-archive
 	fi
 	if test -z "${IPE_DEB_ARCHIVE_SECURITY:-}"; then
-		IPE_DEB_ARCHIVE_SECURITY=http://archive.kernel.org/debian-archive/debian-security
+		IPE_DEB_ARCHIVE_SECURITY=http://archive.debian.org/debian-archive/debian-security
 	fi
 	sed -ri "s;^(\s*deb\s+http://(httpredir|deb).debian.org/debian\s+$invokeAptGetUpdate_fixdistro-updates\b.*);#\1;" /etc/apt/sources.list
 	sed -ri "s;^(\s*deb\s+)http://(httpredir|deb).debian.org;\1$IPE_DEB_ARCHIVE;" /etc/apt/sources.list
 	sed -ri "s;^(\s*deb\s+)http://security.debian.org/debian-security;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
 	sed -ri "s;^(\s*deb\s+)http://security.debian.org;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
+	if test "$invokeAptGetUpdate_fixdistro" = stretch && test -f /etc/apt/sources.list.d/buster.list; then
+		sed -ri "s;^(\s*deb\s+http://(httpredir|deb).debian.org/debian\s+buster-updates\b.*);#\1;" /etc/apt/sources.list.d/buster.list
+		sed -ri "s;^(\s*deb\s+)http://(httpredir|deb).debian.org;\1$IPE_DEB_ARCHIVE;" /etc/apt/sources.list.d/buster.list
+		sed -ri "s;^(\s*deb\s+)http://security.debian.org/debian-security;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list.d/buster.list
+		sed -ri "s;^(\s*deb\s+)http://security.debian.org;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list.d/buster.list
+	fi
 	invokeAptGetUpdate_tmp="$(mktemp)"
 	apt-get update -q 2>"$invokeAptGetUpdate_tmp"
 	if test -s "$invokeAptGetUpdate_tmp"; then

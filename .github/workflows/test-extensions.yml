@@ -209,13 +209,13 @@ jobs:
       matrix:
         distro:
           - alpine
-          - buster
+          - bookworm
     steps:
       -
         name: Checkout
         uses: actions/checkout@v4
       -
-        run: docker run --rm --volume "$(pwd):/app" --workdir /app "php:7.4-${{ matrix.distro }}" "./scripts/ci-markused-${{ matrix.distro }}"
+        run: docker run --rm --volume "$(pwd):/app" --workdir /app "php:8.1-${{ matrix.distro }}" "./scripts/ci-markused-${{ matrix.distro }}"
 
   test_instantclient_basic:
     name: Test using Oracle Instant Client Basic
