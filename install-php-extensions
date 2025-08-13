@@ -1005,7 +1005,11 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			imagick@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-6.q16-[0-9]+$ ^libmagickcore-6.q16-[0-9]+-extra$"
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-7.q16-[0-9]+$ ^libmagickcore-7.q16-[0-9]+-extra$"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-6.q16-[0-9]+$ ^libmagickcore-6.q16-[0-9]+-extra$"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmagickwand-dev"
 				;;
 			imap@alpine)
