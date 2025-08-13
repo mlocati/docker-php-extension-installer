@@ -1203,7 +1203,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
 			odbc@debian | pdo_odbc@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc2"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
 			openswoole@alpine)
