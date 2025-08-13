@@ -63,6 +63,7 @@ jobs:
           - buster
           - bullseye
           - bookworm
+          - trixie
     name: Check on ${{ matrix.distro }}
     env:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
