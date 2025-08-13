@@ -1266,7 +1266,9 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile python3-dev"
 				;;
 			phpy@debian)
-				if test $DISTRO_VERSION_NUMBER -ge 12; then
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpython3.13"
+				elif test $DISTRO_VERSION_NUMBER -ge 12; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpython3.11"
 				elif test $DISTRO_VERSION_NUMBER -ge 11; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpython3.9"
