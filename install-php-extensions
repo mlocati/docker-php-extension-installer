@@ -2948,6 +2948,9 @@ EOF
 						if test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 && ! test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1; then
 							ln -s /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 /usr/lib/$TARGET_TRIPLET/libaio.so.1
 						fi
+						if test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1 && ! test -f /usr/lib/$TARGET_TRIPLET/libaio.so; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libaio.so.1 /usr/lib/$TARGET_TRIPLET/libaio.so
+						fi
 					fi
 					;;
 			esac
@@ -3668,6 +3671,18 @@ installRemoteModule() {
 			fi
 			;;
 		oci8 | pdo_oci)
+			case "$DISTRO" in
+				debian)
+					if test $DISTRO_VERSION_NUMBER -ge 13; then
+						if test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 && ! test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 /usr/lib/$TARGET_TRIPLET/libaio.so.1
+						fi
+						if test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1 && ! test -f /usr/lib/$TARGET_TRIPLET/libaio.so; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libaio.so.1 /usr/lib/$TARGET_TRIPLET/libaio.so
+						fi
+					fi
+					;;
+			esac
 			installOracleInstantClient
 			if test "$installRemoteModule_module" = oci8; then
 				addConfigureOption with-oci8 "instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
