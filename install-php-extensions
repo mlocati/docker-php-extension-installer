@@ -1191,7 +1191,11 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			oci8@debian | pdo_oci@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libaio[0-9]*$"
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio1t64"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libaio[0-9]*$"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unzip"
 				;;
 			odbc@alpine | pdo_odbc@alpine)
@@ -2925,6 +2929,15 @@ EOF
 			cd - >/dev/null
 			;;
 		oci8 | pdo_oci)
+			case "$DISTRO" in
+				debian)
+					if test $DISTRO_VERSION_NUMBER -ge 13; then
+						if test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 && ! test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 /usr/lib/$TARGET_TRIPLET/libaio.so.1
+						fi
+					fi
+					;;
+			esac
 			installOracleInstantClient
 			if test "$1" = oci8; then
 				docker-php-ext-configure "$1" "--with-oci8=instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
