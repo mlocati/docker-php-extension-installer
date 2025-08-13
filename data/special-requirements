@@ -1,18 +1,20 @@
-cassandra !jessie !stretch !buster !bullseye !bookworm
+cassandra !jessie !stretch !buster !bullseye !bookworm !trixie
 ddtrace !jessie
-ecma_intl !buster !bullseye !alpine3.22
+ecma_intl !buster !bullseye !trixie !alpine3.22
 geos !alpine3.9 !alpine3.10
+imap !trixie
 lz4 !jessie
 memprof !alpine3.9 !alpine3.10 !alpine3.11 !alpine3.12 !alpine3.13 !alpine3.14 !alpine3.15
 parallel zts
 parle !jessie
 pdo_firebird !alpine3.22
+pdo_sqlsrv !trixie
 phpy !buster
 pthreads zts
 saxon !alpine
 simdjson !jessie !stretch
 sodium !jessie
-sqlsrv !7.1-alpine3.9 !7.1-alpine3.10
+sqlsrv !7.1-alpine3.9 !7.1-alpine3.10 !trixie
 vips !alpine3.9 !jessie
 wikidiff2 !jessie !stretch
 xpass !buster

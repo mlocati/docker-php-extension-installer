@@ -96,6 +96,7 @@ jobs:
           - buster
           - bullseye
           - bookworm
+          - trixie
     name: Check on ${{ matrix.distro }}
     runs-on: ubuntu-latest
     env:

@@ -1005,7 +1005,11 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			imagick@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-6.q16-[0-9]+$ ^libmagickcore-6.q16-[0-9]+-extra$"
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-7.q16-[0-9]+$ ^libmagickcore-7.q16-[0-9]+-extra$"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-6.q16-[0-9]+$ ^libmagickcore-6.q16-[0-9]+-extra$"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmagickwand-dev"
 				;;
 			imap@alpine)
@@ -1172,7 +1176,11 @@ buildRequiredPackageLists() {
 				;;
 			oauth@debian)
 				if test $PHP_MAJMIN_VERSION -ge 700; then
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+					if test $DISTRO_VERSION_NUMBER -ge 13; then
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre2-dev"
+					else
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+					fi
 				fi
 				;;
 			oci8@alpine | pdo_oci@alpine)
@@ -1183,7 +1191,11 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			oci8@debian | pdo_oci@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libaio[0-9]*$"
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libaio1t64"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libaio[0-9]*$"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unzip"
 				;;
 			odbc@alpine | pdo_odbc@alpine)
@@ -1191,7 +1203,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
 			odbc@debian | pdo_odbc@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc2"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libodbc1"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unixodbc-dev"
 				;;
 			openswoole@alpine)
@@ -1250,7 +1266,9 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile python3-dev"
 				;;
 			phpy@debian)
-				if test $DISTRO_VERSION_NUMBER -ge 12; then
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpython3.13"
+				elif test $DISTRO_VERSION_NUMBER -ge 12; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpython3.11"
 				elif test $DISTRO_VERSION_NUMBER -ge 11; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libpython3.9"
@@ -1370,7 +1388,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
 				;;
 			snuffleupagus@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre2-dev"
+				else
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+				fi
 				;;
 			soap@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
@@ -1525,9 +1547,12 @@ buildRequiredPackageLists() {
 				elif test $DISTRO_VERSION_NUMBER -le 11; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-10 libopenblas-base"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-10-dev"
-				else
+				elif test $DISTRO_VERSION_NUMBER -le 12; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-12 libopenblas0"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-12-dev"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgfortran5 libopenblas0"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-14-dev"
 				fi
 				;;
 			tidy@alpine)
@@ -2917,6 +2942,18 @@ EOF
 			cd - >/dev/null
 			;;
 		oci8 | pdo_oci)
+			case "$DISTRO" in
+				debian)
+					if test $DISTRO_VERSION_NUMBER -ge 13; then
+						if test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 && ! test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 /usr/lib/$TARGET_TRIPLET/libaio.so.1
+						fi
+						if test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1 && ! test -f /usr/lib/$TARGET_TRIPLET/libaio.so; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libaio.so.1 /usr/lib/$TARGET_TRIPLET/libaio.so
+						fi
+					fi
+					;;
+			esac
 			installOracleInstantClient
 			if test "$1" = oci8; then
 				docker-php-ext-configure "$1" "--with-oci8=instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
@@ -3634,6 +3671,18 @@ installRemoteModule() {
 			fi
 			;;
 		oci8 | pdo_oci)
+			case "$DISTRO" in
+				debian)
+					if test $DISTRO_VERSION_NUMBER -ge 13; then
+						if test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 && ! test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libaio.so.1t64 /usr/lib/$TARGET_TRIPLET/libaio.so.1
+						fi
+						if test -f /usr/lib/$TARGET_TRIPLET/libaio.so.1 && ! test -f /usr/lib/$TARGET_TRIPLET/libaio.so; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libaio.so.1 /usr/lib/$TARGET_TRIPLET/libaio.so
+						fi
+					fi
+					;;
+			esac
 			installOracleInstantClient
 			if test "$installRemoteModule_module" = oci8; then
 				addConfigureOption with-oci8 "instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
@@ -4496,6 +4545,13 @@ installRemoteModule() {
 					if test $DISTRO_MAJMIN_VERSION -ge 315 && test $DISTRO_MAJMIN_VERSION -le 317; then
 						if test -e /usr/lib/liblapacke.so.3 && ! test -e /usr/lib/liblapacke.so; then
 							ln -s /usr/lib/liblapacke.so.3 /usr/lib/liblapacke.so
+						fi
+					fi
+					;;
+				debian)
+					if test $DISTRO_VERSION_NUMBER -ge 13; then
+						if test -f /usr/lib/$TARGET_TRIPLET/libblas.so.3 && ! test -f /usr/lib/$TARGET_TRIPLET/libblas.so; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libblas.so.3 /usr/lib/$TARGET_TRIPLET/libblas.so
 						fi
 					fi
 					;;
