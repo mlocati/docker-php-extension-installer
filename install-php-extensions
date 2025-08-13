@@ -1547,9 +1547,12 @@ buildRequiredPackageLists() {
 				elif test $DISTRO_VERSION_NUMBER -le 11; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-10 libopenblas-base"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-10-dev"
-				else
+				elif test $DISTRO_VERSION_NUMBER -le 12; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent gfortran-12 libopenblas0"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-12-dev"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgfortran5 libopenblas0"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libgfortran-14-dev"
 				fi
 				;;
 			tidy@alpine)
@@ -4527,6 +4530,13 @@ installRemoteModule() {
 					if test $DISTRO_MAJMIN_VERSION -ge 315 && test $DISTRO_MAJMIN_VERSION -le 317; then
 						if test -e /usr/lib/liblapacke.so.3 && ! test -e /usr/lib/liblapacke.so; then
 							ln -s /usr/lib/liblapacke.so.3 /usr/lib/liblapacke.so
+						fi
+					fi
+					;;
+				debian)
+					if test $DISTRO_VERSION_NUMBER -ge 13; then
+						if test -f /usr/lib/$TARGET_TRIPLET/libblas.so.3 && ! test -f /usr/lib/$TARGET_TRIPLET/libblas.so; then
+							ln -s /usr/lib/$TARGET_TRIPLET/libblas.so.3 /usr/lib/$TARGET_TRIPLET/libblas.so
 						fi
 					fi
 					;;
