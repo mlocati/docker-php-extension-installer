@@ -1388,7 +1388,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
 				;;
 			snuffleupagus@debian)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre2-dev"
+				else
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
+				fi
 				;;
 			soap@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
