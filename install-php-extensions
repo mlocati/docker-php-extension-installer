@@ -2547,21 +2547,24 @@ installLibcClient2007e() {
 	installLibcClient2007e_arch="$(dpkg --print-architecture)"
 	installLibcClient2007e_version='2007f~dfsg-7+b2'
 	if ! test -f /usr/bin/mlock; then
-		printf '# Installing mlock\n'
+		installLibcClient2007e_url="http://ftp.debian.org/debian/pool/main/u/uw-imap/mlock_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
 		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
-		curl -sSLf -o "$installLibcClient2007e_deb" "http://ftp.debian.org/debian/pool/main/u/uw-imap/mlock_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
+		printf '# Installing mlock from %s\n' "$installLibcClient2007e_url"
+		curl -sSLf -o "$installLibcClient2007e_deb" "$installLibcClient2007e_url"
 		dpkg -i "$installLibcClient2007e_deb"
 	fi
 	if ! test -f /usr/lib/libc-client.so.2007e; then
-		printf '# Installing libc-client2007e\n'
+		installLibcClient2007e_url="http://ftp.debian.org/debian/pool/main/u/uw-imap/libc-client2007e_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
 		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
-		curl -sSLf -o "$installLibcClient2007e_deb" "http://ftp.debian.org/debian/pool/main/u/uw-imap/libc-client2007e_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
+		printf '# Installing libc-client2007e from %s\n' "$installLibcClient2007e_url"
+		curl -sSLf -o "$installLibcClient2007e_deb" "$installLibcClient2007e_url"
 		dpkg -i "$installLibcClient2007e_deb"
 	fi
 	if ! test -f /usr/include/c-client/utf8.h; then
-		printf '# Installing libc-client2007e-dev\n'
+		installLibcClient2007e_url="http://ftp.debian.org/debian/pool/main/u/uw-imap/libc-client2007e-dev_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
 		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
-		curl -sSLf -o "$installLibcClient2007e_deb" "http://ftp.debian.org/debian/pool/main/u/uw-imap/libc-client2007e-dev_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
+		printf '# Installing libc-client2007e-dev from %s\n' "$installLibcClient2007e_url"
+		curl -sSLf -o "$installLibcClient2007e_deb" "$installLibcClient2007e_url"
 		dpkg -i "$installLibcClient2007e_deb"
 		PACKAGES_VOLATILE="$PACKAGES_VOLATILE libc-client2007e-dev"
 	fi
