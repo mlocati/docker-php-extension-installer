@@ -69,7 +69,7 @@ resetIFS() {
 # Set these variables:
 # - DISTRO containing the distribution name (eg 'alpine', 'debian')
 # - DISTRO_VERSION_NUMBER containing the distribution version (eg '3.14' for Alpine, 11 for Debian)
-# - DISTRO_VERSION containing the distribution name and its version(eg 'alpine@3.14', 'debian@11')
+# - DISTRO_VERSION containing the distribution name and its version (eg 'alpine@3.14', 'debian@11')
 # - DISTRO_MAJMIN_VERSION always containing a number representing the distribution version (eg 314 for Alpine, 1100 for Debian)
 setDistro() {
 	if ! test -r /etc/os-release; then
@@ -1017,16 +1017,22 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile krb5-dev imap-dev $buildRequiredPackageLists_libssldev"
 				;;
 			imap@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-client2007e"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libkrb5-dev"
-				case "$DISTRO_VERSION" in
-					debian@9)
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					# Since Debian 13 (trixie) libc-client2007e is no more available
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent sgml-base"
+					if ! isLibcClient2007eInstalled; then
+						COMPILE_LIBS="$COMPILE_LIBS libc-client2007e"
+						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpam0g-dev $buildRequiredPackageLists_libssldev"
+					fi
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libc-client2007e"
+					if test $DISTRO_VERSION_NUMBER -eq 9; then
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev comerr-dev krb5-multidev libc-client2007e libgssrpc4 libkadm5clnt-mit11 libkadm5srv-mit11 libkdb5-8 libpam0g-dev libssl-doc mlock"
-						;;
-					*)
+					else
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libc-client-dev"
-						;;
-				esac
+					fi
+				fi
 				;;
 			interbase@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev ncurses-dev"
@@ -2529,6 +2535,38 @@ installLibenchant1() {
 	cd - >/dev/null
 }
 
+isLibcClient2007eInstalled() {
+	if test -f /usr/lib/libc-client.so.2007e && test -f /usr/include/c-client/utf8.h; then
+		return 0
+	fi
+	return 1
+}
+
+installLibcClient2007e() {
+	mkdir -p /tmp/src
+	installLibcClient2007e_arch="$(dpkg --print-architecture)"
+	installLibcClient2007e_version='2007f~dfsg-7+b2'
+	if ! test -f /usr/bin/mlock; then
+		printf '# Installing mlock\n'
+		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
+		curl -sSLf -o "$installLibcClient2007e_deb" "http://ftp.debian.org/debian/pool/main/u/uw-imap/mlock_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
+		dpkg -i "$installLibcClient2007e_deb"
+	fi
+	if ! test -f /usr/lib/libc-client.so.2007e; then
+		printf '# Installing libc-client2007e\n'
+		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
+		curl -sSLf -o "$installLibcClient2007e_deb" "http://ftp.debian.org/debian/pool/main/u/uw-imap/libc-client2007e_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
+		dpkg -i "$installLibcClient2007e_deb"
+	fi
+	if ! test -f /usr/include/c-client/utf8.h; then
+		printf '# Installing libc-client2007e-dev\n'
+		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
+		curl -sSLf -o "$installLibcClient2007e_deb" "http://ftp.debian.org/debian/pool/main/u/uw-imap/libc-client2007e-dev_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
+		dpkg -i "$installLibcClient2007e_deb"
+		PACKAGES_VOLATILE="$PACKAGES_VOLATILE libc-client2007e-dev"
+	fi
+}
+
 # Install Composer
 installComposer() {
 	installComposer_version="$(getWantedPHPModuleVersion @composer)"
@@ -2775,6 +2813,9 @@ compileLibs() {
 	fi
 	if stringInList libenchant1 "$COMPILE_LIBS"; then
 		installLibenchant1
+	fi
+	if stringInList libc-client2007e "$COMPILE_LIBS"; then
+		installLibcClient2007e
 	fi
 }
 
