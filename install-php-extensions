@@ -2545,7 +2545,18 @@ isLibcClient2007eInstalled() {
 installLibcClient2007e() {
 	mkdir -p /tmp/src
 	installLibcClient2007e_arch="$(dpkg --print-architecture)"
-	installLibcClient2007e_version='2007f~dfsg-7+b2'
+	# See:
+	# - https://packages.debian.org/bookworm/mlock
+	# - https://packages.debian.org/bookworm/libc-client2007e
+	# - https://packages.debian.org/bookworm/libc-client2007e-dev
+	case "$installLibcClient2007e_arch" in
+		amd64)
+			installLibcClient2007e_version='2007f~dfsg-7+b2'
+			;;
+		*)
+			installLibcClient2007e_version='2007f~dfsg-7+b1'
+			;;
+	esac
 	if ! test -f /usr/bin/mlock; then
 		printf '# Installing mlock\n'
 		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
