@@ -10,7 +10,7 @@ pdo_firebird !alpine3.22
 pdo_sqlsrv !trixie
 phpy !buster
 pthreads zts
-saxon !alpine
+saxon !alpine3.7 !alpine3.8 !alpine3.9 !alpine3.10 !alpine3.11 !7.2-alpine !7.3-alpine !7.4-alpine
 simdjson !jessie !stretch
 sodium !jessie
 sqlsrv !7.1-alpine3.9 !7.1-alpine3.10 !trixie
