@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$expectedEdition = empty($_ENV['IPE_SAXON_EDITION']) ? 'EE' : $_ENV['IPE_SAXON_EDITION'];
+$processor = new Saxon\SaxonProcessor();
+$rawVersion = $processor->version();
+if (!preg_match('/SaxonC-(?<edition>\w+) (?<version>\d[.\d]*)/', $rawVersion, $matches)) {
+    echo "Failed to parse SaxonC version: {$rawVersion}\n";
+    exit(1);
+}
+echo "SaxonC edition: {$matches['edition']}\n";
+echo "SaxonC version: {$matches['version']}\n";
+if (version_compare($matches['version'], '12.6') >= 0) {
+    echo 'SaxonC is licensed: ', $processor->isLicensed() ? 'yes' : 'no', "\n";
+}
+if (version_compare($matches['version'], '12.4') < 0 && $matches['edition'] !== $expectedEdition) {
+    echo "Expected SaxonC edition: {$expectedEdition}, but got: {$matches['edition']}\n";
+    exit(1);
+}
