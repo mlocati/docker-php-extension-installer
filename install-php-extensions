@@ -1359,6 +1359,9 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl"
 				fi
 				;;
+			saxon@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
+				;;
 			saxon@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_volatile unzip"
 				;;
@@ -4131,12 +4134,16 @@ installRemoteModule() {
 			printf 'Downloading SaxonC %s from %s\n' "$installRemoteModule_edition" "$installRemoteModule_url"
 			installRemoteModule_dir="$(getPackageSource $installRemoteModule_url)"
 			if ! test -f /usr/lib/libsaxon-*.so; then
-				installRemoteModule_soFiles="$(find "$installRemoteModule_dir" \( -type f -o -type l \) \( -name 'libsaxonc-*.so*' -o -name 'libsaxon-*.so*' \))"
-				for installRemoteModule_soFile in $installRemoteModule_soFiles; do
-					cp -P "$installRemoteModule_soFile" /usr/lib/
+				installRemoteModule_files="$(find "$installRemoteModule_dir" \( -type f -o -type l \) \( -name 'libsaxonc-*.so*' -o -name 'libsaxon-*.so*' \))"
+				for installRemoteModule_file in $installRemoteModule_files; do
+					cp -P "$installRemoteModule_file" /usr/lib/
 				done
 				ldconfig || true
 			fi
+			installRemoteModule_files="$(find "$installRemoteModule_dir" -type f -name php8_XsltExecutable.cpp)"
+			for installRemoteModule_file in $installRemoteModule_files; do
+				sed -i 's/Z_TYPE_P(val) != NULL/Z_TYPE_P(val) != IS_NULL/g' "$installRemoteModule_file"
+			done
 			if test -d "$installRemoteModule_dir/php/src"; then
 				cd "$installRemoteModule_dir/php/src"
 			else

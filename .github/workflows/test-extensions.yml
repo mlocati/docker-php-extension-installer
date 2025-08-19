@@ -234,7 +234,7 @@ jobs:
         run: IPE_INSTANTCLIENT_BASIC=1 ./install-php-extensions oci8 pdo_oci
 
   test_saxon:
-    name: Saxon ${{ matrix.edition }} on PHP ${{ matrix.php-version }}
+    name: Saxon ${{ matrix.edition }} on php:${{ matrix.php-image }}
     needs:
       - check_syntax_data
       - check_syntax_shell
@@ -242,11 +242,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version:
-          - "7.0"
-          - "7.4"
-          - "8.0"
-          - "8.4"
+        php-image:
+          - "7.0-cli"
+          - "7.4-cli"
+          - "8.0-cli"
+          - "8.0-cli-alpine"
+          - "8.4-cli"
+          - "8.4-cli-alpine"
         edition:
           - EE
           - PE
@@ -254,7 +256,7 @@ jobs:
     steps:
       -
         name: Docker pull
-        run: docker pull "php:${{ matrix.php-version }}-cli"
+        run: docker pull "php:${{ matrix.php-image }}"
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -266,7 +268,7 @@ jobs:
             --workdir /app \
             --env CI=true \
             --env IPE_SAXON_EDITION="${{ matrix.edition }}" \
-            "php:${{ matrix.php-version }}-cli" \
+            "php:${{ matrix.php-image }}" \
             sh -c './install-php-extensions saxon && ./scripts/tests/saxon'
 
   test_install_fromsource:
