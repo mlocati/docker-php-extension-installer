@@ -151,6 +151,9 @@ normalizePHPModuleName() {
 				normalizePHPModuleName_name='sodium'
 			fi
 			;;
+		saxonc)
+			normalizePHPModuleName_name=saxon
+			;;
 		sodium)
 			if test $PHP_MAJMIN_VERSION -lt 700; then
 				normalizePHPModuleName_name='libsodium'
@@ -4088,38 +4091,59 @@ installRemoteModule() {
 			installRemoteModule_manuallyInstalled=1
 			;;
 		saxon)
+			case "${IPE_SAXON_EDITION:-}" in
+				EE | PE | HE)
+					installRemoteModule_edition=$IPE_SAXON_EDITION
+					;;
+				*)
+					installRemoteModule_edition=EE
+					;;
+			esac
+			case $(uname -m) in
+				aarch64 | arm64 | armv8)
+					installRemoteModule_architecture=linux-aarch64
+					;;
+				*)
+					installRemoteModule_architecture=linux-x86_64
+					;;
+			esac
 			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -ge 800; then
-					installRemoteModule_version='12.5.0'
-				else
+				if test $PHP_MAJMIN_VERSION -lt 800; then
 					installRemoteModule_version='12.3'
 				fi
 			fi
-			installRemoteModule_majorVersion="${installRemoteModule_version%%.*}"
-			if test "$installRemoteModule_majorVersion" -ge 12; then
-				case $(uname -m) in
-					aarch64 | arm64 | armv8)
-						installRemoteModule_url=https://downloads.saxonica.com/SaxonC/EE/${installRemoteModule_majorVersion}/libsaxon-EEC-linux-aarch64-v${installRemoteModule_version}.zip
-						;;
-					*)
-						installRemoteModule_url=https://downloads.saxonica.com/SaxonC/EE/${installRemoteModule_majorVersion}/libsaxon-EEC-linux-x86_64-v${installRemoteModule_version}.zip
-						;;
-				esac
+			installRemoteModule_majorVersion=
+			if test -n "$installRemoteModule_version"; then
+				installRemoteModule_majorVersion="${installRemoteModule_version%%.*}"
+				if test "$installRemoteModule_majorVersion" -ge 12; then
+					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/libsaxon-${installRemoteModule_edition}C-${installRemoteModule_architecture}-v${installRemoteModule_version}.zip
+				else
+					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/libsaxon-${installRemoteModule_edition}C-setup64-v${installRemoteModule_version}.zip
+				fi
 			else
-				installRemoteModule_url=https://downloads.saxonica.com/SaxonC/EE/${installRemoteModule_majorVersion}/libsaxon-EEC-setup64-v${installRemoteModule_version}.zip
+				installRemoteModule_regex="https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/[0-9]+/SaxonC${installRemoteModule_edition}-${installRemoteModule_architecture}-[0-9\-]+.zip"
+				installRemoteModule_url="$(curl -sSLf https://www.saxonica.com/download/c.xml | grep -Eo "$installRemoteModule_regex" | head -n 1)"
+				if test $? -ne 0 || test -z "$installRemoteModule_url"; then
+					printf "Failed to determine SaxonC download URL - Nothing matches\n%s\n" "$installRemoteModule_regex"
+					exit 1
+				fi
 			fi
+			printf 'Downloading SaxonC %s from %s\n' "$installRemoteModule_edition" "$installRemoteModule_url"
 			installRemoteModule_dir="$(getPackageSource $installRemoteModule_url)"
 			if ! test -f /usr/lib/libsaxon-*.so; then
-				if test "$installRemoteModule_majorVersion" -ge 12; then
-					cp $installRemoteModule_dir/libs/nix/*.so /usr/lib/
-				else
-					cp $installRemoteModule_dir/*.so /usr/lib/
-				fi
+				installRemoteModule_soFiles="$(find "$installRemoteModule_dir" \( -type f -o -type l \) \( -name 'libsaxonc-*.so*' -o -name 'libsaxon-*.so*' \))"
+				for installRemoteModule_soFile in $installRemoteModule_soFiles; do
+					cp -P "$installRemoteModule_soFile" /usr/lib/
+				done
 				ldconfig || true
 			fi
-			cd "$installRemoteModule_dir/Saxon.C.API"
+			if test -d "$installRemoteModule_dir/php/src"; then
+				cd "$installRemoteModule_dir/php/src"
+			else
+				cd "$installRemoteModule_dir/Saxon.C.API"
+			fi
 			phpize
-			./configure --enable-saxon
+			./configure --with-saxon="$installRemoteModule_dir/SaxonC${installRemoteModule_edition}"
 			make -j$(getProcessorCount) install
 			cd - >/dev/null
 			installRemoteModule_manuallyInstalled=1
