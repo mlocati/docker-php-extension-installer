@@ -2762,13 +2762,23 @@ installCargo() {
 	fi
 }
 
+# Install New Relic
+#
+# Arguments:
+#   $1: the version to be installed (optional)
 installNewRelic() {
 	printf '# Installing newrelic\n'
-	# see https://docs.newrelic.com/docs/apm/agents/php-agent/getting-started/php-agent-compatibility-requirements/
-	if test $PHP_MAJMIN_VERSION -le 701; then
-		installNewRelic_baseUrl=https://download.newrelic.com/php_agent/archive/10.21.0.11/
-	else
+	installNewRelic_version="${1:-}"
+	if test -z "$installNewRelic_version"; then
+		# see https://docs.newrelic.com/docs/apm/agents/php-agent/getting-started/php-agent-compatibility-requirements/
+		if test $PHP_MAJMIN_VERSION -le 701; then
+			installNewRelic_version=10.21.0.11
+		fi
+	fi
+	if test -z "$installNewRelic_version"; then
 		installNewRelic_baseUrl=https://download.newrelic.com/php_agent/release/
+	else
+		installNewRelic_baseUrl="https://download.newrelic.com/php_agent/archive/$installNewRelic_version/"
 	fi
 	installNewRelic_search='\bnewrelic-php[0-9.]*-[0-9]+(\.[0-9]+)*-linux'
 	case "$DISTRO" in
@@ -3721,7 +3731,7 @@ installRemoteModule() {
 			fi
 			;;
 		newrelic)
-			installNewRelic
+			installNewRelic "$installRemoteModule_version"
 			installRemoteModule_manuallyInstalled=2
 			;;
 		oauth)
