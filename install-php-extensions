@@ -3407,7 +3407,7 @@ installRemoteModule() {
 			case "$DISTRO" in
 				alpine)
 					if ! test -e /usr/local/include/libgearman/gearman.h || ! test -e /usr/local/lib/libgearman.so; then
-						installRemoteModule_src="$(getPackageSource https://github.com/gearman/gearmand/releases/download/1.1.21/gearmand-1.1.21.tar.gz)"
+						installRemoteModule_src="$(getPackageSource https://github.com/gearman/gearmand/releases/download/1.1.22/gearmand-1.1.22.tar.gz)"
 						cd -- "$installRemoteModule_src"
 						./configure
 						make -j$(getProcessorCount) install-binPROGRAMS
