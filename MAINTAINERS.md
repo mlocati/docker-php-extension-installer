@@ -16,7 +16,7 @@ Once this new tag is created automatically (or when maintainers push a new versi
 ### cmark
 
 The `cmark` PHP extension requires the `libcmark` system library.
-It's not available on Debian/Alpine Linux, so we install it maually.
+It's not available on Debian/Alpine Linux, so we install it manually.
 We need to monitor new releases at https://github.com/commonmark/cmark/releases
 
 ### decimal

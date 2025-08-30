@@ -115,7 +115,7 @@ install-php-extensions xdebug-^2
 install-php-extensions xdebug-^2.8
 ```
 
-Please remark that with the syntax above you'll get the vary latest compatible version, which may be unstable. In order to install the most recent *stable* version, you can append `@stable`:
+Please remark that with the syntax above you'll get the very latest compatible version, which may be unstable. In order to install the most recent *stable* version, you can append `@stable`:
 
 ```sh
 # Install the most recent STABLE xdebug 3.x version (for example 3.2.2)
