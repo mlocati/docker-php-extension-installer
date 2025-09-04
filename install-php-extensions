@@ -1064,6 +1064,18 @@ buildRequiredPackageLists() {
 			ion@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake git"
 				;;
+			ip2location@alpine)
+				if ! isLibIP2LocationInstalled; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile automake libtool"
+					COMPILE_LIBS="$COMPILE_LIBS libip2location"
+				fi
+				;;
+			ip2location@debian)
+				if ! isLibIP2LocationInstalled; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile automake libtool"
+					COMPILE_LIBS="$COMPILE_LIBS libip2location"
+				fi
+				;;
 			ldap@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libldap"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile openldap-dev"
@@ -2548,6 +2560,25 @@ isLibcClient2007eInstalled() {
 	return 1
 }
 
+isLibIP2LocationInstalled() {
+	if test -f /usr/local/lib/libIP2Location.so && test -f /usr/local/include/IP2Location.h; then
+		return 0
+	fi
+	return 1
+}
+
+installLibIP2Location() {
+	printf 'Installing libIP2Location\n'
+	installLibIP2Location_src="$(getPackageSource https://codeload.github.com/chrislim2888/IP2Location-C-Library/tar.gz/8.7.0)"
+	cd -- "$installLibIP2Location_src"
+	autoreconf -fiv
+	./configure
+	make -j$(getProcessorCount)
+	make install
+	cd - >/dev/null
+	ldconfig || true
+}
+
 installLibcClient2007e() {
 	mkdir -p /tmp/src
 	installLibcClient2007e_arch="$(dpkg --print-architecture)"
@@ -2846,6 +2877,9 @@ compileLibs() {
 	fi
 	if stringInList libc-client2007e "$COMPILE_LIBS"; then
 		installLibcClient2007e
+	fi
+	if stringInList libip2location "$COMPILE_LIBS"; then
+		installLibIP2Location
 	fi
 }
 
