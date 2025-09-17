@@ -4820,6 +4820,13 @@ installRemoteModule() {
 			cd - >/dev/null
 			installRemoteModule_manuallyInstalled=1
 			;;
+		xattr)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 702; then
+					installRemoteModule_version=1.3.1
+				fi
+			fi
+			;;
 		xdebug)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 500; then
