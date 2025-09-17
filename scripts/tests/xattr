@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$attrs = xattr_list(__FILE__);
+if (!is_array($attrs)) {
+    fwrite(STDERR, "Unexpected result of xattr_list():\n" . gettype($attrs) . "\n");
+    exit(1);
+}
+echo "xattr works as expected\n";
+
+exit(0);
