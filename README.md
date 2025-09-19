@@ -74,7 +74,7 @@ RUN ( curl -sSLf https://github.com/mlocati/docker-php-extension-installer/relea
   RUN install-php-extensions gd xdebug
   ```
 
-**Warning**: by using this method you may use an outdated version of the Docker image image.
+**Warning**: by using this method you may use an outdated version of the Docker image.
 You may want to run `docker pull ghcr.io/mlocati/php-extension-installer` or `docker pull mlocati/php-extension-installer` in order to use an up-to-date version.
 
 ### Using the script of a Docker image
