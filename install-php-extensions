@@ -4148,7 +4148,7 @@ installRemoteModule() {
 			esac
 			case $(uname -m) in
 				aarch64 | arm64 | armv8)
-					installRemoteModule_architecture=linux-aarch64
+					installRemoteModule_architecture=linux-arm64
 					;;
 				*)
 					installRemoteModule_architecture=linux-x86_64
