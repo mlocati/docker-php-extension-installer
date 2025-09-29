@@ -4146,19 +4146,23 @@ installRemoteModule() {
 					installRemoteModule_edition=EE
 					;;
 			esac
-			case $(uname -m) in
-				aarch64 | arm64 | armv8)
-					installRemoteModule_architecture=linux-arm64
-					;;
-				*)
-					installRemoteModule_architecture=linux-x86_64
-					;;
-			esac
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 800; then
 					installRemoteModule_version='12.3'
 				fi
 			fi
+			case $(uname -m) in
+				aarch64 | arm64 | armv8)
+					if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '12.9') -ge 0 || test $(compareVersions "$installRemoteModule_version" '12.6') -lt 0; then
+						installRemoteModule_architecture=linux-arm64
+					else
+						installRemoteModule_architecture=linux-aarch64
+					fi
+					;;
+				*)
+					installRemoteModule_architecture=linux-x86_64
+					;;
+			esac
 			installRemoteModule_majorVersion=
 			if test -n "$installRemoteModule_version"; then
 				installRemoteModule_majorVersion="${installRemoteModule_version%%.*}"
