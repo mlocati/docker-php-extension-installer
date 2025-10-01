@@ -1,11 +1,8 @@
-name: Monitor PHP 8.4
+name: Monitor PHP 8.5
 
 on:
   schedule:
     - cron: "0 6 * * *"
-  repository_dispatch:
-    types:
-      - monitor-php8.4
   workflow_dispatch:
 
 jobs:
@@ -14,8 +11,6 @@ jobs:
       fail-fast: false
       matrix:
         distro:
-          - alpine3.19
-          - alpine3.20
           - alpine3.21
           - alpine3.22
           - bullseye
@@ -25,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
-      IPETEST_ONLY_PHPVERSIONS: "8.4"
+      IPETEST_ONLY_PHPVERSIONS: "8.5"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,4 +32,4 @@ jobs:
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_TO }}
-          message: Testing packages against PHP 8.4 failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.4.yml
+          message: Testing packages against PHP 8.5 failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.5.yml
