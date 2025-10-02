@@ -306,7 +306,7 @@ install-php-extensions @fix_letsencrypt
 | memcached |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | memprof[*](#special-requirements-for-memprof) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mongo |  |  |  |  |  |  |  |  |  |  |  | &check; | &check; |
-| mongodb |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| mongodb | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mosquitto |  |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | msgpack | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | mssql |  |  |  |  |  |  |  |  |  |  |  | &check; | &check; |
