@@ -30,6 +30,13 @@ if (PHP_VERSION_ID >= 70200) {
 $tempFile = null;
 $image2 = null;
 
+function destroyImage($img)
+{
+    if (PHP_VERSION_ID < 80000) {
+        imagedestroy($img);
+    }
+}
+
 try {
     foreach ($formats as $format) {
         echo "Checking format {$format}... ";
@@ -69,7 +76,7 @@ try {
         if (!(is_resource($image2) || is_object($image2)) || imagesx($image2) !== $imageWidth || imagesy($image2) !== $imageHeight) {
             throw new Exception("{$loadFuntion}() failed");
         }
-        imagedestroy($image2);
+        destroyImage($image2);
         echo "done.\n";
     }
     if (!function_exists('imagefttext')) {
@@ -86,9 +93,9 @@ try {
     $rc = 1;
     fwrite(STDERR, $x->getMessage());
 } finally {
-    imagedestroy($image);
+    destroyImage($image);
     if (is_resource($image2)) {
-        imagedestroy($image2);
+        destroyImage($image2);
     }
     if ($tempFile !== null) {
         unlink($tempFile);
