@@ -1050,7 +1050,7 @@ buildRequiredPackageLists() {
 			intl@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent icu-libs $buildRequiredPackageLists_icuPersistent"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile icu-dev"
-				if test $DISTRO_MAJMIN_VERSION -ge 322 && test $PHP_MAJMIN_VERSION -eq 801; then
+				if test $DISTRO_MAJMIN_VERSION -ge 322 && test $PHP_MAJMIN_VERSION -eq 801 && test $PHP_MAJMINPAT_VERSION -lt 80133; then
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile patch"
 				fi
 				;;
@@ -2997,7 +2997,7 @@ EOF
 		intl)
 			case "$DISTRO" in
 				alpine)
-					if test $DISTRO_MAJMIN_VERSION -ge 322 && test $PHP_MAJMIN_VERSION -eq 801; then
+					if test $DISTRO_MAJMIN_VERSION -ge 322 && test $PHP_MAJMIN_VERSION -eq 801 && test $PHP_MAJMINPAT_VERSION -lt 80133; then
 						# See https://github.com/php/php-src/commit/3fdd3ed9f722d9f0aa3122b2340a611db2dfa110
 						docker-php-source extract
 						patch /usr/src/php/ext/intl/config.m4 <<'EOF'
