@@ -3959,7 +3959,7 @@ installRemoteModule() {
 			;;
 		php_trie)
 			if ! test -f /usr/local/include/hat-trie/include/tsl/htrie_map.h; then
-				installRemoteModule_src="$(getPackageSource https://codeload.github.com/Tessil/hat-trie/tar.gz/v0.6.0)"
+				installRemoteModule_src="$(getPackageSource https://codeload.github.com/Tessil/hat-trie/tar.gz/v0.7.1)"
 				mkdir -p /usr/local/include/hat-trie
 				mv "$installRemoteModule_src/include" /usr/local/include/hat-trie
 			fi
