@@ -4368,6 +4368,9 @@ installRemoteModule() {
 						alpine)
 							if test $DISTRO_MAJMIN_VERSION -le 312; then
 								installRemoteModule_version=5.1.2
+							elif test $DISTRO_MAJMIN_VERSION -le 315; then
+								# With later versions: 'pthread_getname_np' was not declared in this scope
+								installRemoteModule_version=5.1.8
 							fi
 							;;
 					esac
