@@ -1783,8 +1783,8 @@ expandPackagesToBeInstalled() {
 			IFS='
 '
 			for expandPackagesToBeInstalled_line in $expandPackagesToBeInstalled_log; do
-				if test -n "$(printf '%s' "$expandPackagesToBeInstalled_line" | grep -E '^\([0-9]*/[0-9]*) Installing ')"; then
-					expandPackagesToBeInstalled_result="$expandPackagesToBeInstalled_result $(printf '%s' "$expandPackagesToBeInstalled_line" | cut -d ' ' -f 3)"
+				if test -n "$(printf '%s' "$expandPackagesToBeInstalled_line" | grep -E '^\( *[0-9]*/[0-9]*) Installing ')"; then
+					expandPackagesToBeInstalled_result="$expandPackagesToBeInstalled_result $(printf '%s' "$expandPackagesToBeInstalled_line" | sed -E 's/^\(.+\) Installing //' | cut -d ' ' -f 1)"
 				fi
 			done
 			resetIFS
