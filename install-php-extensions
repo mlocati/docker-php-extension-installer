@@ -2252,12 +2252,13 @@ installMicrosoftSqlServerODBC() {
 			;;
 		debian)
 			printf -- '- installing the Microsoft APT key\n'
-			if test $DISTRO_VERSION_NUMBER -eq 11; then
-				curl -sSLf -o /etc/apt/trusted.gpg.d/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
+			if test $DISTRO_VERSION_NUMBER -ge 13; then
+				curl https://packages.microsoft.com/keys/microsoft-2025.asc | gpg --dearmor --yes --output /usr/share/keyrings/microsoft-prod.gpg
 			elif test $DISTRO_VERSION_NUMBER -ge 12; then
 				curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor --yes --output /usr/share/keyrings/microsoft-prod.gpg
+			elif test $DISTRO_VERSION_NUMBER -ge 11; then
+				curl -sSLf -o /etc/apt/trusted.gpg.d/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
 			else
-				# apt-key is deprecated
 				curl -sSLf https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 			fi
 			if ! test -f /etc/apt/sources.list.d/mssql-release.list; then
