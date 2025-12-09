@@ -3251,6 +3251,16 @@ installRemoteModule() {
 			installRemoteModule_manuallyInstalled=1
 			installRemoteModule_ini_extra="$(printf '%sblackfire.agent_socket=tcp://blackfire:8307\n' "$installRemoteModule_ini_extra")"
 			;;
+		brotli)
+			if test -z "$installRemoteModule_version"; then
+				case "$DISTRO_VERSION" in
+					debian@8)
+						# In Debian Jessie we have brotli version 0.18.2
+						installRemoteModule_version=0.18.2
+						;;
+				esac
+			fi
+			;;
 		cassandra)
 			installRemoteModule_src="$(getPackageSource https://github.com/nano-interactive/ext-cassandra/tarball/1cf12c5ce49ed43a2c449bee4b7b23ce02a37bf0)"
 			cd "$installRemoteModule_src/ext"
