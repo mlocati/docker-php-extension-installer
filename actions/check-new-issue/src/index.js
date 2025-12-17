@@ -6,7 +6,7 @@ const VERSION_PREVLINE = '### Version of install-php-extensions';
 /**
  * @param {string} body
  *
- * @returns {string}
+ * @returns {string|null}
  */
 function extractVersionLine(body)
 {
@@ -16,7 +16,7 @@ function extractVersionLine(body)
       return lines[i + 1];
     }
   }
-  throw new Error(`Failed to find the line\n${VERSION_PREVLINE}\nin\n${body}`);
+  return null;
 }
 
 /**
@@ -97,6 +97,10 @@ async function main()
     const token = core.getInput('token', {required: true, trimWhitespace: true});
     const body = github.context.payload.issue.body;
     const versionLine = extractVersionLine(body);
+    if (versionLine === null) {
+      core.notice('Issue template not applicable');
+      return;
+    }
     console.log(`Version line: ${versionLine}`);
     const version = extractVersion(versionLine);
     console.log(`version: ${version}`);
