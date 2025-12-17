@@ -2498,7 +2498,7 @@ isFirebirdInstalled() {
 installFirebird() {
 	printf 'Installing firebird\n'
 	if test $PHP_MAJMIN_VERSION -ge 804; then
-		installFirebird_src="$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/v5.0.2/Firebird-5.0.2.1613-0-source.tar.xz)"
+		installFirebird_src="$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/v5.0.3/Firebird-5.0.3.1683-0-source.tar.xz)"
 		cd -- "$installFirebird_src"
 		./configure --enable-client-only
 		make -j$(getProcessorCount)
