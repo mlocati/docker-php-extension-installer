@@ -350,7 +350,7 @@ install-php-extensions @fix_letsencrypt
 | redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | relay | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |
 | saxon[*](#special-requirements-for-saxon) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
-| seasclick | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| seasclick[*](#special-requirements-for-seasclick) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | seaslog |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | shmop | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | simdjson[*](#special-requirements-for-simdjson) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |
@@ -498,16 +498,17 @@ Some extensions have special requirements:
 |---|---|
 | <a name="special-requirements-for-cassandra"></a>cassandra | &bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images<br />&bull; Not available in `buster` docker images<br />&bull; Not available in `bullseye` docker images<br />&bull; Not available in `bookworm` docker images<br />&bull; Not available in `trixie` docker images |
 | <a name="special-requirements-for-ddtrace"></a>ddtrace | Not available in `jessie` docker images |
-| <a name="special-requirements-for-ecma_intl"></a>ecma_intl | &bull; Not available in `buster` docker images<br />&bull; Not available in `bullseye` docker images<br />&bull; Not available in `trixie` docker images<br />&bull; Not available in `alpine3.22` docker images |
+| <a name="special-requirements-for-ecma_intl"></a>ecma_intl | &bull; Not available in `buster` docker images<br />&bull; Not available in `bullseye` docker images<br />&bull; Not available in `trixie` docker images<br />&bull; Not available in `alpine3.22` docker images<br />&bull; Not available in `alpine3.23` docker images |
 | <a name="special-requirements-for-geos"></a>geos | &bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images |
 | <a name="special-requirements-for-lz4"></a>lz4 | Not available in `jessie` docker images |
 | <a name="special-requirements-for-memprof"></a>memprof | &bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images<br />&bull; Not available in `alpine3.11` docker images<br />&bull; Not available in `alpine3.12` docker images<br />&bull; Not available in `alpine3.13` docker images<br />&bull; Not available in `alpine3.14` docker images<br />&bull; Not available in `alpine3.15` docker images |
 | <a name="special-requirements-for-parallel"></a>parallel | Requires images with PHP compiled with thread-safety enabled (`zts`) |
 | <a name="special-requirements-for-parle"></a>parle | Not available in `jessie` docker images |
-| <a name="special-requirements-for-pdo_firebird"></a>pdo_firebird | Not available in `alpine3.22` docker images |
+| <a name="special-requirements-for-pdo_firebird"></a>pdo_firebird | &bull; Not available in `alpine3.22` docker images<br />&bull; Not available in `alpine3.23` docker images |
 | <a name="special-requirements-for-phpy"></a>phpy | Not available in `buster` docker images |
 | <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`) |
 | <a name="special-requirements-for-saxon"></a>saxon | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images<br />&bull; Not available in `alpine3.11` docker images<br />&bull; Not available in `7.2-alpine` docker images<br />&bull; Not available in `7.3-alpine` docker images<br />&bull; Not available in `7.4-alpine` docker images |
+| <a name="special-requirements-for-seasclick"></a>seasclick | Not available in `alpine3.23` docker images |
 | <a name="special-requirements-for-simdjson"></a>simdjson | &bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images |
 | <a name="special-requirements-for-sodium"></a>sodium | Not available in `jessie` docker images |
 | <a name="special-requirements-for-sqlsrv"></a>sqlsrv | &bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.1-alpine3.10` docker images |
