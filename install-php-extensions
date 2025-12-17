@@ -2498,7 +2498,7 @@ isFirebirdInstalled() {
 installFirebird() {
 	printf 'Installing firebird\n'
 	if test $PHP_MAJMIN_VERSION -ge 804; then
-		installFirebird_src="$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/v5.0.2/Firebird-5.0.2.1613-0-source.tar.xz)"
+		installFirebird_src="$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/v5.0.3/Firebird-5.0.3.1683-0-source.tar.xz)"
 		cd -- "$installFirebird_src"
 		./configure --enable-client-only
 		make -j$(getProcessorCount)
@@ -2510,8 +2510,13 @@ installFirebird() {
 		cd /tmp/src/firebird
 		# Patch rwlock.h (this has been fixed in later release of firebird 3.x)
 		sed -i '194s/.*/#if 0/' src/common/classes/rwlock.h
-		./configure --with-system-icu
-		# -j option can't be used: make targets must be compiled sequentially
+		if [ "$DISTRO" = alpine ] && [ "$DISTRO_MAJMIN_VERSION" -ge 322 ]; then
+			# Firebird 2.5.x does not support recent ICU versions
+			./configure
+		else
+			./configure --with-system-icu
+		fi
+		# Don't try to enable parallel build: Firebird forces -j1
 		make -s btyacc_binary gpre_boot libfbstatic libfbclient
 		cp gen/firebird/lib/libfbclient.so /usr/lib/
 		ln -s /usr/lib/libfbclient.so /usr/lib/libfbclient.so.2
