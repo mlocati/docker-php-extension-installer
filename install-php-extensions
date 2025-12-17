@@ -2531,7 +2531,7 @@ installLibXCrypt() {
 	installLibXCrypt_version=4.4.36
 	installLibXCrypt_src="$(getPackageSource "https://github.com/besser82/libxcrypt/releases/download/v$installLibXCrypt_version/libxcrypt-$installLibXCrypt_version.tar.xz")"
 	cd -- "$installLibXCrypt_src"
-	./configure --prefix /usr
+	./configure --prefix /usr --disable-werror
 	make -j$(getProcessorCount)
 	make install
 	cd - >/dev/null
@@ -4257,7 +4257,7 @@ installRemoteModule() {
 					elif test $PHP_MAJMIN_VERSION -le 801; then
 						installRemoteModule_version=0.10.0
 					else
-						installRemoteModule_version=0.11.0
+						installRemoteModule_version=0.12.0
 					fi
 				fi
 				installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$installRemoteModule_version)"
