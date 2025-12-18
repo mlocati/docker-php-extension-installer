@@ -2235,7 +2235,7 @@ installMicrosoftSqlServerODBC() {
 		alpine)
 			rm -rf /tmp/src/msodbcsql.apk
 			if test $PHP_MAJMIN_VERSION -le 703; then
-				curl -sSLf -o /tmp/src/msodbcsql.apk https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.10.6.1-1_amd64.apk
+				installMicrosoftSqlServerODBC_url=https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.10.6.1-1_amd64.apk
 			else
 				case $(uname -m) in
 					aarch64 | arm64 | armv8)
@@ -2245,8 +2245,10 @@ installMicrosoftSqlServerODBC() {
 						installMicrosoftSqlServerODBC_arch=amd64
 						;;
 				esac
-				curl -sSLf -o /tmp/src/msodbcsql.apk https://download.microsoft.com/download/3/5/5/355d7943-a338-41a7-858d-53b259ea33f5/msodbcsql18_18.3.3.1-1_$installMicrosoftSqlServerODBC_arch.apk
+				installMicrosoftSqlServerODBC_url=https://download.microsoft.com/download/9dcab408-e0d4-4571-a81a-5a0951e3445f/msodbcsql18_18.6.1.1-1_$installMicrosoftSqlServerODBC_arch.apk
 			fi
+			printf 'APK package URL: %s\n' "$installMicrosoftSqlServerODBC_url"
+			curl -sSLf -o /tmp/src/msodbcsql.apk "$installMicrosoftSqlServerODBC_url"
 			printf '\n' | apk add --allow-untrusted /tmp/src/msodbcsql.apk
 			rm -rf /tmp/src/msodbcsql.apk
 			;;
