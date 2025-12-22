@@ -408,10 +408,10 @@ install-php-extensions @fix_letsencrypt
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
-You can list them with the following command (change `php:7.2-cli` to reflect the PHP version you are interested in):
+You can list them with the following command (change `php:8.5-cli` to reflect the PHP version you are interested in):
 
 ```
-$ docker run --rm php:7.2-cli php -m
+$ docker run --rm php:8.5-cli php -m
 [PHP Modules]
 Core
 ctype
@@ -420,10 +420,10 @@ date
 dom
 fileinfo
 filter
-ftp
 hash
 iconv
 json
+lexbor
 libxml
 mbstring
 mysqlnd
@@ -433,6 +433,7 @@ PDO
 pdo_sqlite
 Phar
 posix
+random
 readline
 Reflection
 session
@@ -442,12 +443,15 @@ SPL
 sqlite3
 standard
 tokenizer
+uri
 xml
 xmlreader
 xmlwriter
+Zend OPcache
 zlib
 
 [Zend Modules]
+Zend OPcache
 ```
 
 ## Configuration
