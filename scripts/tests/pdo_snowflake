@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+try {
+    new PDO('snowflake:account=test;warehouse=test;database=test;schema=test', 'test_user', 'test_password');
+} catch (PDOException $x) {
+    if (stripos($x->getMessage(), 'could not find driver') !== false ||
+        stripos($x->getMessage(), 'invalid data source') !== false) {
+        fwrite(STDERR, trim($x->getMessage() . "\n"));
+        exit(1);
+    }
+}

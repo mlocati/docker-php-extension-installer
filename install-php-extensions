@@ -1464,6 +1464,10 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile gnupg apt-transport-https"
 				fi
 				;;
+			pdo_snowflake@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++6 libcurl4"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake g++ $buildRequiredPackageLists_libssldev libcurl4-openssl-dev"
+				;;
 			ssh2@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssh2"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-dev"
@@ -4344,6 +4348,29 @@ installRemoteModule() {
 					installRemoteModule_version=5.11.1
 				fi
 			fi
+			;;
+		pdo_snowflake)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version="$(curl -sSLf https://api.github.com/repos/snowflakedb/pdo_snowflake/releases/latest 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/.*"v*\([^"]*\)".*/\1/')"
+				if test -z "$installRemoteModule_version"; then
+					printf 'Failed to detect pdo_snowflake version\n' >&2
+					exit 1
+				fi
+			fi
+			installRemoteModule_src="$(getPackageSource "https://github.com/snowflakedb/pdo_snowflake/archive/refs/tags/v${installRemoteModule_version}.tar.gz")"
+			cd "$installRemoteModule_src"
+			chmod +x scripts/build_pdo_snowflake.sh
+			PHP_HOME="$(php-config --prefix)" ./scripts/build_pdo_snowflake.sh
+			cp modules/pdo_snowflake.so "$PHP_EXTDIR/pdo_snowflake.so"
+			if test -f libsnowflakeclient/cacert.pem; then
+				installRemoteModule_cacert_path="/usr/local/share/snowflake/cacert.pem"
+				mkdir -p "$(dirname "$installRemoteModule_cacert_path")"
+				cp libsnowflakeclient/cacert.pem "$installRemoteModule_cacert_path"
+				installRemoteModule_ini_extra="pdo_snowflake.cacert=$installRemoteModule_cacert_path"
+			fi
+			cd - >/dev/null
+			rm -rf "$installRemoteModule_src"
+			installRemoteModule_manuallyInstalled=1
 			;;
 		ssh2)
 			if test -z "$installRemoteModule_version"; then
