@@ -671,8 +671,8 @@ expandASpellDictionaries() {
 #   $@: the PHP module handles
 #
 # Set:
-#   PACKAGES_PERSISTENT_NEW the list of packages required at runtume that must be installed
-#   PACKAGES_PERSISTENT_PRE the list of packages required at runtume that are already installed
+#   PACKAGES_PERSISTENT_NEW the list of packages required at runtime that must be installed
+#   PACKAGES_PERSISTENT_PRE the list of packages required at runtime that are already installed
 #   PACKAGES_VOLATILE the list of packages required at compile time that must be installed
 #   PACKAGES_PREVIOUS the list of packages (with their version) that are installed right now (calculated only on Debian and only if PACKAGES_PERSISTENT_NEW or PACKAGES_VOLATILE are not empty)
 #   COMPILE_LIBS
@@ -1928,7 +1928,7 @@ getModuleFullPath() {
 #   $1: the name of the PHP extension
 #
 # Return:
-#   0 (true): if suceeded
+#   0 (true): if succeeded
 #   non-zero (false): in case of errors
 postProcessModule() {
 	postProcessModule_file="$(getModuleFullPath "$1")"
