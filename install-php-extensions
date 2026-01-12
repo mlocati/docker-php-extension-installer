@@ -4357,7 +4357,9 @@ installRemoteModule() {
 					exit 1
 				fi
 			fi
-			installRemoteModule_src="$(getPackageSource "https://github.com/snowflakedb/pdo_snowflake/archive/refs/tags/v${installRemoteModule_version}.tar.gz")"
+			printf 'Downloading pdo_snowflake v%s source code (this may take a while)... ' "$installRemoteModule_version"
+			installRemoteModule_src="$(getPackageSource "https://codeload.github.com/snowflakedb/pdo_snowflake/tar.gz/v${installRemoteModule_version}")"
+			echo 'done.'
 			cd "$installRemoteModule_src"
 			chmod +x scripts/build_pdo_snowflake.sh
 			PHP_HOME="$(php-config --prefix)" ./scripts/build_pdo_snowflake.sh
