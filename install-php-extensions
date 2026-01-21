@@ -395,7 +395,7 @@ resolvePHPModuleVersion() {
 			;;
 	esac
 	resolvePHPModuleVersion_peclModule="$(getPeclModuleName "$resolvePHPModuleVersion_module")"
-	resolvePHPModuleVersion_xml="$(curl -sSLf "http://pecl.php.net/rest/r/$resolvePHPModuleVersion_peclModule/allreleases.xml")"
+	resolvePHPModuleVersion_xml="$(curl $IPE_CURL_FLAGS -sSLf "http://pecl.php.net/rest/r/$resolvePHPModuleVersion_peclModule/allreleases.xml")"
 	# remove line endings, collapse spaces
 	resolvePHPModuleVersion_versions="$(printf '%s' "$resolvePHPModuleVersion_xml" | tr -s ' \t\r\n' ' ')"
 	# one line per release (eg <r><v>1.2.3</v><s>stable</s></r>)
@@ -459,7 +459,7 @@ resolvePeclStabilityVersion() {
 	esac
 	resolvePeclStabilityVersion_peclModule="$(getPeclModuleName "$1")"
 	peclStabilityFlagToVersion_url="http://pecl.php.net/rest/r/$resolvePeclStabilityVersion_peclModule/$2.txt"
-	if ! peclStabilityFlagToVersion_result="$(curl -sSLf "$peclStabilityFlagToVersion_url")"; then
+	if ! peclStabilityFlagToVersion_result="$(curl $IPE_CURL_FLAGS -sSLf "$peclStabilityFlagToVersion_url")"; then
 		peclStabilityFlagToVersion_result=''
 	fi
 	if test -z "$peclStabilityFlagToVersion_result"; then
@@ -2252,24 +2252,24 @@ installMicrosoftSqlServerODBC() {
 				installMicrosoftSqlServerODBC_url=https://download.microsoft.com/download/9dcab408-e0d4-4571-a81a-5a0951e3445f/msodbcsql18_18.6.1.1-1_$installMicrosoftSqlServerODBC_arch.apk
 			fi
 			printf 'APK package URL: %s\n' "$installMicrosoftSqlServerODBC_url"
-			curl -sSLf -o /tmp/src/msodbcsql.apk "$installMicrosoftSqlServerODBC_url"
+			curl $IPE_CURL_FLAGS -sSLf -o /tmp/src/msodbcsql.apk "$installMicrosoftSqlServerODBC_url"
 			printf '\n' | apk add --allow-untrusted /tmp/src/msodbcsql.apk
 			rm -rf /tmp/src/msodbcsql.apk
 			;;
 		debian)
 			printf -- '- installing the Microsoft APT key\n'
 			if test $DISTRO_VERSION_NUMBER -ge 13; then
-				curl https://packages.microsoft.com/keys/microsoft-2025.asc | gpg --dearmor --yes --output /usr/share/keyrings/microsoft-prod.gpg
+				curl $IPE_CURL_FLAGS https://packages.microsoft.com/keys/microsoft-2025.asc | gpg --dearmor --yes --output /usr/share/keyrings/microsoft-prod.gpg
 			elif test $DISTRO_VERSION_NUMBER -ge 12; then
-				curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor --yes --output /usr/share/keyrings/microsoft-prod.gpg
+				curl $IPE_CURL_FLAGS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor --yes --output /usr/share/keyrings/microsoft-prod.gpg
 			elif test $DISTRO_VERSION_NUMBER -ge 11; then
-				curl -sSLf -o /etc/apt/trusted.gpg.d/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
+				curl $IPE_CURL_FLAGS -sSLf -o /etc/apt/trusted.gpg.d/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc
 			else
-				curl -sSLf https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+				curl $IPE_CURL_FLAGS -sSLf https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
 			fi
 			if ! test -f /etc/apt/sources.list.d/mssql-release.list; then
 				printf -- '- adding the Microsoft APT source list\n'
-				curl -sSLf https://packages.microsoft.com/config/debian/$DISTRO_VERSION_NUMBER/prod.list >/etc/apt/sources.list.d/mssql-release.list
+				curl $IPE_CURL_FLAGS -sSLf https://packages.microsoft.com/config/debian/$DISTRO_VERSION_NUMBER/prod.list >/etc/apt/sources.list.d/mssql-release.list
 				invokeAptGetUpdate
 			fi
 			printf -- '- installing the APT package\n'
@@ -2610,21 +2610,21 @@ installLibcClient2007e() {
 		installLibcClient2007e_url="http://ftp.debian.org/debian/pool/main/u/uw-imap/mlock_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
 		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
 		printf '# Installing mlock from %s\n' "$installLibcClient2007e_url"
-		curl -sSLf -o "$installLibcClient2007e_deb" "$installLibcClient2007e_url"
+		curl $IPE_CURL_FLAGS -sSLf -o "$installLibcClient2007e_deb" "$installLibcClient2007e_url"
 		dpkg -i "$installLibcClient2007e_deb"
 	fi
 	if ! test -f /usr/lib/libc-client.so.2007e; then
 		installLibcClient2007e_url="http://ftp.debian.org/debian/pool/main/u/uw-imap/libc-client2007e_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
 		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
 		printf '# Installing libc-client2007e from %s\n' "$installLibcClient2007e_url"
-		curl -sSLf -o "$installLibcClient2007e_deb" "$installLibcClient2007e_url"
+		curl $IPE_CURL_FLAGS -sSLf -o "$installLibcClient2007e_deb" "$installLibcClient2007e_url"
 		dpkg -i "$installLibcClient2007e_deb"
 	fi
 	if ! test -f /usr/include/c-client/utf8.h; then
 		installLibcClient2007e_url="http://ftp.debian.org/debian/pool/main/u/uw-imap/libc-client2007e-dev_${installLibcClient2007e_version}_${installLibcClient2007e_arch}.deb"
 		installLibcClient2007e_deb="$(mktemp -p /tmp/src)"
 		printf '# Installing libc-client2007e-dev from %s\n' "$installLibcClient2007e_url"
-		curl -sSLf -o "$installLibcClient2007e_deb" "$installLibcClient2007e_url"
+		curl $IPE_CURL_FLAGS -sSLf -o "$installLibcClient2007e_deb" "$installLibcClient2007e_url"
 		dpkg -i "$installLibcClient2007e_deb"
 		PACKAGES_VOLATILE="$PACKAGES_VOLATILE libc-client2007e-dev"
 	fi
@@ -2657,8 +2657,8 @@ installComposer() {
 #   $3. additional flags for the composer installed (optional)
 actuallyInstallComposer() {
 	actuallyInstallComposer_installer="$(mktemp -p /tmp/src)"
-	curl -sSLf -o "$actuallyInstallComposer_installer" https://getcomposer.org/installer
-	actuallyInstallComposer_expectedSignature="$(curl -sSLf https://composer.github.io/installer.sig)"
+	curl $IPE_CURL_FLAGS -sSLf -o "$actuallyInstallComposer_installer" https://getcomposer.org/installer
+	actuallyInstallComposer_expectedSignature="$(curl $IPE_CURL_FLAGS -sSLf https://composer.github.io/installer.sig)"
 	actuallyInstallComposer_actualSignature="$(php -n -r "echo hash_file('sha384', '$actuallyInstallComposer_installer');")"
 	if test "$actuallyInstallComposer_expectedSignature" != "$actuallyInstallComposer_actualSignature"; then
 		printf 'Verification of composer installer failed!\nExpected signature: %s\nActual signature: %s\n' "$actuallyInstallComposer_expectedSignature" "$actuallyInstallComposer_actualSignature" >&2
@@ -2784,7 +2784,7 @@ installCargo() {
 				export RUSTFLAGS='-C target-feature=-crt-static'
 				;;
 		esac
-		curl https://sh.rustup.rs -sSf | sh -s -- -y -q
+		curl $IPE_CURL_FLAGS https://sh.rustup.rs -sSf | sh -s -- -y -q
 		case "$DISTRO" in
 			alpine)
 				if test $DISTRO_MAJMIN_VERSION -le 310; then
@@ -2829,7 +2829,7 @@ installNewRelic() {
 			installNewRelic_search="$installNewRelic_search-musl"
 			;;
 	esac
-	installNewRelic_file="$(curl -sSLf -o- "$installNewRelic_baseUrl" | sed -E 's/<[^>]*>//g' | grep -Eo "$installNewRelic_search.tar.gz" | sort | head -1)"
+	installNewRelic_file="$(curl $IPE_CURL_FLAGS -sSLf -o- "$installNewRelic_baseUrl" | sed -E 's/<[^>]*>//g' | grep -Eo "$installNewRelic_search.tar.gz" | sort | head -1)"
 	installNewRelic_url="$installNewRelic_baseUrl$installNewRelic_file"
 	installNewRelic_src="$(getPackageSource "$installNewRelic_url")"
 	cd -- "$installNewRelic_src"
@@ -3155,7 +3155,7 @@ EOF
 getPackageSource() {
 	mkdir -p /tmp/src
 	getPackageSource_tempFile=$(mktemp -p /tmp/src)
-	curl -sSLf -o "$getPackageSource_tempFile" "$1"
+	curl $IPE_CURL_FLAGS -sSLf -o "$getPackageSource_tempFile" "$1"
 	getPackageSource_tempDir=$(mktemp -p /tmp/src -d)
 	cd "$getPackageSource_tempDir"
 	tar -xzf "$getPackageSource_tempFile" 2>/dev/null || tar -xf "$getPackageSource_tempFile" 2>/dev/null || (
@@ -3257,7 +3257,7 @@ installRemoteModule() {
 			installRemoteModule_tmp2=$(php -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION . (ZEND_THREAD_SAFE ? "-zts" : "");')
 			installRemoteModule_tmp="$(mktemp -p /tmp/src -d)"
 			cd "$installRemoteModule_tmp"
-			curl -sSLf --user-agent Docker https://blackfire.io/api/v1/releases/probe/php/$installRemoteModule_distro/$installRemoteModule_tmp1/$installRemoteModule_tmp2 | tar xz
+			curl $IPE_CURL_FLAGS -sSLf --user-agent Docker https://blackfire.io/api/v1/releases/probe/php/$installRemoteModule_distro/$installRemoteModule_tmp1/$installRemoteModule_tmp2 | tar xz
 			mv blackfire-*.so $(getPHPExtensionsDir)/blackfire.so
 			cd - >/dev/null
 			installRemoteModule_manuallyInstalled=1
@@ -4122,7 +4122,7 @@ installRemoteModule() {
 			;;
 		relay)
 			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version="$(curl -sSLf https://builds.r2.relay.so/meta/latest)"
+				installRemoteModule_version="$(curl $IPE_CURL_FLAGS -sSLf https://builds.r2.relay.so/meta/latest)"
 				installRemoteModule_version="${installRemoteModule_version#v}"
 			fi
 			case $(uname -m) in
@@ -4197,7 +4197,7 @@ installRemoteModule() {
 				fi
 			else
 				installRemoteModule_regex="https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/[0-9]+/SaxonC${installRemoteModule_edition}-${installRemoteModule_architecture}-[0-9\-]+.zip"
-				installRemoteModule_url="$(curl -sSLf https://www.saxonica.com/download/c.xml | grep -Eo "$installRemoteModule_regex" | head -n 1)"
+				installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf https://www.saxonica.com/download/c.xml | grep -Eo "$installRemoteModule_regex" | head -n 1)"
 				if test $? -ne 0 || test -z "$installRemoteModule_url"; then
 					printf "Failed to determine SaxonC download URL - Nothing matches\n%s\n" "$installRemoteModule_regex"
 					exit 1
@@ -4351,7 +4351,7 @@ installRemoteModule() {
 			;;
 		pdo_snowflake)
 			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version="$(curl -sSLf https://api.github.com/repos/snowflakedb/pdo_snowflake/releases/latest 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/.*"v*\([^"]*\)".*/\1/')"
+				installRemoteModule_version="$(curl $IPE_CURL_FLAGS -sSLf https://api.github.com/repos/snowflakedb/pdo_snowflake/releases/latest 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/.*"v*\([^"]*\)".*/\1/')"
 				if test -z "$installRemoteModule_version"; then
 					printf 'Failed to detect pdo_snowflake version\n' >&2
 					exit 1
@@ -4766,7 +4766,7 @@ installRemoteModule() {
 					esac
 					;;
 			esac
-			installRemoteModule_url="$(curl -sSLf -o - https://tideways.com/profiler/downloads | grep -Eo "\"[^\"]+/tideways-php-([0-9]+\.[0-9]+\.[0-9]+)-$installRemoteModule_architecture.tar.gz\"" | cut -d'"' -f2)"
+			installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf -o - https://tideways.com/profiler/downloads | grep -Eo "\"[^\"]+/tideways-php-([0-9]+\.[0-9]+\.[0-9]+)-$installRemoteModule_architecture.tar.gz\"" | cut -d'"' -f2)"
 			if test -z "$installRemoteModule_url"; then
 				echo 'Failed to find the tideways tarball to be downloaded'
 				exit 1
@@ -5027,7 +5027,7 @@ installRemoteModule() {
 						if test $(compareVersions "$installRemoteModule_version" 1.0.0) -lt 0; then
 							installRemoteModule_src="$(getPackageSource http://archive.apache.org/dist/zookeeper/zookeeper-3.5.9/apache-zookeeper-3.5.9.tar.gz)"
 						else
-							installRemoteModule_tmp="$(curl -sSLf https://downloads.apache.org/zookeeper/stable | sed -E 's/["<>]/\n/g' | grep -E '^(apache-)?zookeeper-[0-9]+\.[0-9]+\.[0-9]+\.(tar\.gz|tgz)$' | head -n1)"
+							installRemoteModule_tmp="$(curl $IPE_CURL_FLAGS -sSLf https://downloads.apache.org/zookeeper/stable | sed -E 's/["<>]/\n/g' | grep -E '^(apache-)?zookeeper-[0-9]+\.[0-9]+\.[0-9]+\.(tar\.gz|tgz)$' | head -n1)"
 							if test -z "$installRemoteModule_tmp"; then
 								echo 'Failed to detect the zookeeper library URL' >&2
 								exit 1
@@ -5125,7 +5125,7 @@ configureInstaller() {
 			if false && anyStringInList '' "$PHP_MODULES_TO_INSTALL"; then
 				USE_PICKLE=2
 			else
-				curl -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
+				curl $IPE_CURL_FLAGS -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
 				chmod +x /tmp/pickle
 				USE_PICKLE=1
 			fi
@@ -5434,6 +5434,14 @@ mkdir -p /tmp/pickle.tmp
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 CONFIGURE_FILE=/tmp/configure-options
 IPE_APK_FLAGS=''
+case "${IPE_INSECURE:-}" in
+	1 | y* | Y*)
+		IPE_CURL_FLAGS='-k'
+		;;
+	*)
+		IPE_CURL_FLAGS=''
+		;;
+esac
 setDistro
 case "$DISTRO_VERSION" in
 	debian@8)
