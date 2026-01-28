@@ -2075,7 +2075,13 @@ markPreinstalledPackagesAsUsed() {
 installRequiredPackages() {
 	printf '### INSTALLING REQUIRED PACKAGES ###\n'
 	printf '# Packages to be kept after installation: %s\n' "$PACKAGES_PERSISTENT_NEW"
+	if test -n "${IPE_SAVE_PERMDEPS_TO:-}"; then
+		printf '%s\n' "$PACKAGES_PERSISTENT_NEW" >"$IPE_SAVE_PERMDEPS_TO"
+	fi
 	printf '# Packages to be used only for installation: %s\n' "$PACKAGES_VOLATILE"
+	if test -n "${IPE_SAVE_VOLDEPS_TO:-}"; then
+		printf '%s\n' "$PACKAGES_VOLATILE" >"$IPE_SAVE_VOLDEPS_TO"
+	fi
 	case "$DISTRO" in
 		alpine)
 			apk add $IPE_APK_FLAGS $PACKAGES_PERSISTENT_NEW $PACKAGES_VOLATILE
