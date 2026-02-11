@@ -234,13 +234,20 @@ if ($xpath->query('/v20:package/v20:dependencies')->length === 1) {
 	$ns = '';
 } else {
 	fwrite(STDERR, "Unsupported namespace of the XML of package version details\n");
+	exit(1);
 }
 $nodes = $xpath->query("/{$ns}package/{$ns}name");
 $name = trim((string) $nodes[0]->nodeValue);
-if ($ns === '') {
-	$nodes = $xpath->query("/{$ns}package/{$ns}version");
-} else {
-	$nodes = $xpath->query("/{$ns}package/{$ns}version/{$ns}release");
+$nodes = $xpath->query("/{$ns}package/{$ns}version/{$ns}release");
+if ($nodes->length === 0) {
+	$nodes = $xpath->query("/{$ns}package/{$ns}release/{$ns}version");
+	if ($nodes->length === 0) {
+		$nodes = $xpath->query("/{$ns}package/{$ns}version");
+		if ($nodes->length === 0) {
+			fwrite(STDERR, "Unable to find the version in the XML of package version details\n");
+			exit(1);
+		}
+	}
 }
 $version = trim((string) $nodes[0]->nodeValue);
 echo "EXTRACTPACKAGEVERSIONFROMXML_NAME='{$name}'\n";
