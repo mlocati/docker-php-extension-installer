@@ -5138,7 +5138,7 @@ configureInstaller() {
 			break
 		fi
 	done
-	if test $NEEDS_PECL -eq 0 ; then
+	if test $NEEDS_PECL -eq 0; then
 		return
 	fi
 	if ! which pecl >/dev/null; then
