@@ -1083,6 +1083,14 @@ buildRequiredPackageLists() {
 					COMPILE_LIBS="$COMPILE_LIBS libip2location"
 				fi
 				;;
+			judy@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent judy"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile judy-dev"
+				;;
+			judy@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libjudydebian1"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libjudy-dev"
+				;;
 			ldap@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libldap"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile openldap-dev"

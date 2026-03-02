@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$judy = new Judy(Judy::BITSET);
+$judy[1] = false;
+$judy[2] = true;
+
+if ($judy[1] === false && $judy[2] === true) {
+    fwrite(STDOUT, "The Judy extension is working as expected.\n");
+} else {
+    fwrite(STDERR, "Unexpected values from the Judy extension.\n");
+    exit(1);
+}
