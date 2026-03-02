@@ -333,7 +333,7 @@ install-php-extensions @fix_letsencrypt
 | pdo_odbc | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | pdo_snowflake[*](#special-requirements-for-pdo_snowflake) |  | &check; | &check; | &check; | &check; |  |  |  |  |  |  |  |  |
-| pdo_sqlsrv |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
+| pdo_sqlsrv | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | pgsql | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | phalcon |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |
 | php_trie |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |
@@ -365,7 +365,7 @@ install-php-extensions @fix_letsencrypt
 | solr | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | sourceguardian | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | spx | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| sqlsrv[*](#special-requirements-for-sqlsrv) |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
+| sqlsrv[*](#special-requirements-for-sqlsrv) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | ssh2 | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | stomp |  | &check; | &check; | &check; |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | swoole |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
