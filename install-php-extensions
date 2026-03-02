@@ -3302,19 +3302,23 @@ installRemoteModule() {
 				fi
 			fi
 			if ! test -e /usr/local/lib/libcmark.so && ! test -e /usr/local/lib64/libcmark.so && ! test -e /usr/lib/libcmark.so && ! test -e /usr/lib64/libcmark.so && ! test -e /lib/libcmark.so; then
-				if test $(compareVersions "$(cmake --version | head -n1 | sed -E 's/^.* //')" '3.7') -lt 0; then
-					installRemoteModule_tmp=0.29.0
+				installRemoteModule_cmakeVersion="$(cmake --version | head -n1 | sed -E 's/^.* //')"
+				if test $(compareVersions "$installRemoteModule_cmakeVersion" '3.7') -lt 0; then
+					installRemoteModule_cmarkVersion=0.29.0
+				elif test $(compareVersions "$installRemoteModule_cmakeVersion" '3.15') -lt 0; then
+					installRemoteModule_cmarkVersion=0.31.1
 				else
-					installRemoteModule_tmp=0.31.1
+					installRemoteModule_cmarkVersion=0.31.2
 				fi
-				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/$installRemoteModule_tmp.tar.gz)"
+				printf 'Installing libcmark %s\n' "$installRemoteModule_cmarkVersion"
+				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/$installRemoteModule_cmarkVersion.tar.gz)"
 				make -s -j$(getProcessorCount) cmake_build
 				make -s -j$(getProcessorCount) install
 				cd - >/dev/null
 				case "$DISTRO" in
 					alpine)
-						if test -e /usr/local/lib64/libcmark.so.$installRemoteModule_tmp && ! test -e /usr/local/lib/libcmark.so.$installRemoteModule_tmp; then
-							ln -s /usr/local/lib64/libcmark.so.$installRemoteModule_tmp /usr/local/lib/
+						if test -e /usr/local/lib64/libcmark.so.$installRemoteModule_cmarkVersion && ! test -e /usr/local/lib/libcmark.so.$installRemoteModule_cmarkVersion; then
+							ln -s /usr/local/lib64/libcmark.so.$installRemoteModule_cmarkVersion /usr/local/lib/
 						fi
 						;;
 					*)
