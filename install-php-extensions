@@ -1152,7 +1152,11 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmemcached-dev zlib-dev"
 				;;
 			memcached@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmemcachedutil2"
+				if test $DISTRO_VERSION_NUMBER -ge 13; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmemcachedutil2t64"
+				else
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libmemcachedutil2"
+				fi
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmemcached-dev zlib1g-dev"
 				if test $DISTRO_MAJMIN_VERSION -ge 12; then
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev"
