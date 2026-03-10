@@ -1506,6 +1506,10 @@ buildRequiredPackageLists() {
 					if test $PHP_MAJMIN_VERSION -ge 801; then
 						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent zstd-libs"
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile sqlite-dev zstd-dev"
+						if test $PHP_MAJMIN_VERSION -ge 802; then
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssh2"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile ncurses-dev libssh2-dev"
+						fi
 					fi
 				fi
 				case "${IPE_SWOOLE_WITHOUT_IOURING:-}" in
@@ -1522,6 +1526,13 @@ buildRequiredPackageLists() {
 				if test $PHP_MAJMIN_VERSION -ge 802; then
 					if ! isFirebirdInstalled; then
 						COMPILE_LIBS="$COMPILE_LIBS firebird"
+						if ! isLibTommathInstalled; then
+							if ! isLibTomcryptInstalled; then
+								COMPILE_LIBS="$COMPILE_LIBS libtomcrypt"
+							fi
+							COMPILE_LIBS="$COMPILE_LIBS libtommath"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
+						fi
 					fi
 				fi
 				;;
