@@ -1509,14 +1509,16 @@ buildRequiredPackageLists() {
 						if test $PHP_MAJMIN_VERSION -ge 802; then
 							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssh2"
 							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile ncurses-dev libssh2-dev"
-							if ! isFirebirdInstalled; then
-								COMPILE_LIBS="$COMPILE_LIBS firebird"
-								if ! isLibTommathInstalled; then
-									if ! isLibTomcryptInstalled; then
-										COMPILE_LIBS="$COMPILE_LIBS libtomcrypt"
+							if test $PHP_MAJMIN_VERSION -ge 804; then # swoole 6.2+ requires firebird 3+, but with PHP < 8.4 we install firebird 2.5 (see installFirebird)
+								if ! isFirebirdInstalled; then
+									COMPILE_LIBS="$COMPILE_LIBS firebird"
+									if ! isLibTommathInstalled; then
+										if ! isLibTomcryptInstalled; then
+											COMPILE_LIBS="$COMPILE_LIBS libtomcrypt"
+										fi
+										COMPILE_LIBS="$COMPILE_LIBS libtommath"
+										buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
 									fi
-									COMPILE_LIBS="$COMPILE_LIBS libtommath"
-									buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
 								fi
 							fi
 						fi
@@ -4551,6 +4553,14 @@ installRemoteModule() {
 					fi
 					;;
 			esac
+			installRemoteModule_firebird=yes
+			case "$DISTRO" in
+				alpine)
+					if test $PHP_MAJMIN_VERSION -lt 804; then # swoole 6.2+ requires firebird 3+, but with PHP < 8.4 we install firebird 2.5 (see installFirebird)
+						installRemoteModule_firebird=no
+					fi
+					;;
+			esac
 			if test $(compareVersions "$installRemoteModule_version" 6.2.0) -ge 0; then
 				# enable sockets support?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
@@ -4577,7 +4587,7 @@ installRemoteModule() {
 				# enable Sqlite database support?
 				addConfigureOption enable-swoole-sqlite $installRemoteModule_sqlite
 				# enable Firebird database support?
-				addConfigureOption with-swoole-firebird yes
+				addConfigureOption with-swoole-firebird $installRemoteModule_firebird
 				# enable swoole thread support (need php zts support)?
 				addConfigureOption enable-swoole-thread $installRemoteModule_zts
 				# enable iouring for file async support?
