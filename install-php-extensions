@@ -1509,6 +1509,16 @@ buildRequiredPackageLists() {
 						if test $PHP_MAJMIN_VERSION -ge 802; then
 							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssh2"
 							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile ncurses-dev libssh2-dev"
+							if ! isFirebirdInstalled; then
+								COMPILE_LIBS="$COMPILE_LIBS firebird"
+								if ! isLibTommathInstalled; then
+									if ! isLibTomcryptInstalled; then
+										COMPILE_LIBS="$COMPILE_LIBS libtomcrypt"
+									fi
+									COMPILE_LIBS="$COMPILE_LIBS libtommath"
+									buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
+								fi
+							fi
 						fi
 					fi
 				fi
@@ -1523,18 +1533,6 @@ buildRequiredPackageLists() {
 						fi
 						;;
 				esac
-				if test $PHP_MAJMIN_VERSION -ge 802; then
-					if ! isFirebirdInstalled; then
-						COMPILE_LIBS="$COMPILE_LIBS firebird"
-						if ! isLibTommathInstalled; then
-							if ! isLibTomcryptInstalled; then
-								COMPILE_LIBS="$COMPILE_LIBS libtomcrypt"
-							fi
-							COMPILE_LIBS="$COMPILE_LIBS libtommath"
-							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
-						fi
-					fi
-				fi
 				;;
 			swoole@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libcurl3-gnutls libpq5"
@@ -1553,8 +1551,8 @@ buildRequiredPackageLists() {
 								buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzstd-dev"
 							fi
 							if test $PHP_MAJMIN_VERSION -ge 802; then
-								buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2"
-								buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev"
+								buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2 ^libssh2(-[0-9]+)$"
+								buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev ^libssh2(-[0-9]+)*-dev$"
 							fi
 						fi
 					fi
@@ -4587,7 +4585,7 @@ installRemoteModule() {
 				# specify liburing installation directory (requires liburing 2.8 or later)?
 				addConfigureOption with-liburing-dir no
 				# enable iouring for http coroutine server support?
-				addConfigureOption enable-uring-socket yes
+				addConfigureOption enable-uring-socket $installRemoteModule_iouring
 				# enable async ssh2 client support?
 				addConfigureOption with-swoole-ssh2 yes
 				# enable async ftp client support?
