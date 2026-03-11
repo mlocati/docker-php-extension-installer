@@ -1510,6 +1510,22 @@ buildRequiredPackageLists() {
 					if test $PHP_MAJMIN_VERSION -ge 801; then
 						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent zstd-libs"
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile sqlite-dev zstd-dev"
+						if test $PHP_MAJMIN_VERSION -ge 802; then
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssh2"
+							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile ncurses-dev libssh2-dev"
+							if test $PHP_MAJMIN_VERSION -ge 804; then # swoole 6.2+ requires firebird 3+, but with PHP < 8.4 we install firebird 2.5 (see installFirebird)
+								if ! isFirebirdInstalled; then
+									COMPILE_LIBS="$COMPILE_LIBS firebird"
+									if ! isLibTommathInstalled; then
+										if ! isLibTomcryptInstalled; then
+											COMPILE_LIBS="$COMPILE_LIBS libtomcrypt"
+										fi
+										COMPILE_LIBS="$COMPILE_LIBS libtommath"
+										buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
+									fi
+								fi
+							fi
+						fi
 					fi
 				fi
 				case "${IPE_SWOOLE_WITHOUT_IOURING:-}" in
@@ -1539,6 +1555,10 @@ buildRequiredPackageLists() {
 								# swoole 6 requires libzstd >= 1.4.0, but on debian 10 (buster) we have 1.3.8
 								buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libzstd[0-9]*$"
 								buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzstd-dev"
+							fi
+							if test $PHP_MAJMIN_VERSION -ge 802; then
+								buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libfbclient2 ^libssh2(-[0-9]+)$"
+								buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev ^libssh2(-[0-9]+)*-dev$"
 							fi
 						fi
 					fi
@@ -4460,6 +4480,8 @@ installRemoteModule() {
 				if test -z "$installRemoteModule_version"; then
 					if test $PHP_MAJMIN_VERSION -le 800; then
 						installRemoteModule_version=5.1.3
+					elif test $PHP_MAJMIN_VERSION -le 801; then
+						installRemoteModule_version=6.1.7
 					else
 						installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" stable)"
 					fi
@@ -4500,7 +4522,11 @@ installRemoteModule() {
 						*)
 							# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
 							# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
-							if test $DISTRO_MAJMIN_VERSION -ge 320; then
+							if test $DISTRO_MAJMIN_VERSION -lt 320; then
+								: # swoole requires liburing 2.5+: available since Alpine 3.20
+							elif test $(compareVersions "$installRemoteModule_version" 6.2.0) -ge 0 && test $DISTRO_MAJMIN_VERSION -lt 321; then
+								: # swoole 6.2.0+ requires liburing 2.8+: available since Alpine 3.21
+							else
 								installRemoteModule_iouring=yes
 							fi
 							;;
@@ -4518,8 +4544,9 @@ installRemoteModule() {
 					case "${IPE_SWOOLE_WITHOUT_IOURING:-}" in
 						1 | y* | Y*) ;;
 						*)
-							if test $DISTRO_VERSION_NUMBER -ge 13; then
-								# iouring support in swoole 6 requires liburing 2.5+: available since Debian Trixie (13)
+							if test $DISTRO_VERSION_NUMBER -lt 13; then
+								: # swoole 6+ requires liburing 2.5+: available since Debian Trixie (13)
+							else
 								installRemoteModule_iouring=yes
 							fi
 							;;
@@ -4535,7 +4562,54 @@ installRemoteModule() {
 					fi
 					;;
 			esac
-			if test $(compareVersions "$installRemoteModule_version" 6.0.0) -ge 0; then
+			installRemoteModule_firebird=yes
+			case "$DISTRO" in
+				alpine)
+					if test $PHP_MAJMIN_VERSION -lt 804; then # swoole 6.2+ requires firebird 3+, but with PHP < 8.4 we install firebird 2.5 (see installFirebird)
+						installRemoteModule_firebird=no
+					fi
+					;;
+			esac
+			if test $(compareVersions "$installRemoteModule_version" 6.2.0) -ge 0; then
+				# enable sockets support?
+				addConfigureOption enable-sockets $installRemoteModule_sockets
+				# specify openssl installation directory (requires openssl 1.1.0 or later)?
+				addConfigureOption with-openssl-dir $installRemoteModule_openssl
+				# enable mysqlnd support?
+				addConfigureOption enable-mysqlnd yes
+				# enable curl support?
+				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				# enable cares support?
+				addConfigureOption enable-cares yes
+				# enable brotli support?
+				addConfigureOption enable-brotli yes
+				# specify brotli installation directory?
+				addConfigureOption with-brotli-dir no
+				# enable zstd support (requires zstd 1.4.0 or later)?
+				addConfigureOption enable-zstd $installRemoteModule_zstd
+				# enable PostgreSQL database support?
+				addConfigureOption enable-swoole-pgsql yes
+				# enable ODBC database support?
+				addConfigureOption with-swoole-odbc no
+				# enable Oracle database support?
+				addConfigureOption with-swoole-oracle no
+				# enable Sqlite database support?
+				addConfigureOption enable-swoole-sqlite $installRemoteModule_sqlite
+				# enable Firebird database support?
+				addConfigureOption with-swoole-firebird $installRemoteModule_firebird
+				# enable swoole thread support (need php zts support)?
+				addConfigureOption enable-swoole-thread $installRemoteModule_zts
+				# enable iouring for file async support?
+				addConfigureOption enable-iouring $installRemoteModule_iouring
+				# specify liburing installation directory (requires liburing 2.8 or later)?
+				addConfigureOption with-liburing-dir no
+				# enable iouring for http coroutine server support?
+				addConfigureOption enable-uring-socket $installRemoteModule_iouring
+				# enable async ssh2 client support?
+				addConfigureOption with-swoole-ssh2 yes
+				# enable async ftp client support?
+				addConfigureOption enable-swoole-ftp no # conflicts with ftp PHP extension
+			elif test $(compareVersions "$installRemoteModule_version" 6.0.0) -ge 0; then
 				# enable sockets support?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
 				# enable openssl support?
