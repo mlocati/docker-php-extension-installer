@@ -382,7 +382,7 @@ getModuleSourceCodePath() {
 resolvePHPModuleVersion() {
 	resolvePHPModuleVersion_module="$1"
 	if test $# -lt 2; then
-		resolvePHPModuleVersion_raw="$(getWantedPHPModuleVersion "$installRemoteModule_module")"
+		resolvePHPModuleVersion_raw="$(getWantedPHPModuleVersion "$resolvePHPModuleVersion_module")"
 	else
 		resolvePHPModuleVersion_raw="$2"
 	fi
