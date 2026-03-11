@@ -1972,11 +1972,16 @@ getModuleFullPath() {
 postProcessModule() {
 	postProcessModule_file="$(getModuleFullPath "$1")"
 	if test $PHP_DEBUGBUILD -ne 1; then
-		printf 'Removing symbols from %s... ' "$postProcessModule_file"
-		postProcessModule_preSize="$(stat -c %s "$postProcessModule_file")"
-		strip --strip-all "$postProcessModule_file"
-		postProcessModule_postSize="$(stat -c %s "$postProcessModule_file")"
-		printf 'done (%s bytes saved).\n' "$((postProcessModule_preSize - postProcessModule_postSize))"
+		case "${IPE_NOSTRIP:-}" in
+			1 | y* | Y*) ;;
+			*)
+				printf 'Removing symbols from %s... ' "$postProcessModule_file"
+				postProcessModule_preSize="$(stat -c %s "$postProcessModule_file")"
+				strip --strip-all "$postProcessModule_file"
+				postProcessModule_postSize="$(stat -c %s "$postProcessModule_file")"
+				printf 'done (%s bytes saved).\n' "$((postProcessModule_preSize - postProcessModule_postSize))"
+				;;
+		esac
 	fi
 	return $?
 }
