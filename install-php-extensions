@@ -3111,6 +3111,8 @@ EOF
 			cd - >/dev/null
 			;;
 		oci8 | pdo_oci)
+			# oci8/pdo_oci must be loaded after smbclient (otherwise we have a segmentation fault when using smbclient_open)
+			installBundledModule_ini_basename="xx-php-ext-$installBundledModule_module"
 			case "$DISTRO" in
 				debian)
 					if test $DISTRO_VERSION_NUMBER -ge 13; then
@@ -3859,6 +3861,8 @@ installRemoteModule() {
 			fi
 			;;
 		oci8 | pdo_oci)
+			# oci8/pdo_oci must be loaded after smbclient (otherwise we have a segmentation fault when using smbclient_open)
+			installRemoteModule_ini_basename="xx-php-ext-$installRemoteModule_module"
 			case "$DISTRO" in
 				debian)
 					if test $DISTRO_VERSION_NUMBER -ge 13; then
