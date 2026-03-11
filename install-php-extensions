@@ -1513,7 +1513,7 @@ buildRequiredPackageLists() {
 						if test $PHP_MAJMIN_VERSION -ge 802; then
 							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libssh2"
 							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile ncurses-dev libssh2-dev"
-							if test $PHP_MAJMIN_VERSION -ge 804; then # swoole 6.2+ requires firebird 3+, but with PHP < 8.4 we install firebird 2.5 (see installFirebird)
+							if test $PHP_MAJMIN_VERSION -ge 804 && test "$TARGET_TRIPLET" != aarch64-alpine-linux-musl; then # firebird 5 currently fails to link on Alpine arm64
 								if ! isFirebirdInstalled; then
 									COMPILE_LIBS="$COMPILE_LIBS firebird"
 									if ! isLibTommathInstalled; then
@@ -4579,7 +4579,7 @@ installRemoteModule() {
 			installRemoteModule_firebird=yes
 			case "$DISTRO" in
 				alpine)
-					if test $PHP_MAJMIN_VERSION -lt 804; then # swoole 6.2+ requires firebird 3+, but with PHP < 8.4 we install firebird 2.5 (see installFirebird)
+					if test $PHP_MAJMIN_VERSION -lt 804 || test "$TARGET_TRIPLET" = aarch64-alpine-linux-musl; then # firebird 5 currently fails to link on Alpine arm64
 						installRemoteModule_firebird=no
 					fi
 					;;
