@@ -4589,7 +4589,7 @@ installRemoteModule() {
 				# enable async ssh2 client support?
 				addConfigureOption with-swoole-ssh2 yes
 				# enable async ftp client support?
-				addConfigureOption enable-swoole-ftp yes
+				addConfigureOption enable-swoole-ftp no # conflicts with ftp PHP extension
 			elif test $(compareVersions "$installRemoteModule_version" 6.0.0) -ge 0; then
 				# enable sockets support?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
