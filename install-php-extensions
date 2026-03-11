@@ -2956,14 +2956,15 @@ compileLibs() {
 # Output:
 #   Nothing
 installBundledModule() {
-	printf '### INSTALLING BUNDLED MODULE %s ###\n' "$1"
-	if test -n "$(getWantedPHPModuleVersion "$1")"; then
-		printf '### WARNING the module "%s" is bundled with PHP, you can NOT specify a version for it\n' "$1" >&2
+	installBundledModule_module="$1"
+	printf '### INSTALLING BUNDLED MODULE %s ###\n' "$installBundledModule_module"
+	if test -n "$(getWantedPHPModuleVersion "$installBundledModule_module")"; then
+		printf '### WARNING the module "%s" is bundled with PHP, you can NOT specify a version for it\n' "$installBundledModule_module" >&2
 	fi
-	if test -n "$(getModuleSourceCodePath "$1")"; then
-		printf '### WARNING the module "%s" is bundled with PHP, you can NOT specify a source code path for it\n' "$1" >&2
+	if test -n "$(getModuleSourceCodePath "$installBundledModule_module")"; then
+		printf '### WARNING the module "%s" is bundled with PHP, you can NOT specify a source code path for it\n' "$installBundledModule_module" >&2
 	fi
-	case "$1" in
+	case "$installBundledModule_module" in
 		dba)
 			if test -e /usr/lib/$TARGET_TRIPLET/libdb-5.3.so && ! test -e /usr/lib/libdb-5.3.so; then
 				ln -s /usr/lib/$TARGET_TRIPLET/libdb-5.3.so /usr/lib/
@@ -3051,7 +3052,7 @@ EOF
 			case "$DISTRO" in
 				alpine)
 					if test $PHP_MAJMIN_VERSION -lt 804; then
-						CFLAGS='-I/tmp/src/firebird/src/jrd -I/tmp/src/firebird/src/include -I/tmp/src/firebird/src/include/gen' docker-php-ext-configure $1
+						CFLAGS='-I/tmp/src/firebird/src/jrd -I/tmp/src/firebird/src/include -I/tmp/src/firebird/src/include/gen' docker-php-ext-configure $installBundledModule_module
 					fi
 					;;
 			esac
@@ -3122,10 +3123,10 @@ EOF
 					;;
 			esac
 			installOracleInstantClient
-			if test "$1" = oci8; then
-				docker-php-ext-configure "$1" "--with-oci8=instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
-			elif test "$1" = pdo_oci; then
-				docker-php-ext-configure "$1" "--with-pdo-oci=instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
+			if test "$installBundledModule_module" = oci8; then
+				docker-php-ext-configure "$installBundledModule_module" "--with-oci8=instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
+			elif test "$installBundledModule_module" = pdo_oci; then
+				docker-php-ext-configure "$installBundledModule_module" "--with-pdo-oci=instantclient,$ORACLE_INSTANTCLIENT_LIBPATH"
 			fi
 			;;
 		pdo_odbc)
@@ -3171,8 +3172,8 @@ EOF
 			;;
 	esac
 	installBundledModule_errBefore="$(php -r 'return;' 2>&1 || true)"
-	docker-php-ext-install -j$(getProcessorCount) "$1"
-	case "$1" in
+	docker-php-ext-install -j$(getProcessorCount) "$installBundledModule_module"
+	case "$installBundledModule_module" in
 		imap)
 			case "$DISTRO_VERSION" in
 				debian@9)
@@ -3187,8 +3188,8 @@ EOF
 			php -r 'return;' >/dev/null 2>/dev/null || true
 			installBundledModule_errAfter="$(php -r 'return;' 2>&1 || true)"
 			if test "$installBundledModule_errAfter" != "$installBundledModule_errBefore"; then
-				printf 'PHP has problems after installing the "%s" extension:\n%s\n' "$1" "$installBundledModule_errAfter" >&2
-				rm "$PHP_INI_DIR/conf.d/docker-php-ext-$1.ini" || true
+				printf 'PHP has problems after installing the "%s" extension:\n%s\n' "$installBundledModule_module" "$installBundledModule_errAfter" >&2
+				rm "$PHP_INI_DIR/conf.d/docker-php-ext-$installBundledModule_module.ini" || true
 				return 1
 			fi
 			;;
