@@ -2957,6 +2957,7 @@ compileLibs() {
 #   Nothing
 installBundledModule() {
 	installBundledModule_module="$1"
+	installBundledModule_ini_basename=''
 	printf '### INSTALLING BUNDLED MODULE %s ###\n' "$installBundledModule_module"
 	if test -n "$(getWantedPHPModuleVersion "$installBundledModule_module")"; then
 		printf '### WARNING the module "%s" is bundled with PHP, you can NOT specify a version for it\n' "$installBundledModule_module" >&2
@@ -3171,8 +3172,11 @@ EOF
 			fi
 			;;
 	esac
+	if test -z "$installBundledModule_ini_basename"; then
+		installBundledModule_ini_basename="docker-php-ext-$installBundledModule_module"
+	fi
 	installBundledModule_errBefore="$(php -r 'return;' 2>&1 || true)"
-	docker-php-ext-install -j$(getProcessorCount) "$installBundledModule_module"
+	docker-php-ext-install -j$(getProcessorCount) --ini-name "$installBundledModule_ini_basename.ini" "$installBundledModule_module"
 	case "$installBundledModule_module" in
 		imap)
 			case "$DISTRO_VERSION" in
@@ -3189,7 +3193,7 @@ EOF
 			installBundledModule_errAfter="$(php -r 'return;' 2>&1 || true)"
 			if test "$installBundledModule_errAfter" != "$installBundledModule_errBefore"; then
 				printf 'PHP has problems after installing the "%s" extension:\n%s\n' "$installBundledModule_module" "$installBundledModule_errAfter" >&2
-				rm "$PHP_INI_DIR/conf.d/docker-php-ext-$installBundledModule_module.ini" || true
+				rm "$PHP_INI_DIR/conf.d/$installBundledModule_ini_basename.ini" || true
 				return 1
 			fi
 			;;
