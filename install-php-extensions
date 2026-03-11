@@ -2556,6 +2556,8 @@ installFirebird() {
 	if test $PHP_MAJMIN_VERSION -ge 804; then
 		installFirebird_src="$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/v5.0.3/Firebird-5.0.3.1683-0-source.tar.xz)"
 		cd -- "$installFirebird_src"
+		# Turn off profiling on arm64, otherwise the build fails with "undefined reference to `_mcount'"
+		sed -i 's/ -p / /g; s/ -p$//g; s/^-p //g' builds/posix/prefix.linux_arm64
 		./configure --enable-client-only
 		make -j$(getProcessorCount)
 		cp -Rd gen/Release/firebird/include/* /usr/include
