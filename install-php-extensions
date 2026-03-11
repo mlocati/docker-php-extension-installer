@@ -4518,7 +4518,11 @@ installRemoteModule() {
 						*)
 							# iouring support in swoole 6 requires liburing 2.5+: available since Alpine 3.19
 							# but with Alpine 3.19 we have a "invalid use of incomplete type 'const struct statx'" error
-							if test $DISTRO_MAJMIN_VERSION -ge 320; then
+							if test $DISTRO_MAJMIN_VERSION -lt 320; then
+								: # swoole requires liburing 2.5+: available since Alpine 3.20
+							elif test $(compareVersions "$installRemoteModule_version" 6.2.0) -ge 0 && test $DISTRO_MAJMIN_VERSION -lt 321; then
+								: # swoole 6.2.0+ requires liburing 2.8+: available since Alpine 3.21
+							else
 								installRemoteModule_iouring=yes
 							fi
 							;;
@@ -4536,8 +4540,9 @@ installRemoteModule() {
 					case "${IPE_SWOOLE_WITHOUT_IOURING:-}" in
 						1 | y* | Y*) ;;
 						*)
-							if test $DISTRO_VERSION_NUMBER -ge 13; then
-								# iouring support in swoole 6 requires liburing 2.5+: available since Debian Trixie (13)
+							if test $DISTRO_VERSION_NUMBER -lt 13; then
+								: # swoole 6+ requires liburing 2.5+: available since Debian Trixie (13)
+							else
 								installRemoteModule_iouring=yes
 							fi
 							;;
