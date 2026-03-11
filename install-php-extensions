@@ -3174,11 +3174,13 @@ EOF
 			fi
 			;;
 	esac
+	installBundledModule_errBefore="$(php -r 'return;' 2>&1 || true)"
+	docker-php-ext-install -j$(getProcessorCount) "$installBundledModule_module"
 	if test -z "$installBundledModule_ini_basename"; then
 		installBundledModule_ini_basename="docker-php-ext-$installBundledModule_module"
+	else
+		mv "$PHP_INI_DIR/conf.d/docker-php-ext-$installBundledModule_module.ini" "$PHP_INI_DIR/conf.d/$installBundledModule_ini_basename.ini"
 	fi
-	installBundledModule_errBefore="$(php -r 'return;' 2>&1 || true)"
-	docker-php-ext-install -j$(getProcessorCount) --ini-name "$installBundledModule_ini_basename.ini" "$installBundledModule_module"
 	case "$installBundledModule_module" in
 		imap)
 			case "$DISTRO_VERSION" in
