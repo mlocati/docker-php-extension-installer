@@ -56,17 +56,17 @@ jobs:
         name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "7.4"
+          php-version: "8.4"
           tools: composer
       -
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       -
         name: Install Composer dependencies
-        run: composer install --no-progress --classmap-authoritative
+        run: composer install --no-progress --classmap-authoritative --ansi --no-interaction
       -
         name: Check coding style
-        run: composer run-script lint -- --dry-run --diff
+        run: composer run-script lint -- --dry-run --using-cache=no --diff --show-progress=dots --sequential --ansi --no-interaction -vv
 
   test_extensions:
     needs:

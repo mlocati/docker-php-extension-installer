@@ -10,10 +10,13 @@
         }
     ],
     "minimum-stability": "stable",
+	"require": {
+		"php": "^8.4"
+	},
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.16"
+        "friendsofphp/php-cs-fixer": "^3.94.2"
     },
     "scripts": {
-        "lint": "php-cs-fixer fix --path-mode=intersection --config=.php_cs ."
+        "lint": "php-cs-fixer fix"
     }
 }
