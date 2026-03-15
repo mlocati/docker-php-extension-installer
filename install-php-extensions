@@ -5244,11 +5244,19 @@ moduleMayUsePecl() {
 #   USE_PICKLE 0: no, 1: yes (already downloaded), 2: yes (build it from source)
 configureInstaller() {
 	USE_PICKLE=0
+	local PHP_MODULE_TO_INSTALL
+	local NEEDS_PECL=0
+	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
+		if moduleMayUsePecl "$PHP_MODULE_TO_INSTALL"; then
+			NEEDS_PECL=1
+			break
+		fi
+	done
+	if test $NEEDS_PECL -eq 0; then
+		return
+	fi
 	if ! which pecl >/dev/null; then
 		for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
-			if ! moduleMayUsePecl "$PHP_MODULE_TO_INSTALL"; then
-				continue
-			fi
 			if false && anyStringInList '' "$PHP_MODULES_TO_INSTALL"; then
 				USE_PICKLE=2
 			else
