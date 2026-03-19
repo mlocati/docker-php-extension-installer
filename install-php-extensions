@@ -731,10 +731,15 @@ buildRequiredPackageLists() {
 			fi
 			if test $buildRequiredPackageLists_sslMajorVersion -le 1; then
 				buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorMinorVersion"
+				if test $DISTRO_VERSION_NUMBER -eq 9 && test "$buildRequiredPackageLists_sslMajorMinorVersion" = '1.0'; then
+					buildRequiredPackageLists_libssldev="libssl$buildRequiredPackageLists_sslMajorMinorVersion-dev"
+				else
+					buildRequiredPackageLists_libssldev="libssl-dev"
+				fi
 			else
 				buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorVersion"
+				buildRequiredPackageLists_libssldev="libssl-dev"
 			fi
-			buildRequiredPackageLists_libssldev="libssl-dev"
 			;;
 	esac
 	if test $USE_PICKLE -gt 1; then
