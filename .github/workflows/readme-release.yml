@@ -103,9 +103,10 @@ jobs:
       -
         name: Sleep for a while before creating a tag
         if: env.VERSIONTAG_THIS != ''
-        uses: juliangruber/sleep-action@v2
+        uses: actions/github-script@v8
         with:
-          time: 30s
+          script: |
+            await new Promise(resolve => setTimeout(resolve, 30000));
       -
         name: Create version tag after a push in the local repository
         if: env.VERSIONTAG_THIS != ''
