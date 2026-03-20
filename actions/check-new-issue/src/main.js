@@ -1,5 +1,5 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
+import * as core from '@actions/core';
+import * as github from '@actions/github';
 
 const VERSION_PREVLINE = '### Version of install-php-extensions';
 
@@ -89,7 +89,7 @@ async function getComment(version, versionLine, token)
 }
 
 /**
- * @returns {Promise|undefined}
+ * @returns {Promise<void>}
  */
 async function main()
 {
@@ -137,4 +137,4 @@ async function main()
   }
 }
 
-return main();
+main();

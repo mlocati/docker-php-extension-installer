@@ -5,5 +5,5 @@ inputs:
     required: true
     description: The value of secrets.GITHUB_TOKEN
 runs:
-  using: node20
-  main: dist/index.js
+  using: node24
+  main: dist/main.js

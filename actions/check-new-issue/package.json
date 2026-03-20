@@ -1,18 +1,25 @@
 {
   "name": "check-new-issue",
+  "type": "module",
   "version": "1.0.0",
-  "main": "index.js",
+  "engines": {
+    "node": "^24.13"
+  },
   "scripts": {
-    "publish": "ncc build src/index.js"
+    "prebuild": "shx rm -rf dist",
+    "build": "npx rollup --config rollup.config.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.0"
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.4"
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "rollup": "^4.59.0",
+    "shx": "^0.4.0"
   }
 }

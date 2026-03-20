@@ -24,7 +24,7 @@ jobs:
       IPETEST_ONLY_PHPVERSIONS: "8.5"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test extensions
         run: ./scripts/ci-test-extensions all
       - name: Notify failures
