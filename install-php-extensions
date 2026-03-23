@@ -695,23 +695,60 @@ buildRequiredPackageLists() {
 			invokeAptGetUpdate
 			;;
 	esac
+	buildRequiredPackageLists_sslTextVersion="$(php -d display_errors=stderr -r 'echo defined("OPENSSL_VERSION_TEXT") ? OPENSSL_VERSION_TEXT : "";' 2>/dev/null)"
+	if test $? -ne 0 || test -z "$buildRequiredPackageLists_sslTextVersion"; then
+		printf 'Unable to determine the version of the SSL library\n' >&2
+		exit 1
+	fi
+	case "$buildRequiredPackageLists_sslTextVersion" in
+		OpenSSL\ *)
+			buildRequiredPackageLists_sslLib=openssl
+			buildRequiredPackageLists_sslMajorVersion="$(php -d display_errors=stderr -r 'echo defined("OPENSSL_VERSION_NUMBER") ? (OPENSSL_VERSION_NUMBER >> 28) : "";' 2>/dev/null)"
+			if test $? -ne 0 || test -z "$buildRequiredPackageLists_sslMajorVersion"; then
+				printf 'Unable to determine the major version of the SSL library\n' >&2
+				exit 1
+			fi
+			buildRequiredPackageLists_sslMajorMinorVersion="$(php -d display_errors=stderr -r 'echo defined("OPENSSL_VERSION_NUMBER") ? ((OPENSSL_VERSION_NUMBER >> 28) . "." . ((OPENSSL_VERSION_NUMBER >> 20) & 0xFF)) : "";' 2>/dev/null)"
+			if test $? -ne 0 || test -z "$buildRequiredPackageLists_sslMajorMinorVersion"; then
+				printf 'Unable to determine the major.minor version of the SSL library\n' >&2
+				exit 1
+			fi
+			;;
+		LibreSSL\ *)
+			buildRequiredPackageLists_sslLib=libressl
+			buildRequiredPackageLists_sslMajorVersion="${buildRequiredPackageLists_sslTextVersion#LibreSSL }"
+			buildRequiredPackageLists_sslMajorVersion="${buildRequiredPackageLists_sslMajorVersion%%.*}"
+			buildRequiredPackageLists_sslMajorMinorVersion="${buildRequiredPackageLists_sslTextVersion#LibreSSL }"
+			buildRequiredPackageLists_sslMajorMinorVersion="${buildRequiredPackageLists_sslMajorMinorVersion%.*}"
+			;;
+		*)
+			printf 'Unrecognized SSL library: %s\n' "$buildRequiredPackageLists_sslTextVersion" >&2
+			exit 1
+			;;
+	esac
 	case "$DISTRO_VERSION" in
 		alpine@*)
 			if test $# -gt 1 || test "${1:-}" != '@composer'; then
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $PHPIZE_DEPS"
 			fi
-			buildRequiredPackageLists_sslMajorVersion="$(php -d display_errors=stderr -r 'echo defined("OPENSSL_VERSION_NUMBER") ? (OPENSSL_VERSION_NUMBER >> 28) : "";' 2>/dev/null)"
-			buildRequiredPackageLists_sslMajorMinorVersion="$(php -d display_errors=stderr -r 'echo defined("OPENSSL_VERSION_NUMBER") ? ((OPENSSL_VERSION_NUMBER >> 28) . "." . ((OPENSSL_VERSION_NUMBER >> 20) & 0xFF)) : "";' 2>/dev/null)"
-			if test -z "$buildRequiredPackageLists_sslMajorVersion" || test -z "$buildRequiredPackageLists_sslMajorMinorVersion"; then
-				printf 'Unable to determine the version of OpenSSL\n' >&2
-				exit 1
-			fi
-			if test $buildRequiredPackageLists_sslMajorVersion -le 1; then
-				buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorMinorVersion"
-			else
-				buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorVersion"
-			fi
-			buildRequiredPackageLists_libssldev='openssl-dev'
+			case "$buildRequiredPackageLists_sslLib" in
+				openssl)
+					if test $buildRequiredPackageLists_sslMajorVersion -le 1; then
+						buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorMinorVersion"
+					else
+						buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorVersion"
+					fi
+					buildRequiredPackageLists_libssldev='openssl-dev'
+					;;
+				libressl)
+					buildRequiredPackageLists_libssl="libressl$buildRequiredPackageLists_sslMajorMinorVersion-libssl"
+					buildRequiredPackageLists_libssldev='libressl-dev'
+					;;
+				*)
+					printf 'Unsupported SSL library for Alpine: %s\n' "$buildRequiredPackageLists_sslLib" >&2
+					exit 1
+					;;
+			esac
 			buildRequiredPackageLists_icuPersistent=''
 			if test $DISTRO_MAJMIN_VERSION -ge 316; then
 				case "${IPE_ICU_EN_ONLY:-}" in
@@ -723,23 +760,25 @@ buildRequiredPackageLists() {
 			fi
 			;;
 		debian@*)
-			buildRequiredPackageLists_sslMajorVersion="$(php -d display_errors=stderr -r 'echo defined("OPENSSL_VERSION_NUMBER") ? (OPENSSL_VERSION_NUMBER >> 28) : "";' 2>/dev/null)"
-			buildRequiredPackageLists_sslMajorMinorVersion="$(php -d display_errors=stderr -r 'echo defined("OPENSSL_VERSION_NUMBER") ? ((OPENSSL_VERSION_NUMBER >> 28) . "." . ((OPENSSL_VERSION_NUMBER >> 20) & 0xFF)) : "";' 2>/dev/null)"
-			if test -z "$buildRequiredPackageLists_sslMajorVersion" || test -z "$buildRequiredPackageLists_sslMajorMinorVersion"; then
-				printf 'Unable to determine the version of OpenSSL\n' >&2
-				exit 1
-			fi
-			if test $buildRequiredPackageLists_sslMajorVersion -le 1; then
-				buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorMinorVersion"
-				if test $DISTRO_VERSION_NUMBER -eq 9 && test "$buildRequiredPackageLists_sslMajorMinorVersion" = '1.0'; then
-					buildRequiredPackageLists_libssldev="libssl$buildRequiredPackageLists_sslMajorMinorVersion-dev"
-				else
-					buildRequiredPackageLists_libssldev="libssl-dev"
-				fi
-			else
-				buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorVersion"
-				buildRequiredPackageLists_libssldev="libssl-dev"
-			fi
+			case "$buildRequiredPackageLists_sslLib" in
+				openssl)
+					if test $buildRequiredPackageLists_sslMajorVersion -le 1; then
+						buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorMinorVersion"
+						if test $DISTRO_VERSION_NUMBER -eq 9 && test "$buildRequiredPackageLists_sslMajorMinorVersion" = '1.0'; then
+							buildRequiredPackageLists_libssldev="libssl$buildRequiredPackageLists_sslMajorMinorVersion-dev"
+						else
+							buildRequiredPackageLists_libssldev="libssl-dev"
+						fi
+					else
+						buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorVersion"
+						buildRequiredPackageLists_libssldev="libssl-dev"
+					fi
+					;;
+				*)
+					printf 'Unsupported SSL library for Debian: %s\n' "$buildRequiredPackageLists_sslLib" >&2
+					exit 1
+					;;
+			esac
 			;;
 	esac
 	if test $USE_PICKLE -gt 1; then
