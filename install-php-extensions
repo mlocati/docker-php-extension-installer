@@ -3576,6 +3576,9 @@ installRemoteModule() {
 					installRemoteModule_version=2.1.3
 				elif test $PHP_MAJMIN_VERSION -le 701; then
 					installRemoteModule_version=2.1.4
+				elif test $DISTRO_VERSION_NUMBER -eq 10 && { test $PHP_MAJMIN_VERSION -eq 801 || test $PHP_MAJMIN_VERSION -eq 802; }; then
+					# I don't know why on Debian Buster sometimes we have "undefined symbol: zif_gearman_client_set_ssl"
+					installRemoteModule_version=2.1.4
 				fi
 			fi
 			case "$DISTRO" in
