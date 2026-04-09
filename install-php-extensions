@@ -4100,6 +4100,8 @@ installRemoteModule() {
 					installRemoteModule_version=4.1.2
 				elif test $PHP_MAJMIN_VERSION -lt 800; then
 					installRemoteModule_version=5.4.0
+				elif test $PHP_MAJMIN_VERSION -lt 801; then
+					installRemoteModule_version=5.10.0
 				fi
 			fi
 			installRemoteModule_cppflags='-Wno-incompatible-pointer-types'
