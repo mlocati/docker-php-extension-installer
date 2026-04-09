@@ -5,7 +5,7 @@ set -o nounset
 
 . ./scripts/common
 
-# See https://github.com/mvdan/sh/blob/v3.13.0/cmd/shfmt/shfmt.1.scd#options
+# See https://github.com/mvdan/sh/blob/v3.13.1/cmd/shfmt/shfmt.1.scd#options
 # -s        Simplify the code
 # -ln posix Language variant: POSIX
 # -i 0      Use TAB to indent
