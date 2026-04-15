@@ -2498,7 +2498,7 @@ installLibavif() {
 
 # Install libmpdec
 installLibMPDec() {
-	installLibMPDec_version=2.5.1
+	installLibMPDec_version=4.0.1
 	printf '# Installing libmpdec v%s\n' "$installLibMPDec_version"
 	installLibMPDec_src="$(getPackageSource https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-$installLibMPDec_version.tar.gz)"
 	cd -- "$installLibMPDec_src"

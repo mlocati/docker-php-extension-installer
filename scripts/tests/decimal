@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$rc = 0;
+echo 'Checking if decimal works exists... ';
+if (!class_exists('Decimal\Decimal')) {
+    $rc = 1;
+    echo "Decimal class does not exist!\n";
+} else {
+    $ctor = new ReflectionMethod('Decimal\Decimal', '__construct');
+    if ($ctor->isPrivate()) {
+        $a = Decimal\Decimal::valueOf('0.1');
+        $b = Decimal\Decimal::valueOf('.2');
+    } else {
+        $a = new Decimal\Decimal('0.1');
+        $b = new Decimal\Decimal('.2');
+    }
+    $c = $a + $b;
+    if ((string) $c !== '0.3') {
+        $rc = 1;
+        echo "Decimal addition does not work correctly!\n";
+    } else {
+        echo "yes.\n";
+    }
+}
+
+exit($rc);
