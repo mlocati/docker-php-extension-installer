@@ -4,7 +4,7 @@
 require_once __DIR__ . '/_bootstrap.php';
 
 $rc = 0;
-echo 'Checking if decimal works exists... ';
+echo 'Checking if decimal works... ';
 if (!class_exists('Decimal\Decimal')) {
     $rc = 1;
     echo "Decimal class does not exist!\n";

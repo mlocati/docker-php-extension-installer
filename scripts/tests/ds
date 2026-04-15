@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+echo 'Checking if ds works... ';
+if (!class_exists($setClass = 'Ds\Set')) {
+    if (!class_exists($setClass = 'Ds\Vector')) {
+        echo "Ds\\Set / Ds\\Vector classes do not exist!\n";
+        exit(1);
+    }
+}
+$set = new $setClass(['a', 'b', 'c']);
+if ($set->join("\t") !== "a\tb\tc") {
+    echo "{$setClass}::join() does not work correctly!\n";
+    exit(1);
+}
+echo "yes.\n";
+
+exit(0);
