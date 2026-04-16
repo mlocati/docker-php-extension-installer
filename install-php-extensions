@@ -62,7 +62,7 @@ fi
 
 # Reset the Internal Field Separator
 resetIFS() {
-	IFS='	 
+	IFS='
 '
 }
 
@@ -3036,7 +3036,7 @@ installBundledModule() {
 +  PHP_DBA_DB_CHECK(4, db-5.3 db-5.1 db-5.0 db-4.8 db-4.7 db-4.6 db-4.5 db-4.4 db-4.3 db-4.2 db-4.1 db-4.0 db-4 db4 db, [(void)db_create((DB**)0, (DB_ENV*)0, 0)])
  fi
  PHP_DBA_STD_RESULT(db4,Berkeley DB4)
- 
+
 EOF
 			fi
 			docker-php-ext-configure dba --with-db4
@@ -3122,7 +3122,7 @@ EOF
 						patch /usr/src/php/ext/intl/config.m4 <<'EOF'
 @@ -85,7 +85,16 @@ if test "$PHP_INTL" != "no"; then
      breakiterator/codepointiterator_methods.cpp"
- 
+
    PHP_REQUIRE_CXX()
 -  PHP_CXX_COMPILE_STDCXX(11, mandatory, PHP_INTL_STDCXX)
 +
@@ -4282,10 +4282,8 @@ installRemoteModule() {
 					fi
 					;;
 				debian)
-					case "$(dpkg -l 'libssl*' | grep -E '^ii ' | cut -d' ' -f3)" in
-						libssl3*)
-							installRemoteModule_flags=+libssl3
-							;;
+					if dpkg -l 'libssl*' | grep -E '^ii ' | cut -d' ' -f3 | grep -q '^libssl3'; then
+						installRemoteModule_flags=+libssl3
 					esac
 					;;
 			esac
@@ -4294,7 +4292,11 @@ installRemoteModule() {
 			printf 'Downloading relay v%s (%s) from %s... ' "$installRemoteModule_version" "$installRemoteModule_hardware" "$installRemoteModule_url"
 			installRemoteModule_src="$(getPackageSource $installRemoteModule_url)"
 			echo 'done.'
-			cp -- "$installRemoteModule_src/relay-pkg.so" "$PHP_EXTDIR/relay.so"
+			if test $PHP_THREADSAFE -eq 1; then
+				cp -- "$installRemoteModule_src/relay-zts.so" "$PHP_EXTDIR/relay.so"
+			else
+				cp -- "$installRemoteModule_src/relay-pkg.so" "$PHP_EXTDIR/relay.so"
+			fi
 			sed -i "s/00000000-0000-0000-0000-000000000000/$(cat /proc/sys/kernel/random/uuid)/" "$PHP_EXTDIR/relay.so"
 			installRemoteModule_ini_extra="$(grep -vE '^[ \t]*extension[ \t]*=' $installRemoteModule_src/relay.ini)"
 			installRemoteModule_manuallyInstalled=1
