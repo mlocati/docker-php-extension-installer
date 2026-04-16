@@ -4284,7 +4284,7 @@ installRemoteModule() {
 				debian)
 					if dpkg -l 'libssl*' | grep -E '^ii ' | cut -d' ' -f3 | grep -q '^libssl3'; then
 						installRemoteModule_flags=+libssl3
-					esac
+					fi
 					;;
 			esac
 			# See https://relay.so/builds
