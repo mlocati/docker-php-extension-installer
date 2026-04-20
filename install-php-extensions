@@ -1071,7 +1071,7 @@ buildRequiredPackageLists() {
 				;;
 			imagick@debian)
 				if test $DISTRO_VERSION_NUMBER -ge 13; then
-					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-7.q16-[0-9]+$ ^libmagickcore-7.q16-[0-9]+-extra$"
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-7.q16-[0-9]+$ ^libmagickcore-7.q16-[0-9]+-extra$ libheif-plugin-aomenc"
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-6.q16-[0-9]+$ ^libmagickcore-6.q16-[0-9]+-extra$"
 				fi
