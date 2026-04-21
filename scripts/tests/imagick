@@ -3,6 +3,8 @@
 
 require_once __DIR__ . '/_bootstrap.php';
 
+list($os, $osVersion) = inspectOS();
+
 $requiredFormats = array_map('strtoupper', [
     'BMP',
     'GIF',
@@ -12,6 +14,25 @@ $requiredFormats = array_map('strtoupper', [
     'SVG',
     'TIFF',
 ]);
+switch ($os) {
+    case 'alpine':
+        if (version_compare($osVersion, '3.13') >= 0) {
+            $requiredFormats[] = 'AVIF';
+        }
+
+        break;
+    case 'debian':
+        if ($osVersion >= 11) { // bullseye
+            $requiredFormats[] = 'AVIF';
+        }
+
+        break;
+    default:
+        fwrite(STDERR, "Unsupported OS: {$os}\n");
+        exit(1);
+}
+$requiredFormats = array_map('strtoupper', $requiredFormats);
+
 $supportedFormats = array_map('strtoupper', Imagick::queryFormats());
 $missingFormats = array_diff($requiredFormats, $supportedFormats);
 if ($missingFormats !== []) {
