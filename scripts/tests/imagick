@@ -5,25 +5,25 @@ require_once __DIR__ . '/_bootstrap.php';
 
 list($os, $osVersion) = inspectOS();
 
-$requiredFormats = array_map('strtoupper', [
-    'BMP',
-    'GIF',
-    'JPG',
-    'PDF',
-    'PNG',
-    'SVG',
-    'TIFF',
-]);
+$requiredFormats = [
+    'BMP' => true,
+    'GIF' => true,
+    'JPG' => true,
+    'PDF' => false,
+    'PNG' => true,
+    'SVG' => false,
+    'TIFF' => false,
+];
 switch ($os) {
     case 'alpine':
         if (version_compare($osVersion, '3.13') >= 0) {
-            $requiredFormats[] = 'AVIF';
+            $requiredFormats['AVIF'] = true;
         }
 
         break;
     case 'debian':
         if ($osVersion >= 11) { // bullseye
-            $requiredFormats[] = 'AVIF';
+            $requiredFormats['AVIF'] = true;
         }
 
         break;
@@ -31,13 +31,38 @@ switch ($os) {
         fwrite(STDERR, "Unsupported OS: {$os}\n");
         exit(1);
 }
-$requiredFormats = array_map('strtoupper', $requiredFormats);
 
+$requiredFormats = array_change_key_case($requiredFormats, CASE_UPPER);
+ksort($requiredFormats);
 $supportedFormats = array_map('strtoupper', Imagick::queryFormats());
-$missingFormats = array_diff($requiredFormats, $supportedFormats);
+$missingFormats = array_diff(array_keys($requiredFormats), $supportedFormats);
 if ($missingFormats !== []) {
     sort($missingFormats);
     fwrite(STDERR, "Imagick does NOT support these formats:\n- " . implode("\n- ", $missingFormats) . "\n");
     exit(1);
 }
-echo "Imagick supports at least these formats:\n- ", implode("\n- ", $requiredFormats), "\n";
+$image = new Imagick();
+$image->newImage(8, 8, new ImagickPixel('red'));
+$allGood = true;
+
+try {
+    foreach ($requiredFormats as $format => $writeSupport) {
+        if ($writeSupport) {
+            try {
+                $image->setImageFormat($format);
+                $image->getImageBlob(); // Force the image to be written in the specified format
+            } catch (ImagickException $x) {
+                fwrite(STDERR, "Imagick failed to write in format {$format}: {$x->getMessage()}\n");
+                $allGood = false;
+            }
+        }
+    }
+} finally {
+    $image->destroy();
+}
+
+if ($allGood) {
+    echo "Imagick supports at least these formats:\n- ", implode("\n- ", array_keys($requiredFormats)), "\n";
+} else {
+    exit(1);
+}
