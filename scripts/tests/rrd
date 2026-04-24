@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$rc = 1;
+if (!function_exists('rrd_create')) {
+    fwrite(STDERR, "rrd_create() not available\n");
+} else {
+    $tempFile = tempnam(sys_get_temp_dir(), 'rrd');
+
+    try {
+        $created = rrd_create(
+            $tempFile,
+            [
+                '--step', '300',
+                '--start', 0,
+                'DS:input:COUNTER:900:0:U',
+                'RRA:AVERAGE:0.5:1:1000',
+            ]
+        );
+        if ($created !== true) {
+            fwrite(STDERR, "rrd_create() failed!\n");
+        } else {
+            echo "rrd works\n";
+            $rc = 0;
+        }
+    } finally {
+        @unlink($tempFile);
+    }
+}
+
+exit($rc);
