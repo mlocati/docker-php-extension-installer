@@ -758,6 +758,7 @@ buildRequiredPackageLists() {
 						;;
 				esac
 			fi
+			buildRequiredPackageLists_libpcredev=pcre-dev
 			;;
 		debian@*)
 			case "$buildRequiredPackageLists_sslLib" in
@@ -779,6 +780,11 @@ buildRequiredPackageLists() {
 					exit 1
 					;;
 			esac
+			if test $DISTRO_VERSION_NUMBER -ge 13; then
+				buildRequiredPackageLists_libpcredev=libpcre2-dev
+			else
+				buildRequiredPackageLists_libpcredev=libpcre3-dev
+			fi
 			;;
 	esac
 	if test $USE_PICKLE -gt 1; then
@@ -1269,16 +1275,12 @@ buildRequiredPackageLists() {
 				;;
 			oauth@alpine)
 				if test $PHP_MAJMIN_VERSION -ge 700; then
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libpcredev"
 				fi
 				;;
 			oauth@debian)
 				if test $PHP_MAJMIN_VERSION -ge 700; then
-					if test $DISTRO_VERSION_NUMBER -ge 13; then
-						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre2-dev"
-					else
-						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
-					fi
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libpcredev"
 				fi
 				;;
 			oci8@alpine | pdo_oci@alpine)
@@ -1494,14 +1496,10 @@ buildRequiredPackageLists() {
 				;;
 			snuffleupagus@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent pcre"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile pcre-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libpcredev"
 				;;
 			snuffleupagus@debian)
-				if test $DISTRO_VERSION_NUMBER -ge 13; then
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre2-dev"
-				else
-					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libpcre3-dev"
-				fi
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libpcredev"
 				;;
 			soap@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxml2-dev"
