@@ -4558,7 +4558,12 @@ installRemoteModule() {
 				elif test $PHP_MAJMIN_VERSION -le 504; then
 					installRemoteModule_version=2.0.4
 				elif test $PHP_MAJMIN_VERSION -le 506; then
-					installRemoteModule_version=2.0.11
+					# Using 2.0.11 when libpcre-dev is installed causes a Segmentation fault in php 5 (see https://github.com/mlocati/docker-php-extension-installer/issues/1282)
+					if test "$DISTRO" = debian && { dpkg -l 'libpcre*-dev' 2>/dev/null | grep -Eq '^ii'; }; then
+						installRemoteModule_version=2.0.10
+					else
+						installRemoteModule_version=2.0.11
+					fi
 				elif test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=4.3.6
 				elif test $PHP_MAJMIN_VERSION -le 701; then
