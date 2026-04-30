@@ -1558,6 +1558,14 @@ buildRequiredPackageLists() {
 			ssh2@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libssh2-1-dev"
 				;;
+			statgrab@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstatgrab"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libstatgrab-dev"
+				;;
+			statgrab@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libstatgrab[0-9]*$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libstatgrab-dev"
+				;;
 			stomp@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev"
@@ -4536,6 +4544,13 @@ installRemoteModule() {
 					installRemoteModule_version=0.13
 				elif test $PHP_MAJMIN_VERSION -le 704; then
 					installRemoteModule_version=1.4.1
+				fi
+			fi
+			;;
+		statgrab)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -le 704; then
+					installRemoteModule_version=0.6.0
 				fi
 			fi
 			;;

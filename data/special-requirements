@@ -15,6 +15,7 @@ seasclick !alpine3.23
 simdjson !jessie !stretch
 sodium !jessie
 sqlsrv !7.1-alpine3.9 !7.1-alpine3.10
+statgrab !alpine3.12 !alpine3.13 !alpine3.14 !alpine3.15 !alpine3.16
 vips !alpine3.9 !jessie
 wikidiff2 !jessie !stretch
 xpass !buster

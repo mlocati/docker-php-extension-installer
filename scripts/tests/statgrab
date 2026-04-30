@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+if (!function_exists('sg_general_stats')) {
+    fwrite(STDERR, "Statgrab extension is not installed.\n");
+    exit(1);
+}
+
+$stats = sg_general_stats();
+if (!is_array($stats) || !isset($stats['ncpus']) || !is_int($stats['ncpus']) || $stats['ncpus'] < 1) {
+    fwrite(STDERR, "sg_general_stats() did not return expected data.\n");
+    exit(1);
+}
+
+echo "Statgrab extension is working correctly (eg: {$stats['ncpus']} CPUs)\n";
