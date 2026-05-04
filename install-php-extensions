@@ -2390,8 +2390,10 @@ installMicrosoftSqlServerODBC() {
 			printf -- '- installing the APT package\n'
 			if test $PHP_MAJMIN_VERSION -le 703; then
 				ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends msodbcsql17
-			elif test $DISTRO_VERSION_NUMBER -ge 9 && test $DISTRO_VERSION_NUMBER -le 12; then
-				# On Debian 9 to 12 we have both msodbcsql17 and msodbcsql18: let's install just one
+			elif test $DISTRO_VERSION_NUMBER -ge 9 && test $DISTRO_VERSION_NUMBER -le 13; then
+				# On Debian 9 to 13 we have both msodbcsql17 and msodbcsql18: let's install just one
+				# see https://packages.microsoft.com/debian/9/prod/pool/main/m/
+				# see https://packages.microsoft.com/debian/13/prod/pool/main/m/
 				ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends msodbcsql18
 			else
 				ACCEPT_EULA=Y apt-get install -qqy --no-install-recommends '^msodbcsql[0-9]+$'
