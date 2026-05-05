@@ -13,6 +13,7 @@ Supported docker images are:
 
 - Debian-based docker images: since jessie (Debian 8) (minimum PHP version: 5.5)
 - Alpine-based docker images: since Alpine 3.9 (minimum PHP version: 7.1)
+- Wolfi-based docker images: rolling-release apk distro by Chainguard (`cgr.dev/...`)
 
 See also the notes in the [Special requirements](#special-requirements) section.
 
