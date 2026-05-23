@@ -490,6 +490,8 @@ Here's the list of all the supported environment variables:
 | newrelic | `IPE_NEWRELIC_DAEMON=1` | Install the NewRelic daemon  |
 | newrelic | `IPE_NEWRELIC_KEEPLOG=1` | Keep the log files of NewRelic setup (`/tmp/nrinstall-….tar`)  |
 | newrelic | `NR_INSTALL_KEY` | Your New Relic license key |
+| ddtrace | `IPE_DD_APPSEC=1` | Also enable the Datadog [Application Security Monitoring](https://docs.datadoghq.com/security/application_security/) module (`ddappsec`). Requires PHP 7.0+ and the 1.x tracer line |
+| ddtrace | `IPE_DD_PROFILING=1` | Also enable the Datadog [Continuous Profiler](https://docs.datadoghq.com/profiler/) module (`datadog-profiling`). Requires PHP 7.1+, Alpine 3.13+ (or any Debian) and the 1.x tracer line |
 | swoole | `IPE_SWOOLE_WITHOUT_IOURING=1` | The io_uring kernel functionality is considered unsafe by security experts (see [here](https://security.googleblog.com/2023/06/learnings-from-kctf-vrps-42-linux.html) and [here](https://i.blackhat.com/BH-US-23/Presentations/US-23-Lin-bad_io_uring.pdf)). By default Swoole 6 and later is configured with io_uring support, use this environment variable to skip configuring io_uring |
 | saxon | `IPE_SAXON_EDITION=EE` | The Saxon edition to be used: `EE` for Enterprise Edition (default), `PE` for Professional Edition, `HE` for Home Edition |
 
