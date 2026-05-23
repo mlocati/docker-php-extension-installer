@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$rc = 0;
+
+echo 'Checking if ddtrace_version() exists... ';
+if (!function_exists('ddtrace_version')) {
+    $rc = 1;
+    echo "NO!\n";
+} else {
+    echo 'yes (version: ' . ddtrace_version() . ").\n";
+}
+
+// When IPE_DD_PROFILING=1 was set during installation, the
+// datadog-profiling extension must also be loaded.
+$expectProfiling = (bool) getenv('IPE_DD_PROFILING');
+$hasProfiling = extension_loaded('datadog-profiling');
+if ($expectProfiling && !$hasProfiling) {
+    fwrite(STDERR, "Expected the datadog-profiling extension to be loaded but it is not.\n");
+    $rc = 1;
+}
+
+// Same for the AppSec module when IPE_DD_APPSEC=1 was set.
+$expectAppsec = (bool) getenv('IPE_DD_APPSEC');
+$hasAppsec = extension_loaded('ddappsec');
+if ($expectAppsec && !$hasAppsec) {
+    fwrite(STDERR, "Expected the ddappsec extension to be loaded but it is not.\n");
+    $rc = 1;
+}
+
+exit($rc);

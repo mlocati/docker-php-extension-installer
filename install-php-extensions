@@ -825,11 +825,15 @@ buildRequiredPackageLists() {
 				;;
 			ddtrace@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgcc"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev automake libtool"
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile curl-dev automake libtool"
+				fi
 				;;
 			ddtrace@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-openssl-dev automake libtool"
+				if test $PHP_MAJMIN_VERSION -lt 700; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libcurl4-openssl-dev automake libtool"
+				fi
 				;;
 			dba@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent db"
@@ -2979,6 +2983,39 @@ You may need to:
 EOT
 }
 
+# Install the Datadog PHP tracer
+#
+# Arguments:
+#   $1: the version to be installed (optional)
+installDDTrace() {
+	printf '# Installing ddtrace\n'
+	installDDTrace_version="${1:-}"
+	if test -z "$installDDTrace_version"; then
+		installDDTrace_url='https://github.com/DataDog/dd-trace-php/releases/latest/download/datadog-setup.php'
+	else
+		installDDTrace_url="https://github.com/DataDog/dd-trace-php/releases/download/$installDDTrace_version/datadog-setup.php"
+	fi
+	installDDTrace_setup="$(mktemp -p /tmp/src)"
+	printf 'Downloading datadog-setup.php from %s\n' "$installDDTrace_url"
+	if ! curl $IPE_CURL_FLAGS -sSLf -o "$installDDTrace_setup" "$installDDTrace_url"; then
+		printf 'Failed to download %s\n' "$installDDTrace_url" >&2
+		exit 1
+	fi
+	installDDTrace_args='--php-bin=php'
+	case "${IPE_DD_APPSEC:-}" in
+		1 | y* | Y*)
+			installDDTrace_args="$installDDTrace_args --enable-appsec"
+			;;
+	esac
+	case "${IPE_DD_PROFILING:-}" in
+		1 | y* | Y*)
+			installDDTrace_args="$installDDTrace_args --enable-profiling"
+			;;
+	esac
+	php "$installDDTrace_setup" $installDDTrace_args
+	rm -f "$installDDTrace_setup"
+}
+
 # Compile the libraries specified in the COMPILE_LIBS variable
 compileLibs() {
 	if stringInList libaom "$COMPILE_LIBS"; then
@@ -3452,25 +3489,24 @@ installRemoteModule() {
 			fi
 			;;
 		ddtrace)
-			if test -z "$installRemoteModule_version"; then
-				if test $PHP_MAJMIN_VERSION -lt 700; then
-					installRemoteModule_version=0.75.0
-				fi
-				if test -z "$installRemoteModule_version"; then
-					case "$DISTRO" in
-						alpine)
-							if test $DISTRO_MAJMIN_VERSION -le 312; then
-								# cc is not supported due to a memcmp related bug
-								installRemoteModule_version=1.1.0
-							fi
-							;;
-					esac
-				fi
-			else
+			if test -n "$installRemoteModule_version"; then
 				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
-			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 0.75.0) -ge 0; then
+			if test $PHP_MAJMIN_VERSION -lt 700; then
+				if test -n "$installRemoteModule_version" && test $(compareVersions "$installRemoteModule_version" 1.0.0) -ge 0; then
+					printf '### ERROR ### ddtrace %s requires PHP 7.0 or later (PHP %s is in use).\n' "$installRemoteModule_version" "$PHP_MAJDOTMIN_VERSION" >&2
+					exit 1
+				fi
+				if test -z "$installRemoteModule_version"; then
+					# newer 0.x releases reject PHP 5 in their configure script
+					installRemoteModule_version=0.75.0
+				fi
 				installCargo
+			elif test -n "$installRemoteModule_version" && test $(compareVersions "$installRemoteModule_version" 1.0.0) -lt 0; then
+				installCargo
+			else
+				installDDTrace "$installRemoteModule_version"
+				installRemoteModule_manuallyInstalled=2
 			fi
 			;;
 		decimal)
