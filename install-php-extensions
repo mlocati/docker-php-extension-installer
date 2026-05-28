@@ -4089,6 +4089,18 @@ installRemoteModule() {
 				installRemoteModule_version=beta
 			fi
 			;;
+		parallax)
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_version=0.2.1
+			fi
+			installRemoteModule_src="$(getPackageSource https://github.com/AndreyMashukov/php-parallax/archive/refs/tags/v${installRemoteModule_version}.tar.gz)"
+			cd "$installRemoteModule_src"
+			phpize
+			./configure --enable-parallax
+			make -j$(getProcessorCount) install
+			cd - >/dev/null
+			installRemoteModule_manuallyInstalled=1
+			;;
 		parallel)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 701; then
