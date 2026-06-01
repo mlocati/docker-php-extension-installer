@@ -4354,7 +4354,16 @@ installRemoteModule() {
 			installRemoteModule_majorVersion=
 			if test -n "$installRemoteModule_version"; then
 				installRemoteModule_majorVersion="${installRemoteModule_version%%.*}"
-				if test "$installRemoteModule_majorVersion" -ge 12; then
+				if test "$installRemoteModule_majorVersion" -ge 12 && test $(compareVersions "$installRemoteModule_version" '12.6') -ge 0; then
+					installRemoteModule_versionDashed="$installRemoteModule_version"
+					case "$installRemoteModule_versionDashed" in
+						*.*.*) ;;
+						*.*) installRemoteModule_versionDashed="${installRemoteModule_versionDashed}.0" ;;
+						*) installRemoteModule_versionDashed="${installRemoteModule_versionDashed}.0.0" ;;
+					esac
+					installRemoteModule_versionDashed="$(echo "$installRemoteModule_versionDashed" | tr '.' '-')"
+					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/SaxonC${installRemoteModule_edition}-${installRemoteModule_architecture}-${installRemoteModule_versionDashed}.zip
+				elif test "$installRemoteModule_majorVersion" -ge 12; then
 					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/libsaxon-${installRemoteModule_edition}C-${installRemoteModule_architecture}-v${installRemoteModule_version}.zip
 				else
 					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/libsaxon-${installRemoteModule_edition}C-setup64-v${installRemoteModule_version}.zip
