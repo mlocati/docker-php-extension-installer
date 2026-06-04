@@ -130,6 +130,11 @@ We should switch to the stable release once it will be available.
 The only available versions of the `uv` PHP extension are all beta.
 We should switch to the stable release once it will be available.
 
+### v8js
+
+The `v8js` PHP extension is not available in the PECL archive in a version that supports PHP 8.x, so we install it manually from the `php8` branch at https://github.com/phpv8/v8js.
+We pin a specific commit hash; we should periodically update it as new commits land on that branch.
+
 ### vld
 
 The only available versions of this PHP extension are all beta.
