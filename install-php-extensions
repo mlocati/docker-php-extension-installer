@@ -4326,6 +4326,13 @@ installRemoteModule() {
 			fi
 			;;
 		saxon)
+			installRemoteModule_majorVersion=
+			installRemoteModule_minorVersion=
+			if test -n "$installRemoteModule_version"; then
+				installRemoteModule_majorVersion="${installRemoteModule_version%%.*}"
+				installRemoteModule_minorVersion="${installRemoteModule_version#*.}"
+				installRemoteModule_minorVersion="${installRemoteModule_minorVersion%.*}"
+			fi
 			case "${IPE_SAXON_EDITION:-}" in
 				EE | PE | HE)
 					installRemoteModule_edition=$IPE_SAXON_EDITION
@@ -4341,24 +4348,26 @@ installRemoteModule() {
 			fi
 			case $(uname -m) in
 				aarch64 | arm64 | armv8)
-					if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '12.9') -ge 0 || test $(compareVersions "$installRemoteModule_version" '12.6') -lt 0; then
-						installRemoteModule_architecture=linux-arm64
-					else
-						installRemoteModule_architecture=linux-aarch64
+					if test -z "$installRemoteModule_version"; then
+						if test $(compareVersions "$installRemoteModule_version" '12.9') -ge 0; then
+							installRemoteModule_architecture=linux-arm64
+						else
+							installRemoteModule_architecture=linux-aarch64
+						fi
 					fi
 					;;
 				*)
 					installRemoteModule_architecture=linux-x86_64
 					;;
 			esac
-			installRemoteModule_majorVersion=
-			if test -n "$installRemoteModule_version"; then
-				installRemoteModule_majorVersion="${installRemoteModule_version%%.*}"
-				if test "$installRemoteModule_majorVersion" -ge 12; then
+			if test "$installRemoteModule_majorVersion" -ge 12; then
+				if test $(compareVersions "$installRemoteModule_majorVersion.$installRemoteModule_minorVersion" '12.5') -le 0; then
 					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/libsaxon-${installRemoteModule_edition}C-${installRemoteModule_architecture}-v${installRemoteModule_version}.zip
 				else
-					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/libsaxon-${installRemoteModule_edition}C-setup64-v${installRemoteModule_version}.zip
+					installRemoteModule_url="https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/SaxonC${installRemoteModule_edition}-${installRemoteModule_architecture}-$(echo "$installRemoteModule_version" | tr '.' '-').zip"
 				fi
+			elif test "$installRemoteModule_majorVersion" -eq 11; then
+				installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/libsaxon-${installRemoteModule_edition}C-setup64-v${installRemoteModule_version}.zip
 			else
 				installRemoteModule_regex="https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/[0-9]+/SaxonC${installRemoteModule_edition}-${installRemoteModule_architecture}-[0-9\-]+.zip"
 				installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf https://www.saxonica.com/download/c.xml | grep -Eo "$installRemoteModule_regex" | head -n 1)"
