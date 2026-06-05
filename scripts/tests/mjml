@@ -1,0 +1,48 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+echo 'Checking if mjml works... ';
+
+if (!class_exists(Mjml\Mjml::class)) {
+    fwrite(STDERR, "The class Mjml\\Mjml does not exist\n");
+    exit(1);
+}
+
+$mjml = new Mjml\Mjml();
+$email = $mjml->render(<<<'MJML'
+    <mjml>
+        <mj-head>
+            <mj-title>Hello title</mj-title>
+        </mj-head>
+        <mj-body>
+            <mj-section>
+                <mj-column>
+                    <mj-text>Hello docker-php-extension-installer</mj-text>
+                </mj-column>
+            </mj-section>
+        </mj-body>
+    </mjml>
+    MJML);
+
+$html = $email->getBody();
+
+// mrml (the Rust engine behind this extension) emits a full responsive email document whose exact
+// markup changes between releases, so we assert on stable, semantically meaningful traits rather than
+// on an exact string: a real HTML document, our text content preserved, and <mj-title> turned into <title>.
+if (stripos($html, '<html') === false) {
+    fwrite(STDERR, "The rendered output is not an HTML document:\n{$html}\n");
+    exit(1);
+}
+if (strpos($html, 'Hello docker-php-extension-installer') === false) {
+    fwrite(STDERR, "The rendered output does not contain the expected body text:\n{$html}\n");
+    exit(1);
+}
+if (stripos($html, '<title>Hello title</title>') === false) {
+    fwrite(STDERR, "The rendered output does not contain the expected title:\n{$html}\n");
+    exit(1);
+}
+
+echo "yes.\n";
+exit(0);

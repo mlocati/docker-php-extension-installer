@@ -1225,6 +1225,15 @@ buildRequiredPackageLists() {
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev"
 				fi
 				;;
+			mjml@alpine)
+				# clang/clang-dev provide libclang, required to build ext-php-rs bindings; libgcc is needed at runtime by the Rust library
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libgcc"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile clang clang-dev"
+				;;
+			mjml@debian)
+				# clang/libclang-dev provide libclang, required to build ext-php-rs bindings
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile clang libclang-dev"
+				;;
 			mongo@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl libsasl"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev cyrus-sasl-dev"
@@ -3870,6 +3879,22 @@ installRemoteModule() {
 				elif test $PHP_MAJMIN_VERSION -le 700; then
 					installRemoteModule_version=2.1.0
 				fi
+			fi
+			;;
+		mjml)
+			if test -z "$installRemoteModule_path"; then
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=1.2.1
+				fi
+				installCargo
+				installRemoteModule_src="$(getPackageSource https://github.com/alekitto/mjml-php/archive/refs/tags/v$installRemoteModule_version.tar.gz)"
+				cd "$installRemoteModule_src"
+				# mjml is a Rust extension (ext-php-rs): build the cdylib with Cargo and install the resulting shared object.
+				# We don't use the upstream Makefile, whose install step relies on a Bash-only construct that no-ops under the default /bin/sh.
+				cargo build --release
+				cp target/release/libmjml.so "$(getPHPExtensionsDir)/mjml.so"
+				cd - >/dev/null
+				installRemoteModule_manuallyInstalled=1
 			fi
 			;;
 		mongo)
