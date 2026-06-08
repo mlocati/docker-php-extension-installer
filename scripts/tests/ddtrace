@@ -5,12 +5,23 @@ require_once __DIR__ . '/_bootstrap.php';
 
 $rc = 0;
 
-echo 'Checking if ddtrace_version() exists... ';
-if (!function_exists('ddtrace_version')) {
+// ddtrace 0.x exposed a global ddtrace_version() function; the 1.x line
+// (installed via datadog-setup.php) dropped it in favor of the
+// DD_TRACE_VERSION constant. phpversion() works across both, so use it as
+// the canonical check and fall back to the older APIs when present.
+echo 'Checking the ddtrace version... ';
+$ddtraceVersion = phpversion('ddtrace');
+if (($ddtraceVersion === false || $ddtraceVersion === '') && defined('DD_TRACE_VERSION')) {
+    $ddtraceVersion = DD_TRACE_VERSION;
+}
+if (($ddtraceVersion === false || $ddtraceVersion === '') && function_exists('ddtrace_version')) {
+    $ddtraceVersion = ddtrace_version();
+}
+if ($ddtraceVersion === false || $ddtraceVersion === '') {
     $rc = 1;
-    echo "NO!\n";
+    echo "unable to determine it!\n";
 } else {
-    echo 'yes (version: ' . ddtrace_version() . ").\n";
+    echo 'detected version ' . $ddtraceVersion . ".\n";
 }
 
 // When IPE_DD_PROFILING=1 was set during installation, the
