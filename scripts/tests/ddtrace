@@ -5,7 +5,7 @@ require_once __DIR__ . '/_bootstrap.php';
 
 $rc = 0;
 
-echo 'Checking, if ddtrace_version() exists... ';
+echo 'Checking if ddtrace_version() exists... ';
 if (!function_exists('ddtrace_version')) {
     $rc = 1;
     echo "NO!\n";
