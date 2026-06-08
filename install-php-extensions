@@ -8,7 +8,6 @@
 #
 # License: MIT - see https://github.com/mlocati/docker-php-extension-installer/blob/master/LICENSE
 
-
 # Let's set a sane environment
 set -o errexit
 set -o nounset
