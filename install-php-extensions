@@ -1462,7 +1462,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
 				;;
 			saxon@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_volatile unzip"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unzip"
 				;;
 			seasclick@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
@@ -4339,59 +4339,85 @@ installRemoteModule() {
 					installRemoteModule_edition=EE
 					;;
 			esac
+			installRemoteModule_url=
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 800; then
 					installRemoteModule_version='12.3'
+				else
+					case $(uname -m) in
+						aarch64 | arm64 | armv8)
+							installRemoteModule_regexArchitecture='(linux-arm64|linux-aarch64)'
+							;;
+						*)
+							installRemoteModule_regexArchitecture=linux-x86_64
+							;;
+					esac
+					installRemoteModule_regex="https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/[0-9]+/SaxonC${installRemoteModule_edition}-$installRemoteModule_regexArchitecture-[0-9]+-[0-9]+-[0-9]+\.zip"
+					installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf https://www.saxonica.com/download/c.xml | grep -Eo "$installRemoteModule_regex" | head -n 1)"
+					if test $? -ne 0 || test -z "$installRemoteModule_url"; then
+						printf "Failed to determine SaxonC download URL - Nothing matches\n%s\n" "$installRemoteModule_regex"
+						exit 1
+					fi
+					installRemoteModule_version=$(printf '%s\n' "$installRemoteModule_url" | sed 's|.*-\([0-9][0-9]*-[0-9][0-9]*-[0-9][0-9]*\)\.zip$|\1|' | tr '-' '.')
 				fi
 			fi
-			case $(uname -m) in
-				aarch64 | arm64 | armv8)
-					if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" '12.9') -ge 0 || test $(compareVersions "$installRemoteModule_version" '12.6') -lt 0; then
-						installRemoteModule_architecture=linux-arm64
-					else
-						installRemoteModule_architecture=linux-aarch64
-					fi
-					;;
-				*)
-					installRemoteModule_architecture=linux-x86_64
-					;;
-			esac
-			installRemoteModule_majorVersion=
-			if test -n "$installRemoteModule_version"; then
+			if test -z "$installRemoteModule_url"; then
 				installRemoteModule_majorVersion="${installRemoteModule_version%%.*}"
-				if test "$installRemoteModule_majorVersion" -ge 12; then
+				case $(uname -m) in
+					aarch64 | arm64 | armv8)
+						if test $(compareVersions "$installRemoteModule_version" '12.9') -ge 0 || test $(compareVersions "$installRemoteModule_version" '12.6') -lt 0; then
+							installRemoteModule_architecture=linux-arm64
+						else
+							installRemoteModule_architecture=linux-aarch64
+						fi
+						;;
+					*)
+						installRemoteModule_architecture=linux-x86_64
+						;;
+				esac
+				if test $(compareVersions "$installRemoteModule_version" 12.6) -ge 0; then
+					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/SaxonC${installRemoteModule_edition}-${installRemoteModule_architecture}-$(printf '%s' "$installRemoteModule_version" | tr '.' '-').zip
+				elif test $(compareVersions "$installRemoteModule_version" 12.0) -ge 0; then
 					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/libsaxon-${installRemoteModule_edition}C-${installRemoteModule_architecture}-v${installRemoteModule_version}.zip
 				else
 					installRemoteModule_url=https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/${installRemoteModule_majorVersion}/libsaxon-${installRemoteModule_edition}C-setup64-v${installRemoteModule_version}.zip
 				fi
-			else
-				installRemoteModule_regex="https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/[0-9]+/SaxonC${installRemoteModule_edition}-${installRemoteModule_architecture}-[0-9\-]+.zip"
-				installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf https://www.saxonica.com/download/c.xml | grep -Eo "$installRemoteModule_regex" | head -n 1)"
-				if test $? -ne 0 || test -z "$installRemoteModule_url"; then
-					printf "Failed to determine SaxonC download URL - Nothing matches\n%s\n" "$installRemoteModule_regex"
-					exit 1
-				fi
 			fi
-			printf 'Downloading SaxonC %s from %s\n' "$installRemoteModule_edition" "$installRemoteModule_url"
+			printf 'Downloading SaxonC %s v%s from %s\n' "$installRemoteModule_edition" "$installRemoteModule_version" "$installRemoteModule_url"
 			installRemoteModule_dir="$(getPackageSource $installRemoteModule_url)"
 			if ! test -f /usr/lib/libsaxon-*.so; then
+				echo 'Installing SaxonC shared libraries...'
 				installRemoteModule_files="$(find "$installRemoteModule_dir" \( -type f -o -type l \) \( -name 'libsaxonc-*.so*' -o -name 'libsaxon-*.so*' \))"
 				for installRemoteModule_file in $installRemoteModule_files; do
 					cp -P "$installRemoteModule_file" /usr/lib/
 				done
 				ldconfig || true
 			fi
-			installRemoteModule_files="$(find "$installRemoteModule_dir" -type f -name php8_XsltExecutable.cpp)"
-			for installRemoteModule_file in $installRemoteModule_files; do
-				sed -i 's/Z_TYPE_P(val) != NULL/Z_TYPE_P(val) != IS_NULL/g' "$installRemoteModule_file"
-			done
+			if test $(compareVersions "$installRemoteModule_version" 13.0.0) -lt 0; then
+				installRemoteModule_files="$(find "$installRemoteModule_dir" -type f -name php8_XsltExecutable.cpp)"
+				for installRemoteModule_file in $installRemoteModule_files; do
+					printf 'Applying SaxonC patch for Z_TYPE_P to %s...\n' "$installRemoteModule_file"
+					sed -i 's/Z_TYPE_P(val) != NULL/Z_TYPE_P(val) != IS_NULL/g' "$installRemoteModule_file"
+				done
+			fi
 			if test -d "$installRemoteModule_dir/php/src"; then
 				cd "$installRemoteModule_dir/php/src"
 			else
 				cd "$installRemoteModule_dir/Saxon.C.API"
 			fi
+			if test $(compareVersions "$installRemoteModule_version" 13.0.0) -eq 0; then
+				# See https://saxonica.plan.io/issues/7113
+				echo 'Applying SaxonC patch for extension source path...'
+				sed -i 's|../../../src/php8_saxon.cpp|php8_saxon.cpp|g' config.m4
+				echo 'Applying SaxonC patch for extension installation path...'
+				sed -Ei 's/^ *EXTENSION_DIR=.*//g' config.m4
+			fi
 			phpize
-			./configure --with-saxon="$installRemoteModule_dir/SaxonC${installRemoteModule_edition}"
+			if test $(compareVersions "$installRemoteModule_version" 13.0.0) -ge 0; then
+				./configure --with-saxonc="$installRemoteModule_dir/SaxonC${installRemoteModule_edition}" --with-saxonc-core="$installRemoteModule_dir/SaxonCCore${installRemoteModule_edition}"
+			else
+				./configure --with-saxon="$installRemoteModule_dir/SaxonC${installRemoteModule_edition}"
+			fi
 			make -j$(getProcessorCount) install
 			cd - >/dev/null
 			installRemoteModule_manuallyInstalled=1
@@ -5157,6 +5183,14 @@ installRemoteModule() {
 			;;
 		xlswriter)
 			installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
+			if test -z "$installRemoteModule_version"; then
+				case "$DISTRO_VERSION" in
+					debian@8)
+						# The gcc version of Debian Jessie is too old => error: 'for' loop initial declarations are only allowed in C99 or C11 mode
+						installRemoteModule_version=1.5.8
+						;;
+				esac
+			fi
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 1.2.7) -ge 0; then
 				# enable reader supports?
 				addConfigureOption enable-reader yes
