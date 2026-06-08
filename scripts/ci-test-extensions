@@ -343,7 +343,22 @@ testExtensionFor() {
 	printf ' - Docker image: %s\n' "$testExtensionFor_Image"
 	testExtensionFor_out="$(mktemp)"
 	testExtensionFor_start=$(date +%s)
-	if $(docker run --rm --volume "$CI_BUILD_DIR:/app" --env CI=true --env IPE_FIX_CACERTS=1 --env IPE_DD_APPSEC=1 --env IPE_DD_PROFILING=1 --env IPE_ASPELL_LANGUAGES='en fr' --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1); then
+	testExtensionFor_ddtraceEnv=''
+	if stringInList ddtrace "$1"; then
+		case "$2" in
+			5.*) ;;
+			*)
+				testExtensionFor_ddtraceEnv="$testExtensionFor_ddtraceEnv --env IPE_DD_APPSEC=1"
+				;;
+		esac
+		case "$2" in
+			5.* | 7.0) ;;
+			*)
+				testExtensionFor_ddtraceEnv="$testExtensionFor_ddtraceEnv --env IPE_DD_PROFILING=1"
+				;;
+		esac
+	fi
+	if $(docker run --rm --volume "$CI_BUILD_DIR:/app" --env CI=true --env IPE_FIX_CACERTS=1 $testExtensionFor_ddtraceEnv --env IPE_ASPELL_LANGUAGES='en fr' --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1); then
 		testExtensionFor_end=$(date +%s)
 		testExtensionFor_delta=$(expr $testExtensionFor_end - $testExtensionFor_start)
 		rm -rf "$testExtensionFor_out"
