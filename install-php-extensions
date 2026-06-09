@@ -1723,6 +1723,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libuv1"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libuv1-dev"
 				;;
+			v8js@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++ nodejs-libs"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile nodejs-dev"
+				;;
+			v8js@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libnode[0-9]+$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libnode-dev"
+				;;
 			vips@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent vips"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile vips-dev"
@@ -5091,6 +5099,20 @@ installRemoteModule() {
 					installRemoteModule_version=beta
 				fi
 			fi
+			;;
+		v8js)
+			if test -z "$installRemoteModule_version"; then
+				# php8 branch HEAD: there are no v8js releases on PECL/Git that support PHP 8.x
+				installRemoteModule_version=8a39efa3cf3b275e402ddf3c4f6b611a5f69a499
+			fi
+			installRemoteModule_src="$(getPackageSource "https://codeload.github.com/phpv8/v8js/tar.gz/$installRemoteModule_version")"
+			cd -- "$installRemoteModule_src"
+			phpize
+			./configure
+			make -j$(getProcessorCount)
+			make install
+			cd - >/dev/null
+			installRemoteModule_manuallyInstalled=1
 			;;
 		vld)
 			if test -z "$installRemoteModule_version"; then

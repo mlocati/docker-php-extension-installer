@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+if (!class_exists('V8Js')) {
+    fwrite(STDERR, "V8Js class is not available.\n");
+    exit(1);
+}
+
+$context = new V8Js();
+$context->greeting = 'world';
+ob_start();
+$return = $context->executeString('var s = "Hello, " + PHP.greeting + "!"; print(s); s.length;');
+$printed = ob_get_clean();
+
+if ($printed !== 'Hello, world!') {
+    fwrite(STDERR, 'Unexpected printed output: ' . var_export($printed, true) . "\n");
+    exit(1);
+}
+
+if ($return !== 13) {
+    fwrite(STDERR, 'Unexpected return value: ' . var_export($return, true) . "\n");
+    exit(1);
+}
+
+echo "V8Js extension is working correctly.\n";
