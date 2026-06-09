@@ -5719,12 +5719,16 @@ mkdir -p /tmp/pickle.tmp
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 CONFIGURE_FILE=/tmp/configure-options
 IPE_APK_FLAGS=''
+IPE_CURL_FLAGS='--retry 3 --retry-delay 5 --connect-timeout 15'
+if curl --help | grep -q -- '--retry-all-errors'; then
+	IPE_CURL_FLAGS="$IPE_CURL_FLAGS --retry-all-errors"
+fi
+if curl --help | grep -q -- '--retry-connrefused'; then
+	IPE_CURL_FLAGS="$IPE_CURL_FLAGS --retry-connrefused"
+fi
 case "${IPE_INSECURE:-}" in
 	1 | y* | Y*)
-		IPE_CURL_FLAGS='-k'
-		;;
-	*)
-		IPE_CURL_FLAGS=''
+		IPE_CURL_FLAGS="$IPE_CURL_FLAGS -k"
 		;;
 esac
 setDistro
