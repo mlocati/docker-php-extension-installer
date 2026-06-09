@@ -386,6 +386,7 @@ install-php-extensions @fix_letsencrypt
 | uploadprogress | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | uuid | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | uv | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |  |
+| v8js[*](#special-requirements-for-v8js) | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |  |
 | vips[*](#special-requirements-for-vips) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | vld | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | wddx |  |  |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -408,7 +409,7 @@ install-php-extensions @fix_letsencrypt
 | zookeeper | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | zstd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 
-*Number of supported extensions: 161*
+*Number of supported extensions: 162*
 <!-- END OF EXTENSIONS TABLE -->
 
 PS: the pre-installed PHP extensions are excluded from this list.
@@ -525,6 +526,7 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-sodium"></a>sodium | Not available in `jessie` docker images |
 | <a name="special-requirements-for-sqlsrv"></a>sqlsrv | &bull; Not available in `7.1-alpine3.9` docker images<br />&bull; Not available in `7.1-alpine3.10` docker images |
 | <a name="special-requirements-for-statgrab"></a>statgrab | &bull; Not available in `alpine3.12` docker images<br />&bull; Not available in `alpine3.13` docker images<br />&bull; Not available in `alpine3.14` docker images<br />&bull; Not available in `alpine3.15` docker images<br />&bull; Not available in `alpine3.16` docker images |
+| <a name="special-requirements-for-v8js"></a>v8js | &bull; Not available in `buster` docker images<br />&bull; Not available in `bullseye` docker images<br />&bull; Not available in `alpine3.12` docker images<br />&bull; Not available in `alpine3.13` docker images<br />&bull; Not available in `alpine3.14` docker images<br />&bull; Not available in `alpine3.15` docker images<br />&bull; Not available in `alpine3.16` docker images<br />&bull; Not available in `alpine3.17` docker images<br />&bull; Not available in `alpine3.18` docker images |
 | <a name="special-requirements-for-vips"></a>vips | &bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `jessie` docker images |
 | <a name="special-requirements-for-wikidiff2"></a>wikidiff2 | &bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images |
 | <a name="special-requirements-for-xpass"></a>xpass | Not available in `buster` docker images |
