@@ -9,10 +9,12 @@ $requiredFormats = [
     'BMP' => true,
     'GIF' => true,
     'JPG' => true,
-    'PDF' => false,
+    'PDF' => true,
     'PNG' => true,
-    'SVG' => false,
-    'TIFF' => false,
+    'SVG' => '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+        . '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">'
+        . '<rect width="16" height="16" fill="green"/></svg>',
+    'TIFF' => true,
 ];
 switch ($os) {
     case 'alpine':
@@ -34,6 +36,8 @@ switch ($os) {
 
 $requiredFormats = array_change_key_case($requiredFormats, CASE_UPPER);
 ksort($requiredFormats);
+
+// Quick pre-check: every required format must at least be a registered coder.
 $supportedFormats = array_map('strtoupper', Imagick::queryFormats());
 $missingFormats = array_diff(array_keys($requiredFormats), $supportedFormats);
 if ($missingFormats !== []) {
@@ -41,24 +45,38 @@ if ($missingFormats !== []) {
     fwrite(STDERR, "Imagick does NOT support these formats:\n- " . implode("\n- ", $missingFormats) . "\n");
     exit(1);
 }
-$image = new Imagick();
-$image->newImage(8, 8, new ImagickPixel('red'));
-$allGood = true;
 
-try {
-    foreach ($requiredFormats as $format => $writeSupport) {
-        if ($writeSupport) {
-            try {
-                $image->setImageFormat($format);
-                $image->getImageBlob(); // Force the image to be written in the specified format
-            } catch (ImagickException $x) {
-                fwrite(STDERR, "Imagick failed to write in format {$format}: {$x->getMessage()}\n");
-                $allGood = false;
-            }
+// Actually exercise every format: encode a sample (when Imagick can write it),
+// then decode it. Decoding is what invokes the external delegates -- e.g.
+// Ghostscript for PDF and librsvg for SVG -- so this catches a missing delegate
+// that queryFormats() alone would happily hide.
+$allGood = true;
+foreach ($requiredFormats as $format => $sample) {
+    try {
+        if ($sample === true) {
+            $writer = new Imagick();
+            $writer->newImage(16, 16, new ImagickPixel('blue'));
+            $writer->setImageFormat($format);
+            $blob = $writer->getImageBlob(); // Exercise the encoder
+            $writer->destroy();
+        } else {
+            $blob = $sample;
         }
+        $reader = new Imagick();
+        if ($format === 'PDF') {
+            $reader->setResolution(72, 72);
+        }
+        $reader->readImageBlob($blob, 'sample.' . strtolower($format)); // Exercise the decoder/delegate
+        if ($reader->getImageWidth() < 1 || $reader->getImageHeight() < 1) {
+            throw new ImagickException('the decoded image has no pixels');
+        }
+        $reader->setImageFormat('PNG');
+        $reader->getImageBlob(); // Force the sample to be fully decoded/rasterized
+        $reader->destroy();
+    } catch (ImagickException $x) {
+        fwrite(STDERR, "Imagick failed to handle format {$format}: {$x->getMessage()}\n");
+        $allGood = false;
     }
-} finally {
-    $image->destroy();
 }
 
 if ($allGood) {
