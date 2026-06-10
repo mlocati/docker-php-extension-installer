@@ -771,7 +771,11 @@ buildRequiredPackageLists() {
 							buildRequiredPackageLists_libssldev="libssl-dev"
 						fi
 					else
-						buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorVersion"
+						if test $DISTRO_VERSION_NUMBER -ge 13; then
+							buildRequiredPackageLists_libssl="^libssl${buildRequiredPackageLists_sslMajorVersion}(t64)?\$"
+						else
+							buildRequiredPackageLists_libssl="libssl$buildRequiredPackageLists_sslMajorVersion"
+						fi
 						buildRequiredPackageLists_libssldev="libssl-dev"
 					fi
 					;;
