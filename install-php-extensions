@@ -3430,9 +3430,14 @@ installRemoteModule() {
 					;;
 			esac
 			installRemoteModule_tmp2=$(php -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION . (ZEND_THREAD_SAFE ? "-zts" : "");')
+			if test -z "$installRemoteModule_version"; then
+				installRemoteModule_url="https://blackfire.io/api/v1/releases/probe/php/$installRemoteModule_distro/$installRemoteModule_tmp1/$installRemoteModule_tmp2"
+			else
+				installRemoteModule_url="https://packages.blackfire.io/binaries/blackfire-php/$installRemoteModule_version/blackfire-php-${installRemoteModule_distro}_${installRemoteModule_tmp1}-php-${installRemoteModule_tmp2}.tar.gz"
+			fi
 			installRemoteModule_tmp="$(mktemp -p /tmp/src -d)"
 			cd "$installRemoteModule_tmp"
-			curl $IPE_CURL_FLAGS -sSLf --user-agent Docker https://blackfire.io/api/v1/releases/probe/php/$installRemoteModule_distro/$installRemoteModule_tmp1/$installRemoteModule_tmp2 | tar xz
+			curl $IPE_CURL_FLAGS -sSLf --user-agent Docker "$installRemoteModule_url" | tar xz
 			mv blackfire-*.so $(getPHPExtensionsDir)/blackfire.so
 			cd - >/dev/null
 			installRemoteModule_manuallyInstalled=1
