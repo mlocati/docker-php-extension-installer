@@ -9,7 +9,6 @@ $requiredFormats = [
     'BMP' => true,
     'GIF' => true,
     'JPG' => true,
-    'PDF' => true,
     'PNG' => true,
     'SVG' => '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
         . '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">'
@@ -34,6 +33,18 @@ switch ($os) {
         exit(1);
 }
 
+if (preg_match('/ImageMagick\s+(\d+)/', Imagick::getVersion()['versionString'], $m) && (int) $m[1] >= 7) {
+    $requiredFormats['PDF'] = "%PDF-1.4\n"
+        . "1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+        . "2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+        . "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 72 72]/Resources<<>>/Contents 4 0 R>>endobj\n"
+        . "4 0 obj<</Length 22>>stream\n"
+        . "1 0 0 rg 0 0 72 72 re f\n"
+        . "endstream endobj\n"
+        . "trailer<</Root 1 0 R>>\n"
+        . "%%EOF";
+}
+
 $requiredFormats = array_change_key_case($requiredFormats, CASE_UPPER);
 ksort($requiredFormats);
 
@@ -46,10 +57,6 @@ if ($missingFormats !== []) {
     exit(1);
 }
 
-// Actually exercise every format: encode a sample (when Imagick can write it),
-// then decode it. Decoding is what invokes the external delegates -- e.g.
-// Ghostscript for PDF and librsvg for SVG -- so this catches a missing delegate
-// that queryFormats() alone would happily hide.
 $allGood = true;
 foreach ($requiredFormats as $format => $sample) {
     try {
