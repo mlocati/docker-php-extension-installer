@@ -63,6 +63,7 @@ foreach ($requiredFormats as $format => $sample) {
     if ($sample === false) {
         continue;
     }
+
     try {
         if ($sample === true) {
             $writer = new Imagick();
