@@ -5,13 +5,6 @@ require_once __DIR__ . '/_bootstrap.php';
 
 list($os, $osVersion) = inspectOS();
 
-// For every format we require, define how to obtain a test sample so we can
-// actually exercise the format instead of just trusting Imagick::queryFormats():
-//   true     => let Imagick encode the sample itself, then read it back
-//               (round-trip: exercises both the encoder and the decoder).
-//   <string> => a literal sample already in that format, which we only read back
-//               (exercises the decoder; used for formats Imagick can't reliably
-//               write, but whose reading relies on an external delegate).
 $requiredFormats = [
     'BMP' => true,
     'GIF' => true,
@@ -40,11 +33,6 @@ switch ($os) {
         exit(1);
 }
 
-// Reading a PDF is delegated to Ghostscript, but ImageMagick also has to allow
-// its "PDF" coder. ImageMagick 6 (Debian up to bookworm) ships a policy.xml that
-// disables the PDF/PS coders (rights="none"), so PDF support only works from
-// ImageMagick 7 onwards (e.g. Debian trixie; Alpine already uses ImageMagick 7).
-// Only require/exercise PDF there, and via reading -- we never write PDFs.
 if (preg_match('/ImageMagick\s+(\d+)/', Imagick::getVersion()['versionString'], $m) && (int) $m[1] >= 7) {
     $requiredFormats['PDF'] = "%PDF-1.4\n"
         . "1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
@@ -55,12 +43,13 @@ if (preg_match('/ImageMagick\s+(\d+)/', Imagick::getVersion()['versionString'], 
         . "endstream endobj\n"
         . "trailer<</Root 1 0 R>>\n"
         . '%%EOF';
+} else {
+    $requiredFormats['PDF'] = false;
 }
 
 $requiredFormats = array_change_key_case($requiredFormats, CASE_UPPER);
 ksort($requiredFormats);
 
-// Quick pre-check: every required format must at least be a registered coder.
 $supportedFormats = array_map('strtoupper', Imagick::queryFormats());
 $missingFormats = array_diff(array_keys($requiredFormats), $supportedFormats);
 if ($missingFormats !== []) {
@@ -69,18 +58,17 @@ if ($missingFormats !== []) {
     exit(1);
 }
 
-// Actually exercise every format: encode a sample (when Imagick can write it),
-// then decode it. Decoding is what invokes the external delegates -- e.g.
-// Ghostscript for PDF and librsvg for SVG -- so this catches a missing delegate
-// that queryFormats() alone would happily hide.
 $allGood = true;
 foreach ($requiredFormats as $format => $sample) {
+    if ($sample === false) {
+        continue;
+    }
     try {
         if ($sample === true) {
             $writer = new Imagick();
             $writer->newImage(16, 16, new ImagickPixel('blue'));
             $writer->setImageFormat($format);
-            $blob = $writer->getImageBlob(); // Exercise the encoder
+            $blob = $writer->getImageBlob();
             $writer->destroy();
         } else {
             $blob = $sample;
@@ -89,12 +77,12 @@ foreach ($requiredFormats as $format => $sample) {
         if ($format === 'PDF') {
             $reader->setResolution(72, 72);
         }
-        $reader->readImageBlob($blob, 'sample.' . strtolower($format)); // Exercise the decoder/delegate
+        $reader->readImageBlob($blob, 'sample.' . strtolower($format));
         if ($reader->getImageWidth() < 1 || $reader->getImageHeight() < 1) {
             throw new ImagickException('the decoded image has no pixels');
         }
         $reader->setImageFormat('PNG');
-        $reader->getImageBlob(); // Force the sample to be fully decoded/rasterized
+        $reader->getImageBlob();
         $reader->destroy();
     } catch (ImagickException $x) {
         fwrite(STDERR, "Imagick failed to handle format {$format}: {$x->getMessage()}\n");
