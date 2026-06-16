@@ -5188,8 +5188,6 @@ installRemoteModule() {
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 702; then
 					installRemoteModule_version=1.13.0
-				elif test $PHP_MAJMIN_VERSION -le 801; then
-					installRemoteModule_version=1.14.1
 				else
 					installRemoteModule_version="$(git -c versionsort.suffix=- ls-remote --tags --refs --quiet --exit-code --sort=version:refname https://github.com/wikimedia/mediawiki-php-wikidiff2.git 'refs/tags/*.*.*' | tail -1 | cut -d/ -f3)"
 				fi
