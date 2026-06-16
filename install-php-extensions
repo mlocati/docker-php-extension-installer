@@ -1082,6 +1082,9 @@ buildRequiredPackageLists() {
 				if [ $DISTRO_MAJMIN_VERSION -ge 319 ]; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ghostscript libheif libjxl libraw librsvg"
 				fi
+				if [ $DISTRO_MAJMIN_VERSION -ge 324 ]; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libheif-aom libheif-x265"
+				fi
 				;;
 			imagick@debian)
 				if test $DISTRO_VERSION_NUMBER -ge 13; then
