@@ -1092,6 +1092,7 @@ buildRequiredPackageLists() {
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libmagickwand-6.q16-[0-9]+$ ^libmagickcore-6.q16-[0-9]+-extra$"
 				fi
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ghostscript"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libmagickwand-dev"
 				;;
 			imap@alpine)
