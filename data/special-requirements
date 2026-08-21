@@ -1,4 +1,4 @@
-cassandra !jessie !stretch !buster !bullseye !bookworm !trixie
+cassandra !jessie !stretch
 ddtrace !jessie
 ecma_intl !buster !bullseye !trixie !alpine3.22 !alpine3.23 !alpine3.24
 geos !alpine3.9 !alpine3.10
