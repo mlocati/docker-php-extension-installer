@@ -5056,29 +5056,16 @@ installRemoteModule() {
 			esac
 			;;
 		tideways)
-			case "$DISTRO" in
-				alpine)
-					case $(uname -m) in
-						aarch64 | arm64 | armv8)
-							installRemoteModule_architecture=alpine-arm64
-							;;
-						*)
-							installRemoteModule_architecture=alpine-x86_64
-							;;
-					esac
+			case $(uname -m) in
+				aarch64 | arm64 | armv8)
+					installRemoteModule_architecture=arm64
 					;;
-				debian)
-					case $(uname -m) in
-						aarch64 | arm64 | armv8)
-							installRemoteModule_architecture=arm64
-							;;
-						*)
-							installRemoteModule_architecture=x86_64
-							;;
-					esac
+				*)
+					installRemoteModule_architecture=amd64
 					;;
 			esac
-			installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf -o - https://tideways.com/profiler/downloads | grep -Eo "\"[^\"]+/tideways-php-([0-9]+\.[0-9]+\.[0-9]+)-$installRemoteModule_architecture.tar.gz\"" | cut -d'"' -f2)"
+
+			installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf -o - https://app.tideways.io/api/current-versions | php -r "echo json_decode(file_get_contents('php://stdin'), true)['php']['links']['linux' . ('${DISTRO}' == 'alpine' ? '-alpine' : '')]['${installRemoteModule_architecture}'];")"
 			if test -z "$installRemoteModule_url"; then
 				echo 'Failed to find the tideways tarball to be downloaded'
 				exit 1
