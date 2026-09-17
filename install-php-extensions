@@ -3825,6 +3825,15 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		judy)
+			if test -z "$installRemoteModule_version"; then
+				if test $PHP_MAJMIN_VERSION -lt 800; then
+					installRemoteModule_version=1.0.2
+				elif test $PHP_MAJMIN_VERSION -lt 801; then
+					installRemoteModule_version=2.4.1
+				fi
+			fi
+			;;
 		luasandbox)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -lt 702; then
