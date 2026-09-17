@@ -351,7 +351,7 @@ install-php-extensions @fix_letsencrypt
 | recode |  |  |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | redis | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | relay | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |
-| rrd |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
+| rrd | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | saxon[*](#special-requirements-for-saxon) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | seasclick[*](#special-requirements-for-seasclick) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | seaslog |  |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
