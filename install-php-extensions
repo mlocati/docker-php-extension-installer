@@ -5614,12 +5614,25 @@ invokeAptGetUpdate() {
 		return
 	fi
 	IPE_APTGETUPDATE_ALREADY=y
+	invokeAptGetUpdate_fixsecurity=1
+	invokeAptGetUpdate_dropupdates=1
 	if grep -q 'VERSION="8 (jessie)"' /etc/os-release; then
 		invokeAptGetUpdate_fixdistro=jessie
 	elif grep -q 'VERSION="9 (stretch)"' /etc/os-release; then
 		invokeAptGetUpdate_fixdistro=stretch
 	elif grep -q 'VERSION="10 (buster)"' /etc/os-release; then
 		invokeAptGetUpdate_fixdistro=buster
+	elif grep -q 'VERSION="11 (bullseye)"' /etc/os-release; then
+		invokeAptGetUpdate_fixdistro=bullseye
+		# bullseye-security is not (yet) available in the Debian archive, and its packages have been removed from security.debian.org:
+		# let's use the last snapshot that contains them
+		if test -z "${IPE_DEB_ARCHIVE_SECURITY:-}"; then
+			IPE_DEB_ARCHIVE_SECURITY=http://snapshot.debian.org/archive/debian-security/20260903T220410Z
+		fi
+		# The Release file of the snapshot is expired
+		printf 'Acquire::Check-Valid-Until "false";\n' >/etc/apt/apt.conf.d/99no-check-valid-until
+		# bullseye-updates is available in the Debian archive
+		invokeAptGetUpdate_dropupdates=0
 	else
 		invokeAptGetUpdate
 		return
@@ -5631,15 +5644,22 @@ invokeAptGetUpdate() {
 	if test -z "${IPE_DEB_ARCHIVE_SECURITY:-}"; then
 		IPE_DEB_ARCHIVE_SECURITY=http://archive.debian.org/debian-archive/debian-security
 	fi
-	sed -ri "s;^(\s*deb\s+http://(httpredir|deb).debian.org/debian\s+$invokeAptGetUpdate_fixdistro-updates\b.*);#\1;" /etc/apt/sources.list
-	sed -ri "s;^(\s*deb\s+)http://(httpredir|deb).debian.org;\1$IPE_DEB_ARCHIVE;" /etc/apt/sources.list
-	sed -ri "s;^(\s*deb\s+)http://security.debian.org/debian-security;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
-	sed -ri "s;^(\s*deb\s+)http://security.debian.org;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
+	if test "$invokeAptGetUpdate_dropupdates" -eq 1; then
+		sed -ri "s;^(\s*deb\s+http://(httpredir|deb).debian.org/debian\s+$invokeAptGetUpdate_fixdistro-updates\b.*);#\1;" /etc/apt/sources.list
+	fi
+	sed -ri "s;^(\s*deb\s+)http://(httpredir|deb).debian.org(/debian/?\s);\1$IPE_DEB_ARCHIVE\3;" /etc/apt/sources.list
+	if test "$invokeAptGetUpdate_fixsecurity" -eq 1; then
+		sed -ri "s;^(\s*deb\s+)http://(httpredir|deb).debian.org/debian-security;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
+		sed -ri "s;^(\s*deb\s+)http://security.debian.org/debian-security;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
+		sed -ri "s;^(\s*deb\s+)http://security.debian.org;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list
+	fi
 	if test "$invokeAptGetUpdate_fixdistro" = stretch && test -f /etc/apt/sources.list.d/buster.list; then
 		sed -ri "s;^(\s*deb\s+http://(httpredir|deb).debian.org/debian\s+buster-updates\b.*);#\1;" /etc/apt/sources.list.d/buster.list
 		sed -ri "s;^(\s*deb\s+)http://(httpredir|deb).debian.org;\1$IPE_DEB_ARCHIVE;" /etc/apt/sources.list.d/buster.list
-		sed -ri "s;^(\s*deb\s+)http://security.debian.org/debian-security;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list.d/buster.list
-		sed -ri "s;^(\s*deb\s+)http://security.debian.org;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list.d/buster.list
+		if test "$invokeAptGetUpdate_fixsecurity" -eq 1; then
+			sed -ri "s;^(\s*deb\s+)http://security.debian.org/debian-security;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list.d/buster.list
+			sed -ri "s;^(\s*deb\s+)http://security.debian.org;\1$IPE_DEB_ARCHIVE_SECURITY;" /etc/apt/sources.list.d/buster.list
+		fi
 	fi
 	invokeAptGetUpdate_tmp="$(mktemp)"
 	apt-get update -q 2>"$invokeAptGetUpdate_tmp"

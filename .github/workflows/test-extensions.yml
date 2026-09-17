@@ -125,7 +125,7 @@ jobs:
         name: Checkout
         uses: actions/checkout@v6
       -
-        run: docker run --rm --volume "$(pwd):/app" --workdir /app php:8.2-bullseye ./scripts/test-restore-apt
+        run: docker run --rm --volume "$(pwd):/app" --workdir /app php:8.2-bookworm ./scripts/test-restore-apt
 
   test_custom_version:
     name: Test installing specific versions
