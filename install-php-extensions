@@ -3848,7 +3848,15 @@ installRemoteModule() {
 		lz4)
 			if test -z "$installRemoteModule_path"; then
 				if test -z "$installRemoteModule_version"; then
-					installRemoteModule_version=0.4.3
+					case "$DISTRO_VERSION" in
+						debian@9)
+							# Debian Stretch has liblz4 r131: lz4 0.5.0+ requires LZ4_versionString(), lz4 0.6.0+ requires a more recent LZ4 frame API
+							installRemoteModule_version=0.4.4
+							;;
+						*)
+							installRemoteModule_version=0.7.1
+							;;
+					esac
 				fi
 				installRemoteModule_src="$(getPackageSource https://github.com/kjdev/php-ext-lz4/archive/refs/tags/$installRemoteModule_version.tar.gz)"
 				cd "$installRemoteModule_src"
