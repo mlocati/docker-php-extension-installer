@@ -819,7 +819,11 @@ buildRequiredPackageLists() {
 				;;
 			cassandra@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent cassandra-cpp-driver gmp"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cassandra-cpp-driver-dev gmp-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cassandra-cpp-driver-dev gmp-dev bash cmake"
+				;;
+			cassandra@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libuv1(t64)?\$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake libuv1-dev $buildRequiredPackageLists_libssldev zlib1g-dev libgmp-dev"
 				;;
 			cmark@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
@@ -2771,6 +2775,26 @@ installLibcClient2007e() {
 	fi
 }
 
+installCassandraCppDriver() {
+	printf 'Installing the Cassandra C++ driver\n'
+	installCassandraCppDriver_dir="$(getPackageSource https://github.com/apache/cassandra-cpp-driver/archive/refs/tags/2.17.1.tar.gz)"
+	cmake -B "$installCassandraCppDriver_dir/build" -S "$installCassandraCppDriver_dir" \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+		-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+		-DCASS_BUILD_SHARED=ON \
+		-DCASS_BUILD_STATIC=OFF \
+		-DCASS_BUILD_EXAMPLES=OFF \
+		-DCASS_BUILD_TESTS=OFF \
+		-DCASS_USE_STD_ATOMIC=ON \
+		-DCASS_USE_TIMERFD=ON \
+		-DCASS_USE_LIBSSH2=OFF \
+		-DCASS_USE_ZLIB=ON
+	cmake --build "$installCassandraCppDriver_dir/build" --parallel $(getProcessorCount)
+	cmake --build "$installCassandraCppDriver_dir/build" --target install
+	ldconfig || true
+}
+
 # Install Composer
 installComposer() {
 	installComposer_version="$(getWantedPHPModuleVersion @composer)"
@@ -3462,12 +3486,31 @@ installRemoteModule() {
 			fi
 			;;
 		cassandra)
-			installRemoteModule_src="$(getPackageSource https://github.com/nano-interactive/ext-cassandra/tarball/1cf12c5ce49ed43a2c449bee4b7b23ce02a37bf0)"
-			cd "$installRemoteModule_src/ext"
-			phpize
-			./configure
-			make -j$(getProcessorCount) install
-			cd - >/dev/null
+			if ! pkg-config --exists cassandra; then
+				installCassandraCppDriver
+			fi
+			installRemoteModule_cmakeVersion="$(cmake --version 2>/dev/null | head -n1 | sed -E 's/^.* //')"
+			if test $PHP_MAJMIN_VERSION -ge 803 && test -n "$installRemoteModule_cmakeVersion" && test $(compareVersions "$installRemoteModule_cmakeVersion" '3.30') -ge 0; then
+				printf 'Installing the ScyllaDB PHP driver\n'
+				installRemoteModule_src="$(getPackageSource https://github.com/he4rt/scylladb-php-driver/archive/refs/tags/v1.4.2.tar.gz)"
+				cd "$installRemoteModule_src"
+				cmake -B cmake-build \
+					-DCMAKE_BUILD_TYPE=Release \
+					-DCUSTOM_PHP_CONFIG="$(which php-config)" \
+					-DUSE_LIBCASSANDRA=ON \
+					-DCPU_TYPE=x86-64
+				cmake --build cmake-build --parallel $(getProcessorCount)
+				cmake --install cmake-build --component extension
+				cd - >/dev/null
+			else
+				printf 'Installing the nano-interactive Cassandra PHP driver\n'
+				installRemoteModule_src="$(getPackageSource https://github.com/nano-interactive/ext-cassandra/tarball/1cf12c5ce49ed43a2c449bee4b7b23ce02a37bf0)"
+				cd "$installRemoteModule_src/ext"
+				phpize
+				./configure
+				make -j$(getProcessorCount) install
+				cd - >/dev/null
+			fi
 			installRemoteModule_manuallyInstalled=1
 			;;
 		cmark)
