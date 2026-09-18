@@ -2680,7 +2680,7 @@ isLibXCryptInstalled() {
 
 installLibXCrypt() {
 	printf 'Installing libxcrypt\n'
-	installLibXCrypt_version=4.4.36
+	installLibXCrypt_version=4.5.2
 	installLibXCrypt_src="$(getPackageSource "https://github.com/besser82/libxcrypt/releases/download/v$installLibXCrypt_version/libxcrypt-$installLibXCrypt_version.tar.xz")"
 	cd -- "$installLibXCrypt_src"
 	./configure --prefix /usr --disable-werror
