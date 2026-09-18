@@ -192,7 +192,7 @@ getDockerImageName() {
 			if test "${getDockerImageName_log#*manifest unknown}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*manifest for * not found}" != "$getDockerImageName_log"; then
 				return
 			fi
-			printf '%s\n' "$getDockerImageName_log"
+			printf 'Failed to pull the Docker image %s:\n%s\n' "$getDockerImageName_imageName" "$getDockerImageName_log" >&2
 			exit 1
 		fi
 	fi
