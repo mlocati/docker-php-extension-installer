@@ -4544,7 +4544,7 @@ installRemoteModule() {
 					elif test $PHP_MAJMIN_VERSION -le 801; then
 						installRemoteModule_version=0.10.0
 					else
-						installRemoteModule_version=0.13.0
+						installRemoteModule_version=0.14.0
 					fi
 				fi
 				installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$installRemoteModule_version)"
@@ -4554,7 +4554,8 @@ installRemoteModule() {
 				make -j$(getProcessorCount) install
 				cd - >/dev/null
 				cp -a "$installRemoteModule_src/config/default.rules" "$PHP_INI_DIR/conf.d/snuffleupagus.rules"
-				if test $(compareVersions "$installRemoteModule_version" 0.8.0) -ge 0; then
+				# The show_old_php_warning option has been introduced in snuffleupagus 0.8.0 and removed in 0.14.0
+				if test $(compareVersions "$installRemoteModule_version" 0.8.0) -ge 0 && test $(compareVersions "$installRemoteModule_version" 0.14.0) -lt 0; then
 					printf '\n# Disable "PHP version is not officially maintained anymore" message\nsp.global.show_old_php_warning.disable();\n' >>"$PHP_INI_DIR/conf.d/snuffleupagus.rules"
 				fi
 			else
