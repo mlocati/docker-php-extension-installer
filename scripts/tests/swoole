@@ -1,8 +1,15 @@
 #!/usr/bin/env php
 <?php
 
+if (!function_exists('swoole_version')) {
+    echo "Swoole is not installed\n";
+    exit(1);
+}
+
+echo 'Swoole version: ' . swoole_version() . "\n";
+
 if (extension_loaded('curl')) {
-    // This leads to Segmentation fault when the script ends
+    // Test that enabling curl in Swoole does not lead to Segmentation fault when the script ends
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, 'http://127.0.0.1/foo');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
