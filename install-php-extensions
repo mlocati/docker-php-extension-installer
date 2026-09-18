@@ -2440,7 +2440,7 @@ isLibaomInstalled() {
 # Install libaom
 installLibaom() {
 	printf 'Installing libaom\n'
-	installLibaom_version=3.10.0
+	installLibaom_version=3.12.0
 	installLibaom_dir="$(getPackageSource https://aomedia.googlesource.com/aom/+archive/v$installLibaom_version.tar.gz)"
 	mkdir -- "$installLibaom_dir/my.build"
 	cd -- "$installLibaom_dir/my.build"
@@ -2468,7 +2468,7 @@ isLibdav1dInstalled() {
 # Install libdav1d
 installLibdav1d() {
 	printf 'Installing libdav1d\n'
-	installLibdav1d_dir="$(getPackageSource https://github.com/videolan/dav1d/archive/refs/tags/1.3.0.tar.gz)"
+	installLibdav1d_dir="$(getPackageSource https://github.com/videolan/dav1d/archive/refs/tags/1.5.3.tar.gz)"
 	mkdir -- "$installLibdav1d_dir/build"
 	cd -- "$installLibdav1d_dir/build"
 	meson --buildtype release -Dprefix=/usr ..
@@ -2524,10 +2524,10 @@ isLibavifInstalled() {
 # Install libavif
 installLibavif() {
 	printf 'Installing libavif\n'
-	installLibavif_dir="$(getPackageSource https://codeload.github.com/AOMediaCodec/libavif/tar.gz/refs/tags/v1.0.3)"
+	installLibavif_dir="$(getPackageSource https://codeload.github.com/AOMediaCodec/libavif/tar.gz/refs/tags/v1.3.0)"
 	mkdir -- "$installLibavif_dir/build"
 	cd -- "$installLibavif_dir/build"
-	cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DAVIF_CODEC_AOM=ON -DCMAKE_INSTALL_LIBDIR:PATH=lib
+	cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DAVIF_CODEC_AOM=SYSTEM -DCMAKE_INSTALL_LIBDIR:PATH=lib
 	make -j$(getProcessorCount) install
 	cd - >/dev/null
 }
