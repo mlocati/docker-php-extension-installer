@@ -11,141 +11,30 @@ Before doing that, the Action waits for 30 seconds, so that maintainers can canc
 Once this new tag is created automatically (or when maintainers push a new version-like tag to the repository), the Action creates a new release, attaching it the `install-php-extensions` script to it
 (so that users can download it via the `https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions` URL).
 
-## Extensions to be monitored
+## Monitoring external dependencies
 
-### cmark
+`install-php-extensions` relies on some external dependencies that need to be checked periodically:
 
-The `cmark` PHP extension requires the `libcmark` system library.
-It's not available on Debian/Alpine Linux, so we install it manually.
-We need to monitor new releases at https://github.com/commonmark/cmark/releases
+- some PECL extensions don't have stable versions (or their stable versions are very old), so by default we install them in a non-stable version (`beta`, `alpha`, ...)
+- some libraries and extensions aren't available in the Linux distributions or in the PECL archive, so we download a specific version of them (or a specific git commit)
 
-### decimal
+The [`check-dependency-updates.yml`](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/check-dependency-updates.yml) GitHub Action runs every two days the [`scripts/check-dependency-updates.php`](https://github.com/mlocati/docker-php-extension-installer/blob/master/scripts/check-dependency-updates.php) script, which checks:
 
-The `decimal` PHP extension requires the `libmpdec` system library.
-It's not available on Alpine Linux, so we install it manually.
-We need to monitor new releases at https://www.bytereef.org/mpdecimal/changelog.html
+- if the PECL extensions that we install in a non-stable version by default have a more stable release (for example, a `beta` or `stable` release for an extension we install as `alpha`).
+  These extensions are detected automatically by parsing `install-php-extensions`.
+- if the libraries and extensions we download manually have newer versions.
+  These are listed in the `LIBRARIES` constant of the script: the version in use is read from the `IPE_LATESTVERSION_...` variables defined at the beginning of `install-php-extensions`, so there's no need to update the script when upgrading a dependency.
 
-### ecma_intl
+When new versions are found, a Telegram notification is sent (every new version is notified only once).
+Temporary problems (like websites that can't be reached) don't make the Action fail: they are reported as warnings in the Action log.
+Problems that require updating the script or `install-php-extensions` (for example, when the version in use or the latest version of a dependency can't be detected) make the Action fail, and a Telegram notification listing them is sent.
 
-The only available versions of this PHP extension are all alpha.
-We should switch to the stable release once it will be available.
+The script can also be executed locally:
 
-### gearman
+```sh
+php scripts/check-dependency-updates.php
+```
 
-The `gearman` PHP extension requires the `libgearman` system library.
-It's not available on Alpine Linux, so we install it manually.
-We need to monitor new releases at https://github.com/gearman/gearmand/releases
-
-### geoip
-
-The latest stable release of the `geoip` PHP extension is very old, so we install the latest beta release.
-We should switch to the stable release once it will be available.
-
-### geospatial
-
-The only available versions of the `geospatial` PHP extension are all beta.
-We should switch to the stable release once it will be available.
-
-### gmagick
-
-The only available versions of the `gmagick` PHP extension are all alpha/beta.
-We should switch to the stable release once it will be available.
-
-### http
-
-The `http` PHP extension may use the `libidnkit` system library since version 3.0.0.
-It's not available on Alpine Linux, so we install it manually.
-We need to monitor new releases at https://jprs.co.jp/idn
-
-### ion
-
-- We manually compile the `ion-c` library.
-  We need to monitor new releases at https://github.com/amzn/ion-c/releases
-- The only available versions of the `ion` PHP extension are all alpha.
-  We should switch to the stable release once it will be available.
-
-### ionCube Loader
-
-The `ionCube Loader` PHP extension is not available in the PECL archive, so we install it manually.
-We need to monitor new releases at https://www.ioncube.com/news.php
-
-### lz4
-
-The `lz4` PHP extension is not available in the PECL archive, so we install it manually.
-We need to monitor new releases at https://github.com/kjdev/php-ext-lz4/tags
-
-### mosquitto
-
-The only available versions of the `mosquitto` PHP extension are all alpha/beta.
-We should switch to the stable release once it will be available.
-
-## php_trie
-
-The `php_trie` PHP extension uses the HAT-trie library.
-We need to monitor new releases at https://github.com/Tessil/hat-trie/releases
-
-### opencensus
-
-The only available versions of the `opencensus` PHP extension are all alpha.
-We should switch to the stable release once it will be available.
-
-### operator
-
-The only available versions of the `operator` PHP extension are all beta.
-We should switch to the stable release once it will be available.
-
-### parle
-
-The only available versions of the `parle` PHP extension are all beta.
-We should switch to the stable release once it will be available.
-
-### snappy
-
-The `snappy` PHP extension is not available in the PECL archive, so we install it manually.
-We need to monitor new releases at https://github.com/kjdev/php-ext-snappy/tags
-
-### snuffleupagus
-
-The `snuffleupagus` PHP extension is not available in the PECL archive, so we install it manually.
-We need to monitor new releases at https://github.com/jvoisin/snuffleupagus/releases
-
-## spx
-
-The `spx` PHP extension is not available in the PECL archive, so we install it manually.
-We need to monitor new releases at https://github.com/NoiseByNorthwest/php-spx/tags
-
-### sqlsrv / pdo_sqlsrv 
-
-The `pdo_sqlsrv` and `sqlsrv` PHP extensions require the Microsoft ODBC Driver for SQL Server.
-On Alpine Linux there's no way to automatically install its latest version, so we install it manually.
-We need to monitor new releases at https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine18
-
-### translit
-
-The only available versions of the `translit` PHP extension are all beta.
-We should switch to the stable release once it will be available.
-
-### uv
-
-The only available versions of the `uv` PHP extension are all beta.
-We should switch to the stable release once it will be available.
-
-### v8js
-
-The `v8js` PHP extension is not available in the PECL archive in a version that supports PHP 8.x, so we install it manually from the `php8` branch at https://github.com/phpv8/v8js.
-We pin a specific commit hash; we should periodically update it as new commits land on that branch.
-
-### vld
-
-The only available versions of this PHP extension are all beta.
-We should switch to the stable release once it will be available.
-
-## xdiff
-
-The `xdiff` PHP extension uses the LibXDiff library.
-We need to monitor new releases at http://www.xmailserver.org/xdiff-lib.html
-
-### xmlrpc
-
-The only available versions of the `xmlrpc` PHP extension are all beta.
-We should switch to the stable release once it will be available.
+When adding to `install-php-extensions` a new library or extension that is downloaded manually, remember to define its version in a new `IPE_LATESTVERSION_...` variable, and to add it to the `LIBRARIES` constant of the script
+(the script fails if an `IPE_LATESTVERSION_...` variable doesn't have a corresponding entry in `LIBRARIES`).
+If a library shouldn't be checked for updates, add it to the `SKIPPED_LIBRARIES` constant of the script, explaining why.

@@ -1,0 +1,62 @@
+name: Check dependency updates
+
+on:
+  schedule:
+    - cron: "30 5 */2 * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Check dependency updates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: curl
+          coverage: none
+          tools: none
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Restore state
+        uses: actions/cache/restore@v6
+        with:
+          path: .dependency-updates-state.json
+          key: dependency-updates-state-${{ github.run_id }}
+          restore-keys: dependency-updates-state-
+      - name: Check
+        id: check
+        run: php ./scripts/check-dependency-updates.php --state-file=.dependency-updates-state.json
+      # The following steps run even if the check failed: new versions found before the failure are notified anyway
+      - name: Notify new versions
+        id: notify
+        if: always() && steps.check.outputs.message != ''
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_TO }}
+          disable_web_page_preview: true
+          message: |
+            ${{ steps.check.outputs.message }}
+
+            https://github.com/mlocati/docker-php-extension-installer/actions/workflows/check-dependency-updates.yml
+      - name: Save state
+        # Don't save the state if the notification of the new versions failed, so that they will be notified again
+        if: always() && steps.notify.outcome != 'failure' && hashFiles('.dependency-updates-state.json') != ''
+        uses: actions/cache/save@v6
+        with:
+          path: .dependency-updates-state.json
+          key: dependency-updates-state-${{ github.run_id }}
+      - name: Notify failure
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_TO }}
+          disable_web_page_preview: true
+          message: |
+            Checking the dependencies of docker-php-extension-installer failed: the dependency checker or install-php-extensions need to be updated.
+            ${{ steps.check.outputs.errors }}
+
+            https://github.com/mlocati/docker-php-extension-installer/actions/runs/${{ github.run_id }}
