@@ -4726,7 +4726,6 @@ installRemoteModule() {
 			fi
 			installRemoteModule_sqlite=yes
 			installRemoteModule_iouring=no
-			installRemoteModule_curl=yes
 			case "$DISTRO" in
 				alpine)
 					if test $DISTRO_MAJMIN_VERSION -lt 317; then
@@ -4749,10 +4748,6 @@ installRemoteModule() {
 					esac
 					;;
 				debian)
-					if test $PHP_MAJMIN_VERSION -ge 800; then
-						# see https://github.com/swoole/swoole-src/issues/5365
-						installRemoteModule_curl=no
-					fi
 					if test $DISTRO_MAJMIN_VERSION -lt 1200; then
 						# we need sqlite3 >= 3.7.7
 						installRemoteModule_sqlite=no
@@ -4794,7 +4789,7 @@ installRemoteModule() {
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				addConfigureOption enable-swoole-curl yes
 				# enable cares support?
 				addConfigureOption enable-cares yes
 				# enable brotli support?
@@ -4833,7 +4828,7 @@ installRemoteModule() {
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				addConfigureOption enable-swoole-curl yes
 				# enable cares support?
 				addConfigureOption enable-cares yes
 				# enable brotli support?
@@ -4860,7 +4855,7 @@ installRemoteModule() {
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				addConfigureOption enable-swoole-curl yes
 				# enable cares support?
 				addConfigureOption enable-cares yes
 				# enable brotli support?
@@ -4881,7 +4876,7 @@ installRemoteModule() {
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				addConfigureOption enable-swoole-curl yes
 				# enable cares support?
 				addConfigureOption enable-cares yes
 				# enable brotli support?
@@ -4894,7 +4889,7 @@ installRemoteModule() {
 				# enable mysqlnd support?
 				addConfigureOption enable-mysqlnd yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				addConfigureOption enable-swoole-curl yes
 				# enable cares support?
 				addConfigureOption enable-cares yes
 			elif test $(compareVersions "$installRemoteModule_version" 4.8.11) -ge 0; then
@@ -4909,7 +4904,7 @@ installRemoteModule() {
 				# enable json support?
 				addConfigureOption enable-swoole-json yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				addConfigureOption enable-swoole-curl yes
 				# enable cares support?
 				addConfigureOption enable-cares yes
 			elif test $(compareVersions "$installRemoteModule_version" 4.6.1) -ge 0; then
@@ -4924,7 +4919,7 @@ installRemoteModule() {
 				# enable json support?
 				addConfigureOption enable-swoole-json yes
 				# enable curl support?
-				addConfigureOption enable-swoole-curl $installRemoteModule_curl
+				addConfigureOption enable-swoole-curl yes
 			elif test $(compareVersions "$installRemoteModule_version" 4.4.0) -ge 0; then
 				# enable sockets supports?
 				addConfigureOption enable-sockets $installRemoteModule_sockets
