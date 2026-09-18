@@ -4512,7 +4512,12 @@ installRemoteModule() {
 		snappy)
 			if test -z "$installRemoteModule_path"; then
 				if test -z "$installRemoteModule_version"; then
-					installRemoteModule_version=0.2.1
+					if grep -qE '^#define SNAPPY_MAJOR[[:space:]]*$' /usr/include/snappy-stubs-public.h 2>/dev/null; then
+						# snappy 1.1.7 installs a snappy-stubs-public.h file with empty SNAPPY_MAJOR/SNAPPY_MINOR/SNAPPY_PATCHLEVEL: the configure of snappy 0.2.2+ fails with it
+						installRemoteModule_version=0.2.1
+					else
+						installRemoteModule_version=0.2.3
+					fi
 				fi
 				installRemoteModule_src="$(getPackageSource https://github.com/kjdev/php-ext-snappy/archive/refs/tags/$installRemoteModule_version.tar.gz)"
 				cd "$installRemoteModule_src"
