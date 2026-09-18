@@ -23,6 +23,32 @@ fi
 
 IPE_VERSION=master
 
+# The versions of the libraries and PHP extensions that we download manually (for recent PHP versions/distros)
+# Firebird version followed by the build number and the package revision (as in the name of the source archive)
+IPE_LATESTVERSION_FIREBIRD=5.0.4.1812-0
+IPE_LATESTVERSION_GEOS=889e2b1d9aa6f82995db4dab6891f48c3bacfb59
+IPE_LATESTVERSION_HATTRIE=0.7.1
+IPE_LATESTVERSION_IONC=1.1.6
+IPE_LATESTVERSION_LIBAOM=3.12.0
+IPE_LATESTVERSION_LIBAVIF=1.3.0
+IPE_LATESTVERSION_LIBCMARK=0.31.2
+IPE_LATESTVERSION_LIBDAV1D=1.5.3
+IPE_LATESTVERSION_LIBGEARMAN=2.1.0
+IPE_LATESTVERSION_LIBIDNKIT=2.3
+IPE_LATESTVERSION_LIBIP2LOCATION=8.7.0
+IPE_LATESTVERSION_LIBMPDEC=4.0.1
+IPE_LATESTVERSION_LIBTOMCRYPT=1.18.2
+IPE_LATESTVERSION_LIBTOMMATH=1.3.0
+IPE_LATESTVERSION_LIBXCRYPT=4.5.2
+IPE_LATESTVERSION_LIBXDIFF=0.23
+IPE_LATESTVERSION_LZ4=0.7.1
+# When updating this, remember to update the download URL too (it contains a unique ID)
+IPE_LATESTVERSION_MSODBC18=18.7.1.1-1
+IPE_LATESTVERSION_SNAPPY=0.2.3
+IPE_LATESTVERSION_SNUFFLEUPAGUS=0.14.0
+IPE_LATESTVERSION_SPX=0.4.22
+IPE_LATESTVERSION_V8JS=8a39efa3cf3b275e402ddf3c4f6b611a5f69a499
+
 StandWithUkraine() {
 	if test -t 1 && ! grep -Eq '^VERSION=.*jessie' /etc/os-release; then
 		printf '\e[37;44m#StandWith\e[30;43mUkraine\e[0m\n'
@@ -2384,7 +2410,7 @@ installMicrosoftSqlServerODBC() {
 						installMicrosoftSqlServerODBC_arch=amd64
 						;;
 				esac
-				installMicrosoftSqlServerODBC_url=https://download.microsoft.com/download/ade174b7-8cea-4543-91a6-c33ae320c2f0/msodbcsql18_18.7.1.1-1_$installMicrosoftSqlServerODBC_arch.apk
+				installMicrosoftSqlServerODBC_url=https://download.microsoft.com/download/ade174b7-8cea-4543-91a6-c33ae320c2f0/msodbcsql18_${IPE_LATESTVERSION_MSODBC18}_$installMicrosoftSqlServerODBC_arch.apk
 			fi
 			printf 'APK package URL: %s\n' "$installMicrosoftSqlServerODBC_url"
 			curl $IPE_CURL_FLAGS -sSLf -o /tmp/src/msodbcsql.apk "$installMicrosoftSqlServerODBC_url"
@@ -2440,7 +2466,7 @@ isLibaomInstalled() {
 # Install libaom
 installLibaom() {
 	printf 'Installing libaom\n'
-	installLibaom_version=3.12.0
+	installLibaom_version=$IPE_LATESTVERSION_LIBAOM
 	installLibaom_dir="$(getPackageSource https://aomedia.googlesource.com/aom/+archive/v$installLibaom_version.tar.gz)"
 	mkdir -- "$installLibaom_dir/my.build"
 	cd -- "$installLibaom_dir/my.build"
@@ -2468,7 +2494,7 @@ isLibdav1dInstalled() {
 # Install libdav1d
 installLibdav1d() {
 	printf 'Installing libdav1d\n'
-	installLibdav1d_dir="$(getPackageSource https://github.com/videolan/dav1d/archive/refs/tags/1.5.3.tar.gz)"
+	installLibdav1d_dir="$(getPackageSource https://github.com/videolan/dav1d/archive/refs/tags/$IPE_LATESTVERSION_LIBDAV1D.tar.gz)"
 	mkdir -- "$installLibdav1d_dir/build"
 	cd -- "$installLibdav1d_dir/build"
 	meson --buildtype release -Dprefix=/usr ..
@@ -2524,7 +2550,7 @@ isLibavifInstalled() {
 # Install libavif
 installLibavif() {
 	printf 'Installing libavif\n'
-	installLibavif_dir="$(getPackageSource https://codeload.github.com/AOMediaCodec/libavif/tar.gz/refs/tags/v1.3.0)"
+	installLibavif_dir="$(getPackageSource https://codeload.github.com/AOMediaCodec/libavif/tar.gz/refs/tags/v$IPE_LATESTVERSION_LIBAVIF)"
 	mkdir -- "$installLibavif_dir/build"
 	cd -- "$installLibavif_dir/build"
 	cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DAVIF_CODEC_AOM=SYSTEM -DCMAKE_INSTALL_LIBDIR:PATH=lib
@@ -2534,7 +2560,7 @@ installLibavif() {
 
 # Install libmpdec
 installLibMPDec() {
-	installLibMPDec_version=4.0.1
+	installLibMPDec_version=$IPE_LATESTVERSION_LIBMPDEC
 	printf '# Installing libmpdec v%s\n' "$installLibMPDec_version"
 	installLibMPDec_src="$(getPackageSource https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-$installLibMPDec_version.tar.gz)"
 	cd -- "$installLibMPDec_src"
@@ -2606,7 +2632,7 @@ isLibTommathInstalled() {
 
 installLibTommath() {
 	printf 'Installing libtommath\n'
-	installLibTommath_src="$(getPackageSource https://github.com/libtom/libtommath/releases/download/v1.3.0/ltm-1.3.0.tar.xz)"
+	installLibTommath_src="$(getPackageSource https://github.com/libtom/libtommath/releases/download/v$IPE_LATESTVERSION_LIBTOMMATH/ltm-$IPE_LATESTVERSION_LIBTOMMATH.tar.xz)"
 	mkdir -p "$installLibTommath_src/build"
 	cd -- "$installLibTommath_src/build"
 	CFLAGS='-fPIC' cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -2624,7 +2650,7 @@ isLibTomcryptInstalled() {
 
 installLibTomcrypt() {
 	printf 'Installing libtomcrypt\n'
-	installLibTomcrypt_src="$(getPackageSource https://github.com/libtom/libtomcrypt/releases/download/v1.18.2/crypt-1.18.2.tar.xz)"
+	installLibTomcrypt_src="$(getPackageSource https://github.com/libtom/libtomcrypt/releases/download/v$IPE_LATESTVERSION_LIBTOMCRYPT/crypt-$IPE_LATESTVERSION_LIBTOMCRYPT.tar.xz)"
 	cd -- "$installLibTomcrypt_src"
 	CFLAGS='-fPIC' make -j$(getProcessorCount)
 	make install
@@ -2643,7 +2669,7 @@ isFirebirdInstalled() {
 installFirebird() {
 	printf 'Installing firebird\n'
 	if test $PHP_MAJMIN_VERSION -ge 804; then
-		installFirebird_src="$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/v5.0.4/Firebird-5.0.4.1812-0-source.tar.xz)"
+		installFirebird_src="$(getPackageSource https://github.com/FirebirdSQL/firebird/releases/download/v${IPE_LATESTVERSION_FIREBIRD%.*}/Firebird-$IPE_LATESTVERSION_FIREBIRD-source.tar.xz)"
 		cd -- "$installFirebird_src"
 		# Turn off profiling on arm64, otherwise the build fails with "undefined reference to `_mcount'"
 		sed -i 's/ -p / /g; s/ -p$//g; s/^-p //g' builds/posix/prefix.linux_arm64
@@ -2680,7 +2706,7 @@ isLibXCryptInstalled() {
 
 installLibXCrypt() {
 	printf 'Installing libxcrypt\n'
-	installLibXCrypt_version=4.5.2
+	installLibXCrypt_version=$IPE_LATESTVERSION_LIBXCRYPT
 	installLibXCrypt_src="$(getPackageSource "https://github.com/besser82/libxcrypt/releases/download/v$installLibXCrypt_version/libxcrypt-$installLibXCrypt_version.tar.xz")"
 	cd -- "$installLibXCrypt_src"
 	./configure --prefix /usr --disable-werror
@@ -2722,7 +2748,7 @@ isLibIP2LocationInstalled() {
 
 installLibIP2Location() {
 	printf 'Installing libIP2Location\n'
-	installLibIP2Location_src="$(getPackageSource https://codeload.github.com/chrislim2888/IP2Location-C-Library/tar.gz/8.7.0)"
+	installLibIP2Location_src="$(getPackageSource https://codeload.github.com/chrislim2888/IP2Location-C-Library/tar.gz/$IPE_LATESTVERSION_LIBIP2LOCATION)"
 	cd -- "$installLibIP2Location_src"
 	autoreconf -fiv
 	./configure
@@ -3483,7 +3509,7 @@ installRemoteModule() {
 				elif test $(compareVersions "$installRemoteModule_cmakeVersion" '3.15') -lt 0; then
 					installRemoteModule_cmarkVersion=0.31.1
 				else
-					installRemoteModule_cmarkVersion=0.31.2
+					installRemoteModule_cmarkVersion=$IPE_LATESTVERSION_LIBCMARK
 				fi
 				printf 'Installing libcmark %s\n' "$installRemoteModule_cmarkVersion"
 				cd "$(getPackageSource https://github.com/commonmark/cmark/archive/$installRemoteModule_cmarkVersion.tar.gz)"
@@ -3666,7 +3692,7 @@ installRemoteModule() {
 			case "$DISTRO" in
 				alpine)
 					if ! test -e /usr/local/include/libgearman/gearman.h || ! test -e /usr/local/lib/libgearman.so; then
-						installRemoteModule_src="$(getPackageSource https://github.com/gearman/gearmand/releases/download/2.1.0/gearmand-2.1.0.tar.gz)"
+						installRemoteModule_src="$(getPackageSource https://github.com/gearman/gearmand/releases/download/$IPE_LATESTVERSION_LIBGEARMAN/gearmand-$IPE_LATESTVERSION_LIBGEARMAN.tar.gz)"
 						cd -- "$installRemoteModule_src"
 						./configure
 						make -j$(getProcessorCount) install-binPROGRAMS
@@ -3687,7 +3713,7 @@ installRemoteModule() {
 					if test $PHP_MAJMIN_VERSION -lt 700; then
 						installRemoteModule_version=dfe1ab17b0f155cc315bc13c75689371676e02e1
 					else
-						installRemoteModule_version=889e2b1d9aa6f82995db4dab6891f48c3bacfb59
+						installRemoteModule_version=$IPE_LATESTVERSION_GEOS
 					fi
 				fi
 				installRemoteModule_src="$(getPackageSource https://github.com/libgeos/php-geos/archive/$installRemoteModule_version.tar.gz)"
@@ -3752,7 +3778,7 @@ installRemoteModule() {
 			fi
 			if test $PHP_MAJMIN_VERSION -ge 700; then
 				if ! test -e /usr/local/lib/libidnkit.so; then
-					installRemoteModule_src="$(getPackageSource https://jprs.co.jp/idn/idnkit-2.3.tar.bz2)"
+					installRemoteModule_src="$(getPackageSource https://jprs.co.jp/idn/idnkit-$IPE_LATESTVERSION_LIBIDNKIT.tar.bz2)"
 					cd -- "$installRemoteModule_src"
 					CFLAGS=-Wno-incompatible-pointer-types ./configure
 					make -j$(getProcessorCount) install
@@ -3796,7 +3822,7 @@ installRemoteModule() {
 			if ! test -f /usr/local/lib/libionc.so || ! test -f /usr/local/include/ionc/ion.h; then
 				echo 'Installing ion-c... '
 				installRemoteModule_src="$(mktemp -p /tmp/src -d)"
-				git clone -q -c advice.detachedHead=false --depth 1 --branch v1.1.6 https://github.com/amzn/ion-c.git "$installRemoteModule_src/ion"
+				git clone -q -c advice.detachedHead=false --depth 1 --branch v$IPE_LATESTVERSION_IONC https://github.com/amzn/ion-c.git "$installRemoteModule_src/ion"
 				(
 					cd "$installRemoteModule_src/ion"
 					git submodule init -q
@@ -3854,7 +3880,7 @@ installRemoteModule() {
 							installRemoteModule_version=0.4.4
 							;;
 						*)
-							installRemoteModule_version=0.7.1
+							installRemoteModule_version=$IPE_LATESTVERSION_LZ4
 							;;
 					esac
 				fi
@@ -4214,7 +4240,7 @@ installRemoteModule() {
 			;;
 		php_trie)
 			if ! test -f /usr/local/include/hat-trie/include/tsl/htrie_map.h; then
-				installRemoteModule_src="$(getPackageSource https://codeload.github.com/Tessil/hat-trie/tar.gz/v0.7.1)"
+				installRemoteModule_src="$(getPackageSource https://codeload.github.com/Tessil/hat-trie/tar.gz/v$IPE_LATESTVERSION_HATTRIE)"
 				mkdir -p /usr/local/include/hat-trie
 				mv "$installRemoteModule_src/include" /usr/local/include/hat-trie
 			fi
@@ -4524,7 +4550,7 @@ installRemoteModule() {
 						# snappy 1.1.7 installs a snappy-stubs-public.h file with empty SNAPPY_MAJOR/SNAPPY_MINOR/SNAPPY_PATCHLEVEL: the configure of snappy 0.2.2+ fails with it
 						installRemoteModule_version=0.2.1
 					else
-						installRemoteModule_version=0.2.3
+						installRemoteModule_version=$IPE_LATESTVERSION_SNAPPY
 					fi
 				fi
 				installRemoteModule_src="$(getPackageSource https://github.com/kjdev/php-ext-snappy/archive/refs/tags/$installRemoteModule_version.tar.gz)"
@@ -4544,7 +4570,7 @@ installRemoteModule() {
 					elif test $PHP_MAJMIN_VERSION -le 801; then
 						installRemoteModule_version=0.10.0
 					else
-						installRemoteModule_version=0.14.0
+						installRemoteModule_version=$IPE_LATESTVERSION_SNUFFLEUPAGUS
 					fi
 				fi
 				installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$installRemoteModule_version)"
@@ -4589,7 +4615,7 @@ installRemoteModule() {
 		spx)
 			if test -z "$installRemoteModule_path"; then
 				if test -z "$installRemoteModule_version"; then
-					installRemoteModule_version=v0.4.22
+					installRemoteModule_version=v$IPE_LATESTVERSION_SPX
 				fi
 				if test "${installRemoteModule_version%.*}" = "$installRemoteModule_version"; then
 					installRemoteModule_displayVersion="$installRemoteModule_version"
@@ -5177,7 +5203,7 @@ installRemoteModule() {
 		v8js)
 			if test -z "$installRemoteModule_version"; then
 				# php8 branch HEAD: there are no v8js releases on PECL/Git that support PHP 8.x
-				installRemoteModule_version=8a39efa3cf3b275e402ddf3c4f6b611a5f69a499
+				installRemoteModule_version=$IPE_LATESTVERSION_V8JS
 			fi
 			installRemoteModule_src="$(getPackageSource "https://codeload.github.com/phpv8/v8js/tar.gz/$installRemoteModule_version")"
 			cd -- "$installRemoteModule_src"
@@ -5259,7 +5285,7 @@ installRemoteModule() {
 				fi
 			fi
 			if ! test -f /usr/local/lib/libxdiff.* && ! test -f /usr/lib/libxdiff.* && ! test -f /usr/lib/x86_64*/libxdiff.*; then
-				installRemoteModule_src="$(getPackageSource https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/assets/resources/libxdiff-0.23.tar.gz)"
+				installRemoteModule_src="$(getPackageSource https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/assets/resources/libxdiff-$IPE_LATESTVERSION_LIBXDIFF.tar.gz)"
 				cd -- "$installRemoteModule_src"
 				./configure --disable-shared --disable-dependency-tracking --with-pic
 				make -j$(getProcessorCount)
