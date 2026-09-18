@@ -2384,7 +2384,7 @@ installMicrosoftSqlServerODBC() {
 						installMicrosoftSqlServerODBC_arch=amd64
 						;;
 				esac
-				installMicrosoftSqlServerODBC_url=https://download.microsoft.com/download/9dcab408-e0d4-4571-a81a-5a0951e3445f/msodbcsql18_18.6.1.1-1_$installMicrosoftSqlServerODBC_arch.apk
+				installMicrosoftSqlServerODBC_url=https://download.microsoft.com/download/ade174b7-8cea-4543-91a6-c33ae320c2f0/msodbcsql18_18.7.1.1-1_$installMicrosoftSqlServerODBC_arch.apk
 			fi
 			printf 'APK package URL: %s\n' "$installMicrosoftSqlServerODBC_url"
 			curl $IPE_CURL_FLAGS -sSLf -o /tmp/src/msodbcsql.apk "$installMicrosoftSqlServerODBC_url"
