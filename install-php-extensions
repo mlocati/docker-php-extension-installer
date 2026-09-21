@@ -4666,10 +4666,16 @@ installRemoteModule() {
 			;;
 		pdo_snowflake)
 			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version="$(curl $IPE_CURL_FLAGS -sSLf https://api.github.com/repos/snowflakedb/pdo_snowflake/releases/latest 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/.*"v*\([^"]*\)".*/\1/')"
-				if test -z "$installRemoteModule_version"; then
-					printf 'Failed to detect pdo_snowflake version\n' >&2
-					exit 1
+				if test $PHP_MAJMIN_VERSION -le 800; then
+					installRemoteModule_version=2.0.3
+				elif test $PHP_MAJMIN_VERSION -le 801; then
+					installRemoteModule_version=3.7.0
+				else
+					installRemoteModule_version="$(curl $IPE_CURL_FLAGS -sSLf https://api.github.com/repos/snowflakedb/pdo_snowflake/releases/latest 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/.*"v*\([^"]*\)".*/\1/')"
+					if test -z "$installRemoteModule_version"; then
+						printf 'Failed to detect pdo_snowflake version\n' >&2
+						exit 1
+					fi
 				fi
 			fi
 			printf 'Downloading pdo_snowflake v%s source code (this may take a while)... ' "$installRemoteModule_version"
