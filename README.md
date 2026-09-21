@@ -563,7 +563,7 @@ Feel free to subscribe to it to receive failure notifications.
 
 ## How to contribute
 
-See the [`CONTIBUTING.md`](https://github.com/mlocati/docker-php-extension-installer/blob/master/CONTIBUTING.md) file.
+See the [`CONTRIBUTING.md`](https://github.com/mlocati/docker-php-extension-installer/blob/master/CONTRIBUTING.md) file.
 
 
 ## For the maintainers
