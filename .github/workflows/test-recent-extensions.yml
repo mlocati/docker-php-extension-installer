@@ -15,7 +15,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         name: Retrieve recently updated extensions
         run: ./scripts/ci-retrieve-recent-extensions >extensions-updated.txt
@@ -31,7 +31,7 @@ jobs:
           printf "$EXTENSIONS_TO_TEST" > extensions-to-test.txt
       -
         name: Persist list of extensions to be tested
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: artifact
           path: extensions-to-test.txt
@@ -72,7 +72,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         name: Loading list of extensions to be tested
         uses: actions/download-artifact@v8
@@ -95,7 +95,7 @@ jobs:
     steps:
       -
         name: Send error notification
-        uses: appleboy/telegram-action@master
+        uses: appleboy/telegram-action@v1
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_TO }}

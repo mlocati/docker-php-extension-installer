@@ -11,7 +11,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         name: Check order supported extensions list
         run: |
@@ -34,7 +34,7 @@ jobs:
     steps:
       -
         name: Install Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version: ">=1.22.6"
           cache: false
@@ -43,7 +43,7 @@ jobs:
         run: GO111MODULE=on go install mvdan.cc/sh/v3/cmd/shfmt@v3.14.1
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         name: Check coding style
         run: ./scripts/invoke-shfmt check
@@ -60,7 +60,7 @@ jobs:
           tools: composer
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         name: Install Composer dependencies
         run: composer install --no-progress --classmap-authoritative --ansi --no-interaction
@@ -106,7 +106,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       -
@@ -123,7 +123,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         run: docker run --rm --volume "$(pwd):/app" --workdir /app php:8.2-bookworm ./scripts/test-restore-apt
 
@@ -146,7 +146,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.4-cli-alpine ./scripts/test-installversion "${{ matrix.xdebug_version }}"
 
@@ -166,7 +166,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.4-cli-alpine ./scripts/test-installcomposer "${{ matrix.composer_version }}"
 
@@ -193,7 +193,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         name: Install extension
         run: ./install-php-extensions "${{ matrix.source }}"
@@ -216,7 +216,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         run: docker run --rm --volume "$(pwd):/app" --workdir /app "php:8.1-${{ matrix.distro }}" "./scripts/ci-markused-${{ matrix.distro }}"
 
@@ -231,7 +231,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         run: IPE_INSTANTCLIENT_BASIC=1 ./install-php-extensions oci8 pdo_oci
 
@@ -261,7 +261,7 @@ jobs:
         run: docker pull "php:${{ matrix.php-image }}"
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         name: Install Saxon
         run: |
@@ -300,7 +300,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         run: ./install-php-extensions ${{ matrix.source }}
 
@@ -314,7 +314,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         run: docker run --rm --volume "$(pwd):/app" --workdir /app php:8.2-cli-alpine ./scripts/test-icu-data-en-upgradable
 
@@ -328,7 +328,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       -
         name: Install extensions
         run: >
