@@ -2925,7 +2925,7 @@ installSourceGuardian() {
 	installSourceGuardian_dir="$(getPackageSource $installSourceGuardian_url)"
 	printf 'done (version: %s)\n' "$(cat "$installSourceGuardian_dir/version")"
 	for installSourceGuardian_phpv in $PHP_MAJDOTMINDOTPAT_VERSION $PHP_MAJDOTMIN_VERSION; do
-		installSourceGuardian_file="$installSourceGuardian_dir/ixed.$PHP_MAJDOTMIN_VERSION"
+		installSourceGuardian_file="$installSourceGuardian_dir/ixed.$installSourceGuardian_phpv"
 		if test $PHP_THREADSAFE -eq 1; then
 			installSourceGuardian_file="${installSourceGuardian_file}ts"
 		fi
