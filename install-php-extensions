@@ -3380,12 +3380,15 @@ getPackageSource() {
 	cd - >/dev/null
 	unlink "$getPackageSource_tempFile"
 	getPackageSource_outDir=''
-	for getPackageSource_i in $(ls "$getPackageSource_tempDir"); do
-		if test -n "$getPackageSource_outDir" || test -f "$getPackageSource_tempDir/$getPackageSource_i"; then
+	for getPackageSource_i in "$getPackageSource_tempDir"/*; do
+		if ! test -e "$getPackageSource_i"; then
+			continue
+		fi
+		if test -n "$getPackageSource_outDir" || test -f "$getPackageSource_i"; then
 			getPackageSource_outDir=''
 			break
 		fi
-		getPackageSource_outDir="$getPackageSource_tempDir/$getPackageSource_i"
+		getPackageSource_outDir="$getPackageSource_i"
 	done
 	if test -n "$getPackageSource_outDir"; then
 		printf '%s' "$getPackageSource_outDir"
