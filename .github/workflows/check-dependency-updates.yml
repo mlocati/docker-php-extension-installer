@@ -32,7 +32,7 @@ jobs:
       - name: Notify new versions
         id: notify
         if: always() && steps.check.outputs.message != ''
-        uses: appleboy/telegram-action@master
+        uses: appleboy/telegram-action@v1
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_TO }}
@@ -50,7 +50,7 @@ jobs:
           key: dependency-updates-state-${{ github.run_id }}
       - name: Notify failure
         if: failure()
-        uses: appleboy/telegram-action@master
+        uses: appleboy/telegram-action@v1
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_TO }}
