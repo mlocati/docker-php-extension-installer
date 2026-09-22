@@ -299,22 +299,22 @@ getAllPHPVersionsForExtension() {
 # Return:
 # 0 (true): if test passes
 # 1 (false): if test fails
-testExtension() {
-	testExtensionsFromMessage_result=0
+testExtensions() {
+	testExtensions_result=0
 	IFS=' '
-	for testExtension_extension in $1; do
-		testExtension_extension="$(printf '%s' "$testExtension_extension" | sed -E 's/\+/ /g')"
-		printf '### TESTING EXTENSION(S) %s ###\n' "$testExtension_extension"
-		for testExtension_phpVersion in $(getAllPHPVersionsForExtensions "$testExtension_extension"); do
-			if test -z "${IPETEST_ONLY_PHPVERSIONS:-}" || stringInList "$testExtension_phpVersion" "$IPETEST_ONLY_PHPVERSIONS"; then
-				if ! testExtensionFor "$testExtension_extension" "$testExtension_phpVersion"; then
-					testExtensionsFromMessage_result=1
+	for testExtensions_extension in $1; do
+		testExtensions_extension="$(printf '%s' "$testExtensions_extension" | sed -E 's/\+/ /g')"
+		printf '### TESTING EXTENSION(S) %s ###\n' "$testExtensions_extension"
+		for testExtensions_phpVersion in $(getAllPHPVersionsForExtensions "$testExtensions_extension"); do
+			if test -z "${IPETEST_ONLY_PHPVERSIONS:-}" || stringInList "$testExtensions_phpVersion" "$IPETEST_ONLY_PHPVERSIONS"; then
+				if ! testExtensionFor "$testExtensions_extension" "$testExtensions_phpVersion"; then
+					testExtensions_result=1
 				fi
 			fi
 		done
 	done
 	resetIFS
-	return $testExtensionsFromMessage_result
+	return $testExtensions_result
 }
 
 # Test extensions with specific PHP versions
@@ -433,9 +433,7 @@ IFS='
 
 IPE_SUMMARY_GOOD=''
 IPE_SUMMARY_BAD=''
-for EXTENSION_TO_BE_TESTED in "$EXTENSIONS_TO_BE_TESTED"; do
-	testExtension "$EXTENSION_TO_BE_TESTED" || SOME_TEST_FAILED=1
-done
+testExtensions "$EXTENSIONS_TO_BE_TESTED" || SOME_TEST_FAILED=1
 
 printf '\n### SUMMARY\n'
 if test -z "$IPE_SUMMARY_GOOD"; then
