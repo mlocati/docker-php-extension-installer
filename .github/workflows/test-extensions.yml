@@ -48,6 +48,22 @@ jobs:
         name: Check coding style
         run: ./scripts/invoke-shfmt check
 
+  check_issues_shell:
+    name: Check shell code issues
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Install shellcheck
+        run: |
+          curl -sSLf -o /tmp/shellcheck.tar.xz https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.xz
+          sudo tar -xJf /tmp/shellcheck.tar.xz -C /usr/local/bin --strip-components=1 shellcheck-v0.11.0/shellcheck
+      -
+        name: Checkout
+        uses: actions/checkout@v6
+      -
+        name: Check code
+        run: ./scripts/invoke-shellcheck
+
   check_syntax_php:
     name: Check PHP coding style
     runs-on: ubuntu-latest
@@ -72,6 +88,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     strategy:
       fail-fast: false
@@ -118,6 +135,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     steps:
@@ -132,6 +150,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     strategy:
@@ -155,6 +174,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     strategy:
@@ -176,6 +196,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     strategy:
@@ -206,6 +227,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     strategy:
@@ -225,6 +247,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     container: php:8.1-cli-alpine
@@ -240,6 +263,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     strategy:
@@ -278,6 +302,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     container: ${{ matrix.container }}
@@ -309,6 +334,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     steps:
@@ -323,6 +349,7 @@ jobs:
     needs:
       - check_syntax_data
       - check_syntax_shell
+      - check_issues_shell
       - check_syntax_php
     runs-on: ubuntu-latest
     steps:

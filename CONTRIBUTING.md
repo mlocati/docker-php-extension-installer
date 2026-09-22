@@ -6,6 +6,9 @@ Before submitting any pull request, you should execute the `lint` script in the 
 
 If you don't do that, and if there's a coding style error, you'll see that the `Check shell coding style` and/or the `Check PHP coding style` GitHub Actions will fail.
 
+That script also checks the shell scripts with [shellcheck](https://www.shellcheck.net/): if it detects a problem, the `Check shell code issues` GitHub Action will fail.
+If shellcheck reports something that's intentional, you can silence it by adding a `# shellcheck disable=<code>` comment just before the offending line, or - if it applies to the whole project - by adding its code to the list of the excluded checks in the `scripts/invoke-shellcheck` script.
+
 The error will be something like this:
 
 ```diff
