@@ -232,7 +232,7 @@ getPeclModuleName() {
 #   1 (false): if the string is not in the list
 extractPackageVersionFromXML() {
 	if ! test -f "$1"; then
-		printf 'Unable to find the file\n%s\n' >&2
+		printf 'Unable to find the file\n%s\n' "$1" >&2
 		return 1
 	fi
 	extractPackageVersionFromXML_code="$(
