@@ -2361,7 +2361,10 @@ installOracleInstantClient() {
 			installOracleInstantClient_ldconf=/etc/ld-musl-${TARGET_TRIPLET%-alpine-linux-musl}.path
 			if test -e "$installOracleInstantClient_ldconf"; then
 				if ! cat "$installOracleInstantClient_ldconf" | grep -q "$ORACLE_INSTANTCLIENT_LIBPATH"; then
-					cat "$ORACLE_INSTANTCLIENT_LIBPATH" | awk -v suffix=":$ORACLE_INSTANTCLIENT_LIBPATH" '{print NR==1 ? $0suffix : $0}' >"$ORACLE_INSTANTCLIENT_LIBPATH"
+					installOracleInstantClient_ldconfNew="$(mktemp -p /tmp/src)"
+					cat "$installOracleInstantClient_ldconf" | awk -v suffix=":$ORACLE_INSTANTCLIENT_LIBPATH" '{print NR==1 ? $0suffix : $0}' >"$installOracleInstantClient_ldconfNew"
+					cat "$installOracleInstantClient_ldconfNew" >"$installOracleInstantClient_ldconf"
+					rm -- "$installOracleInstantClient_ldconfNew"
 				fi
 			else
 				case $PHP_BITS in
