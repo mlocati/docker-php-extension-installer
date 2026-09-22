@@ -4620,11 +4620,6 @@ installRemoteModule() {
 				if test -z "$installRemoteModule_version"; then
 					installRemoteModule_version=v$IPE_LATESTVERSION_SPX
 				fi
-				if test "${installRemoteModule_version%.*}" = "$installRemoteModule_version"; then
-					installRemoteModule_displayVersion="$installRemoteModule_version"
-				else
-					installRemoteModule_displayVersion="git--master-$installRemoteModule_version"
-				fi
 				installRemoteModule_src="$(getPackageSource https://codeload.github.com/NoiseByNorthwest/php-spx/tar.gz/$installRemoteModule_version)"
 				cd -- "$installRemoteModule_src"
 				phpize
