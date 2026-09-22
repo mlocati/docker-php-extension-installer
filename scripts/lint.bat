@@ -23,6 +23,19 @@ if errorlevel 1 (
     )
 )
 
+echo # Checking shell scripts
+docker --version >NUL 2>NUL
+if errorlevel 1 (
+    echo Docker is not installed, or it's not running >&2
+    set rc=1
+) else (
+    docker run --rm -v "%SRC_DIR%:/src" -w /src --entrypoint /src/scripts/invoke-shellcheck koalaman/shellcheck-alpine:v0.11.0
+    if errorlevel 1 (
+        echo ERROR! >&2
+        set rc=1
+    )
+)
+
 echo # Linting PHP files
 call composer --version >NUL 2>NUL
 if errorlevel 1 (

@@ -16,6 +16,15 @@ elif ! docker run --rm -v "$SRC_DIR:/src" -w /src --entrypoint /src/scripts/invo
 	rc=1
 fi
 
+echo '# Checking shell scripts'
+if ! docker --version >/dev/null 2>/dev/null; then
+	echo 'Docker is not installed, or it is not running.' >&2
+	rc=1
+elif ! docker run --rm -v "$SRC_DIR:/src" -w /src --entrypoint /src/scripts/invoke-shellcheck koalaman/shellcheck-alpine:v0.11.0; then
+	echo 'ERROR!' >&2
+	rc=1
+fi
+
 echo '# Linting PHP files'
 if ! composer --version >/dev/null 2>/dev/null; then
 	echo 'Composer is not installed.' >&2

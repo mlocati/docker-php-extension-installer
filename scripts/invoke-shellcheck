@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -o errexit
+set -o nounset
+
+. ./scripts/common
+
+# See https://github.com/koalaman/shellcheck/blob/v0.11.0/shellcheck.1.md
+# -s sh      Shell dialect: POSIX sh
+# -S warning Minimum severity of the problems to be reported: don't report style suggestions and info notes
+# -e <codes> Checks to be excluded (see below)
+# SC2086     Double quote to prevent globbing and word splitting
+# SC2046     Quote this to prevent word splitting
+#            We rely on word splitting to build lists of arguments (for example the packages to be installed),
+#            since the POSIX shell doesn't support arrays
+DPEI_PARAMS='-s sh -S warning -e SC2086,SC2046 --color=always'
+
+DPEI_FILES=install-php-extensions
+
+IFS='
+'
+# shellcheck disable=SC2044 # a while read loop would run in a subshell, losing DPEI_FILES
+for DPEI_FILE in $(find scripts -type f); do
+	if test "$(head -n1 $DPEI_FILE)" = '#!/bin/sh'; then
+		DPEI_FILES="$DPEI_FILES $DPEI_FILE"
+	fi
+done
+
+resetIFS
+
+shellcheck $DPEI_PARAMS -- $DPEI_FILES
