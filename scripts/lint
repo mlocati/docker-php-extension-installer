@@ -3,7 +3,7 @@
 set -o errexit
 set -o nounset
 
-SRC_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && cd .. && pwd)"
+SRC_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && cd .. && pwd)"
 cd "$SRC_DIR"
 rc=0
 
