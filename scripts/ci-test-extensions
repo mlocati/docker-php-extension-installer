@@ -131,10 +131,10 @@ filterUnsupportedExensionsForDistro() {
 		filterUnsupportedExensionsForDistro_ok=1
 		IFS='+'
 		for filterUnsupportedExensionsForDistro_extension in $filterUnsupportedExensionsForDistro_extensions; do
-			if stringInList "!$IPETEST_DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
+			if stringInList "!$IPETEST_DOCKER_DISTRO" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^${filterUnsupportedExensionsForDistro_extension}[ \t]")"; then
 				printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$IPETEST_DOCKER_DISTRO"
 				filterUnsupportedExensionsForDistro_ok=0
-			elif stringInList "!$filterUnsupportedExensionsForDistro_baseDistro" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^$filterUnsupportedExensionsForDistro_extension[ \t]")"; then
+			elif stringInList "!$filterUnsupportedExensionsForDistro_baseDistro" "$(cat "$filterUnsupportedExensionsForDistro_reqs" | grep -E "^${filterUnsupportedExensionsForDistro_extension}[ \t]")"; then
 				printf 'Note: extension "%s" is not supported for distro "%s"\n' "$filterUnsupportedExensionsForDistro_extension" "$filterUnsupportedExensionsForDistro_baseDistro"
 				filterUnsupportedExensionsForDistro_ok=0
 			fi
@@ -171,7 +171,7 @@ getDockerImageName() {
 		for getDockerImageName_testExtensions in $1; do
 			IFS='+'
 			for getDockerImageName_testExtension in $getDockerImageName_testExtensions; do
-				if test -n "$(cat "$getDockerImageName_reqs" | grep -E "^$getDockerImageName_testExtension[ \t]+zts[ \t]*$")"; then
+				if test -n "$(cat "$getDockerImageName_reqs" | grep -E "^${getDockerImageName_testExtension}[ \t]+zts[ \t]*$")"; then
 					getDockerImageName_suffix='zts'
 				fi
 			done
@@ -358,7 +358,7 @@ testExtensionFor() {
 				;;
 		esac
 	fi
-	if $(docker run --rm --volume "$CI_BUILD_DIR:/app" --env CI=true --env IPE_FIX_CACERTS=1 $testExtensionFor_ddtraceEnv --env IPE_ASPELL_LANGUAGES='en fr' --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1); then
+	if docker run --rm --volume "$CI_BUILD_DIR:/app" --env CI=true --env IPE_FIX_CACERTS=1 $testExtensionFor_ddtraceEnv --env IPE_ASPELL_LANGUAGES='en fr' --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1; then
 		testExtensionFor_end=$(date +%s)
 		testExtensionFor_delta=$(expr $testExtensionFor_end - $testExtensionFor_start)
 		rm -rf "$testExtensionFor_out"
