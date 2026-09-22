@@ -3,7 +3,7 @@
 set -o errexit
 set -o nounset
 
-SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+SCRIPTS_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)"
 ROOT_DIR="$(dirname -- "$SCRIPTS_DIR")"
 DATA_DIR="$ROOT_DIR/data"
 

@@ -5,7 +5,7 @@ set -o errexit
 set -o nounset
 set -o noglob
 
-SCRIPTS_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+SCRIPTS_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)"
 . "$SCRIPTS_DIR/common"
 ROOT_DIR="$(dirname -- "$SCRIPTS_DIR")"
 DATA_DIR="$ROOT_DIR/data"
