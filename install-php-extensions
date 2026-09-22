@@ -3291,7 +3291,7 @@ EOF
 		snmp)
 			case "$DISTRO" in
 				alpine)
-					mkdir -p -m 0755 /var/lib/net-snmp/mib_indexes
+					mkdir -p /var/lib/net-snmp/mib_indexes
 					;;
 			esac
 			;;
