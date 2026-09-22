@@ -30,6 +30,7 @@ DPEI_FILES=install-php-extensions
 
 IFS='
 '
+# shellcheck disable=SC2044 # a while read loop would run in a subshell, losing DPEI_FILES
 for DPEI_FILE in $(find scripts -type f); do
 	if test "$(head -n1 $DPEI_FILE)" = '#!/bin/sh'; then
 		DPEI_FILES="$DPEI_FILES $DPEI_FILE"
