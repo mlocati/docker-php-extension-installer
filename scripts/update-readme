@@ -21,7 +21,6 @@ getExtensionList() {
 	IFS='
 '
 	for getExtensionList_line in $(cat -- "$1" | sort); do
-		getExtensionList_extension=''
 		IFS=' 	'
 		for getExtensionList_chunk in $getExtensionList_line; do
 			if test -z "$getExtensionList_extensions"; then
