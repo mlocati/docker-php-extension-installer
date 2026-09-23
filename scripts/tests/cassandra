@@ -1,0 +1,48 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+echo 'Checking the availability of the Cassandra types... ';
+foreach (['Cassandra', 'Cassandra\Cluster', 'Cassandra\Cluster\Builder', 'Cassandra\Uuid', 'Cassandra\Bigint'] as $type) {
+    if (!class_exists($type) && !interface_exists($type)) {
+        fwrite(STDERR, "the {$type} class/interface is missing!\n");
+        exit(1);
+    }
+}
+echo "done.\n";
+
+echo 'Checking Cassandra\Uuid... ';
+$uuid = new Cassandra\Uuid();
+if ($uuid->version() !== 4) {
+    fwrite(STDERR, "Cassandra\\Uuid::version() returned {$uuid->version()} instead of 4!\n");
+    exit(1);
+}
+if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $uuid->uuid())) {
+    fwrite(STDERR, "Cassandra\\Uuid::uuid() returned an unexpected value ({$uuid->uuid()})!\n");
+    exit(1);
+}
+echo "done.\n";
+
+echo 'Checking Cassandra\Bigint... ';
+$bigint = new Cassandra\Bigint('9223372036854775807');
+if ((string) $bigint !== '9223372036854775807') {
+    fwrite(STDERR, "Cassandra\\Bigint returned an unexpected value ({$bigint})!\n");
+    exit(1);
+}
+echo "done.\n";
+
+echo 'Building a Cassandra cluster configuration... ';
+$cluster = Cassandra::cluster()
+    ->withContactPoints('127.0.0.1')
+    ->withPort(9042)
+    ->build();
+if (!$cluster instanceof Cassandra\Cluster) {
+    fwrite(STDERR, "Cassandra\\Cluster\\Builder::build() did not return a Cassandra\\Cluster instance!\n");
+    exit(1);
+}
+echo "done.\n";
+
+printf("Driver version: %s\n", phpversion('cassandra'));
+
+exit(0);

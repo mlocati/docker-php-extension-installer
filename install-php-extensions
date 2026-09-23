@@ -24,6 +24,7 @@ fi
 IPE_VERSION=master
 
 # The versions of the libraries and PHP extensions that we download manually (for recent PHP versions/distros)
+IPE_LATESTVERSION_CASSANDRACPPDRIVER=2.17.1
 # Firebird version followed by the build number and the package revision (as in the name of the source archive)
 IPE_LATESTVERSION_FIREBIRD=5.0.4.1812-0
 IPE_LATESTVERSION_GEOS=889e2b1d9aa6f82995db4dab6891f48c3bacfb59
@@ -44,6 +45,7 @@ IPE_LATESTVERSION_LIBXDIFF=0.23
 IPE_LATESTVERSION_LZ4=0.7.1
 # When updating this, remember to update the download URL too (it contains a unique ID)
 IPE_LATESTVERSION_MSODBC18=18.7.1.1-1
+IPE_LATESTVERSION_SCYLLADBPHPDRIVER=1.5.1
 IPE_LATESTVERSION_SNAPPY=0.2.3
 IPE_LATESTVERSION_SNUFFLEUPAGUS=0.14.0
 IPE_LATESTVERSION_SPX=0.4.22
@@ -852,7 +854,11 @@ buildRequiredPackageLists() {
 				;;
 			cassandra@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent cassandra-cpp-driver gmp"
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cassandra-cpp-driver-dev gmp-dev"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cassandra-cpp-driver-dev gmp-dev bash cmake"
+				;;
+			cassandra@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl libstdc++6 ^libuv1(t64)?\$"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev cmake g++ libuv1-dev zlib1g-dev libgmp-dev"
 				;;
 			cmark@alpine)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile cmake"
@@ -2815,6 +2821,26 @@ installLibcClient2007e() {
 	fi
 }
 
+installCassandraCppDriver() {
+	printf 'Installing the Cassandra C++ driver\n'
+	installCassandraCppDriver_dir="$(getPackageSource https://github.com/apache/cassandra-cpp-driver/archive/refs/tags/$IPE_LATESTVERSION_CASSANDRACPPDRIVER.tar.gz)"
+	cmake -B "$installCassandraCppDriver_dir/build" -S "$installCassandraCppDriver_dir" \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+		-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+		-DCASS_BUILD_SHARED=ON \
+		-DCASS_BUILD_STATIC=OFF \
+		-DCASS_BUILD_EXAMPLES=OFF \
+		-DCASS_BUILD_TESTS=OFF \
+		-DCASS_USE_STD_ATOMIC=ON \
+		-DCASS_USE_TIMERFD=ON \
+		-DCASS_USE_LIBSSH2=OFF \
+		-DCASS_USE_ZLIB=ON
+	cmake --build "$installCassandraCppDriver_dir/build" --parallel $(getProcessorCount)
+	cmake --build "$installCassandraCppDriver_dir/build" --target install
+	ldconfig || true
+}
+
 # Install Composer
 installComposer() {
 	installComposer_version="$(getWantedPHPModuleVersion @composer)"
@@ -3534,12 +3560,45 @@ installRemoteModule() {
 			fi
 			;;
 		cassandra)
-			installRemoteModule_src="$(getPackageSource https://github.com/nano-interactive/ext-cassandra/tarball/1cf12c5ce49ed43a2c449bee4b7b23ce02a37bf0)"
-			cd "$installRemoteModule_src/ext"
-			phpize
-			./configure
-			make -j$(getProcessorCount) install
-			cd - >/dev/null
+			if ! pkg-config --exists cassandra; then
+				installCassandraCppDriver
+			fi
+			# The ScyllaDB PHP driver requires PHP 8.3+ and cmake 3.30+
+			installRemoteModule_cmakeVersion="$(cmake --version | head -n1 | sed -E 's/^.* //')"
+			if test $PHP_MAJMIN_VERSION -ge 803 && test $(compareVersions "$installRemoteModule_cmakeVersion" '3.30') -ge 0; then
+				printf 'Installing the ScyllaDB PHP driver\n'
+				installRemoteModule_src="$(getPackageSource https://github.com/he4rt/scylladb-php-driver/archive/refs/tags/v$IPE_LATESTVERSION_SCYLLADBPHPDRIVER.tar.gz)"
+				cd "$installRemoteModule_src"
+				case $(uname -m) in
+					x86_64)
+						# The default CPU_TYPE is x86-64-v2, which generates code that may not run on older CPUs
+						installRemoteModule_cpuType=x86-64
+						;;
+					i?86)
+						installRemoteModule_cpuType=i686
+						;;
+					*)
+						installRemoteModule_cpuType=''
+						;;
+				esac
+				cmake -B cmake-build \
+					-DCMAKE_BUILD_TYPE=Release \
+					-DCUSTOM_PHP_CONFIG="$(command -v php-config)" \
+					-DPHP_SCYLLADB_BACKEND=cassandra \
+					${installRemoteModule_cpuType:+-DCPU_TYPE=$installRemoteModule_cpuType}
+				cmake --build cmake-build --parallel $(getProcessorCount)
+				cmake --install cmake-build --component extension
+				cd - >/dev/null
+			else
+				printf 'Installing the nano-interactive Cassandra PHP driver\n'
+				# This is the last commit that can be built with phpize (the following ones evolved into the ScyllaDB PHP driver)
+				installRemoteModule_src="$(getPackageSource https://github.com/nano-interactive/ext-cassandra/tarball/1cf12c5ce49ed43a2c449bee4b7b23ce02a37bf0)"
+				cd "$installRemoteModule_src/ext"
+				phpize
+				./configure
+				make -j$(getProcessorCount) install
+				cd - >/dev/null
+			fi
 			installRemoteModule_manuallyInstalled=1
 			;;
 		cmark)
