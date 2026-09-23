@@ -812,6 +812,11 @@ buildRequiredPackageLists() {
 					exit 1
 					;;
 			esac
+			if test $DISTRO_VERSION_NUMBER -ge 10; then
+				buildRequiredPackageLists_curlVersion=4
+			else
+				buildRequiredPackageLists_curlVersion=3
+			fi
 			if test $DISTRO_VERSION_NUMBER -ge 13; then
 				buildRequiredPackageLists_libpcredev=libpcre2-dev
 			else
@@ -1588,7 +1593,7 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			pdo_snowflake@debian)
-				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl libstdc++6 libcurl4"
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl libstdc++6 libcurl$buildRequiredPackageLists_curlVersion"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev cmake g++ libcurl4-openssl-dev"
 				;;
 			ssh2@alpine)
