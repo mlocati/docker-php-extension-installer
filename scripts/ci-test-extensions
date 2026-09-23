@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Syntax:
-# - ci-test-extensions from-commits "<commit range>"
+# - ci-test-extensions from-commits <base commit> <head commit>
 #   Automatically detect the extensions to be tested by inspecting the git commits
 # - ci-test-extensions from-list "<space-separated extensions>"
 #   Test the specified extensions
@@ -40,7 +40,7 @@ extractExtensionsFromCommits() {
 	STOP_EXTENSIONS_FOUND=0
 	IFS='
 '
-	for extractExtensionsFromCommits_hash in $(git -C "$CI_BUILD_DIR" log --pretty='format:%H' "$CI_COMMIT_RANGE"); do
+	for extractExtensionsFromCommits_hash in $(git -C "$CI_BUILD_DIR" log --pretty='format:%H' "$CI_COMMIT_BASE..$CI_COMMIT_HEAD"); do
 		extractExtensionsFromCommits_firstLine=1
 		extractExtensionsFromCommits_message="$(git -C "$CI_BUILD_DIR" log --pretty='format:%B' -n 1 "$extractExtensionsFromCommits_hash")"
 		IFS='
@@ -86,7 +86,7 @@ extractExtensionsFromData() {
 	IFS='
 '
 	extractExtensionsFromData_foundAt=
-	for extractExtensionsFromData_line in $(git -C "$CI_BUILD_DIR" diff --no-indent-heuristic --minimal --no-color --word-diff=none --no-renames --unified=0 "$CI_COMMIT_RANGE" -- data/supported-extensions); do
+	for extractExtensionsFromData_line in $(git -C "$CI_BUILD_DIR" diff --no-indent-heuristic --minimal --no-color --word-diff=none --no-renames --unified=0 "$CI_COMMIT_BASE...$CI_COMMIT_HEAD" -- data/supported-extensions); do
 		if test -n "$extractExtensionsFromData_line"; then
 			if test -z "$extractExtensionsFromData_foundAt"; then
 				if test -z "${extractExtensionsFromData_line##@@*}"; then
@@ -391,11 +391,12 @@ fi
 
 case "${1:-}" in
 	from-commits)
-		if test -z "${2:-}"; then
-			echo 'Missing commit range of the push event'
+		if test -z "${2:-}" || test -z "${3:-}"; then
+			echo 'Missing base and/or head commit of the pull request'
 			exit 1
 		fi
-		CI_COMMIT_RANGE="$2"
+		CI_COMMIT_BASE="$2"
+		CI_COMMIT_HEAD="$3"
 		STOP_EXTENSIONS_FOUND=0
 		EXTENSIONS_TO_BE_TESTED=''
 		extractExtensionsFromCommits
