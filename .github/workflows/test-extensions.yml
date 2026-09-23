@@ -128,7 +128,7 @@ jobs:
           fetch-depth: 0
       -
         name: Test extensions
-        run: ./scripts/ci-test-extensions from-commits "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+        run: ./scripts/ci-test-extensions from-commits "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
 
   test_restoring_packages:
     name: Test restoring packages
