@@ -1593,6 +1593,13 @@ buildRequiredPackageLists() {
 				fi
 				;;
 			pdo_snowflake@debian)
+				# pdo_snowflake uses OpenSSL_version_num(), which is available since OpenSSL 1.1
+				case "$buildRequiredPackageLists_sslMajorMinorVersion" in
+					0.* | 1.0)
+						printf '### ERROR ### pdo_snowflake requires OpenSSL 1.1 or later (in use: %s).\n' "$buildRequiredPackageLists_sslTextVersion" >&2
+						exit 1
+						;;
+				esac
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl libstdc++6 libcurl$buildRequiredPackageLists_curlVersion"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile $buildRequiredPackageLists_libssldev cmake g++ libcurl4-openssl-dev"
 				;;
@@ -3366,6 +3373,30 @@ EOF
 	esac
 }
 
+# Get the tag of the latest release of a GitHub repository.
+#
+# Arguments:
+#   $1: the owner of the repository (for example: mlocati)
+#   $2: the name of the repository (for example: docker-php-extension-installer)
+#
+# Output:
+#   The tag of the latest release (for example: 2.11.30), or an empty string if it can't be determined
+#
+# We inspect the URL that the /releases/latest page redirects to, instead of using the GitHub API,
+# because unauthenticated API calls are severely rate-limited:
+# see https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api#primary-rate-limit-for-unauthenticated-users
+getLatestGitHubReleaseTag() {
+	getLatestGitHubReleaseTag_url="$(curl $IPE_CURL_FLAGS -sSf -o /dev/null -w '%{redirect_url}' "https://github.com/$1/$2/releases/latest" 2>/dev/null || true)"
+	case "$getLatestGitHubReleaseTag_url" in
+		*/releases/tag/?*)
+			printf '%s' "${getLatestGitHubReleaseTag_url##*/releases/tag/}"
+			;;
+		*)
+			printf 'Failed to detect the latest release of the GitHub repository %s/%s\n' "$1" "$2" >&2
+			;;
+	esac
+}
+
 # Fetch a tar.gz file, extract it and returns the path of the extracted folder.
 #
 # Arguments:
@@ -4666,10 +4697,22 @@ installRemoteModule() {
 			;;
 		pdo_snowflake)
 			if test -z "$installRemoteModule_version"; then
-				installRemoteModule_version="$(curl $IPE_CURL_FLAGS -sSLf https://api.github.com/repos/snowflakedb/pdo_snowflake/releases/latest 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/.*"v*\([^"]*\)".*/\1/')"
-				if test -z "$installRemoteModule_version"; then
-					printf 'Failed to detect pdo_snowflake version\n' >&2
-					exit 1
+				if test $PHP_MAJMIN_VERSION -le 701; then
+					installRemoteModule_version=0.2.4
+				elif test $PHP_MAJMIN_VERSION -le 702; then
+					installRemoteModule_version=1.0.0
+				elif test $PHP_MAJMIN_VERSION -le 704; then
+					installRemoteModule_version=2.0.0
+				elif test $PHP_MAJMIN_VERSION -le 800; then
+					installRemoteModule_version=2.0.3
+				elif test $PHP_MAJMIN_VERSION -le 801; then
+					installRemoteModule_version=3.7.0
+				else
+					installRemoteModule_version="$(getLatestGitHubReleaseTag snowflakedb pdo_snowflake)"
+					if test -z "$installRemoteModule_version"; then
+						exit 1
+					fi
+					installRemoteModule_version="${installRemoteModule_version#v}"
 				fi
 			fi
 			printf 'Downloading pdo_snowflake v%s source code (this may take a while)... ' "$installRemoteModule_version"
