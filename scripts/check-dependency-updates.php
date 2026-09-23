@@ -86,6 +86,12 @@ enum PeclStability: string
  * - timeout: the maximum number of seconds for the connection and for the download (optional, default: DEFAULT_TIMEOUT)
  */
 const LIBRARIES = [
+    'Cassandra C++ driver' => [
+        'usedBy' => ['cassandra'],
+        'variable' => 'CASSANDRACPPDRIVER',
+        'latest' => [LatestVersionSource::GitTags, 'https://github.com/apache/cassandra-cpp-driver'],
+        'url' => 'https://github.com/apache/cassandra-cpp-driver/tags',
+    ],
     'Firebird' => [
         'usedBy' => ['interbase', 'pdo_firebird', 'swoole'],
         'variable' => 'FIREBIRD',
@@ -215,6 +221,12 @@ const LIBRARIES = [
         'variable' => 'SPX',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/NoiseByNorthwest/php-spx'],
         'url' => 'https://github.com/NoiseByNorthwest/php-spx/tags',
+    ],
+    'ScyllaDB PHP driver' => [
+        'usedBy' => ['cassandra'],
+        'variable' => 'SCYLLADBPHPDRIVER',
+        'latest' => [LatestVersionSource::GitTags, 'https://github.com/he4rt/scylladb-php-driver'],
+        'url' => 'https://github.com/he4rt/scylladb-php-driver/releases',
     ],
     'snuffleupagus' => [
         'usedBy' => ['snuffleupagus'],
