@@ -5218,27 +5218,21 @@ installRemoteModule() {
 		tideways)
 			case "$DISTRO" in
 				alpine)
-					case $(uname -m) in
-						aarch64 | arm64 | armv8)
-							installRemoteModule_architecture=alpine-arm64
-							;;
-						*)
-							installRemoteModule_architecture=alpine-x86_64
-							;;
-					esac
+					installRemoteModule_platform=linux-alpine
 					;;
-				debian)
-					case $(uname -m) in
-						aarch64 | arm64 | armv8)
-							installRemoteModule_architecture=arm64
-							;;
-						*)
-							installRemoteModule_architecture=x86_64
-							;;
-					esac
+				*)
+					installRemoteModule_platform=linux
 					;;
 			esac
-			installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf -o - https://tideways.com/profiler/downloads | grep -Eo "\"[^\"]+/tideways-php-([0-9]+\.[0-9]+\.[0-9]+)-$installRemoteModule_architecture.tar.gz\"" | cut -d'"' -f2)"
+			case $(uname -m) in
+				aarch64 | arm64 | armv8)
+					installRemoteModule_architecture=arm64
+					;;
+				*)
+					installRemoteModule_architecture=amd64
+					;;
+			esac
+			installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf -o - https://app.tideways.io/api/current-versions | php -n -d display_errors=stderr -r '$data = json_decode(file_get_contents("php://stdin"), true); echo isset($data["php"]["links"][$argv[1]][$argv[2]]) && is_string($data["php"]["links"][$argv[1]][$argv[2]]) ? $data["php"]["links"][$argv[1]][$argv[2]] : "";' "$installRemoteModule_platform" "$installRemoteModule_architecture")"
 			if test -z "$installRemoteModule_url"; then
 				echo 'Failed to find the tideways tarball to be downloaded'
 				exit 1
