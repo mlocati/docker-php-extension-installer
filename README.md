@@ -580,7 +580,7 @@ Here's the list of these libraries (the default versions are the ones used by th
 | [libavif](https://github.com/AOMediaCodec/libavif/releases) | `IPE_LIBVERSION_AVIF` | `1.3.0` | gd | Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set) |
 | [Cassandra C++ driver](https://github.com/apache/cassandra-cpp-driver/tags) | `IPE_LIBVERSION_CASSANDRACPPDRIVER` | `2.17.1` | cassandra |  |
 | [libcmark](https://github.com/commonmark/cmark/releases) | `IPE_LIBVERSION_CMARK` | `0.31.2` | cmark | Only with cmake 3.15+ (with older cmake versions we use older libcmark versions) |
-| [libdatrie](https://github.com/tlwg/libdatrie/releases) | `IPE_LIBVERSION_DATRIE` | `0.2.13` | wikidiff2 | Only on Alpine |
+| [libdatrie](https://github.com/tlwg/libdatrie/releases) | `IPE_LIBVERSION_DATRIE` | `0.2.14` | wikidiff2 | Only on Alpine |
 | [libdav1d](https://code.videolan.org/videolan/dav1d/-/tags) | `IPE_LIBVERSION_DAV1D` | `1.5.3` | gd | Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set) |
 | [libenchant1](https://github.com/rrthomas/enchant/releases) | `IPE_LIBVERSION_ENCHANT1` | `1.6.1` | enchant | Only with PHP < 8.0 on Alpine 3.12+ and Debian 11+ |
 | [Firebird](https://github.com/FirebirdSQL/firebird/releases) | `IPE_LIBVERSION_FIREBIRD` | `5.0.4.1812-0` | interbase, pdo_firebird, swoole | Only on Alpine, with PHP 8.4+ (with older PHP versions we use Firebird 2.5). Format: `<version>.<build>-<revision>` (as in the name of the source archive) |
@@ -592,7 +592,7 @@ Here's the list of these libraries (the default versions are the ones used by th
 | [libmpdec](https://www.bytereef.org/mpdecimal/changelog.html) | `IPE_LIBVERSION_MPDEC` | `4.0.1` | decimal | Only on Alpine and Debian 12+ |
 | [Microsoft ODBC Driver for SQL Server (Alpine)](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server) | `IPE_LIBVERSION_MSODBC` | `18.7.1.1-1@ade174b7-8cea-4543-91a6-c33ae320c2f0` | pdo_sqlsrv, sqlsrv | Only on Alpine, with PHP 7.4+. Format: `<version>@<download path>` (see the download URLs on the [Microsoft website](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server)) |
 | [Microsoft ODBC Driver 17 for SQL Server (Alpine)](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17) | `IPE_LIBVERSION_MSODBC17` | `17.11.1.1-1@607ebe2c-e17c-4c34-b367-10a75b83bef9` | pdo_sqlsrv, sqlsrv | Only on Alpine, with PHP up to 7.3. Format: `<version>@<download path>` (see the download URLs on the [Microsoft website](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server)) |
-| [libthai](https://github.com/tlwg/libthai/releases) | `IPE_LIBVERSION_THAI` | `0.1.29` | wikidiff2 | Only on Alpine |
+| [libthai](https://github.com/tlwg/libthai/releases) | `IPE_LIBVERSION_THAI` | `0.1.30` | wikidiff2 | Only on Alpine |
 | [libtomcrypt](https://github.com/libtom/libtomcrypt/releases) | `IPE_LIBVERSION_TOMCRYPT` | `1.18.2` | pdo_firebird, swoole | Only on Alpine, with PHP 8.4+ |
 | [libtommath](https://github.com/libtom/libtommath/releases) | `IPE_LIBVERSION_TOMMATH` | `1.3.0` | pdo_firebird, swoole | Only on Alpine, with PHP 8.4+ |
 | [libxcrypt](https://github.com/besser82/libxcrypt/releases) | `IPE_LIBVERSION_XCRYPT` | `4.5.2` | xpass | Only on Alpine |
