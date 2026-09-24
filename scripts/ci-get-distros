@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Print the distros listed in data/ci-distros as a JSON array (for the matrix of the GitHub Actions workflows)
+
+set -o errexit
+set -o nounset
+
+SCRIPTS_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)"
+ROOT_DIR="$(dirname -- "$SCRIPTS_DIR")"
+
+SEPARATOR=''
+printf '['
+while IFS= read -r DISTRO || test -n "$DISTRO"; do
+	if test -n "$DISTRO"; then
+		printf '%s"%s"' "$SEPARATOR" "$DISTRO"
+		SEPARATOR=','
+	fi
+done <"$ROOT_DIR/data/ci-distros"
+printf ']\n'

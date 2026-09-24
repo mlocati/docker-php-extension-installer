@@ -1,0 +1,169 @@
+name: Check updates
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: check-updates
+
+jobs:
+  detect:
+    name: Detect new versions
+    runs-on: ubuntu-latest
+    outputs:
+      has-tests: ${{ steps.detect.outputs.has-tests }}
+      distros: ${{ steps.distros.outputs.distros }}
+    steps:
+      -
+        name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: curl
+          coverage: none
+          tools: none
+      -
+        name: Checkout
+        uses: actions/checkout@v7
+      -
+        name: Restore state
+        uses: actions/cache/restore@v6
+        with:
+          path: check-updates-state.json
+          key: check-updates-state-${{ github.run_id }}
+          restore-keys: check-updates-state-
+      -
+        name: Define distros
+        id: distros
+        run: printf 'distros=%s\n' "$(./scripts/ci-get-distros)" >> "$GITHUB_OUTPUT"
+      -
+        name: Detect
+        id: detect
+        run: php ./scripts/check-updates.php detect --state-file=check-updates-state.json --tests-file=check-updates-tests.txt
+      -
+        name: Persist state and tests
+        uses: actions/upload-artifact@v7
+        with:
+          name: detect
+          path: |
+            check-updates-state.json
+            check-updates-tests.txt
+          if-no-files-found: error
+          retention-days: 1
+      -
+        name: Notify failure
+        if: failure()
+        uses: appleboy/telegram-action@v1
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_TO }}
+          disable_web_page_preview: true
+          message: |
+            Detecting the updates of the docker-php-extension-installer dependencies failed.
+            https://github.com/mlocati/docker-php-extension-installer/actions/runs/${{ github.run_id }}
+  test:
+    name: Test on ${{ matrix.distro }}
+    needs: detect
+    if: needs.detect.outputs.has-tests == 'yes'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: ${{ fromJSON(needs.detect.outputs.distros) }}
+    env:
+      IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v7
+      -
+        name: Retrieve tests
+        uses: actions/download-artifact@v8
+        with:
+          name: detect
+      -
+        name: Test
+        run: |
+          RESULTS_DIR="$GITHUB_WORKSPACE/results/$IPETEST_DOCKER_DISTRO"
+          mkdir -p "$RESULTS_DIR"
+          RC=0
+          while read -r INDEX EXTENSIONS VARIABLES <&3; do
+            if ! (
+              if test -n "$VARIABLES"; then
+                export $VARIABLES
+              fi
+              IPETEST_RESULTS_FILE="$RESULTS_DIR/$INDEX.txt" ./scripts/ci-test-extensions from-list "$(printf '%s' "$EXTENSIONS" | tr ',' ' ')" </dev/null
+            ); then
+              RC=1
+            fi
+          done 3<check-updates-tests.txt
+          touch "$RESULTS_DIR/done"
+          exit $RC
+      -
+        name: Persist results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: results-${{ matrix.distro }}
+          path: results/
+          if-no-files-found: ignore
+          retention-days: 1
+  finalize:
+    name: Update state and notify
+    needs:
+      - detect
+      - test
+    if: always() && needs.detect.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          coverage: none
+          tools: none
+      -
+        name: Checkout
+        uses: actions/checkout@v7
+      -
+        name: Retrieve state
+        uses: actions/download-artifact@v8
+        with:
+          name: detect
+      -
+        name: Retrieve results
+        if: needs.detect.outputs.has-tests == 'yes'
+        uses: actions/download-artifact@v8
+        with:
+          pattern: results-*
+          path: results
+          merge-multiple: true
+      -
+        name: Finalize
+        id: finalize
+        run: php ./scripts/check-updates.php finalize --state-file=check-updates-state.json --results-dir=results --distros=${{ join(fromJSON(needs.detect.outputs.distros), ',') }}
+      # The following steps run even if finalize failed (because some tests failed or some problems have been found)
+      -
+        name: Notify
+        id: notify
+        if: always() && steps.finalize.outputs.message != ''
+        uses: appleboy/telegram-action@v1
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_TO }}
+          disable_web_page_preview: true
+          message: |
+            ${{ steps.finalize.outputs.message }}
+
+            https://github.com/mlocati/docker-php-extension-installer/actions/runs/${{ github.run_id }}
+      -
+        name: Save state
+        # Don't save the state if the notification failed, so that the new versions will be notified again
+        if: always() && steps.finalize.outcome != 'skipped' && steps.notify.outcome != 'failure'
+        uses: actions/cache/save@v6
+        with:
+          path: check-updates-state.json
+          key: check-updates-state-${{ github.run_id }}

@@ -3,6 +3,7 @@
     "libraries": {
         "AOM": {
             "name": "libaom",
+            "pinnedVersion": true,
             "usedBy": [
                 "gd"
             ],
@@ -16,6 +17,7 @@
         },
         "AVIF": {
             "name": "libavif",
+            "pinnedVersion": true,
             "usedBy": [
                 "gd"
             ],
@@ -29,6 +31,7 @@
         },
         "CASSANDRACPPDRIVER": {
             "name": "Cassandra C++ driver",
+            "pinnedVersion": true,
             "usedBy": [
                 "cassandra"
             ],
@@ -40,6 +43,7 @@
         },
         "CMARK": {
             "name": "libcmark",
+            "pinnedVersion": true,
             "usedBy": [
                 "cmark"
             ],
@@ -52,6 +56,7 @@
         },
         "DATRIE": {
             "name": "libdatrie",
+            "pinnedVersion": true,
             "usedBy": [
                 "wikidiff2"
             ],
@@ -64,6 +69,7 @@
         },
         "DAV1D": {
             "name": "libdav1d",
+            "pinnedVersion": true,
             "usedBy": [
                 "gd"
             ],
@@ -77,6 +83,7 @@
         },
         "ENCHANT1": {
             "name": "libenchant1",
+            "pinnedVersion": true,
             "usedBy": [
                 "enchant"
             ],
@@ -90,6 +97,7 @@
         },
         "FIREBIRD": {
             "name": "Firebird",
+            "pinnedVersion": true,
             "usedBy": [
                 "interbase",
                 "pdo_firebird",
@@ -100,10 +108,12 @@
             "latestVersion": {
                 "source": "gitTags",
                 "repository": "https://github.com/FirebirdSQL/firebird"
-            }
+            },
+            "skipTest": "The version includes the build number, which is not available in the git tags"
         },
         "GEARMAN": {
             "name": "libgearman",
+            "pinnedVersion": true,
             "usedBy": [
                 "gearman"
             ],
@@ -116,6 +126,7 @@
         },
         "HATTRIE": {
             "name": "HAT-trie",
+            "pinnedVersion": true,
             "usedBy": [
                 "php_trie"
             ],
@@ -127,6 +138,7 @@
         },
         "IDNKIT": {
             "name": "libidnkit",
+            "pinnedVersion": true,
             "usedBy": [
                 "http"
             ],
@@ -140,6 +152,7 @@
         },
         "IONC": {
             "name": "ion-c",
+            "pinnedVersion": true,
             "usedBy": [
                 "ion"
             ],
@@ -152,6 +165,7 @@
         },
         "IP2LOCATION": {
             "name": "IP2Location C library",
+            "pinnedVersion": true,
             "usedBy": [
                 "ip2location"
             ],
@@ -163,6 +177,7 @@
         },
         "MPDEC": {
             "name": "libmpdec",
+            "pinnedVersion": true,
             "usedBy": [
                 "decimal"
             ],
@@ -176,6 +191,7 @@
         },
         "MSODBC": {
             "name": "Microsoft ODBC Driver for SQL Server (Alpine)",
+            "pinnedVersion": true,
             "usedBy": [
                 "pdo_sqlsrv",
                 "sqlsrv"
@@ -190,6 +206,7 @@
         },
         "MSODBC17": {
             "name": "Microsoft ODBC Driver 17 for SQL Server (Alpine)",
+            "pinnedVersion": true,
             "usedBy": [
                 "pdo_sqlsrv",
                 "sqlsrv"
@@ -204,6 +221,7 @@
         },
         "THAI": {
             "name": "libthai",
+            "pinnedVersion": true,
             "usedBy": [
                 "wikidiff2"
             ],
@@ -216,6 +234,7 @@
         },
         "TOMCRYPT": {
             "name": "libtomcrypt",
+            "pinnedVersion": true,
             "usedBy": [
                 "pdo_firebird",
                 "swoole"
@@ -229,6 +248,7 @@
         },
         "TOMMATH": {
             "name": "libtommath",
+            "pinnedVersion": true,
             "usedBy": [
                 "pdo_firebird",
                 "swoole"
@@ -242,6 +262,7 @@
         },
         "XCRYPT": {
             "name": "libxcrypt",
+            "pinnedVersion": true,
             "usedBy": [
                 "xpass"
             ],
@@ -254,6 +275,7 @@
         },
         "XDIFF": {
             "name": "LibXDiff",
+            "pinnedVersion": true,
             "usedBy": [
                 "xdiff"
             ],
@@ -263,10 +285,12 @@
                 "url": "http://www.xmailserver.org/xdiff-lib.html",
                 "regex": "/\\blibxdiff-(\\d+(?:\\.\\d+)+)\\.tar\\.gz\\b/",
                 "timeout": 60
-            }
+            },
+            "skipTest": "The source archive must be uploaded to the assets branch of this repository first"
         },
         "YUV": {
             "name": "libyuv",
+            "pinnedVersion": true,
             "usedBy": [
                 "gd"
             ],
@@ -279,8 +303,22 @@
             },
             "skipCheck": "We compile libyuv only on old distros (Alpine < 3.15 and Debian < 12), together with libaom, libavif and libdav1d"
         },
+        "ZOOKEEPER": {
+            "name": "Apache ZooKeeper (stable)",
+            "pinnedVersion": false,
+            "usedBy": [
+                "zookeeper"
+            ],
+            "url": "https://zookeeper.apache.org/releases.html",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "https://downloads.apache.org/zookeeper/stable/",
+                "regex": "/\\bapache-zookeeper-(?<version>\\d+(?:\\.\\d+)+)\\.tar\\.gz\\b/"
+            }
+        },
         "ZSTD": {
             "name": "zstd",
+            "pinnedVersion": true,
             "usedBy": [
                 "redis"
             ],
@@ -293,16 +331,33 @@
         }
     },
     "extensions": {
+        "blackfire": {
+            "name": "Blackfire probe",
+            "pinnedVersion": false,
+            "latestVersion": {
+                "source": "custom"
+            }
+        },
         "cassandra": {
             "name": "ScyllaDB PHP driver",
+            "pinnedVersion": true,
             "url": "https://github.com/he4rt/scylladb-php-driver/releases",
             "latestVersion": {
                 "source": "gitTags",
                 "repository": "https://github.com/he4rt/scylladb-php-driver"
             }
         },
+        "ddtrace": {
+            "name": "Datadog PHP tracer",
+            "pinnedVersion": false,
+            "url": "https://github.com/DataDog/dd-trace-php/releases",
+            "latestVersion": {
+                "source": "custom"
+            }
+        },
         "geos": {
             "name": "php-geos",
+            "pinnedVersion": true,
             "url": "https://github.com/libgeos/php-geos/commits",
             "latestVersion": {
                 "source": "gitRef",
@@ -310,16 +365,64 @@
                 "ref": "HEAD"
             }
         },
+        "ioncube_loader": {
+            "name": "ionCube Loader",
+            "pinnedVersion": false,
+            "url": "https://www.ioncube.com/loaders.php",
+            "latestVersion": {
+                "source": "custom"
+            }
+        },
         "lz4": {
             "name": "php-ext-lz4",
+            "pinnedVersion": true,
             "url": "https://github.com/kjdev/php-ext-lz4/tags",
             "latestVersion": {
                 "source": "gitTags",
                 "repository": "https://github.com/kjdev/php-ext-lz4"
             }
         },
+        "newrelic": {
+            "name": "New Relic PHP agent",
+            "pinnedVersion": false,
+            "url": "https://docs.newrelic.com/docs/release-notes/agent-release-notes/php-release-notes/",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "https://download.newrelic.com/php_agent/release/",
+                "regex": "/\\bnewrelic-php5-(?<version>\\d+(?:\\.\\d+)+)-linux\\.tar\\.gz\\b/"
+            }
+        },
+        "pdo_snowflake": {
+            "name": "PHP PDO driver for Snowflake",
+            "pinnedVersion": false,
+            "url": "https://github.com/snowflakedb/pdo_snowflake/releases",
+            "latestVersion": {
+                "source": "custom"
+            }
+        },
+        "relay": {
+            "name": "Relay",
+            "pinnedVersion": false,
+            "url": "https://relay.so/builds",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "https://builds.r2.relay.so/meta/latest",
+                "regex": "/^v?(?<version>\\d+(?:\\.\\d+)+)/"
+            }
+        },
+        "saxon": {
+            "name": "SaxonC",
+            "pinnedVersion": false,
+            "url": "https://www.saxonica.com/download/c.xml",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "https://www.saxonica.com/download/c.xml",
+                "regex": "/\\/SaxonCEE-linux-x86_64-(?<version>\\d+(?:-\\d+)+)\\.zip\\b/"
+            }
+        },
         "snappy": {
             "name": "php-ext-snappy",
+            "pinnedVersion": true,
             "url": "https://github.com/kjdev/php-ext-snappy/tags",
             "latestVersion": {
                 "source": "gitTags",
@@ -328,27 +431,66 @@
         },
         "snuffleupagus": {
             "name": "snuffleupagus",
+            "pinnedVersion": true,
             "url": "https://github.com/jvoisin/snuffleupagus/releases",
             "latestVersion": {
                 "source": "gitTags",
                 "repository": "https://github.com/jvoisin/snuffleupagus"
             }
         },
+        "sourceguardian": {
+            "name": "SourceGuardian Loader",
+            "pinnedVersion": false,
+            "url": "https://www.sourceguardian.com/loaders.html",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "https://www.sourceguardian.com/loaders.html",
+                "regex": "/loaders\\.linux-x86_64\\.tar\\.bz2\\.md5.*?<span[^>]*>\\s*(?<version>\\d+(?:\\.\\d+)+)\\s*</s"
+            }
+        },
         "spx": {
             "name": "php-spx",
+            "pinnedVersion": true,
             "url": "https://github.com/NoiseByNorthwest/php-spx/tags",
             "latestVersion": {
                 "source": "gitTags",
                 "repository": "https://github.com/NoiseByNorthwest/php-spx"
             }
         },
+        "tideways": {
+            "name": "Tideways PHP extension",
+            "pinnedVersion": false,
+            "latestVersion": {
+                "source": "custom"
+            }
+        },
         "v8js": {
             "name": "v8js (php8 branch)",
+            "pinnedVersion": true,
             "url": "https://github.com/phpv8/v8js/commits/php8",
             "latestVersion": {
                 "source": "gitRef",
                 "repository": "https://github.com/phpv8/v8js",
                 "ref": "refs/heads/php8"
+            }
+        },
+        "wikidiff2": {
+            "name": "wikidiff2",
+            "pinnedVersion": false,
+            "url": "https://github.com/wikimedia/mediawiki-php-wikidiff2/tags",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/wikimedia/mediawiki-php-wikidiff2"
+            }
+        },
+        "zmq": {
+            "name": "php-zmq (master branch)",
+            "pinnedVersion": false,
+            "url": "https://github.com/zeromq/php-zmq/commits/master",
+            "latestVersion": {
+                "source": "gitRef",
+                "repository": "https://github.com/zeromq/php-zmq",
+                "ref": "refs/heads/master"
             }
         }
     }

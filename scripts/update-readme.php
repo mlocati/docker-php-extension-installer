@@ -234,7 +234,7 @@ function main(): int
     try {
         $supportedExtensions = readDataFile(SUPPORTED_EXTENSIONS_PATH);
         $specialRequirements = readDataFile(SPECIAL_REQUIREMENTS_PATH);
-        $libraries = readDependencies()['libraries'];
+        $libraries = array_filter(readDependencies()['libraries'], static fn (array $library): bool => $library['pinnedVersion']);
         $installer = file_get_contents(INSTALLER_PATH);
         if ($installer === false) {
             throw new RuntimeException('Failed to read install-php-extensions');

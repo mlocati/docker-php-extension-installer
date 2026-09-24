@@ -28,10 +28,8 @@ function readDependencies(): array
     } catch (JsonException $x) {
         throw new RuntimeException("Failed to parse data/dependencies.json: {$x->getMessage()}");
     }
-    if (!is_array($dependencies['libraries'] ?? null) || !is_array($dependencies['extensions'] ?? null)) {
-        throw new RuntimeException('data/dependencies.json must contain the libraries and extensions objects');
-    }
 
+    // The structure is checked by scripts/check-json-schemas.php
     return [
         'libraries' => $dependencies['libraries'],
         'extensions' => $dependencies['extensions'],
@@ -39,7 +37,7 @@ function readDependencies(): array
 }
 
 /**
- * Get the name of the install-php-extensions variable that contains the version of a dependency.
+ * Get the name of the install-php-extensions variable that contains the version of a dependency whose version is pinned.
  *
  * @param string $section 'libraries' or 'extensions'
  * @param string $key     the key of the dependency in data/dependencies.json
