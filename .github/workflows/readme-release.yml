@@ -7,9 +7,6 @@ on:
   create:
     tags:
       - "*"
-  repository_dispatch:
-    types:
-      - readme-release
   workflow_dispatch:
 
 jobs:
@@ -26,7 +23,7 @@ jobs:
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
           || (github.event_name == 'create' && github.event.ref_type == 'tag')
-          || github.event_name == 'repository_dispatch'
+          || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v7
         with:
           ref: master
@@ -35,7 +32,7 @@ jobs:
         name: Update README
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
-          || github.event_name == 'repository_dispatch'
+          || github.event_name == 'workflow_dispatch'
         run: |
           ./scripts/update-readme
           if ! git ls-files -m | grep -qE '^README\.md$'; then
@@ -53,7 +50,7 @@ jobs:
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
           || (github.event_name == 'create' && github.event.ref_type == 'tag')
-          || github.event_name == 'repository_dispatch'
+          || github.event_name == 'workflow_dispatch'
         run: |
           TAGS="$(git tag --list --sort=-version:refname)"
           VERSIONTAG_LAST=
