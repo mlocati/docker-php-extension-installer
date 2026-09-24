@@ -598,7 +598,7 @@ Here's the list of these libraries (the default versions are the ones used by th
 | [libxcrypt](https://github.com/besser82/libxcrypt/releases) | `IPE_LIBVERSION_XCRYPT` | `4.5.2` | xpass | Only on Alpine |
 | [LibXDiff](http://www.xmailserver.org/xdiff-lib.html) | `IPE_LIBVERSION_XDIFF` | `0.23` | xdiff |  |
 | [libyuv](https://chromium.googlesource.com/libyuv/libyuv/+log) | `IPE_LIBVERSION_YUV` | `d359a9f922af840b043535d43cf9d38b220d102e` | gd | Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set). Format: git commit hash |
-| [zstd](https://github.com/facebook/zstd/releases) | `IPE_LIBVERSION_ZSTD` | `1.4.4` | redis | Only with redis 5+ |
+| [zstd](https://github.com/facebook/zstd/releases) | `IPE_LIBVERSION_ZSTD` | `1.5.7` | redis | Only with redis 5+ |
 <!-- END OF LIBRARIES -->
 
 ## Tests
