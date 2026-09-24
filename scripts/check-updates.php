@@ -13,12 +13,12 @@ declare(strict_types=1);
  *     - the PECL extensions that we install as non-stable by default (beta, alpha, ...): is there a more stable version? (only notified)
  *     - the libraries and PHP extensions that we download manually (listed in data/dependencies.json)
  *     The tests to be performed are written to the tests file, one per line, in the format
- *     <test index> <comma-separated extensions> [<VARIABLE>=<value> ...]
+ *     <comma-separated extensions> [<VARIABLE>=<value> ...]
  *     New versions that failed the tests are tested again until they pass.
  *     When the state file doesn't exist, the current versions of the PECL extensions are considered as already tested.
  *
  *   finalize --state-file=<path> --results-dir=<path> --distros=<comma-separated list>
- *     Read the test results (written by ci-test-extensions in <results-dir>/<distro>/<test index>.txt, with a
+ *     Read the test results (written by ci-test-extensions in <results-dir>/<distro>/<n>.txt, where <n> is the line number in the tests file, with a
  *     <results-dir>/<distro>/done file written when all the tests of the distro have been executed), update the state file,
  *     and build the message to be notified.
  *
@@ -865,9 +865,8 @@ function detect(array $options): int
         if ($item['extensions'] === [] || $item['seen'] === $item['verified']) {
             continue;
         }
-        $index = count($tests);
-        $tests[$index] = $id;
-        $line = "{$index} " . implode(',', $item['extensions']);
+        $tests[] = $id;
+        $line = implode(',', $item['extensions']);
         foreach ($item['env'] as $variable => $value) {
             $line .= " {$variable}={$value}";
         }
@@ -904,7 +903,8 @@ function readTestResults(string $resultsDir, array $distros): array
             continue;
         }
         foreach (glob("{$dir}/*.txt") ?: [] as $file) {
-            $index = (int) basename($file, '.txt');
+            // The files are named after the line number in the tests file (starting from 1)
+            $index = (int) basename($file, '.txt') - 1;
             foreach (preg_split('/\R/', (string) file_get_contents($file), -1, PREG_SPLIT_NO_EMPTY) as $line) {
                 [$result, $phpVersion] = explode(' ', $line, 3) + ['', ''];
                 if ($result !== 'ok') {

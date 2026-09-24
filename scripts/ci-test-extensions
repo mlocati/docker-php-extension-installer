@@ -9,8 +9,8 @@
 #   Test all the supported extensions
 # - ci-test-extensions from-tests-file <tests file> <results directory>
 #   Perform the tests listed in the tests file (written by scripts/check-updates.php), one per line, in the format
-#   <test index> <comma-separated extensions> [<VARIABLE>=<value> ...]
-#   The results of each test are written to <results directory>/<test index>.txt, as lines in the format "<ok|failed> <PHP version> <extensions>";
+#   <comma-separated extensions> [<VARIABLE>=<value> ...]
+#   The results of the n-th test are written to <results directory>/<n>.txt (starting from 1), as lines in the format "<ok|failed> <PHP version> <extensions>";
 #   when all the tests have been performed, the <results directory>/done file is created
 #
 # Global environment variables used:
@@ -426,8 +426,8 @@ runTestsFromFile() {
 	mkdir -p "$2"
 	runTestsFromFile_total=$(grep -c . "$1" || true)
 	runTestsFromFile_count=0
-	while IFS=' ' read -r runTestsFromFile_index runTestsFromFile_extensions runTestsFromFile_variables <&3 || test -n "$runTestsFromFile_index"; do
-		if test -z "$runTestsFromFile_index"; then
+	while IFS=' ' read -r runTestsFromFile_extensions runTestsFromFile_variables <&3 || test -n "$runTestsFromFile_extensions"; do
+		if test -z "$runTestsFromFile_extensions"; then
 			continue
 		fi
 		runTestsFromFile_count=$((runTestsFromFile_count + 1))
@@ -438,7 +438,7 @@ runTestsFromFile() {
 			TEST_DOCKER_ENV="$TEST_DOCKER_ENV --env $runTestsFromFile_variable"
 		done
 		resetIFS
-		TEST_RESULTS_FILE="$2/$runTestsFromFile_index.txt"
+		TEST_RESULTS_FILE="$2/$runTestsFromFile_count.txt"
 		runTests "$(printf '%s' "$runTestsFromFile_extensions" | tr ',' ' ')"
 	done 3<"$1"
 	TEST_DOCKER_ENV=''
