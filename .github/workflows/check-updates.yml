@@ -143,7 +143,7 @@ jobs:
           message: |
             ${{ steps.finalize.outputs.message }}
 
-            https://github.com/mlocati/docker-php-extension-installer/actions/runs/${{ github.run_id }}
+            See https://github.com/mlocati/docker-php-extension-installer/actions/runs/${{ github.run_id }}
       -
         name: Save state
         # Don't save the state if the notification failed, so that the new versions will be notified again

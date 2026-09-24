@@ -937,11 +937,12 @@ function finalize(array $options): int
     $results = $state['tests'] === [] ? ['failures' => [], 'incomplete' => []] : readTestResults($resultsDir, $distros);
     $available = [];
     $failed = [];
+    $formatItem = static fn (string $icon, array $item, string $suffix = ''): string => "{$icon} {$item['description']}{$suffix}" . ($item['url'] === '' ? '' : "\n  {$item['url']}");
     foreach ($state['items'] as $id => &$item) {
         $index = array_search($id, $state['tests'], true);
         if ($index !== false) {
             if (isset($results['failures'][$index])) {
-                $failed[] = "- {$item['description']}: failed on " . implode(', ', $results['failures'][$index]) . ($item['url'] === '' ? '' : "\n  {$item['url']}");
+                $failed[] = $formatItem("\u{274C}", $item, ': failed on ' . implode(', ', $results['failures'][$index]));
 
                 continue;
             }
@@ -957,24 +958,21 @@ function finalize(array $options): int
         }
         if ($item['notified'] !== $item['seen']) {
             $item['notified'] = $item['seen'];
-            $available[] = "- {$item['description']}" . ($index === false ? '' : ' (tests passed)') . ($item['url'] === '' ? '' : "\n  {$item['url']}");
+            $available[] = $index === false ? $formatItem("\u{2139}\u{FE0F}", $item) : $formatItem("\u{2705}", $item, ' (tests passed)');
         }
     }
     unset($item);
     writeState($stateFile, ['items' => $state['items'], 'tests' => [], 'errors' => []]);
 
     $sections = [];
-    if ($failed !== []) {
-        $sections[] = "Some new versions of the dependencies of docker-php-extension-installer don't work:\n" . implode("\n", $failed);
+    if ($failed !== [] || $available !== []) {
+        $sections[] = "New versions of dependencies detected:\n\n" . implode("\n\n", [...$failed, ...$available]);
     }
     if ($results['incomplete'] !== []) {
-        $sections[] = 'The tests did not complete on ' . implode(', ', $results['incomplete']) . ': they will be performed again.';
-    }
-    if ($available !== []) {
-        $sections[] = "New versions of dependencies used by docker-php-extension-installer are available:\n" . implode("\n", $available);
+        $sections[] = "\u{26A0}\u{FE0F} The tests did not complete on " . implode(', ', $results['incomplete']) . ': they will be performed again.';
     }
     if ($errors !== []) {
-        $sections[] = "The update checker or install-php-extensions need to be updated:\n" . implode("\n", array_map(static fn (string $error): string => "- {$error}", $errors));
+        $sections[] = "\u{26A0}\u{FE0F} The update checker or install-php-extensions need to be updated:\n" . implode("\n", array_map(static fn (string $error): string => "- {$error}", $errors));
     }
     $message = implode("\n\n", $sections);
     if ($message !== '') {
