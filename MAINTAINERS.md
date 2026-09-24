@@ -23,7 +23,7 @@ The [`check-dependency-updates.yml`](https://github.com/mlocati/docker-php-exten
 - if the PECL extensions that we install in a non-stable version by default have a more stable release (for example, a `beta` or `stable` release for an extension we install as `alpha`).
   These extensions are detected automatically by parsing `install-php-extensions`.
 - if the libraries and extensions we download manually have newer versions.
-  These are listed in the `LIBRARIES` constant of the script: the version in use is read from the `IPE_LIBVERSION_...` (libraries) and `IPE_EXTLATESTVERSION_...` (PHP extensions) variables defined at the beginning of `install-php-extensions`, so there's no need to update the script when upgrading a dependency.
+  These are listed in the [`data/dependencies.json`](https://github.com/mlocati/docker-php-extension-installer/blob/master/data/dependencies.json) file: the version in use is read from the `IPE_LIBVERSION_...` (libraries) and `IPE_EXTLATESTVERSION_...` (PHP extensions) variables defined at the beginning of `install-php-extensions`, so there's no need to update the script when upgrading a dependency.
 
 When new versions are found, a Telegram notification is sent (every new version is notified only once).
 Temporary problems (like websites that can't be reached) don't make the Action fail: they are reported as warnings in the Action log.
@@ -35,6 +35,7 @@ The script can also be executed locally:
 php scripts/check-dependency-updates.php
 ```
 
-When adding to `install-php-extensions` a new library or extension that is downloaded manually, remember to define its version in a new `IPE_LIBVERSION_...` variable (for libraries) or `IPE_EXTLATESTVERSION_<EXTENSION>` variable (for PHP extensions), with the format `VARIABLE="${VARIABLE:-version}"` so that it can be overridden, and to add it to the `LIBRARIES` constant of the script
-(the script fails if one of these variables doesn't have a corresponding entry in `LIBRARIES`).
-If a library shouldn't be checked for updates, add it to the `SKIPPED_LIBRARIES` constant of the script, explaining why.
+When adding to `install-php-extensions` a new library or extension that is downloaded manually, remember to define its version in a new `IPE_LIBVERSION_...` variable (for libraries) or `IPE_EXTLATESTVERSION_<EXTENSION>` variable (for PHP extensions), with the format `VARIABLE="${VARIABLE:-version}"` so that it can be overridden, and to add it to `data/dependencies.json`
+(the script fails if one of these variables doesn't have a corresponding entry in `data/dependencies.json`, and vice versa).
+The libraries listed there are also documented in the README.md file (the default versions are read from `install-php-extensions`).
+If a library or extension shouldn't be checked for updates, add a `skipCheck` property explaining why.

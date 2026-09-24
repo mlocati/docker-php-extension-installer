@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * Check whether the external dependencies used by install-php-extensions have newer versions:
  * - PECL extensions that we install as non-stable by default (beta, alpha, ...): is there a more stable version?
- * - libraries that we download manually: is there a newer version?
+ * - libraries and PHP extensions that we download manually (listed in data/dependencies.json): is there a newer version?
  *
  * The versions currently in use are extracted from the install-php-extensions script,
  * so that we don't need to update this script when we upgrade a dependency.
@@ -20,6 +22,8 @@
  * - the "errors" output contains the problems that require updating this script or install-php-extensions (empty if none)
  */
 
+require_once __DIR__ . '/dependencies.php';
+
 const INSTALLER_PATH = __DIR__ . '/../install-php-extensions';
 
 const USER_AGENT = 'mlocati/docker-php-extension-installer dependency checker';
@@ -29,24 +33,27 @@ const USER_AGENT = 'mlocati/docker-php-extension-installer dependency checker';
  */
 const DEFAULT_TIMEOUT = 30;
 
-enum LatestVersionSource
+/**
+ * The values of the latestVersion.source property of data/dependencies.json.
+ */
+enum LatestVersionSource: string
 {
     /**
      * The highest stable version among the tags of a git repository.
      */
-    case GitTags;
+    case GitTags = 'gitTags';
 
     /**
      * The commit hash a git ref (branch) points to.
      */
-    case GitRef;
+    case GitRef = 'gitRef';
 
     /**
      * The highest version extracted from a web page with a regular expression:
      * the version is the "version" named group (or the first capturing group);
      * if the regular expression has a "suffix" named group, its value is appended to the version (<version>@<suffix>).
      */
-    case WebPage;
+    case WebPage = 'webPage';
 }
 
 /**
@@ -72,236 +79,6 @@ enum PeclStability: string
         return array_slice($cases, 0, array_search($this, $cases, true));
     }
 }
-
-/**
- * The libraries/sources that we download manually.
- *
- * Array keys are the names of the libraries/sources; array values have these keys:
- * - usedBy: the PHP extensions that use the library/source
- * - variable: the name of the variable that contains the currently used version in install-php-extensions (IPE_LIBVERSION_... for libraries, IPE_EXTLATESTVERSION_... for PHP extensions)
- * - latest: how to retrieve the latest version:
- *   - [LatestVersionSource::GitTags, <repository URL>]
- *   - [LatestVersionSource::GitRef, <repository URL>, <ref>]
- *   - [LatestVersionSource::WebPage, <URL>, <regular expression>]
- * - ignoreTags: regular expression of the git tags to be ignored (optional, only for LatestVersionSource::GitTags)
- * - url: the URL where maintainers can check the dependency (optional)
- * - timeout: the maximum number of seconds for the connection and for the download (optional, default: DEFAULT_TIMEOUT)
- */
-const LIBRARIES = [
-    'Cassandra C++ driver' => [
-        'usedBy' => ['cassandra'],
-        'variable' => 'IPE_LIBVERSION_CASSANDRACPPDRIVER',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/apache/cassandra-cpp-driver'],
-        'url' => 'https://github.com/apache/cassandra-cpp-driver/tags',
-    ],
-    'Firebird' => [
-        'usedBy' => ['interbase', 'pdo_firebird', 'swoole'],
-        'variable' => 'IPE_LIBVERSION_FIREBIRD',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/FirebirdSQL/firebird'],
-        'url' => 'https://github.com/FirebirdSQL/firebird/releases',
-    ],
-    'HAT-trie' => [
-        'usedBy' => ['php_trie'],
-        'variable' => 'IPE_LIBVERSION_HATTRIE',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/Tessil/hat-trie'],
-        'url' => 'https://github.com/Tessil/hat-trie/releases',
-    ],
-    'ion-c' => [
-        'usedBy' => ['ion'],
-        'variable' => 'IPE_LIBVERSION_IONC',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/amzn/ion-c'],
-        // v1.4.0 is an old tag (February 2021) with a wrong version number
-        'ignoreTags' => '/^v1\.4\.0$/',
-        'url' => 'https://github.com/amzn/ion-c/releases',
-    ],
-    'IP2Location C library' => [
-        'usedBy' => ['ip2location'],
-        'variable' => 'IPE_LIBVERSION_IP2LOCATION',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/chrislim2888/IP2Location-C-Library'],
-        'url' => 'https://github.com/chrislim2888/IP2Location-C-Library/tags',
-    ],
-    'libaom' => [
-        'usedBy' => ['gd'],
-        'variable' => 'IPE_LIBVERSION_AOM',
-        'latest' => [LatestVersionSource::GitTags, 'https://aomedia.googlesource.com/aom'],
-        'url' => 'https://aomedia.googlesource.com/aom/+refs',
-    ],
-    'libavif' => [
-        'usedBy' => ['gd'],
-        'variable' => 'IPE_LIBVERSION_AVIF',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/AOMediaCodec/libavif'],
-        'url' => 'https://github.com/AOMediaCodec/libavif/releases',
-    ],
-    'libcmark' => [
-        'usedBy' => ['cmark'],
-        'variable' => 'IPE_LIBVERSION_CMARK',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/commonmark/cmark'],
-        'url' => 'https://github.com/commonmark/cmark/releases',
-    ],
-    'libdatrie' => [
-        'usedBy' => ['wikidiff2'],
-        'variable' => 'IPE_LIBVERSION_DATRIE',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/tlwg/libdatrie'],
-        'url' => 'https://github.com/tlwg/libdatrie/releases',
-    ],
-    'libdav1d' => [
-        'usedBy' => ['gd'],
-        'variable' => 'IPE_LIBVERSION_DAV1D',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/videolan/dav1d'],
-        'url' => 'https://code.videolan.org/videolan/dav1d/-/tags',
-    ],
-    'libenchant1' => [
-        'usedBy' => ['enchant'],
-        'variable' => 'IPE_LIBVERSION_ENCHANT1',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/rrthomas/enchant'],
-        'url' => 'https://github.com/rrthomas/enchant/releases',
-    ],
-    'libgearman' => [
-        'usedBy' => ['gearman'],
-        'variable' => 'IPE_LIBVERSION_GEARMAN',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/gearman/gearmand'],
-        'url' => 'https://github.com/gearman/gearmand/releases',
-    ],
-    'libidnkit' => [
-        'usedBy' => ['http'],
-        'variable' => 'IPE_LIBVERSION_IDNKIT',
-        'latest' => [LatestVersionSource::WebPage, 'https://jprs.co.jp/idn/', '/\bidnkit-(\d+(?:\.\d+)+)/'],
-        'url' => 'https://jprs.co.jp/idn/',
-    ],
-    'libmpdec' => [
-        'usedBy' => ['decimal'],
-        'variable' => 'IPE_LIBVERSION_MPDEC',
-        'latest' => [LatestVersionSource::WebPage, 'https://www.bytereef.org/mpdecimal/download.html', '/\bmpdecimal-(\d+(?:\.\d+)+)\.tar\.gz\b/'],
-        'url' => 'https://www.bytereef.org/mpdecimal/changelog.html',
-    ],
-    'libthai' => [
-        'usedBy' => ['wikidiff2'],
-        'variable' => 'IPE_LIBVERSION_THAI',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/tlwg/libthai'],
-        'url' => 'https://github.com/tlwg/libthai/releases',
-    ],
-    'libtomcrypt' => [
-        'usedBy' => ['pdo_firebird', 'swoole'],
-        'variable' => 'IPE_LIBVERSION_TOMCRYPT',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/libtom/libtomcrypt'],
-        'url' => 'https://github.com/libtom/libtomcrypt/releases',
-    ],
-    'libtommath' => [
-        'usedBy' => ['pdo_firebird', 'swoole'],
-        'variable' => 'IPE_LIBVERSION_TOMMATH',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/libtom/libtommath'],
-        'url' => 'https://github.com/libtom/libtommath/releases',
-    ],
-    'libxcrypt' => [
-        'usedBy' => ['xpass'],
-        'variable' => 'IPE_LIBVERSION_XCRYPT',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/besser82/libxcrypt'],
-        'url' => 'https://github.com/besser82/libxcrypt/releases',
-    ],
-    'LibXDiff' => [
-        'usedBy' => ['xdiff'],
-        'variable' => 'IPE_LIBVERSION_XDIFF',
-        'latest' => [LatestVersionSource::WebPage, 'http://www.xmailserver.org/xdiff-lib.html', '/\blibxdiff-(\d+(?:\.\d+)+)\.tar\.gz\b/'],
-        'url' => 'http://www.xmailserver.org/xdiff-lib.html',
-        // This website can be quite slow
-        'timeout' => 60,
-    ],
-    'libyuv' => [
-        'usedBy' => ['gd'],
-        'variable' => 'IPE_LIBVERSION_YUV',
-        'latest' => [LatestVersionSource::GitRef, 'https://chromium.googlesource.com/libyuv/libyuv', 'HEAD'],
-        'url' => 'https://chromium.googlesource.com/libyuv/libyuv/+log',
-    ],
-    'Microsoft ODBC Driver 17 for SQL Server (Alpine)' => [
-        'usedBy' => ['pdo_sqlsrv', 'sqlsrv'],
-        'variable' => 'IPE_LIBVERSION_MSODBC17',
-        'latest' => [LatestVersionSource::WebPage, 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server', '%/download/(?<suffix>[\w/-]+)/msodbcsql17_(?<version>\d+(?:\.\d+)+-\d+)_%'],
-        'url' => 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17',
-    ],
-    'Microsoft ODBC Driver 18 for SQL Server (Alpine)' => [
-        'usedBy' => ['pdo_sqlsrv', 'sqlsrv'],
-        'variable' => 'IPE_LIBVERSION_MSODBC18',
-        'latest' => [LatestVersionSource::WebPage, 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server', '%/download/(?<suffix>[\w/-]+)/msodbcsql18_(?<version>\d+(?:\.\d+)+-\d+)_%'],
-        'url' => 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine18',
-    ],
-    'PHP-CPP' => [
-        'usedBy' => ['tdlib'],
-        'variable' => 'IPE_LIBVERSION_PHPCPP',
-        'latest' => [LatestVersionSource::GitRef, 'https://github.com/CopernicaMarketingSoftware/PHP-CPP', 'HEAD'],
-        'url' => 'https://github.com/CopernicaMarketingSoftware/PHP-CPP/commits',
-    ],
-    'php-ext-lz4' => [
-        'usedBy' => ['lz4'],
-        'variable' => 'IPE_EXTLATESTVERSION_LZ4',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/kjdev/php-ext-lz4'],
-        'url' => 'https://github.com/kjdev/php-ext-lz4/tags',
-    ],
-    'php-ext-snappy' => [
-        'usedBy' => ['snappy'],
-        'variable' => 'IPE_EXTLATESTVERSION_SNAPPY',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/kjdev/php-ext-snappy'],
-        'url' => 'https://github.com/kjdev/php-ext-snappy/tags',
-    ],
-    'php-geos' => [
-        'usedBy' => ['geos'],
-        'variable' => 'IPE_EXTLATESTVERSION_GEOS',
-        'latest' => [LatestVersionSource::GitRef, 'https://github.com/libgeos/php-geos', 'HEAD'],
-        'url' => 'https://github.com/libgeos/php-geos/commits',
-    ],
-    'php-spx' => [
-        'usedBy' => ['spx'],
-        'variable' => 'IPE_EXTLATESTVERSION_SPX',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/NoiseByNorthwest/php-spx'],
-        'url' => 'https://github.com/NoiseByNorthwest/php-spx/tags',
-    ],
-    'ScyllaDB PHP driver' => [
-        'usedBy' => ['cassandra'],
-        'variable' => 'IPE_EXTLATESTVERSION_CASSANDRA',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/he4rt/scylladb-php-driver'],
-        'url' => 'https://github.com/he4rt/scylladb-php-driver/releases',
-    ],
-    'snuffleupagus' => [
-        'usedBy' => ['snuffleupagus'],
-        'variable' => 'IPE_EXTLATESTVERSION_SNUFFLEUPAGUS',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/jvoisin/snuffleupagus'],
-        'url' => 'https://github.com/jvoisin/snuffleupagus/releases',
-    ],
-    'v8js (php8 branch)' => [
-        'usedBy' => ['v8js'],
-        'variable' => 'IPE_EXTLATESTVERSION_V8JS',
-        'latest' => [LatestVersionSource::GitRef, 'https://github.com/phpv8/v8js', 'refs/heads/php8'],
-        'url' => 'https://github.com/phpv8/v8js/commits/php8',
-    ],
-    'zstd' => [
-        'usedBy' => ['redis'],
-        'variable' => 'IPE_LIBVERSION_ZSTD',
-        'latest' => [LatestVersionSource::GitTags, 'https://github.com/facebook/zstd'],
-        'url' => 'https://github.com/facebook/zstd/releases',
-    ],
-];
-
-/**
- * The names of the libraries/sources listed in LIBRARIES that we don't check for updates.
- */
-const SKIPPED_LIBRARIES = [
-    // We compile libaom only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded,
-    // so we use the latest version compatible with them: libaom 3.12.1+ requires cmake 3.16 (Debian Buster has cmake 3.13)
-    'libaom',
-    // We compile libavif only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded,
-    // so we use the latest version compatible with them: libavif 1.4.0+ requires cmake 3.22 (Debian Buster has cmake 3.13)
-    'libavif',
-    // We compile libdav1d only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded,
-    // so we use the latest version compatible with them: libdav1d 1.5.4+ requires meson 0.54 (Debian Buster has meson 0.49)
-    'libdav1d',
-    // We compile libenchant1 only when the system provides libenchant2 only (which is not supported by PHP < 8.0):
-    // 1.6.1 is the last 1.x version
-    'libenchant1',
-    // We compile libyuv only on old distros (Alpine < 3.15 and Debian < 12), together with libaom, libavif and libdav1d
-    'libyuv',
-    // The installation of tdlib is no longer supported (even if its code is still in install-php-extensions).
-    // If it gets enabled again, the IPE_LIBVERSION_PHPCPP variable must be defined in install-php-extensions.
-    'PHP-CPP',
-];
 
 /**
  * A temporary problem (for example, a website that can't be reached).
@@ -645,46 +422,56 @@ function checkPeclModule(string $module, PeclStability $stability): ?Update
 }
 
 /**
- * Check that LIBRARIES and SKIPPED_LIBRARIES are consistent with the IPE_LIBVERSION_... and IPE_EXTLATESTVERSION_... variables defined in install-php-extensions.
+ * Check that data/dependencies.json is consistent with the IPE_LIBVERSION_... and IPE_EXTLATESTVERSION_... variables defined in install-php-extensions.
+ *
+ * @param array{libraries: array<string, array<string, mixed>>, extensions: array<string, array<string, mixed>>} $dependencies
  *
  * @return string[] the problems found
  */
-function checkLibrariesConsistency(string $installer): array
+function checkDependenciesConsistency(string $installer, array $dependencies): array
 {
     $errors = [];
-    preg_match_all('/^(IPE_(?:LIBVERSION|EXTLATESTVERSION)_\w+)=/m', $installer, $matches);
-    $definedVariables = $matches[1];
-    $handledVariables = array_column(LIBRARIES, 'variable');
-    foreach (array_diff($definedVariables, $handledVariables) as $variable) {
-        $errors[] = "The {$variable} variable is defined in install-php-extensions, but there's no corresponding library in the LIBRARIES constant of the dependency checker";
+    $definedVariables = getInstallerDependencyVariables($installer);
+    $handledVariables = [];
+    foreach ($dependencies as $section => $items) {
+        foreach (array_keys($items) as $key) {
+            $handledVariables[] = getDependencyVariable($section, (string) $key);
+        }
     }
-    foreach (array_diff(SKIPPED_LIBRARIES, array_keys(LIBRARIES)) as $name) {
-        $errors[] = "The library {$name} listed in the SKIPPED_LIBRARIES constant of the dependency checker is not defined in the LIBRARIES constant";
+    foreach (array_diff($definedVariables, $handledVariables) as $variable) {
+        $errors[] = "The {$variable} variable is defined in install-php-extensions, but there's no corresponding item in data/dependencies.json";
+    }
+    foreach (array_diff($handledVariables, $definedVariables) as $variable) {
+        $errors[] = "data/dependencies.json refers to the {$variable} variable, but it's not defined in install-php-extensions";
     }
 
     return $errors;
 }
 
 /**
+ * @param array<string, mixed> $dependency an item of data/dependencies.json
+ * @param string[]             $usedBy
+ *
  * @throws ConnectionException
  * @throws ActionRequiredException
  */
-function checkLibrary(string $name, array $library, string $installer): ?Update
+function checkDependency(array $dependency, string $variable, array $usedBy, string $installer): ?Update
 {
-    $variable = $library['variable'];
-    // The variables are defined as VARIABLE="${VARIABLE:-default value}"
-    $quotedVariable = preg_quote($variable, '/');
-    if (!preg_match('/^' . $quotedVariable . '="\$\{' . $quotedVariable . ':-(\S+)\}"$/m', $installer, $matches)) {
+    $name = $dependency['name'];
+    $current = getInstallerVariableDefault($installer, $variable);
+    if ($current === null) {
         throw new ActionRequiredException("Unable to find the {$variable} variable in install-php-extensions (it should contain the current version of {$name})");
     }
-    $current = $matches[1];
-    $source = $library['latest'][0];
-    $args = array_slice($library['latest'], 1);
-    $timeout = $library['timeout'] ?? DEFAULT_TIMEOUT;
+    $latestVersion = $dependency['latestVersion'];
+    $source = LatestVersionSource::tryFrom($latestVersion['source'] ?? '');
+    if ($source === null) {
+        throw new ActionRequiredException("Invalid latestVersion.source of {$name} in data/dependencies.json");
+    }
+    $timeout = $latestVersion['timeout'] ?? DEFAULT_TIMEOUT;
     $latest = match ($source) {
-        LatestVersionSource::GitTags => getLatestGitTag(...$args, ignoreTags: $library['ignoreTags'] ?? '', timeout: $timeout),
-        LatestVersionSource::GitRef => getGitRefHash(...$args, timeout: $timeout),
-        LatestVersionSource::WebPage => getLatestVersionFromWebPage(...$args, timeout: $timeout),
+        LatestVersionSource::GitTags => getLatestGitTag($latestVersion['repository'], $latestVersion['ignoreTags'] ?? '', $timeout),
+        LatestVersionSource::GitRef => getGitRefHash($latestVersion['repository'], $latestVersion['ref'], $timeout),
+        LatestVersionSource::WebPage => getLatestVersionFromWebPage($latestVersion['url'], $latestVersion['regex'], $timeout),
     };
     if ($latest === null) {
         throw new ActionRequiredException("Unable to detect the latest version of {$name}");
@@ -704,9 +491,9 @@ function checkLibrary(string $name, array $library, string $installer): ?Update
     return new Update(
         "lib:{$name}",
         $name,
-        "{$name} (used by " . implode(', ', $library['usedBy']) . "): we use {$current}, {$latest} is available",
+        "{$name} (used by " . implode(', ', $usedBy) . "): we use {$current}, {$latest} is available",
         $latest,
-        $library['url'] ?? '',
+        $dependency['url'] ?? '',
     );
 }
 
@@ -802,34 +589,50 @@ function main(array $argv): int
         }
     }
 
-    logInfo('Checking manually installed libraries');
-    foreach (checkLibrariesConsistency($installer) as $error) {
+    logInfo('Checking manually installed libraries and PHP extensions');
+
+    try {
+        $dependencies = readDependencies();
+    } catch (RuntimeException $x) {
+        $errors[] = $x->getMessage();
+        logError($x->getMessage());
+        $dependencies = ['libraries' => [], 'extensions' => []];
+    }
+    foreach (checkDependenciesConsistency($installer, $dependencies) as $error) {
         $errors[] = $error;
         logError($error);
     }
-    foreach (LIBRARIES as $name => $library) {
-        if (in_array($name, SKIPPED_LIBRARIES, true)) {
-            logInfo("- {$name}: skipped");
+    foreach ($dependencies as $section => $items) {
+        foreach ($items as $key => $dependency) {
+            $name = $dependency['name'];
+            if (isset($dependency['skipCheck'])) {
+                logInfo("- {$name}: skipped");
 
-            continue;
-        }
+                continue;
+            }
 
-        try {
-            $update = checkLibrary($name, $library, $installer);
-        } catch (ConnectionException $x) {
-            $failedIDs[] = "lib:{$name}";
-            logWarning($x->getMessage());
+            try {
+                $update = checkDependency(
+                    $dependency,
+                    getDependencyVariable($section, (string) $key),
+                    $section === 'libraries' ? $dependency['usedBy'] : [(string) $key],
+                    $installer,
+                );
+            } catch (ConnectionException $x) {
+                $failedIDs[] = "lib:{$name}";
+                logWarning($x->getMessage());
 
-            continue;
-        } catch (ActionRequiredException $x) {
-            $failedIDs[] = "lib:{$name}";
-            $errors[] = $x->getMessage();
-            logError($x->getMessage());
+                continue;
+            } catch (ActionRequiredException $x) {
+                $failedIDs[] = "lib:{$name}";
+                $errors[] = $x->getMessage();
+                logError($x->getMessage());
 
-            continue;
-        }
-        if ($update !== null) {
-            $updates[] = $update;
+                continue;
+            }
+            if ($update !== null) {
+                $updates[] = $update;
+            }
         }
     }
 

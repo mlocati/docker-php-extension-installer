@@ -41,8 +41,8 @@ IPE_LIBVERSION_IONC="${IPE_LIBVERSION_IONC:-1.1.6}"
 IPE_LIBVERSION_IP2LOCATION="${IPE_LIBVERSION_IP2LOCATION:-8.7.0}"
 IPE_LIBVERSION_MPDEC="${IPE_LIBVERSION_MPDEC:-4.0.1}"
 # Format: <version>@<download path> (see the download URLs at https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server)
+IPE_LIBVERSION_MSODBC="${IPE_LIBVERSION_MSODBC:-18.7.1.1-1@ade174b7-8cea-4543-91a6-c33ae320c2f0}"
 IPE_LIBVERSION_MSODBC17="${IPE_LIBVERSION_MSODBC17:-17.11.1.1-1@607ebe2c-e17c-4c34-b367-10a75b83bef9}"
-IPE_LIBVERSION_MSODBC18="${IPE_LIBVERSION_MSODBC18:-18.7.1.1-1@ade174b7-8cea-4543-91a6-c33ae320c2f0}"
 IPE_LIBVERSION_THAI="${IPE_LIBVERSION_THAI:-0.1.29}"
 IPE_LIBVERSION_TOMCRYPT="${IPE_LIBVERSION_TOMCRYPT:-1.18.2}"
 IPE_LIBVERSION_TOMMATH="${IPE_LIBVERSION_TOMMATH:-1.3.0}"
@@ -2437,7 +2437,7 @@ installMicrosoftSqlServerODBC() {
 				installMicrosoftSqlServerODBC_version="$IPE_LIBVERSION_MSODBC17"
 				installMicrosoftSqlServerODBC_arch=amd64
 			else
-				installMicrosoftSqlServerODBC_version="$IPE_LIBVERSION_MSODBC18"
+				installMicrosoftSqlServerODBC_version="$IPE_LIBVERSION_MSODBC"
 				case $(uname -m) in
 					aarch64 | arm64 | armv8)
 						installMicrosoftSqlServerODBC_arch=arm64

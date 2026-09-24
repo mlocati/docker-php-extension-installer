@@ -552,6 +552,23 @@ For example:
   PRETTY_NAME="Alpine Linux v3.14"
   ```
 
+## Library versions
+
+Some PHP extensions require libraries that `install-php-extensions` compiles or downloads when they aren't provided by the system.
+You can use a version different from the default one by setting the corresponding environment variable.
+For example:
+
+```sh
+IPE_LIBVERSION_XCRYPT=4.4.36 install-php-extensions xpass
+```
+
+**Beware**: other versions may not work, so use this feature at your own risk.
+
+Here's the list of these libraries (the default versions are the ones used by the latest release of `install-php-extensions`):
+
+<!-- START OF LIBRARIES -->
+<!-- END OF LIBRARIES -->
+
 ## Tests
 
 When submitting a pull request, a [GitHub Action](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/test-extensions.yml) is executed to check if affected PHP extensions actually work (see below).

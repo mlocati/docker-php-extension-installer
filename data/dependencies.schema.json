@@ -1,0 +1,165 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Libraries and PHP extensions downloaded manually by install-php-extensions",
+	"type": "object",
+	"required": ["libraries", "extensions"],
+	"additionalProperties": false,
+	"properties": {
+		"$schema": {
+			"type": "string"
+		},
+		"libraries": {
+			"description": "Keys are the suffixes of the IPE_LIBVERSION_... variables defined in install-php-extensions",
+			"type": "object",
+			"propertyNames": {
+				"pattern": "^[A-Z0-9]+$"
+			},
+			"additionalProperties": {
+				"type": "object",
+				"required": ["name", "usedBy", "latestVersion"],
+				"additionalProperties": false,
+				"properties": {
+					"name": {
+						"$ref": "#/$defs/name"
+					},
+					"usedBy": {
+						"description": "The PHP extensions that use the library",
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"minItems": 1
+					},
+					"notes": {
+						"description": "Notes shown in README.md (markdown)",
+						"type": "string"
+					},
+					"url": {
+						"$ref": "#/$defs/url"
+					},
+					"latestVersion": {
+						"$ref": "#/$defs/latestVersion"
+					},
+					"skipCheck": {
+						"$ref": "#/$defs/skipCheck"
+					}
+				}
+			}
+		},
+		"extensions": {
+			"description": "Keys are the names of the PHP extensions (the IPE_EXTLATESTVERSION_<EXTENSION> variables defined in install-php-extensions)",
+			"type": "object",
+			"propertyNames": {
+				"pattern": "^[a-z0-9_]+$"
+			},
+			"additionalProperties": {
+				"type": "object",
+				"required": ["name", "latestVersion"],
+				"additionalProperties": false,
+				"properties": {
+					"name": {
+						"$ref": "#/$defs/name"
+					},
+					"url": {
+						"$ref": "#/$defs/url"
+					},
+					"latestVersion": {
+						"$ref": "#/$defs/latestVersion"
+					},
+					"skipCheck": {
+						"$ref": "#/$defs/skipCheck"
+					}
+				}
+			}
+		}
+	},
+	"$defs": {
+		"name": {
+			"description": "The name of the library/source (it's also used to identify the notified updates)",
+			"type": "string",
+			"minLength": 1
+		},
+		"url": {
+			"description": "The URL where maintainers can check the new versions",
+			"type": "string",
+			"format": "uri"
+		},
+		"skipCheck": {
+			"description": "Why we don't check for new versions",
+			"type": "string",
+			"minLength": 1
+		},
+		"latestVersion": {
+			"description": "How to retrieve the latest version",
+			"type": "object",
+			"required": ["source"],
+			"properties": {
+				"source": {
+					"enum": ["gitTags", "gitRef", "webPage"]
+				},
+				"timeout": {
+					"description": "The maximum number of seconds for the connection and for the download",
+					"type": "integer",
+					"minimum": 1
+				}
+			},
+			"oneOf": [
+				{
+					"description": "The highest stable version among the tags of a git repository",
+					"properties": {
+						"source": {
+							"const": "gitTags"
+						},
+						"repository": {
+							"type": "string",
+							"format": "uri"
+						},
+						"ignoreTags": {
+							"description": "Regular expression of the tags to be ignored",
+							"type": "string"
+						},
+						"timeout": true
+					},
+					"required": ["repository"],
+					"additionalProperties": false
+				},
+				{
+					"description": "The commit hash a git ref (branch) points to",
+					"properties": {
+						"source": {
+							"const": "gitRef"
+						},
+						"repository": {
+							"type": "string",
+							"format": "uri"
+						},
+						"ref": {
+							"type": "string"
+						},
+						"timeout": true
+					},
+					"required": ["repository", "ref"],
+					"additionalProperties": false
+				},
+				{
+					"description": "The highest version extracted from a web page with a regular expression: the version is the \"version\" named group (or the first capturing group); if there's a \"suffix\" named group, its value is appended to the version (<version>@<suffix>)",
+					"properties": {
+						"source": {
+							"const": "webPage"
+						},
+						"url": {
+							"type": "string",
+							"format": "uri"
+						},
+						"regex": {
+							"type": "string"
+						},
+						"timeout": true
+					},
+					"required": ["url", "regex"],
+					"additionalProperties": false
+				}
+			]
+		}
+	}
+}
