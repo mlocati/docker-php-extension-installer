@@ -3,9 +3,6 @@ name: Test recent
 on:
   schedule:
     - cron: "0 3 * * *"
-  repository_dispatch:
-    types:
-      - test-recent-extensions
   workflow_dispatch:
 
 jobs:

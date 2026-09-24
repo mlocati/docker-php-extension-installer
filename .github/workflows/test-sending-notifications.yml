@@ -1,9 +1,6 @@
 name: Test sending notifications
 
 on:
-  repository_dispatch:
-    types:
-      - test-sending-notifications
   workflow_dispatch:
 
 jobs:
