@@ -567,6 +567,38 @@ IPE_LIBVERSION_XCRYPT=4.4.36 install-php-extensions xpass
 Here's the list of these libraries (the default versions are the ones used by the latest release of `install-php-extensions`):
 
 <!-- START OF LIBRARIES -->
+<!-- ########################################################### -->
+<!-- #                                                         # -->
+<!-- #  DO NOT EDIT THIS TABLE: IT IS GENERATED AUTOMATICALLY  # -->
+<!-- #                                                         # -->
+<!-- #  EDIT THE data/dependencies.json FILE INSTEAD           # -->
+<!-- #                                                         # -->
+<!-- ########################################################### -->
+| Library | Environment variable | Default version | Used by | Notes |
+|---|---|---|---|---|
+| [libaom](https://aomedia.googlesource.com/aom/+refs) | `IPE_LIBVERSION_AOM` | `3.12.0` | gd | Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set) |
+| [libavif](https://github.com/AOMediaCodec/libavif/releases) | `IPE_LIBVERSION_AVIF` | `1.3.0` | gd | Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set) |
+| [Cassandra C++ driver](https://github.com/apache/cassandra-cpp-driver/tags) | `IPE_LIBVERSION_CASSANDRACPPDRIVER` | `2.17.1` | cassandra |  |
+| [libcmark](https://github.com/commonmark/cmark/releases) | `IPE_LIBVERSION_CMARK` | `0.31.2` | cmark | Only with cmake 3.15+ (with older cmake versions we use older libcmark versions) |
+| [libdatrie](https://github.com/tlwg/libdatrie/releases) | `IPE_LIBVERSION_DATRIE` | `0.2.13` | wikidiff2 | Only on Alpine |
+| [libdav1d](https://code.videolan.org/videolan/dav1d/-/tags) | `IPE_LIBVERSION_DAV1D` | `1.5.3` | gd | Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set) |
+| [libenchant1](https://github.com/rrthomas/enchant/releases) | `IPE_LIBVERSION_ENCHANT1` | `1.6.1` | enchant | Only with PHP < 8.0 on Alpine 3.12+ and Debian 11+ |
+| [Firebird](https://github.com/FirebirdSQL/firebird/releases) | `IPE_LIBVERSION_FIREBIRD` | `5.0.4.1812-0` | interbase, pdo_firebird, swoole | Only on Alpine, with PHP 8.4+ (with older PHP versions we use Firebird 2.5). Format: `<version>.<build>-<revision>` (as in the name of the source archive) |
+| [libgearman](https://github.com/gearman/gearmand/releases) | `IPE_LIBVERSION_GEARMAN` | `2.1.0` | gearman | Only on Alpine |
+| [HAT-trie](https://github.com/Tessil/hat-trie/releases) | `IPE_LIBVERSION_HATTRIE` | `0.7.1` | php_trie |  |
+| [libidnkit](https://jprs.co.jp/idn/) | `IPE_LIBVERSION_IDNKIT` | `2.3` | http | Only with PHP 7.0+ |
+| [ion-c](https://github.com/amzn/ion-c/releases) | `IPE_LIBVERSION_IONC` | `1.1.6` | ion |  |
+| [IP2Location C library](https://github.com/chrislim2888/IP2Location-C-Library/tags) | `IPE_LIBVERSION_IP2LOCATION` | `8.7.0` | ip2location |  |
+| [libmpdec](https://www.bytereef.org/mpdecimal/changelog.html) | `IPE_LIBVERSION_MPDEC` | `4.0.1` | decimal | Only on Alpine and Debian 12+ |
+| [Microsoft ODBC Driver for SQL Server (Alpine)](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server) | `IPE_LIBVERSION_MSODBC` | `18.7.1.1-1@ade174b7-8cea-4543-91a6-c33ae320c2f0` | pdo_sqlsrv, sqlsrv | Only on Alpine, with PHP 7.4+. Format: `<version>@<download path>` (see the download URLs on the [Microsoft website](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server)) |
+| [Microsoft ODBC Driver 17 for SQL Server (Alpine)](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17) | `IPE_LIBVERSION_MSODBC17` | `17.11.1.1-1@607ebe2c-e17c-4c34-b367-10a75b83bef9` | pdo_sqlsrv, sqlsrv | Only on Alpine, with PHP up to 7.3. Format: `<version>@<download path>` (see the download URLs on the [Microsoft website](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server)) |
+| [libthai](https://github.com/tlwg/libthai/releases) | `IPE_LIBVERSION_THAI` | `0.1.29` | wikidiff2 | Only on Alpine |
+| [libtomcrypt](https://github.com/libtom/libtomcrypt/releases) | `IPE_LIBVERSION_TOMCRYPT` | `1.18.2` | pdo_firebird, swoole | Only on Alpine, with PHP 8.4+ |
+| [libtommath](https://github.com/libtom/libtommath/releases) | `IPE_LIBVERSION_TOMMATH` | `1.3.0` | pdo_firebird, swoole | Only on Alpine, with PHP 8.4+ |
+| [libxcrypt](https://github.com/besser82/libxcrypt/releases) | `IPE_LIBVERSION_XCRYPT` | `4.5.2` | xpass | Only on Alpine |
+| [LibXDiff](http://www.xmailserver.org/xdiff-lib.html) | `IPE_LIBVERSION_XDIFF` | `0.23` | xdiff |  |
+| [libyuv](https://chromium.googlesource.com/libyuv/libyuv/+log) | `IPE_LIBVERSION_YUV` | `d359a9f922af840b043535d43cf9d38b220d102e` | gd | Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set). Format: git commit hash |
+| [zstd](https://github.com/facebook/zstd/releases) | `IPE_LIBVERSION_ZSTD` | `1.4.4` | redis | Only with redis 5+ |
 <!-- END OF LIBRARIES -->
 
 ## Tests
