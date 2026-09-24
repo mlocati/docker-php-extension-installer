@@ -54,4 +54,22 @@ if errorlevel 1 (
     )
 )
 
+echo # Checking JSON files
+call composer --version >NUL 2>NUL
+if errorlevel 1 (
+    echo Composer is not installed. >&2
+    set rc=1
+) else (
+    if not exist .\vendor\autoload.php (
+        echo Composer dependencies are not installed. >&2
+        set rc=1
+    ) else (
+        call composer run-script check-json-schemas
+        if errorlevel 1 (
+            echo ERROR! >&2
+            set rc=1
+        )
+    )
+)
+
 exit /B %rc%

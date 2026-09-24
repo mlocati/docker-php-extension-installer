@@ -83,6 +83,9 @@ jobs:
       -
         name: Check coding style
         run: composer run-script lint -- --dry-run --using-cache=no --diff --show-progress=dots --sequential --ansi --no-interaction -vv
+      -
+        name: Check JSON files
+        run: composer run-script check-json-schemas
 
   test_extensions:
     needs:

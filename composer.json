@@ -10,13 +10,15 @@
         }
     ],
     "minimum-stability": "stable",
-	"require": {
-		"php": "^8.4"
-	},
+    "require": {
+        "php": "^8.4"
+    },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.94.2"
+        "friendsofphp/php-cs-fixer": "^3.95.27",
+        "opis/json-schema": "^2.6"
     },
     "scripts": {
-        "lint": "php-cs-fixer fix"
+        "lint": "php-cs-fixer fix",
+        "check-json-schemas": "@php scripts/check-json-schemas.php"
     }
 }
