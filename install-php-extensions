@@ -3601,6 +3601,8 @@ installRemoteModule() {
 					-DCUSTOM_PHP_CONFIG="$(command -v php-config)" \
 					-DPHP_SCYLLADB_BACKEND=cassandra \
 					${installRemoteModule_cpuType:+-DCPU_TYPE=$installRemoteModule_cpuType}
+				# gen_stub.php downloads PHP-Parser on its first run: running it in parallel may fail
+				cmake --build cmake-build --target generated-sources
 				cmake --build cmake-build --parallel $(getProcessorCount)
 				cmake --install cmake-build --component extension
 				cd - >/dev/null
