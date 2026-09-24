@@ -6,7 +6,10 @@ declare(strict_types=1);
  * Update the automatically generated sections of README.md:
  * - the table of the supported PHP extensions (from data/supported-extensions)
  * - the table of the special requirements (from data/special-requirements)
+ * - the table of the libraries whose version can be configured (from data/dependencies.json and install-php-extensions)
  */
+
+require_once __DIR__ . '/dependencies.php';
 
 set_error_handler(
     static function (int $errno, string $errstr, string $errfile = '', int $errline = 0): never {
@@ -22,6 +25,8 @@ const README_PATH = ROOT_DIR . '/README.md';
 const SUPPORTED_EXTENSIONS_PATH = ROOT_DIR . '/data/supported-extensions';
 
 const SPECIAL_REQUIREMENTS_PATH = ROOT_DIR . '/data/special-requirements';
+
+const INSTALLER_PATH = ROOT_DIR . '/install-php-extensions';
 
 /**
  * Read a data file.
@@ -168,6 +173,36 @@ function generateSpecialRequirementsTable(array $specialRequirements): array
 }
 
 /**
+ * Generate the markdown table with the libraries whose version can be configured.
+ *
+ * @param array<string, array<string, mixed>> $libraries the libraries listed in data/dependencies.json
+ *
+ * @throws RuntimeException
+ *
+ * @return string[]
+ */
+function generateLibrariesTable(array $libraries, string $installer): array
+{
+    $lines = [
+        '| Library | Environment variable | Default version | Used by | Notes |',
+        '|---|---|---|---|---|',
+    ];
+    foreach ($libraries as $key => $library) {
+        $variable = getDependencyVariable('libraries', (string) $key);
+        $defaultVersion = getInstallerVariableDefault($installer, $variable);
+        if ($defaultVersion === null) {
+            throw new RuntimeException("Unable to find the {$variable} variable in install-php-extensions");
+        }
+        $name = isset($library['url']) ? "[{$library['name']}]({$library['url']})" : $library['name'];
+        $usedBy = implode(', ', $library['usedBy']);
+        $notes = $library['notes'] ?? '';
+        $lines[] = "| {$name} | `{$variable}` | `{$defaultVersion}` | {$usedBy} | {$notes} |";
+    }
+
+    return $lines;
+}
+
+/**
  * Replace the contents between the "<!-- START OF <section> -->" and "<!-- END OF <section> -->" lines.
  *
  * @param string[] $lines
@@ -199,6 +234,11 @@ function main(): int
     try {
         $supportedExtensions = readDataFile(SUPPORTED_EXTENSIONS_PATH);
         $specialRequirements = readDataFile(SPECIAL_REQUIREMENTS_PATH);
+        $libraries = readDependencies()['libraries'];
+        $installer = file_get_contents(INSTALLER_PATH);
+        if ($installer === false) {
+            throw new RuntimeException('Failed to read install-php-extensions');
+        }
         $readme = file_get_contents(README_PATH);
         if ($readme === false) {
             throw new RuntimeException('Failed to read README.md');
@@ -213,6 +253,11 @@ function main(): int
             $lines,
             'SPECIAL REQUIREMENTS',
             array_merge(getGeneratedSectionHeader('data/special-requirements'), generateSpecialRequirementsTable($specialRequirements)),
+        );
+        $lines = replaceSection(
+            $lines,
+            'LIBRARIES',
+            array_merge(getGeneratedSectionHeader('data/dependencies.json'), generateLibrariesTable($libraries, $installer)),
         );
         if (file_put_contents(README_PATH, implode("\n", $lines) . "\n") === false) {
             throw new RuntimeException('Failed to write README.md');
