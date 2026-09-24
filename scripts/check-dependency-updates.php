@@ -78,7 +78,7 @@ enum PeclStability: string
  *
  * Array keys are the names of the libraries/sources; array values have these keys:
  * - usedBy: the PHP extensions that use the library/source
- * - variable: the name of the variable that contains the currently used version in install-php-extensions (without the IPE_LATESTVERSION_ prefix)
+ * - variable: the name of the variable that contains the currently used version in install-php-extensions (IPE_LIBVERSION_... for libraries, IPE_EXTLATESTVERSION_... for PHP extensions)
  * - latest: how to retrieve the latest version:
  *   - [LatestVersionSource::GitTags, <repository URL>]
  *   - [LatestVersionSource::GitRef, <repository URL>, <ref>]
@@ -90,25 +90,25 @@ enum PeclStability: string
 const LIBRARIES = [
     'Cassandra C++ driver' => [
         'usedBy' => ['cassandra'],
-        'variable' => 'CASSANDRACPPDRIVER',
+        'variable' => 'IPE_LIBVERSION_CASSANDRACPPDRIVER',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/apache/cassandra-cpp-driver'],
         'url' => 'https://github.com/apache/cassandra-cpp-driver/tags',
     ],
     'Firebird' => [
         'usedBy' => ['interbase', 'pdo_firebird', 'swoole'],
-        'variable' => 'FIREBIRD',
+        'variable' => 'IPE_LIBVERSION_FIREBIRD',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/FirebirdSQL/firebird'],
         'url' => 'https://github.com/FirebirdSQL/firebird/releases',
     ],
     'HAT-trie' => [
         'usedBy' => ['php_trie'],
-        'variable' => 'HATTRIE',
+        'variable' => 'IPE_LIBVERSION_HATTRIE',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/Tessil/hat-trie'],
         'url' => 'https://github.com/Tessil/hat-trie/releases',
     ],
     'ion-c' => [
         'usedBy' => ['ion'],
-        'variable' => 'IONC',
+        'variable' => 'IPE_LIBVERSION_IONC',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/amzn/ion-c'],
         // v1.4.0 is an old tag (February 2021) with a wrong version number
         'ignoreTags' => '/^v1\.4\.0$/',
@@ -116,137 +116,167 @@ const LIBRARIES = [
     ],
     'IP2Location C library' => [
         'usedBy' => ['ip2location'],
-        'variable' => 'LIBIP2LOCATION',
+        'variable' => 'IPE_LIBVERSION_IP2LOCATION',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/chrislim2888/IP2Location-C-Library'],
         'url' => 'https://github.com/chrislim2888/IP2Location-C-Library/tags',
     ],
     'libaom' => [
         'usedBy' => ['gd'],
-        'variable' => 'LIBAOM',
+        'variable' => 'IPE_LIBVERSION_AOM',
         'latest' => [LatestVersionSource::GitTags, 'https://aomedia.googlesource.com/aom'],
         'url' => 'https://aomedia.googlesource.com/aom/+refs',
     ],
     'libavif' => [
         'usedBy' => ['gd'],
-        'variable' => 'LIBAVIF',
+        'variable' => 'IPE_LIBVERSION_AVIF',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/AOMediaCodec/libavif'],
         'url' => 'https://github.com/AOMediaCodec/libavif/releases',
     ],
     'libcmark' => [
         'usedBy' => ['cmark'],
-        'variable' => 'LIBCMARK',
+        'variable' => 'IPE_LIBVERSION_CMARK',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/commonmark/cmark'],
         'url' => 'https://github.com/commonmark/cmark/releases',
     ],
+    'libdatrie' => [
+        'usedBy' => ['wikidiff2'],
+        'variable' => 'IPE_LIBVERSION_DATRIE',
+        'latest' => [LatestVersionSource::GitTags, 'https://github.com/tlwg/libdatrie'],
+        'url' => 'https://github.com/tlwg/libdatrie/releases',
+    ],
     'libdav1d' => [
         'usedBy' => ['gd'],
-        'variable' => 'LIBDAV1D',
+        'variable' => 'IPE_LIBVERSION_DAV1D',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/videolan/dav1d'],
         'url' => 'https://code.videolan.org/videolan/dav1d/-/tags',
     ],
+    'libenchant1' => [
+        'usedBy' => ['enchant'],
+        'variable' => 'IPE_LIBVERSION_ENCHANT1',
+        'latest' => [LatestVersionSource::GitTags, 'https://github.com/rrthomas/enchant'],
+        'url' => 'https://github.com/rrthomas/enchant/releases',
+    ],
     'libgearman' => [
         'usedBy' => ['gearman'],
-        'variable' => 'LIBGEARMAN',
+        'variable' => 'IPE_LIBVERSION_GEARMAN',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/gearman/gearmand'],
         'url' => 'https://github.com/gearman/gearmand/releases',
     ],
     'libidnkit' => [
         'usedBy' => ['http'],
-        'variable' => 'LIBIDNKIT',
+        'variable' => 'IPE_LIBVERSION_IDNKIT',
         'latest' => [LatestVersionSource::WebPage, 'https://jprs.co.jp/idn/', '/\bidnkit-(\d+(?:\.\d+)+)/'],
         'url' => 'https://jprs.co.jp/idn/',
     ],
     'libmpdec' => [
         'usedBy' => ['decimal'],
-        'variable' => 'LIBMPDEC',
+        'variable' => 'IPE_LIBVERSION_MPDEC',
         'latest' => [LatestVersionSource::WebPage, 'https://www.bytereef.org/mpdecimal/download.html', '/\bmpdecimal-(\d+(?:\.\d+)+)\.tar\.gz\b/'],
         'url' => 'https://www.bytereef.org/mpdecimal/changelog.html',
     ],
+    'libthai' => [
+        'usedBy' => ['wikidiff2'],
+        'variable' => 'IPE_LIBVERSION_THAI',
+        'latest' => [LatestVersionSource::GitTags, 'https://github.com/tlwg/libthai'],
+        'url' => 'https://github.com/tlwg/libthai/releases',
+    ],
     'libtomcrypt' => [
         'usedBy' => ['pdo_firebird', 'swoole'],
-        'variable' => 'LIBTOMCRYPT',
+        'variable' => 'IPE_LIBVERSION_TOMCRYPT',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/libtom/libtomcrypt'],
         'url' => 'https://github.com/libtom/libtomcrypt/releases',
     ],
     'libtommath' => [
         'usedBy' => ['pdo_firebird', 'swoole'],
-        'variable' => 'LIBTOMMATH',
+        'variable' => 'IPE_LIBVERSION_TOMMATH',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/libtom/libtommath'],
         'url' => 'https://github.com/libtom/libtommath/releases',
     ],
     'libxcrypt' => [
         'usedBy' => ['xpass'],
-        'variable' => 'LIBXCRYPT',
+        'variable' => 'IPE_LIBVERSION_XCRYPT',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/besser82/libxcrypt'],
         'url' => 'https://github.com/besser82/libxcrypt/releases',
     ],
     'LibXDiff' => [
         'usedBy' => ['xdiff'],
-        'variable' => 'LIBXDIFF',
+        'variable' => 'IPE_LIBVERSION_XDIFF',
         'latest' => [LatestVersionSource::WebPage, 'http://www.xmailserver.org/xdiff-lib.html', '/\blibxdiff-(\d+(?:\.\d+)+)\.tar\.gz\b/'],
         'url' => 'http://www.xmailserver.org/xdiff-lib.html',
         // This website can be quite slow
         'timeout' => 60,
     ],
+    'libyuv' => [
+        'usedBy' => ['gd'],
+        'variable' => 'IPE_LIBVERSION_YUV',
+        'latest' => [LatestVersionSource::GitRef, 'https://chromium.googlesource.com/libyuv/libyuv', 'HEAD'],
+        'url' => 'https://chromium.googlesource.com/libyuv/libyuv/+log',
+    ],
     'Microsoft ODBC Driver 17 for SQL Server (Alpine)' => [
         'usedBy' => ['pdo_sqlsrv', 'sqlsrv'],
-        'variable' => 'MSODBC17',
+        'variable' => 'IPE_LIBVERSION_MSODBC17',
         'latest' => [LatestVersionSource::WebPage, 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server', '%/download/(?<suffix>[\w/-]+)/msodbcsql17_(?<version>\d+(?:\.\d+)+-\d+)_%'],
         'url' => 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17',
     ],
     'Microsoft ODBC Driver 18 for SQL Server (Alpine)' => [
         'usedBy' => ['pdo_sqlsrv', 'sqlsrv'],
-        'variable' => 'MSODBC18',
+        'variable' => 'IPE_LIBVERSION_MSODBC18',
         'latest' => [LatestVersionSource::WebPage, 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server', '%/download/(?<suffix>[\w/-]+)/msodbcsql18_(?<version>\d+(?:\.\d+)+-\d+)_%'],
         'url' => 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine18',
     ],
     'PHP-CPP' => [
         'usedBy' => ['tdlib'],
-        'variable' => 'PHPCPP',
+        'variable' => 'IPE_LIBVERSION_PHPCPP',
         'latest' => [LatestVersionSource::GitRef, 'https://github.com/CopernicaMarketingSoftware/PHP-CPP', 'HEAD'],
         'url' => 'https://github.com/CopernicaMarketingSoftware/PHP-CPP/commits',
     ],
     'php-ext-lz4' => [
         'usedBy' => ['lz4'],
-        'variable' => 'LZ4',
+        'variable' => 'IPE_EXTLATESTVERSION_LZ4',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/kjdev/php-ext-lz4'],
         'url' => 'https://github.com/kjdev/php-ext-lz4/tags',
     ],
     'php-ext-snappy' => [
         'usedBy' => ['snappy'],
-        'variable' => 'SNAPPY',
+        'variable' => 'IPE_EXTLATESTVERSION_SNAPPY',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/kjdev/php-ext-snappy'],
         'url' => 'https://github.com/kjdev/php-ext-snappy/tags',
     ],
     'php-geos' => [
         'usedBy' => ['geos'],
-        'variable' => 'GEOS',
+        'variable' => 'IPE_EXTLATESTVERSION_GEOS',
         'latest' => [LatestVersionSource::GitRef, 'https://github.com/libgeos/php-geos', 'HEAD'],
         'url' => 'https://github.com/libgeos/php-geos/commits',
     ],
     'php-spx' => [
         'usedBy' => ['spx'],
-        'variable' => 'SPX',
+        'variable' => 'IPE_EXTLATESTVERSION_SPX',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/NoiseByNorthwest/php-spx'],
         'url' => 'https://github.com/NoiseByNorthwest/php-spx/tags',
     ],
     'ScyllaDB PHP driver' => [
         'usedBy' => ['cassandra'],
-        'variable' => 'SCYLLADBPHPDRIVER',
+        'variable' => 'IPE_EXTLATESTVERSION_CASSANDRA',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/he4rt/scylladb-php-driver'],
         'url' => 'https://github.com/he4rt/scylladb-php-driver/releases',
     ],
     'snuffleupagus' => [
         'usedBy' => ['snuffleupagus'],
-        'variable' => 'SNUFFLEUPAGUS',
+        'variable' => 'IPE_EXTLATESTVERSION_SNUFFLEUPAGUS',
         'latest' => [LatestVersionSource::GitTags, 'https://github.com/jvoisin/snuffleupagus'],
         'url' => 'https://github.com/jvoisin/snuffleupagus/releases',
     ],
     'v8js (php8 branch)' => [
         'usedBy' => ['v8js'],
-        'variable' => 'V8JS',
+        'variable' => 'IPE_EXTLATESTVERSION_V8JS',
         'latest' => [LatestVersionSource::GitRef, 'https://github.com/phpv8/v8js', 'refs/heads/php8'],
         'url' => 'https://github.com/phpv8/v8js/commits/php8',
+    ],
+    'zstd' => [
+        'usedBy' => ['redis'],
+        'variable' => 'IPE_LIBVERSION_ZSTD',
+        'latest' => [LatestVersionSource::GitTags, 'https://github.com/facebook/zstd'],
+        'url' => 'https://github.com/facebook/zstd/releases',
     ],
 ];
 
@@ -263,8 +293,13 @@ const SKIPPED_LIBRARIES = [
     // We compile libdav1d only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded,
     // so we use the latest version compatible with them: libdav1d 1.5.4+ requires meson 0.54 (Debian Buster has meson 0.49)
     'libdav1d',
+    // We compile libenchant1 only when the system provides libenchant2 only (which is not supported by PHP < 8.0):
+    // 1.6.1 is the last 1.x version
+    'libenchant1',
+    // We compile libyuv only on old distros (Alpine < 3.15 and Debian < 12), together with libaom, libavif and libdav1d
+    'libyuv',
     // The installation of tdlib is no longer supported (even if its code is still in install-php-extensions).
-    // If it gets enabled again, the IPE_LATESTVERSION_PHPCPP variable must be defined in install-php-extensions.
+    // If it gets enabled again, the IPE_LIBVERSION_PHPCPP variable must be defined in install-php-extensions.
     'PHP-CPP',
 ];
 
@@ -610,18 +645,18 @@ function checkPeclModule(string $module, PeclStability $stability): ?Update
 }
 
 /**
- * Check that LIBRARIES and SKIPPED_LIBRARIES are consistent with the IPE_LATESTVERSION_... variables defined in install-php-extensions.
+ * Check that LIBRARIES and SKIPPED_LIBRARIES are consistent with the IPE_LIBVERSION_... and IPE_EXTLATESTVERSION_... variables defined in install-php-extensions.
  *
  * @return string[] the problems found
  */
 function checkLibrariesConsistency(string $installer): array
 {
     $errors = [];
-    preg_match_all('/^IPE_LATESTVERSION_(\w+)=/m', $installer, $matches);
+    preg_match_all('/^(IPE_(?:LIBVERSION|EXTLATESTVERSION)_\w+)=/m', $installer, $matches);
     $definedVariables = $matches[1];
     $handledVariables = array_column(LIBRARIES, 'variable');
     foreach (array_diff($definedVariables, $handledVariables) as $variable) {
-        $errors[] = "The IPE_LATESTVERSION_{$variable} variable is defined in install-php-extensions, but there's no corresponding library in the LIBRARIES constant of the dependency checker";
+        $errors[] = "The {$variable} variable is defined in install-php-extensions, but there's no corresponding library in the LIBRARIES constant of the dependency checker";
     }
     foreach (array_diff(SKIPPED_LIBRARIES, array_keys(LIBRARIES)) as $name) {
         $errors[] = "The library {$name} listed in the SKIPPED_LIBRARIES constant of the dependency checker is not defined in the LIBRARIES constant";
@@ -636,8 +671,10 @@ function checkLibrariesConsistency(string $installer): array
  */
 function checkLibrary(string $name, array $library, string $installer): ?Update
 {
-    $variable = "IPE_LATESTVERSION_{$library['variable']}";
-    if (!preg_match('/^' . preg_quote($variable, '/') . '=(\S+)$/m', $installer, $matches)) {
+    $variable = $library['variable'];
+    // The variables are defined as VARIABLE="${VARIABLE:-default value}"
+    $quotedVariable = preg_quote($variable, '/');
+    if (!preg_match('/^' . $quotedVariable . '="\$\{' . $quotedVariable . ':-(\S+)\}"$/m', $installer, $matches)) {
         throw new ActionRequiredException("Unable to find the {$variable} variable in install-php-extensions (it should contain the current version of {$name})");
     }
     $current = $matches[1];
