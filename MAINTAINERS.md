@@ -25,10 +25,10 @@ The [`check-updates.yml`](https://github.com/mlocati/docker-php-extension-instal
 - if the PECL extensions that we install in a non-stable version by default have a more stable release (for example, a `beta` or `stable` release for an extension we install as `alpha`).
   These extensions are detected automatically by parsing `install-php-extensions`.
 - the new versions of the libraries and extensions we download manually.
-  These are listed in the [`data/dependencies.json`](https://github.com/mlocati/docker-php-extension-installer/blob/master/data/dependencies.json) file: for the ones with `"pinnedVersion": true`, the version in use is read from the `IPE_LIBVERSION_...` (libraries) and `IPE_EXTLATESTVERSION_...` (PHP extensions) variables defined at the beginning of `install-php-extensions`, so there's no need to update the script when upgrading a dependency.
+  These are listed in the [`data/dependencies.json`](https://github.com/mlocati/docker-php-extension-installer/blob/master/data/dependencies.json) file: for the ones with `"pinnedVersion": true`, the version in use is read from the `IPE_LIBVERSION_...` (libraries) and `IPE_EXTVERSION_...` (PHP extensions) variables defined at the beginning of `install-php-extensions`, so there's no need to update the script when upgrading a dependency.
   The ones with `"pinnedVersion": false` are downloaded by `install-php-extensions` in their latest version.
 
-The new versions are then tested on all the supported Linux distributions (the new versions of the libraries and extensions we download manually are tested by setting the corresponding `IPE_LIBVERSION_...`/`IPE_EXTLATESTVERSION_...` variable).
+The new versions are then tested on all the supported Linux distributions (the new versions of the libraries and extensions we download manually are tested by setting the corresponding `IPE_LIBVERSION_...`/`IPE_EXTVERSION_...` variable).
 New versions that fail are tested again every day, until they work.
 
 A Telegram notification is sent:
@@ -47,7 +47,7 @@ php scripts/check-updates.php detect --state-file=check-updates-state.json --tes
 ```
 
 When adding to `install-php-extensions` a new library or extension that is downloaded manually, remember to add it to `data/dependencies.json`.
-If we download a specific version of it, set `"pinnedVersion": true` and define its version in a new `IPE_LIBVERSION_...` variable (for libraries) or `IPE_EXTLATESTVERSION_<EXTENSION>` variable (for PHP extensions), with the format `VARIABLE="${VARIABLE:-version}"` so that it can be overridden
+If we download a specific version of it, set `"pinnedVersion": true` and define its version in a new `IPE_LIBVERSION_...` variable (for libraries) or `IPE_EXTVERSION_<EXTENSION>` variable (for PHP extensions), with the format `VARIABLE="${VARIABLE:-version}"` so that it can be overridden
 (the script fails if one of these variables doesn't have a corresponding entry in `data/dependencies.json`, and vice versa).
 The libraries with a pinned version are also documented in the README.md file (the default versions are read from `install-php-extensions`).
 If a library or extension shouldn't be checked for updates, add a `skipCheck` property explaining why; if the new versions of a pinned library or extension can't be tested automatically, add a `skipTest` property explaining why.

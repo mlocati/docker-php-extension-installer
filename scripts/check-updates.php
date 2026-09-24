@@ -624,7 +624,7 @@ function getRecentPeclReleases(array $supportedExtensions): array
 }
 
 /**
- * Check that data/dependencies.json is consistent with the IPE_LIBVERSION_... and IPE_EXTLATESTVERSION_... variables defined in install-php-extensions.
+ * Check that data/dependencies.json is consistent with the IPE_LIBVERSION_... and IPE_EXTVERSION_... variables defined in install-php-extensions.
  *
  * @param array{libraries: array<string, array<string, mixed>>, extensions: array<string, array<string, mixed>>} $dependencies
  *
