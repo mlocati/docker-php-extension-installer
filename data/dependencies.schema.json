@@ -2,25 +2,36 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Libraries and PHP extensions downloaded manually by install-php-extensions",
     "type": "object",
-    "required": ["libraries", "extensions"],
+    "required": [
+        "libraries",
+        "extensions"
+    ],
     "additionalProperties": false,
     "properties": {
         "$schema": {
             "type": "string"
         },
         "libraries": {
-            "description": "Keys are the suffixes of the IPE_LIBVERSION_... variables defined in install-php-extensions",
+            "description": "The libraries used by PHP extensions: keys are the suffixes of the IPE_LIBVERSION_... variables (for the libraries whose version is pinned)",
             "type": "object",
             "propertyNames": {
                 "pattern": "^[A-Z0-9]+$"
             },
             "additionalProperties": {
                 "type": "object",
-                "required": ["name", "usedBy", "latestVersion"],
+                "required": [
+                    "name",
+                    "pinnedVersion",
+                    "usedBy",
+                    "latestVersion"
+                ],
                 "additionalProperties": false,
                 "properties": {
                     "name": {
                         "$ref": "#/$defs/name"
+                    },
+                    "pinnedVersion": {
+                        "$ref": "#/$defs/pinnedVersion"
                     },
                     "usedBy": {
                         "description": "The PHP extensions that use the library",
@@ -42,23 +53,50 @@
                     },
                     "skipCheck": {
                         "$ref": "#/$defs/skipCheck"
+                    },
+                    "skipTest": {
+                        "$ref": "#/$defs/skipTest"
                     }
-                }
+                },
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {
+                                "pinnedVersion": {
+                                    "const": false
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "notes": false,
+                                "skipTest": false
+                            }
+                        }
+                    }
+                ]
             }
         },
         "extensions": {
-            "description": "Keys are the names of the PHP extensions (the IPE_EXTLATESTVERSION_<EXTENSION> variables defined in install-php-extensions)",
+            "description": "The PHP extensions downloaded outside PECL: keys are the names of the PHP extensions",
             "type": "object",
             "propertyNames": {
                 "pattern": "^[a-z0-9_]+$"
             },
             "additionalProperties": {
                 "type": "object",
-                "required": ["name", "latestVersion"],
+                "required": [
+                    "name",
+                    "pinnedVersion",
+                    "latestVersion"
+                ],
                 "additionalProperties": false,
                 "properties": {
                     "name": {
                         "$ref": "#/$defs/name"
+                    },
+                    "pinnedVersion": {
+                        "$ref": "#/$defs/pinnedVersion"
                     },
                     "url": {
                         "$ref": "#/$defs/url"
@@ -68,8 +106,28 @@
                     },
                     "skipCheck": {
                         "$ref": "#/$defs/skipCheck"
+                    },
+                    "skipTest": {
+                        "$ref": "#/$defs/skipTest"
                     }
-                }
+                },
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {
+                                "pinnedVersion": {
+                                    "const": false
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "notes": false,
+                                "skipTest": false
+                            }
+                        }
+                    }
+                ]
             }
         }
     },
@@ -78,6 +136,10 @@
             "description": "The name of the library/source (it's also used to identify the notified updates)",
             "type": "string",
             "minLength": 1
+        },
+        "pinnedVersion": {
+            "description": "Whether the version is defined in install-php-extensions (IPE_LIBVERSION_<key> variable for libraries, IPE_EXTLATESTVERSION_<EXTENSION> variable for PHP extensions); if false, install-php-extensions downloads the latest version",
+            "type": "boolean"
         },
         "url": {
             "description": "The URL where maintainers can check the new versions",
@@ -89,13 +151,25 @@
             "type": "string",
             "minLength": 1
         },
+        "skipTest": {
+            "description": "Why new versions are notified without testing them",
+            "type": "string",
+            "minLength": 1
+        },
         "latestVersion": {
             "description": "How to retrieve the latest version",
             "type": "object",
-            "required": ["source"],
+            "required": [
+                "source"
+            ],
             "properties": {
                 "source": {
-                    "enum": ["gitTags", "gitRef", "webPage"]
+                    "enum": [
+                        "gitTags",
+                        "gitRef",
+                        "webPage",
+                        "custom"
+                    ]
                 },
                 "timeout": {
                     "description": "The maximum number of seconds for the connection and for the download",
@@ -120,7 +194,9 @@
                         },
                         "timeout": true
                     },
-                    "required": ["repository"],
+                    "required": [
+                        "repository"
+                    ],
                     "additionalProperties": false
                 },
                 {
@@ -138,7 +214,10 @@
                         },
                         "timeout": true
                     },
-                    "required": ["repository", "ref"],
+                    "required": [
+                        "repository",
+                        "ref"
+                    ],
                     "additionalProperties": false
                 },
                 {
@@ -156,7 +235,20 @@
                         },
                         "timeout": true
                     },
-                    "required": ["url", "regex"],
+                    "required": [
+                        "url",
+                        "regex"
+                    ],
+                    "additionalProperties": false
+                },
+                {
+                    "description": "The value returned by the static method of the CustomLatestVersion class of scripts/check-updates.php whose name is the key of the item",
+                    "properties": {
+                        "source": {
+                            "const": "custom"
+                        },
+                        "timeout": true
+                    },
                     "additionalProperties": false
                 }
             ]

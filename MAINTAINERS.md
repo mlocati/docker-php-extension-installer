@@ -17,25 +17,38 @@ Once this new tag is created automatically (or when maintainers push a new versi
 
 - some PECL extensions don't have stable versions (or their stable versions are very old), so by default we install them in a non-stable version (`beta`, `alpha`, ...)
 - some libraries and extensions aren't available in the Linux distributions or in the PECL archive, so we download a specific version of them (or a specific git commit)
+- some extensions (or the libraries they use) are downloaded in their latest version from outside the PECL archive
 
-The [`check-dependency-updates.yml`](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/check-dependency-updates.yml) GitHub Action runs every two days the [`scripts/check-dependency-updates.php`](https://github.com/mlocati/docker-php-extension-installer/blob/master/scripts/check-dependency-updates.php) script, which checks:
+The [`check-updates.yml`](https://github.com/mlocati/docker-php-extension-installer/blob/master/.github/workflows/check-updates.yml) GitHub Action runs every day the [`scripts/check-updates.php`](https://github.com/mlocati/docker-php-extension-installer/blob/master/scripts/check-updates.php) script, which detects:
 
+- the new versions of the PECL extensions (from the feed of the latest PECL releases).
 - if the PECL extensions that we install in a non-stable version by default have a more stable release (for example, a `beta` or `stable` release for an extension we install as `alpha`).
   These extensions are detected automatically by parsing `install-php-extensions`.
-- if the libraries and extensions we download manually have newer versions.
-  These are listed in the [`data/dependencies.json`](https://github.com/mlocati/docker-php-extension-installer/blob/master/data/dependencies.json) file: the version in use is read from the `IPE_LIBVERSION_...` (libraries) and `IPE_EXTLATESTVERSION_...` (PHP extensions) variables defined at the beginning of `install-php-extensions`, so there's no need to update the script when upgrading a dependency.
+- the new versions of the libraries and extensions we download manually.
+  These are listed in the [`data/dependencies.json`](https://github.com/mlocati/docker-php-extension-installer/blob/master/data/dependencies.json) file: for the ones with `"pinnedVersion": true`, the version in use is read from the `IPE_LIBVERSION_...` (libraries) and `IPE_EXTLATESTVERSION_...` (PHP extensions) variables defined at the beginning of `install-php-extensions`, so there's no need to update the script when upgrading a dependency.
+  The ones with `"pinnedVersion": false` are downloaded by `install-php-extensions` in their latest version.
 
-When new versions are found, a Telegram notification is sent (every new version is notified only once).
-Temporary problems (like websites that can't be reached) don't make the Action fail: they are reported as warnings in the Action log.
-Problems that require updating the script or `install-php-extensions` (for example, when the version in use or the latest version of a dependency can't be detected) make the Action fail, and a Telegram notification listing them is sent.
+The new versions are then tested on all the supported Linux distributions (the new versions of the libraries and extensions we download manually are tested by setting the corresponding `IPE_LIBVERSION_...`/`IPE_EXTLATESTVERSION_...` variable).
+New versions that fail are tested again every day, until they work.
 
-The script can also be executed locally:
+A Telegram notification is sent:
+
+- every time some tests fail
+- when a new version of a library or extension we download manually is available (only once, saying whether its tests passed)
+- when a PECL extension that we install in a non-stable version has a more stable release (only once)
+- when there are problems that require updating the script, `data/dependencies.json` or `install-php-extensions` (for example, when the version in use or the latest version of a dependency can't be detected)
+
+Temporary problems (like websites that can't be reached) are only reported as warnings in the Action log.
+
+The detection can also be executed locally:
 
 ```sh
-php scripts/check-dependency-updates.php
+php scripts/check-updates.php detect --state-file=check-updates-state.json --tests-file=check-updates-tests.txt
 ```
 
-When adding to `install-php-extensions` a new library or extension that is downloaded manually, remember to define its version in a new `IPE_LIBVERSION_...` variable (for libraries) or `IPE_EXTLATESTVERSION_<EXTENSION>` variable (for PHP extensions), with the format `VARIABLE="${VARIABLE:-version}"` so that it can be overridden, and to add it to `data/dependencies.json`
+When adding to `install-php-extensions` a new library or extension that is downloaded manually, remember to add it to `data/dependencies.json`.
+If we download a specific version of it, set `"pinnedVersion": true` and define its version in a new `IPE_LIBVERSION_...` variable (for libraries) or `IPE_EXTLATESTVERSION_<EXTENSION>` variable (for PHP extensions), with the format `VARIABLE="${VARIABLE:-version}"` so that it can be overridden
 (the script fails if one of these variables doesn't have a corresponding entry in `data/dependencies.json`, and vice versa).
-The libraries listed there are also documented in the README.md file (the default versions are read from `install-php-extensions`).
-If a library or extension shouldn't be checked for updates, add a `skipCheck` property explaining why.
+The libraries with a pinned version are also documented in the README.md file (the default versions are read from `install-php-extensions`).
+If a library or extension shouldn't be checked for updates, add a `skipCheck` property explaining why; if the new versions of a pinned library or extension can't be tested automatically, add a `skipTest` property explaining why.
+If the latest version can't be detected with the generic sources, use the `custom` source and add to the `CustomLatestVersion` class of `scripts/check-updates.php` a method with the name of the key of the item.

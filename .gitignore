@@ -1,3 +1,5 @@
 /vendor/
 /.php-cs-fixer.cache
 /composer.lock
+/check-updates-state.json
+/check-updates-tests.txt
