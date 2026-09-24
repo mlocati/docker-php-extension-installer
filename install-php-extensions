@@ -53,13 +53,13 @@ IPE_LIBVERSION_ZSTD="${IPE_LIBVERSION_ZSTD:-1.5.7}"
 
 # The versions of the PHP extensions that we download manually (for recent PHP versions/distros).
 # For internal use only (to test new versions): users should specify the version of the extensions as described in README.md.
-IPE_EXTLATESTVERSION_CASSANDRA="${IPE_EXTLATESTVERSION_CASSANDRA:-1.5.1}"
-IPE_EXTLATESTVERSION_GEOS="${IPE_EXTLATESTVERSION_GEOS:-889e2b1d9aa6f82995db4dab6891f48c3bacfb59}"
-IPE_EXTLATESTVERSION_LZ4="${IPE_EXTLATESTVERSION_LZ4:-0.7.1}"
-IPE_EXTLATESTVERSION_SNAPPY="${IPE_EXTLATESTVERSION_SNAPPY:-0.2.3}"
-IPE_EXTLATESTVERSION_SNUFFLEUPAGUS="${IPE_EXTLATESTVERSION_SNUFFLEUPAGUS:-0.14.0}"
-IPE_EXTLATESTVERSION_SPX="${IPE_EXTLATESTVERSION_SPX:-0.4.22}"
-IPE_EXTLATESTVERSION_V8JS="${IPE_EXTLATESTVERSION_V8JS:-8a39efa3cf3b275e402ddf3c4f6b611a5f69a499}"
+IPE_EXTVERSION_CASSANDRA="${IPE_EXTVERSION_CASSANDRA:-1.5.1}"
+IPE_EXTVERSION_GEOS="${IPE_EXTVERSION_GEOS:-889e2b1d9aa6f82995db4dab6891f48c3bacfb59}"
+IPE_EXTVERSION_LZ4="${IPE_EXTVERSION_LZ4:-0.7.1}"
+IPE_EXTVERSION_SNAPPY="${IPE_EXTVERSION_SNAPPY:-0.2.3}"
+IPE_EXTVERSION_SNUFFLEUPAGUS="${IPE_EXTVERSION_SNUFFLEUPAGUS:-0.14.0}"
+IPE_EXTVERSION_SPX="${IPE_EXTVERSION_SPX:-0.4.22}"
+IPE_EXTVERSION_V8JS="${IPE_EXTVERSION_V8JS:-8a39efa3cf3b275e402ddf3c4f6b611a5f69a499}"
 
 StandWithUkraine() {
 	if test -t 1 && ! grep -Eq '^VERSION=.*jessie' /etc/os-release; then
@@ -3582,7 +3582,7 @@ installRemoteModule() {
 			installRemoteModule_cmakeVersion="$(cmake --version | head -n1 | sed -E 's/^.* //')"
 			if test $PHP_MAJMIN_VERSION -ge 803 && test $(compareVersions "$installRemoteModule_cmakeVersion" '3.30') -ge 0; then
 				printf 'Installing the ScyllaDB PHP driver\n'
-				installRemoteModule_src="$(getPackageSource https://github.com/he4rt/scylladb-php-driver/archive/refs/tags/v$IPE_EXTLATESTVERSION_CASSANDRA.tar.gz)"
+				installRemoteModule_src="$(getPackageSource https://github.com/he4rt/scylladb-php-driver/archive/refs/tags/v$IPE_EXTVERSION_CASSANDRA.tar.gz)"
 				cd "$installRemoteModule_src"
 				case $(uname -m) in
 					x86_64)
@@ -3835,7 +3835,7 @@ installRemoteModule() {
 					if test $PHP_MAJMIN_VERSION -lt 700; then
 						installRemoteModule_version=dfe1ab17b0f155cc315bc13c75689371676e02e1
 					else
-						installRemoteModule_version=$IPE_EXTLATESTVERSION_GEOS
+						installRemoteModule_version=$IPE_EXTVERSION_GEOS
 					fi
 				fi
 				installRemoteModule_src="$(getPackageSource https://github.com/libgeos/php-geos/archive/$installRemoteModule_version.tar.gz)"
@@ -4002,7 +4002,7 @@ installRemoteModule() {
 							installRemoteModule_version=0.4.4
 							;;
 						*)
-							installRemoteModule_version=$IPE_EXTLATESTVERSION_LZ4
+							installRemoteModule_version=$IPE_EXTVERSION_LZ4
 							;;
 					esac
 				fi
@@ -4680,7 +4680,7 @@ installRemoteModule() {
 						# snappy 1.1.7 installs a snappy-stubs-public.h file with empty SNAPPY_MAJOR/SNAPPY_MINOR/SNAPPY_PATCHLEVEL: the configure of snappy 0.2.2+ fails with it
 						installRemoteModule_version=0.2.1
 					else
-						installRemoteModule_version=$IPE_EXTLATESTVERSION_SNAPPY
+						installRemoteModule_version=$IPE_EXTVERSION_SNAPPY
 					fi
 				fi
 				installRemoteModule_src="$(getPackageSource https://github.com/kjdev/php-ext-snappy/archive/refs/tags/$installRemoteModule_version.tar.gz)"
@@ -4700,7 +4700,7 @@ installRemoteModule() {
 					elif test $PHP_MAJMIN_VERSION -le 801; then
 						installRemoteModule_version=0.10.0
 					else
-						installRemoteModule_version=$IPE_EXTLATESTVERSION_SNUFFLEUPAGUS
+						installRemoteModule_version=$IPE_EXTVERSION_SNUFFLEUPAGUS
 					fi
 				fi
 				installRemoteModule_src="$(getPackageSource https://codeload.github.com/jvoisin/snuffleupagus/tar.gz/v$installRemoteModule_version)"
@@ -4745,7 +4745,7 @@ installRemoteModule() {
 		spx)
 			if test -z "$installRemoteModule_path"; then
 				if test -z "$installRemoteModule_version"; then
-					installRemoteModule_version=v$IPE_EXTLATESTVERSION_SPX
+					installRemoteModule_version=v$IPE_EXTVERSION_SPX
 				fi
 				installRemoteModule_src="$(getPackageSource https://codeload.github.com/NoiseByNorthwest/php-spx/tar.gz/$installRemoteModule_version)"
 				cd -- "$installRemoteModule_src"
@@ -5334,7 +5334,7 @@ installRemoteModule() {
 		v8js)
 			if test -z "$installRemoteModule_version"; then
 				# php8 branch HEAD: there are no v8js releases on PECL/Git that support PHP 8.x
-				installRemoteModule_version=$IPE_EXTLATESTVERSION_V8JS
+				installRemoteModule_version=$IPE_EXTVERSION_V8JS
 			fi
 			installRemoteModule_src="$(getPackageSource "https://codeload.github.com/phpv8/v8js/tar.gz/$installRemoteModule_version")"
 			cd -- "$installRemoteModule_src"

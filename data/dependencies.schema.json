@@ -138,7 +138,7 @@
             "minLength": 1
         },
         "pinnedVersion": {
-            "description": "Whether the version is defined in install-php-extensions (IPE_LIBVERSION_<key> variable for libraries, IPE_EXTLATESTVERSION_<EXTENSION> variable for PHP extensions); if false, install-php-extensions downloads the latest version",
+            "description": "Whether the version is defined in install-php-extensions (IPE_LIBVERSION_<key> variable for libraries, IPE_EXTVERSION_<EXTENSION> variable for PHP extensions); if false, install-php-extensions downloads the latest version",
             "type": "boolean"
         },
         "url": {

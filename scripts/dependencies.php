@@ -46,18 +46,18 @@ function getDependencyVariable(string $section, string $key): string
 {
     return match ($section) {
         'libraries' => "IPE_LIBVERSION_{$key}",
-        'extensions' => 'IPE_EXTLATESTVERSION_' . strtoupper($key),
+        'extensions' => 'IPE_EXTVERSION_' . strtoupper($key),
     };
 }
 
 /**
- * Get the names of the IPE_LIBVERSION_... and IPE_EXTLATESTVERSION_... variables defined in install-php-extensions.
+ * Get the names of the IPE_LIBVERSION_... and IPE_EXTVERSION_... variables defined in install-php-extensions.
  *
  * @return string[]
  */
 function getInstallerDependencyVariables(string $installer): array
 {
-    preg_match_all('/^(IPE_(?:LIBVERSION|EXTLATESTVERSION)_\w+)=/m', $installer, $matches);
+    preg_match_all('/^(IPE_(?:LIBVERSION|EXTVERSION)_\w+)=/m', $installer, $matches);
 
     return $matches[1];
 }
