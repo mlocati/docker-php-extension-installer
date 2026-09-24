@@ -132,6 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
+      IPETEST_ONLY_PHPVERSIONS: "8.6"
     steps:
       -
         name: Checkout
