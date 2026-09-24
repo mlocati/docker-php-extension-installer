@@ -85,22 +85,7 @@ jobs:
           name: detect
       -
         name: Test
-        run: |
-          RESULTS_DIR="$GITHUB_WORKSPACE/results/$IPETEST_DOCKER_DISTRO"
-          mkdir -p "$RESULTS_DIR"
-          RC=0
-          while read -r INDEX EXTENSIONS VARIABLES <&3; do
-            if ! (
-              if test -n "$VARIABLES"; then
-                export $VARIABLES
-              fi
-              IPETEST_RESULTS_FILE="$RESULTS_DIR/$INDEX.txt" ./scripts/ci-test-extensions from-list "$(printf '%s' "$EXTENSIONS" | tr ',' ' ')" </dev/null
-            ); then
-              RC=1
-            fi
-          done 3<check-updates-tests.txt
-          touch "$RESULTS_DIR/done"
-          exit $RC
+        run: ./scripts/ci-test-extensions from-tests-file check-updates-tests.txt "results/$IPETEST_DOCKER_DISTRO"
       -
         name: Persist results
         if: always()

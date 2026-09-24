@@ -7,12 +7,15 @@
 #   Test the specified extensions
 # - ci-test-extensions all
 #   Test all the supported extensions
+# - ci-test-extensions from-tests-file <tests file> <results directory>
+#   Perform the tests listed in the tests file (written by scripts/check-updates.php), one per line, in the format
+#   <test index> <comma-separated extensions> [<VARIABLE>=<value> ...]
+#   The results of each test are written to <results directory>/<test index>.txt, as lines in the format "<ok|failed> <PHP version> <extensions>";
+#   when all the tests have been performed, the <results directory>/done file is created
 #
 # Global environment variables used:
 # - IPETEST_DOCKER_DISTRO (required) the handle of the docker distibution to be used (eg 'buster', 'alpine3.14')
 # - IPETEST_ONLY_PHPVERSIONS (optional) a space-separeted list of PHP versions: if set, we'll test only those PHP versions (eg '8.0 8.1')
-# - IPETEST_RESULTS_FILE (optional) the file where the result of every test is appended, as lines in the format "<ok|failed> <PHP version> <extensions>"
-# - IPE_LIBVERSION_... and IPE_EXTLATESTVERSION_... (optional) passed to install-php-extensions
 
 # Let's set a sane environment
 set -o errexit
@@ -360,7 +363,7 @@ testExtensionFor() {
 				;;
 		esac
 	fi
-	if docker run --rm --volume "$CI_BUILD_DIR:/app" --env CI=true --env IPE_FIX_CACERTS=1 $testExtensionFor_ddtraceEnv $IPETEST_VERSION_ENV --env IPE_ASPELL_LANGUAGES='en fr' --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1; then
+	if docker run --rm --volume "$CI_BUILD_DIR:/app" --env CI=true --env IPE_FIX_CACERTS=1 $testExtensionFor_ddtraceEnv $TEST_DOCKER_ENV --env IPE_ASPELL_LANGUAGES='en fr' --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1; then
 		testExtensionFor_end=$(date +%s)
 		testExtensionFor_delta=$(expr $testExtensionFor_end - $testExtensionFor_start)
 		rm -rf "$testExtensionFor_out"
@@ -380,16 +383,64 @@ testExtensionFor() {
 	return 1
 }
 
-# Append the result of a test to the IPETEST_RESULTS_FILE file (if set)
+# Append the result of a test to the TEST_RESULTS_FILE file (if set)
 #
 # Arguments:
 # $1: ok or failed
 # $2: the PHP version
 # $3: space-separated list with the names of the PHP extensions
 recordTestResult() {
-	if test -n "${IPETEST_RESULTS_FILE:-}"; then
-		printf '%s %s %s\n' "$1" "$2" "$3" >>"$IPETEST_RESULTS_FILE"
+	if test -n "$TEST_RESULTS_FILE"; then
+		printf '%s %s %s\n' "$1" "$2" "$3" >>"$TEST_RESULTS_FILE"
 	fi
+}
+
+# Test a list of extensions
+#
+# Arguments:
+# $1: space-separated list with the names of the PHP extensions to be tested
+#
+# Update: SOME_TEST_FAILED, SOME_TEST_PERFORMED
+runTests() {
+	EXTENSIONS_TO_BE_TESTED="$1"
+	filterUnsupportedExensionsForDistro
+	if test -z "$EXTENSIONS_TO_BE_TESTED"; then
+		echo 'No extensions to be tested.'
+		return
+	fi
+	printf '### EXTENSIONS TO BE TESTED: %s\n' "$EXTENSIONS_TO_BE_TESTED"
+	SOME_TEST_PERFORMED=1
+	IFS='
+'
+	testExtensions "$EXTENSIONS_TO_BE_TESTED" || SOME_TEST_FAILED=1
+}
+
+# Perform the tests listed in a tests file
+#
+# Arguments:
+# $1: the tests file
+# $2: the results directory
+#
+# Update: SOME_TEST_FAILED, SOME_TEST_PERFORMED
+runTestsFromFile() {
+	mkdir -p "$2"
+	while IFS=' ' read -r runTestsFromFile_index runTestsFromFile_extensions runTestsFromFile_variables <&3 || test -n "$runTestsFromFile_index"; do
+		if test -z "$runTestsFromFile_index"; then
+			continue
+		fi
+		printf '### TEST %s: %s %s\n' "$runTestsFromFile_index" "$runTestsFromFile_extensions" "$runTestsFromFile_variables"
+		TEST_DOCKER_ENV=''
+		IFS=' '
+		for runTestsFromFile_variable in $runTestsFromFile_variables; do
+			TEST_DOCKER_ENV="$TEST_DOCKER_ENV --env $runTestsFromFile_variable"
+		done
+		resetIFS
+		TEST_RESULTS_FILE="$2/$runTestsFromFile_index.txt"
+		runTests "$(printf '%s' "$runTestsFromFile_extensions" | tr ',' ' ')"
+	done 3<"$1"
+	TEST_DOCKER_ENV=''
+	TEST_RESULTS_FILE=''
+	touch "$2/done"
 }
 
 echo 'Checking environment'
@@ -405,13 +456,14 @@ fi
 
 . "$CI_BUILD_DIR/scripts/common"
 
-IPETEST_VERSION_ENV=''
-IFS='
-'
-for IPETEST_VERSION_VARIABLE in $(env | sed -nE 's/^(IPE_(LIBVERSION|EXTLATESTVERSION)_[A-Z0-9_]+)=.*$/\1/p'); do
-	IPETEST_VERSION_ENV="$IPETEST_VERSION_ENV --env $IPETEST_VERSION_VARIABLE"
-done
-resetIFS
+# Additional arguments for "docker run" (for example: --env VARIABLE=value)
+TEST_DOCKER_ENV=''
+# The file where the results of the tests are written
+TEST_RESULTS_FILE=''
+SOME_TEST_FAILED=0
+SOME_TEST_PERFORMED=0
+IPE_SUMMARY_GOOD=''
+IPE_SUMMARY_BAD=''
 
 case "${1:-}" in
 	from-commits)
@@ -427,12 +479,20 @@ case "${1:-}" in
 		if test $STOP_EXTENSIONS_FOUND -eq 0; then
 			extractExtensionsFromData
 		fi
+		runTests "$EXTENSIONS_TO_BE_TESTED"
 		;;
 	from-list)
-		EXTENSIONS_TO_BE_TESTED="${2:-}"
+		runTests "${2:-}"
 		;;
 	all)
-		EXTENSIONS_TO_BE_TESTED="$(cat "$CI_BUILD_DIR/data/supported-extensions" | cut -d' ' -f1 | tr '\n' ' ')"
+		runTests "$(cat "$CI_BUILD_DIR/data/supported-extensions" | cut -d' ' -f1 | tr '\n' ' ')"
+		;;
+	from-tests-file)
+		if test -z "${2:-}" || test -z "${3:-}"; then
+			echo 'Missing tests file and/or results directory'
+			exit 1
+		fi
+		runTestsFromFile "$2" "$3"
 		;;
 	*)
 		if test -z "${1:-}"; then
@@ -444,21 +504,9 @@ case "${1:-}" in
 		;;
 esac
 
-filterUnsupportedExensionsForDistro
-
-if test -z "$EXTENSIONS_TO_BE_TESTED"; then
-	echo 'No extensions to be tested.'
+if test $SOME_TEST_PERFORMED -eq 0; then
 	exit 0
 fi
-
-printf '### EXTENSIONS TO BE TESTED: %s\n' "$EXTENSIONS_TO_BE_TESTED"
-SOME_TEST_FAILED=0
-IFS='
-'
-
-IPE_SUMMARY_GOOD=''
-IPE_SUMMARY_BAD=''
-testExtensions "$EXTENSIONS_TO_BE_TESTED" || SOME_TEST_FAILED=1
 
 printf '\n### SUMMARY\n'
 if test -z "$IPE_SUMMARY_GOOD"; then

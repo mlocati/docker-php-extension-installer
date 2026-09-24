@@ -935,9 +935,6 @@ function finalize(array $options): int
     $state = readState($stateFile);
     $errors = $state['errors'];
     $results = $state['tests'] === [] ? ['failures' => [], 'incomplete' => []] : readTestResults($resultsDir, $distros);
-    if ($results['incomplete'] !== []) {
-        $errors[] = 'The tests did not complete on ' . implode(', ', $results['incomplete']) . ': they will be performed again';
-    }
     $available = [];
     $failed = [];
     foreach ($state['items'] as $id => &$item) {
@@ -970,6 +967,9 @@ function finalize(array $options): int
     if ($failed !== []) {
         $sections[] = "Some new versions of the dependencies of docker-php-extension-installer don't work:\n" . implode("\n", $failed);
     }
+    if ($results['incomplete'] !== []) {
+        $sections[] = 'The tests did not complete on ' . implode(', ', $results['incomplete']) . ': they will be performed again.';
+    }
     if ($available !== []) {
         $sections[] = "New versions of dependencies used by docker-php-extension-installer are available:\n" . implode("\n", $available);
     }
@@ -982,7 +982,7 @@ function finalize(array $options): int
     }
     setGitHubOutput('message', $message);
 
-    return $errors === [] && $failed === [] ? 0 : 1;
+    return $errors === [] && $failed === [] && $results['incomplete'] === [] ? 0 : 1;
 }
 
 /**
