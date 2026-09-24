@@ -29,12 +29,22 @@ jobs:
           ref: master
           fetch-depth: 0
       -
+        name: Setup PHP
+        if: >
+          (github.event_name == 'push' && github.ref == 'refs/heads/master')
+          || github.event_name == 'workflow_dispatch'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          coverage: none
+          tools: none
+      -
         name: Update README
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
           || github.event_name == 'workflow_dispatch'
         run: |
-          ./scripts/update-readme
+          php ./scripts/update-readme.php
           if ! git ls-files -m | grep -qE '^README\.md$'; then
             echo 'README.md has not been changed'
           else
