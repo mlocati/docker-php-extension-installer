@@ -424,11 +424,14 @@ runTests() {
 # Update: SOME_TEST_FAILED, SOME_TEST_PERFORMED
 runTestsFromFile() {
 	mkdir -p "$2"
+	runTestsFromFile_total=$(grep -c . "$1" || true)
+	runTestsFromFile_count=0
 	while IFS=' ' read -r runTestsFromFile_index runTestsFromFile_extensions runTestsFromFile_variables <&3 || test -n "$runTestsFromFile_index"; do
 		if test -z "$runTestsFromFile_index"; then
 			continue
 		fi
-		printf '### TEST %s: %s %s\n' "$runTestsFromFile_index" "$runTestsFromFile_extensions" "$runTestsFromFile_variables"
+		runTestsFromFile_count=$((runTestsFromFile_count + 1))
+		printf '### TEST %s/%s: %s\n' "$runTestsFromFile_count" "$runTestsFromFile_total" "$(printf '%s %s' "$runTestsFromFile_extensions" "$runTestsFromFile_variables" | sed 's/ *$//')"
 		TEST_DOCKER_ENV=''
 		IFS=' '
 		for runTestsFromFile_variable in $runTestsFromFile_variables; do
