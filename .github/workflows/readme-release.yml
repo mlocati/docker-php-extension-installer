@@ -136,8 +136,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && 'readme-release-approval' || 'readme-release-immediate' }}
     concurrency:
-      group: readme-release-${{ github.ref }}
-      cancel-in-progress: true
+      group: readme-release
+      cancel-in-progress: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
     env:
       VERSIONTAG_THIS: ${{ needs.readme-release.outputs.versiontag-this }}
       VERSIONTAG_PREVIOUS: ${{ needs.readme-release.outputs.versiontag-previous }}

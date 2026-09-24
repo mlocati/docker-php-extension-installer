@@ -6,7 +6,8 @@ The creation of a new version is done automatically by the [`readme-release.yml`
 
 Whenever a push to the GitHub repository changes the [`install-php-extensions`](https://github.com/mlocati/docker-php-extension-installer/blob/master/install-php-extensions) script,
 that Action creates a new tag, incrementing the patch level (for example, if the previous version was `1.2.3`, it creates the tag `1.2.4`).
-Before doing that, the Action waits for 30 seconds, so that maintainers can cancel the tag creation if they want to create a different tag (for example, `1.3.3`).
+Before doing that, the Action waits for the approval of a maintainer (`readme-release-approval` environment).
+If maintainers want to create a different tag (for example, `1.3.3`), they can push it manually: the pending release is then canceled automatically.
 
 Once this new tag is created automatically (or when maintainers push a new version-like tag to the repository), the Action creates a new release, attaching it the `install-php-extensions` script to it
 (so that users can download it via the `https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions` URL).
