@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-  create:
     tags:
       - "*"
   workflow_dispatch:
@@ -22,7 +21,7 @@ jobs:
         name: Checkout
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
-          || (github.event_name == 'create' && github.event.ref_type == 'tag')
+          || (github.event_name == 'push' && github.ref_type == 'tag')
           || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v7
         with:
@@ -59,10 +58,9 @@ jobs:
         name: Look for the recent version tags
         if: >
           (github.event_name == 'push' && github.ref == 'refs/heads/master')
-          || (github.event_name == 'create' && github.event.ref_type == 'tag')
+          || (github.event_name == 'push' && github.ref_type == 'tag')
           || github.event_name == 'workflow_dispatch'
         run: |
-          TAGS="$(git tag --list --sort=-version:refname)"
           VERSIONTAG_LAST=
           VERSIONTAG_PENULTIMATE=
           for TAG in $(git tag --list --sort=-version:refname); do
@@ -114,7 +112,7 @@ jobs:
       -
         name: Check format of received tag
         id: tag-received
-        if: github.event_name == 'create' && github.event.ref_type == 'tag'
+        if: github.event_name == 'push' && github.ref_type == 'tag'
         run: |
           VERSIONTAG_THIS="${GITHUB_REF#refs/tags/}"
           if test "$VERSIONTAG_THIS" = "$VERSIONTAG_LAST"; then
@@ -136,7 +134,7 @@ jobs:
     needs: readme-release
     if: needs.readme-release.outputs.versiontag-this != ''
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'push' && 'readme-release-approval' || 'readme-release-immediate' }}
+    environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && 'readme-release-approval' || 'readme-release-immediate' }}
     concurrency:
       group: readme-release-${{ github.ref }}
       cancel-in-progress: true
