@@ -1,4 +1,4 @@
-name: Monitor PHP 8.5
+name: Monitor PHP 8.6
 
 on:
   schedule:
@@ -11,18 +11,15 @@ jobs:
       fail-fast: false
       matrix:
         distro:
-          - alpine3.21
-          - alpine3.22
           - alpine3.23
           - alpine3.24
-          - bullseye
           - bookworm
           - trixie
     name: Check on ${{ matrix.distro }}
     runs-on: ubuntu-latest
     env:
       IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
-      IPETEST_ONLY_PHPVERSIONS: "8.5"
+      IPETEST_ONLY_PHPVERSIONS: "8.6"
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -34,4 +31,4 @@ jobs:
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_TO }}
-          message: Testing packages against PHP 8.5 failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.5.yml
+          message: Testing packages against PHP 8.6 failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.6.yml
