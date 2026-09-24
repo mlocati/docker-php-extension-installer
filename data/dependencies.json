@@ -1,355 +1,355 @@
 {
-	"$schema": "./dependencies.schema.json",
-	"libraries": {
-		"AOM": {
-			"name": "libaom",
-			"usedBy": [
-				"gd"
-			],
-			"notes": "Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set)",
-			"url": "https://aomedia.googlesource.com/aom/+refs",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://aomedia.googlesource.com/aom"
-			},
-			"skipCheck": "We compile libaom only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded, so we use the latest version compatible with them: libaom 3.12.1+ requires cmake 3.16 (Debian Buster has cmake 3.13)"
-		},
-		"AVIF": {
-			"name": "libavif",
-			"usedBy": [
-				"gd"
-			],
-			"notes": "Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set)",
-			"url": "https://github.com/AOMediaCodec/libavif/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/AOMediaCodec/libavif"
-			},
-			"skipCheck": "We compile libavif only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded, so we use the latest version compatible with them: libavif 1.4.0+ requires cmake 3.22 (Debian Buster has cmake 3.13)"
-		},
-		"CASSANDRACPPDRIVER": {
-			"name": "Cassandra C++ driver",
-			"usedBy": [
-				"cassandra"
-			],
-			"url": "https://github.com/apache/cassandra-cpp-driver/tags",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/apache/cassandra-cpp-driver"
-			}
-		},
-		"CMARK": {
-			"name": "libcmark",
-			"usedBy": [
-				"cmark"
-			],
-			"notes": "Only with cmake 3.15+ (with older cmake versions we use older libcmark versions)",
-			"url": "https://github.com/commonmark/cmark/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/commonmark/cmark"
-			}
-		},
-		"DATRIE": {
-			"name": "libdatrie",
-			"usedBy": [
-				"wikidiff2"
-			],
-			"notes": "Only on Alpine",
-			"url": "https://github.com/tlwg/libdatrie/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/tlwg/libdatrie"
-			}
-		},
-		"DAV1D": {
-			"name": "libdav1d",
-			"usedBy": [
-				"gd"
-			],
-			"notes": "Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set)",
-			"url": "https://code.videolan.org/videolan/dav1d/-/tags",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/videolan/dav1d"
-			},
-			"skipCheck": "We compile libdav1d only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded, so we use the latest version compatible with them: libdav1d 1.5.4+ requires meson 0.54 (Debian Buster has meson 0.49)"
-		},
-		"ENCHANT1": {
-			"name": "libenchant1",
-			"usedBy": [
-				"enchant"
-			],
-			"notes": "Only with PHP < 8.0 on Alpine 3.12+ and Debian 11+",
-			"url": "https://github.com/rrthomas/enchant/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/rrthomas/enchant"
-			},
-			"skipCheck": "We compile libenchant1 only when the system provides libenchant2 only (which is not supported by PHP < 8.0): 1.6.1 is the last 1.x version"
-		},
-		"FIREBIRD": {
-			"name": "Firebird",
-			"usedBy": [
-				"interbase",
-				"pdo_firebird",
-				"swoole"
-			],
-			"notes": "Only on Alpine, with PHP 8.4+ (with older PHP versions we use Firebird 2.5). Format: `<version>.<build>-<revision>` (as in the name of the source archive)",
-			"url": "https://github.com/FirebirdSQL/firebird/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/FirebirdSQL/firebird"
-			}
-		},
-		"GEARMAN": {
-			"name": "libgearman",
-			"usedBy": [
-				"gearman"
-			],
-			"notes": "Only on Alpine",
-			"url": "https://github.com/gearman/gearmand/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/gearman/gearmand"
-			}
-		},
-		"HATTRIE": {
-			"name": "HAT-trie",
-			"usedBy": [
-				"php_trie"
-			],
-			"url": "https://github.com/Tessil/hat-trie/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/Tessil/hat-trie"
-			}
-		},
-		"IDNKIT": {
-			"name": "libidnkit",
-			"usedBy": [
-				"http"
-			],
-			"notes": "Only with PHP 7.0+",
-			"url": "https://jprs.co.jp/idn/",
-			"latestVersion": {
-				"source": "webPage",
-				"url": "https://jprs.co.jp/idn/",
-				"regex": "/\\bidnkit-(\\d+(?:\\.\\d+)+)/"
-			}
-		},
-		"IONC": {
-			"name": "ion-c",
-			"usedBy": [
-				"ion"
-			],
-			"url": "https://github.com/amzn/ion-c/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/amzn/ion-c",
-				"ignoreTags": "/^v1\\.4\\.0$/"
-			}
-		},
-		"IP2LOCATION": {
-			"name": "IP2Location C library",
-			"usedBy": [
-				"ip2location"
-			],
-			"url": "https://github.com/chrislim2888/IP2Location-C-Library/tags",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/chrislim2888/IP2Location-C-Library"
-			}
-		},
-		"MPDEC": {
-			"name": "libmpdec",
-			"usedBy": [
-				"decimal"
-			],
-			"notes": "Only on Alpine and Debian 12+",
-			"url": "https://www.bytereef.org/mpdecimal/changelog.html",
-			"latestVersion": {
-				"source": "webPage",
-				"url": "https://www.bytereef.org/mpdecimal/download.html",
-				"regex": "/\\bmpdecimal-(\\d+(?:\\.\\d+)+)\\.tar\\.gz\\b/"
-			}
-		},
-		"MSODBC": {
-			"name": "Microsoft ODBC Driver for SQL Server (Alpine)",
-			"usedBy": [
-				"pdo_sqlsrv",
-				"sqlsrv"
-			],
-			"notes": "Only on Alpine, with PHP 7.4+. Format: `<version>@<download path>` (see the download URLs on the [Microsoft website](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server))",
-			"url": "https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server",
-			"latestVersion": {
-				"source": "webPage",
-				"url": "https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server",
-				"regex": "%/download/(?<suffix>[\\w/-]+)/msodbcsql\\d+_(?<version>\\d+(?:\\.\\d+)+-\\d+)_%"
-			}
-		},
-		"MSODBC17": {
-			"name": "Microsoft ODBC Driver 17 for SQL Server (Alpine)",
-			"usedBy": [
-				"pdo_sqlsrv",
-				"sqlsrv"
-			],
-			"notes": "Only on Alpine, with PHP up to 7.3. Format: `<version>@<download path>` (see the download URLs on the [Microsoft website](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server))",
-			"url": "https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17",
-			"latestVersion": {
-				"source": "webPage",
-				"url": "https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server",
-				"regex": "%/download/(?<suffix>[\\w/-]+)/msodbcsql17_(?<version>\\d+(?:\\.\\d+)+-\\d+)_%"
-			}
-		},
-		"THAI": {
-			"name": "libthai",
-			"usedBy": [
-				"wikidiff2"
-			],
-			"notes": "Only on Alpine",
-			"url": "https://github.com/tlwg/libthai/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/tlwg/libthai"
-			}
-		},
-		"TOMCRYPT": {
-			"name": "libtomcrypt",
-			"usedBy": [
-				"pdo_firebird",
-				"swoole"
-			],
-			"notes": "Only on Alpine, with PHP 8.4+",
-			"url": "https://github.com/libtom/libtomcrypt/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/libtom/libtomcrypt"
-			}
-		},
-		"TOMMATH": {
-			"name": "libtommath",
-			"usedBy": [
-				"pdo_firebird",
-				"swoole"
-			],
-			"notes": "Only on Alpine, with PHP 8.4+",
-			"url": "https://github.com/libtom/libtommath/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/libtom/libtommath"
-			}
-		},
-		"XCRYPT": {
-			"name": "libxcrypt",
-			"usedBy": [
-				"xpass"
-			],
-			"notes": "Only on Alpine",
-			"url": "https://github.com/besser82/libxcrypt/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/besser82/libxcrypt"
-			}
-		},
-		"XDIFF": {
-			"name": "LibXDiff",
-			"usedBy": [
-				"xdiff"
-			],
-			"url": "http://www.xmailserver.org/xdiff-lib.html",
-			"latestVersion": {
-				"source": "webPage",
-				"url": "http://www.xmailserver.org/xdiff-lib.html",
-				"regex": "/\\blibxdiff-(\\d+(?:\\.\\d+)+)\\.tar\\.gz\\b/",
-				"timeout": 60
-			}
-		},
-		"YUV": {
-			"name": "libyuv",
-			"usedBy": [
-				"gd"
-			],
-			"notes": "Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set). Format: git commit hash",
-			"url": "https://chromium.googlesource.com/libyuv/libyuv/+log",
-			"latestVersion": {
-				"source": "gitRef",
-				"repository": "https://chromium.googlesource.com/libyuv/libyuv",
-				"ref": "HEAD"
-			},
-			"skipCheck": "We compile libyuv only on old distros (Alpine < 3.15 and Debian < 12), together with libaom, libavif and libdav1d"
-		},
-		"ZSTD": {
-			"name": "zstd",
-			"usedBy": [
-				"redis"
-			],
-			"notes": "Only with redis 5+",
-			"url": "https://github.com/facebook/zstd/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/facebook/zstd"
-			}
-		}
-	},
-	"extensions": {
-		"cassandra": {
-			"name": "ScyllaDB PHP driver",
-			"url": "https://github.com/he4rt/scylladb-php-driver/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/he4rt/scylladb-php-driver"
-			}
-		},
-		"geos": {
-			"name": "php-geos",
-			"url": "https://github.com/libgeos/php-geos/commits",
-			"latestVersion": {
-				"source": "gitRef",
-				"repository": "https://github.com/libgeos/php-geos",
-				"ref": "HEAD"
-			}
-		},
-		"lz4": {
-			"name": "php-ext-lz4",
-			"url": "https://github.com/kjdev/php-ext-lz4/tags",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/kjdev/php-ext-lz4"
-			}
-		},
-		"snappy": {
-			"name": "php-ext-snappy",
-			"url": "https://github.com/kjdev/php-ext-snappy/tags",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/kjdev/php-ext-snappy"
-			}
-		},
-		"snuffleupagus": {
-			"name": "snuffleupagus",
-			"url": "https://github.com/jvoisin/snuffleupagus/releases",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/jvoisin/snuffleupagus"
-			}
-		},
-		"spx": {
-			"name": "php-spx",
-			"url": "https://github.com/NoiseByNorthwest/php-spx/tags",
-			"latestVersion": {
-				"source": "gitTags",
-				"repository": "https://github.com/NoiseByNorthwest/php-spx"
-			}
-		},
-		"v8js": {
-			"name": "v8js (php8 branch)",
-			"url": "https://github.com/phpv8/v8js/commits/php8",
-			"latestVersion": {
-				"source": "gitRef",
-				"repository": "https://github.com/phpv8/v8js",
-				"ref": "refs/heads/php8"
-			}
-		}
-	}
+    "$schema": "./dependencies.schema.json",
+    "libraries": {
+        "AOM": {
+            "name": "libaom",
+            "usedBy": [
+                "gd"
+            ],
+            "notes": "Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set)",
+            "url": "https://aomedia.googlesource.com/aom/+refs",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://aomedia.googlesource.com/aom"
+            },
+            "skipCheck": "We compile libaom only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded, so we use the latest version compatible with them: libaom 3.12.1+ requires cmake 3.16 (Debian Buster has cmake 3.13)"
+        },
+        "AVIF": {
+            "name": "libavif",
+            "usedBy": [
+                "gd"
+            ],
+            "notes": "Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set)",
+            "url": "https://github.com/AOMediaCodec/libavif/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/AOMediaCodec/libavif"
+            },
+            "skipCheck": "We compile libavif only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded, so we use the latest version compatible with them: libavif 1.4.0+ requires cmake 3.22 (Debian Buster has cmake 3.13)"
+        },
+        "CASSANDRACPPDRIVER": {
+            "name": "Cassandra C++ driver",
+            "usedBy": [
+                "cassandra"
+            ],
+            "url": "https://github.com/apache/cassandra-cpp-driver/tags",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/apache/cassandra-cpp-driver"
+            }
+        },
+        "CMARK": {
+            "name": "libcmark",
+            "usedBy": [
+                "cmark"
+            ],
+            "notes": "Only with cmake 3.15+ (with older cmake versions we use older libcmark versions)",
+            "url": "https://github.com/commonmark/cmark/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/commonmark/cmark"
+            }
+        },
+        "DATRIE": {
+            "name": "libdatrie",
+            "usedBy": [
+                "wikidiff2"
+            ],
+            "notes": "Only on Alpine",
+            "url": "https://github.com/tlwg/libdatrie/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/tlwg/libdatrie"
+            }
+        },
+        "DAV1D": {
+            "name": "libdav1d",
+            "usedBy": [
+                "gd"
+            ],
+            "notes": "Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set)",
+            "url": "https://code.videolan.org/videolan/dav1d/-/tags",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/videolan/dav1d"
+            },
+            "skipCheck": "We compile libdav1d only on old distros (Alpine < 3.15 and Debian < 12) whose build tools won't ever be upgraded, so we use the latest version compatible with them: libdav1d 1.5.4+ requires meson 0.54 (Debian Buster has meson 0.49)"
+        },
+        "ENCHANT1": {
+            "name": "libenchant1",
+            "usedBy": [
+                "enchant"
+            ],
+            "notes": "Only with PHP < 8.0 on Alpine 3.12+ and Debian 11+",
+            "url": "https://github.com/rrthomas/enchant/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/rrthomas/enchant"
+            },
+            "skipCheck": "We compile libenchant1 only when the system provides libenchant2 only (which is not supported by PHP < 8.0): 1.6.1 is the last 1.x version"
+        },
+        "FIREBIRD": {
+            "name": "Firebird",
+            "usedBy": [
+                "interbase",
+                "pdo_firebird",
+                "swoole"
+            ],
+            "notes": "Only on Alpine, with PHP 8.4+ (with older PHP versions we use Firebird 2.5). Format: `<version>.<build>-<revision>` (as in the name of the source archive)",
+            "url": "https://github.com/FirebirdSQL/firebird/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/FirebirdSQL/firebird"
+            }
+        },
+        "GEARMAN": {
+            "name": "libgearman",
+            "usedBy": [
+                "gearman"
+            ],
+            "notes": "Only on Alpine",
+            "url": "https://github.com/gearman/gearmand/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/gearman/gearmand"
+            }
+        },
+        "HATTRIE": {
+            "name": "HAT-trie",
+            "usedBy": [
+                "php_trie"
+            ],
+            "url": "https://github.com/Tessil/hat-trie/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/Tessil/hat-trie"
+            }
+        },
+        "IDNKIT": {
+            "name": "libidnkit",
+            "usedBy": [
+                "http"
+            ],
+            "notes": "Only with PHP 7.0+",
+            "url": "https://jprs.co.jp/idn/",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "https://jprs.co.jp/idn/",
+                "regex": "/\\bidnkit-(\\d+(?:\\.\\d+)+)/"
+            }
+        },
+        "IONC": {
+            "name": "ion-c",
+            "usedBy": [
+                "ion"
+            ],
+            "url": "https://github.com/amzn/ion-c/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/amzn/ion-c",
+                "ignoreTags": "/^v1\\.4\\.0$/"
+            }
+        },
+        "IP2LOCATION": {
+            "name": "IP2Location C library",
+            "usedBy": [
+                "ip2location"
+            ],
+            "url": "https://github.com/chrislim2888/IP2Location-C-Library/tags",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/chrislim2888/IP2Location-C-Library"
+            }
+        },
+        "MPDEC": {
+            "name": "libmpdec",
+            "usedBy": [
+                "decimal"
+            ],
+            "notes": "Only on Alpine and Debian 12+",
+            "url": "https://www.bytereef.org/mpdecimal/changelog.html",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "https://www.bytereef.org/mpdecimal/download.html",
+                "regex": "/\\bmpdecimal-(\\d+(?:\\.\\d+)+)\\.tar\\.gz\\b/"
+            }
+        },
+        "MSODBC": {
+            "name": "Microsoft ODBC Driver for SQL Server (Alpine)",
+            "usedBy": [
+                "pdo_sqlsrv",
+                "sqlsrv"
+            ],
+            "notes": "Only on Alpine, with PHP 7.4+. Format: `<version>@<download path>` (see the download URLs on the [Microsoft website](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server))",
+            "url": "https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server",
+                "regex": "%/download/(?<suffix>[\\w/-]+)/msodbcsql\\d+_(?<version>\\d+(?:\\.\\d+)+-\\d+)_%"
+            }
+        },
+        "MSODBC17": {
+            "name": "Microsoft ODBC Driver 17 for SQL Server (Alpine)",
+            "usedBy": [
+                "pdo_sqlsrv",
+                "sqlsrv"
+            ],
+            "notes": "Only on Alpine, with PHP up to 7.3. Format: `<version>@<download path>` (see the download URLs on the [Microsoft website](https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server))",
+            "url": "https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server",
+                "regex": "%/download/(?<suffix>[\\w/-]+)/msodbcsql17_(?<version>\\d+(?:\\.\\d+)+-\\d+)_%"
+            }
+        },
+        "THAI": {
+            "name": "libthai",
+            "usedBy": [
+                "wikidiff2"
+            ],
+            "notes": "Only on Alpine",
+            "url": "https://github.com/tlwg/libthai/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/tlwg/libthai"
+            }
+        },
+        "TOMCRYPT": {
+            "name": "libtomcrypt",
+            "usedBy": [
+                "pdo_firebird",
+                "swoole"
+            ],
+            "notes": "Only on Alpine, with PHP 8.4+",
+            "url": "https://github.com/libtom/libtomcrypt/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/libtom/libtomcrypt"
+            }
+        },
+        "TOMMATH": {
+            "name": "libtommath",
+            "usedBy": [
+                "pdo_firebird",
+                "swoole"
+            ],
+            "notes": "Only on Alpine, with PHP 8.4+",
+            "url": "https://github.com/libtom/libtommath/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/libtom/libtommath"
+            }
+        },
+        "XCRYPT": {
+            "name": "libxcrypt",
+            "usedBy": [
+                "xpass"
+            ],
+            "notes": "Only on Alpine",
+            "url": "https://github.com/besser82/libxcrypt/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/besser82/libxcrypt"
+            }
+        },
+        "XDIFF": {
+            "name": "LibXDiff",
+            "usedBy": [
+                "xdiff"
+            ],
+            "url": "http://www.xmailserver.org/xdiff-lib.html",
+            "latestVersion": {
+                "source": "webPage",
+                "url": "http://www.xmailserver.org/xdiff-lib.html",
+                "regex": "/\\blibxdiff-(\\d+(?:\\.\\d+)+)\\.tar\\.gz\\b/",
+                "timeout": 60
+            }
+        },
+        "YUV": {
+            "name": "libyuv",
+            "usedBy": [
+                "gd"
+            ],
+            "notes": "Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set). Format: git commit hash",
+            "url": "https://chromium.googlesource.com/libyuv/libyuv/+log",
+            "latestVersion": {
+                "source": "gitRef",
+                "repository": "https://chromium.googlesource.com/libyuv/libyuv",
+                "ref": "HEAD"
+            },
+            "skipCheck": "We compile libyuv only on old distros (Alpine < 3.15 and Debian < 12), together with libaom, libavif and libdav1d"
+        },
+        "ZSTD": {
+            "name": "zstd",
+            "usedBy": [
+                "redis"
+            ],
+            "notes": "Only with redis 5+",
+            "url": "https://github.com/facebook/zstd/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/facebook/zstd"
+            }
+        }
+    },
+    "extensions": {
+        "cassandra": {
+            "name": "ScyllaDB PHP driver",
+            "url": "https://github.com/he4rt/scylladb-php-driver/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/he4rt/scylladb-php-driver"
+            }
+        },
+        "geos": {
+            "name": "php-geos",
+            "url": "https://github.com/libgeos/php-geos/commits",
+            "latestVersion": {
+                "source": "gitRef",
+                "repository": "https://github.com/libgeos/php-geos",
+                "ref": "HEAD"
+            }
+        },
+        "lz4": {
+            "name": "php-ext-lz4",
+            "url": "https://github.com/kjdev/php-ext-lz4/tags",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/kjdev/php-ext-lz4"
+            }
+        },
+        "snappy": {
+            "name": "php-ext-snappy",
+            "url": "https://github.com/kjdev/php-ext-snappy/tags",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/kjdev/php-ext-snappy"
+            }
+        },
+        "snuffleupagus": {
+            "name": "snuffleupagus",
+            "url": "https://github.com/jvoisin/snuffleupagus/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/jvoisin/snuffleupagus"
+            }
+        },
+        "spx": {
+            "name": "php-spx",
+            "url": "https://github.com/NoiseByNorthwest/php-spx/tags",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/NoiseByNorthwest/php-spx"
+            }
+        },
+        "v8js": {
+            "name": "v8js (php8 branch)",
+            "url": "https://github.com/phpv8/v8js/commits/php8",
+            "latestVersion": {
+                "source": "gitRef",
+                "repository": "https://github.com/phpv8/v8js",
+                "ref": "refs/heads/php8"
+            }
+        }
+    }
 }
