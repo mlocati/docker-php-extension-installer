@@ -43,8 +43,9 @@ IPE_LATESTVERSION_LIBTOMMATH=1.3.0
 IPE_LATESTVERSION_LIBXCRYPT=4.5.2
 IPE_LATESTVERSION_LIBXDIFF=0.23
 IPE_LATESTVERSION_LZ4=0.7.1
-# When updating this, remember to update the download URL too (it contains a unique ID)
-IPE_LATESTVERSION_MSODBC18=18.7.1.1-1
+# Format: <version>@<download path> (see the download URLs at https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server)
+IPE_LATESTVERSION_MSODBC17=17.11.1.1-1@607ebe2c-e17c-4c34-b367-10a75b83bef9
+IPE_LATESTVERSION_MSODBC18=18.7.1.1-1@ade174b7-8cea-4543-91a6-c33ae320c2f0
 IPE_LATESTVERSION_SCYLLADBPHPDRIVER=1.5.1
 IPE_LATESTVERSION_SNAPPY=0.2.3
 IPE_LATESTVERSION_SNUFFLEUPAGUS=0.14.0
@@ -2424,8 +2425,10 @@ installMicrosoftSqlServerODBC() {
 		alpine)
 			rm -rf /tmp/src/msodbcsql.apk
 			if test $PHP_MAJMIN_VERSION -le 703; then
-				installMicrosoftSqlServerODBC_url=https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.10.6.1-1_amd64.apk
+				installMicrosoftSqlServerODBC_version="$IPE_LATESTVERSION_MSODBC17"
+				installMicrosoftSqlServerODBC_arch=amd64
 			else
+				installMicrosoftSqlServerODBC_version="$IPE_LATESTVERSION_MSODBC18"
 				case $(uname -m) in
 					aarch64 | arm64 | armv8)
 						installMicrosoftSqlServerODBC_arch=arm64
@@ -2434,8 +2437,11 @@ installMicrosoftSqlServerODBC() {
 						installMicrosoftSqlServerODBC_arch=amd64
 						;;
 				esac
-				installMicrosoftSqlServerODBC_url=https://download.microsoft.com/download/ade174b7-8cea-4543-91a6-c33ae320c2f0/msodbcsql18_${IPE_LATESTVERSION_MSODBC18}_$installMicrosoftSqlServerODBC_arch.apk
 			fi
+			# The version is in the format <version>@<download path>
+			installMicrosoftSqlServerODBC_path="${installMicrosoftSqlServerODBC_version#*@}"
+			installMicrosoftSqlServerODBC_version="${installMicrosoftSqlServerODBC_version%%@*}"
+			installMicrosoftSqlServerODBC_url="https://download.microsoft.com/download/$installMicrosoftSqlServerODBC_path/msodbcsql${installMicrosoftSqlServerODBC_version%%.*}_${installMicrosoftSqlServerODBC_version}_$installMicrosoftSqlServerODBC_arch.apk"
 			printf 'APK package URL: %s\n' "$installMicrosoftSqlServerODBC_url"
 			curl $IPE_CURL_FLAGS -sSLf -o /tmp/src/msodbcsql.apk "$installMicrosoftSqlServerODBC_url"
 			printf '\n' | apk add --allow-untrusted /tmp/src/msodbcsql.apk

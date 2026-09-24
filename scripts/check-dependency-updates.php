@@ -42,7 +42,9 @@ enum LatestVersionSource
     case GitRef;
 
     /**
-     * The highest version extracted from a web page (first capturing group of a regular expression).
+     * The highest version extracted from a web page with a regular expression:
+     * the version is the "version" named group (or the first capturing group);
+     * if the regular expression has a "suffix" named group, its value is appended to the version (<version>@<suffix>).
      */
     case WebPage;
 }
@@ -186,10 +188,16 @@ const LIBRARIES = [
         // This website can be quite slow
         'timeout' => 60,
     ],
+    'Microsoft ODBC Driver 17 for SQL Server (Alpine)' => [
+        'usedBy' => ['pdo_sqlsrv', 'sqlsrv'],
+        'variable' => 'MSODBC17',
+        'latest' => [LatestVersionSource::WebPage, 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server', '%/download/(?<suffix>[\w/-]+)/msodbcsql17_(?<version>\d+(?:\.\d+)+-\d+)_%'],
+        'url' => 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine17',
+    ],
     'Microsoft ODBC Driver 18 for SQL Server (Alpine)' => [
         'usedBy' => ['pdo_sqlsrv', 'sqlsrv'],
         'variable' => 'MSODBC18',
-        'latest' => [LatestVersionSource::WebPage, 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server', '/\bmsodbcsql18_(\d+(?:\.\d+)+-\d+)_/'],
+        'latest' => [LatestVersionSource::WebPage, 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server', '%/download/(?<suffix>[\w/-]+)/msodbcsql18_(?<version>\d+(?:\.\d+)+-\d+)_%'],
         'url' => 'https://learn.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server#alpine18',
     ],
     'PHP-CPP' => [
@@ -482,11 +490,29 @@ function getGitRefHash(string $repositoryUrl, string $ref, int $timeout = DEFAUL
 function getLatestVersionFromWebPage(string $url, string $regex, int $timeout = DEFAULT_TIMEOUT): ?string
 {
     $html = downloadExisting($url, $timeout);
-    if (!preg_match_all($regex, $html, $matches)) {
+    if (!preg_match_all($regex, $html, $matches, PREG_SET_ORDER)) {
         return null;
     }
+    $result = null;
+    foreach ($matches as $match) {
+        $version = $match['version'] ?? $match[1];
+        if ($result === null || version_compare($version, getVersionWithoutSuffix($result)) > 0) {
+            $result = ($match['suffix'] ?? '') === '' ? $version : "{$version}@{$match['suffix']}";
+        }
+    }
 
-    return getHighestVersion(array_unique($matches[1]));
+    return $result;
+}
+
+/**
+ * Remove the suffix (if any) from a version.
+ *
+ * @example '1.2.3' => '1.2.3'
+ * @example '1.2.3@abc/def' => '1.2.3'
+ */
+function getVersionWithoutSuffix(string $version): string
+{
+    return explode('@', $version, 2)[0];
 }
 
 /**
@@ -629,7 +655,7 @@ function checkLibrary(string $name, array $library, string $installer): ?Update
     $isNewer = match ($source) {
         LatestVersionSource::GitTags => version_compare(normalizeStableVersion($latest) ?? '0', normalizeStableVersion($current) ?? $current) > 0,
         LatestVersionSource::GitRef => $latest !== $current,
-        LatestVersionSource::WebPage => version_compare($latest, $current) > 0,
+        LatestVersionSource::WebPage => version_compare(getVersionWithoutSuffix($latest), getVersionWithoutSuffix($current)) > 0,
     };
     if (!$isNewer) {
         logInfo("- {$name}: {$current} is up to date");
