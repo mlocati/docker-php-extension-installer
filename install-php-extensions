@@ -2941,20 +2941,20 @@ installIonCubeLoader() {
 			esac
 			;;
 	esac
-	case "$installIonCubeLoader_url" in
-		*-musl_x86-64) ;;
-		*-musl_*)
-			# See https://www.ioncube.com/loaders.php
-			printf 'ionCube does not provide a musl (Alpine) loader for the %s architecture\n' "$(uname -m)" >&2
-			exit 1
-			;;
-	esac
 	installIonCubeLoader_versionDisplayName=latest
 	if test -n "$installIonCubeLoader_version"; then
 		installIonCubeLoader_url="${installIonCubeLoader_url}_${installIonCubeLoader_version}"
 		installIonCubeLoader_versionDisplayName="v$installIonCubeLoader_version"
 	fi
 	installIonCubeLoader_url="${installIonCubeLoader_url}.tar.gz"
+	# ionCube answers a loader it doesn't publish (for example musl on aarch64) with an HTML page and a 200 status
+	installIonCubeLoader_contentType="$(curl $IPE_CURL_FLAGS -sSLfI -o /dev/null -w '%{content_type}' "$installIonCubeLoader_url" 2>/dev/null || true)"
+	case "$installIonCubeLoader_contentType" in
+		text/html*)
+			printf 'ionCube does not provide a loader for this platform (%s returns a web page, not an archive)\n' "$installIonCubeLoader_url" >&2
+			exit 1
+			;;
+	esac
 	# See https://www.ioncube.com/loaders.php
 	printf 'Downloading ionCube Loader (%s)... ' "$installIonCubeLoader_versionDisplayName"
 	installIonCubeLoader_dir="$(getPackageSource $installIonCubeLoader_url)"
