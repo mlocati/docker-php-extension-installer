@@ -2941,6 +2941,14 @@ installIonCubeLoader() {
 			esac
 			;;
 	esac
+	case "$installIonCubeLoader_url" in
+		*-musl_x86-64) ;;
+		*-musl_*)
+			# See https://www.ioncube.com/loaders.php
+			printf 'ionCube does not provide a musl (Alpine) loader for the %s architecture\n' "$(uname -m)" >&2
+			exit 1
+			;;
+	esac
 	installIonCubeLoader_versionDisplayName=latest
 	if test -n "$installIonCubeLoader_version"; then
 		installIonCubeLoader_url="${installIonCubeLoader_url}_${installIonCubeLoader_version}"
