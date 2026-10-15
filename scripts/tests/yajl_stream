@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/_bootstrap.php';
+
+$file = tempnam(sys_get_temp_dir(), 'yajl');
+file_put_contents($file, '{"meta":{"items":[0]},"data":{"items":[{"id":1},null,{"id":3}]}}');
+$items = [];
+foreach (new YajlStream\ArrayParser($file, '/data/items') as $key => $item) {
+    $items[$key] = $item;
+}
+unlink($file);
+if ($items !== [['id' => 1], null, ['id' => 3]]) {
+    fwrite(STDERR, 'YajlStream\ArrayParser returned ' . json_encode($items));
+    exit(1);
+}
+exit(0);

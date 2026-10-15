@@ -60,6 +60,7 @@ IPE_EXTVERSION_SNAPPY="${IPE_EXTVERSION_SNAPPY:-0.2.3}"
 IPE_EXTVERSION_SNUFFLEUPAGUS="${IPE_EXTVERSION_SNUFFLEUPAGUS:-0.14.0}"
 IPE_EXTVERSION_SPX="${IPE_EXTVERSION_SPX:-0.4.22}"
 IPE_EXTVERSION_V8JS="${IPE_EXTVERSION_V8JS:-8a39efa3cf3b275e402ddf3c4f6b611a5f69a499}"
+IPE_EXTVERSION_YAJL_STREAM="${IPE_EXTVERSION_YAJL_STREAM:-0.1.0}"
 
 StandWithUkraine() {
 	if test -t 1 && ! grep -Eq '^VERSION=.*jessie' /etc/os-release; then
@@ -1858,6 +1859,14 @@ buildRequiredPackageLists() {
 			xsl@debian)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libxslt1\.1$"
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libxslt-dev"
+				;;
+			yajl_stream@alpine)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent yajl"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile yajl-dev"
+				;;
+			yajl_stream@debian)
+				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libyajl2"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libyajl-dev"
 				;;
 			yaml@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent yaml"
@@ -5491,6 +5500,20 @@ installRemoteModule() {
 				fi
 			fi
 			;;
+		yajl_stream)
+			if test -z "$installRemoteModule_path"; then
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=$IPE_EXTVERSION_YAJL_STREAM
+				fi
+				installRemoteModule_src="$(getPackageSource https://codeload.github.com/vlydev/php-yajl-stream/tar.gz/v$installRemoteModule_version)"
+				cd -- "$installRemoteModule_src"
+				phpize
+				./configure --with-yajl-stream
+				make -j$(getProcessorCount) install
+				cd - >/dev/null
+				installRemoteModule_manuallyInstalled=1
+			fi
+			;;
 		yaml)
 			if test -z "$installRemoteModule_version"; then
 				if test $PHP_MAJMIN_VERSION -le 506; then
@@ -5611,7 +5634,7 @@ moduleMayUsePecl() {
 		@composer | @fix_letsencrypt)
 			return 1
 			;;
-		blackfire | geos | ioncube_loader | snuffleupagus | sourceguardian | spx | tdlib | tideways)
+		blackfire | geos | ioncube_loader | snuffleupagus | sourceguardian | spx | tdlib | tideways | yajl_stream)
 			return 1
 			;;
 	esac
