@@ -585,7 +585,7 @@ Here's the list of these libraries (the default versions are the ones used by th
 | [libdav1d](https://code.videolan.org/videolan/dav1d/-/tags) | `IPE_LIBVERSION_DAV1D` | `1.5.3` | gd | Only with PHP 8.1+ on Alpine < 3.15 and Debian < 12 (unless `IPE_GD_WITHOUTAVIF` is set) |
 | [libenchant1](https://github.com/rrthomas/enchant/releases) | `IPE_LIBVERSION_ENCHANT1` | `1.6.1` | enchant | Only with PHP < 8.0 on Alpine 3.12+ and Debian 11+ |
 | [Firebird](https://github.com/FirebirdSQL/firebird/releases) | `IPE_LIBVERSION_FIREBIRD` | `5.0.4.1812-0` | interbase, pdo_firebird, swoole | Only on Alpine, with PHP 8.4+ (with older PHP versions we use Firebird 2.5). Format: `<version>.<build>-<revision>` (as in the name of the source archive) |
-| [libgearman](https://github.com/gearman/gearmand/releases) | `IPE_LIBVERSION_GEARMAN` | `2.1.0` | gearman | Only on Alpine |
+| [libgearman](https://github.com/gearman/gearmand/releases) | `IPE_LIBVERSION_GEARMAN` | `2.2.0` | gearman | Only on Alpine |
 | [HAT-trie](https://github.com/Tessil/hat-trie/releases) | `IPE_LIBVERSION_HATTRIE` | `0.7.1` | php_trie |  |
 | [libidnkit](https://jprs.co.jp/idn/) | `IPE_LIBVERSION_IDNKIT` | `2.3` | http | Only with PHP 7.0+ |
 | [ion-c](https://github.com/amzn/ion-c/releases) | `IPE_LIBVERSION_IONC` | `1.1.6` | ion |  |
