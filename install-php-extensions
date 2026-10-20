@@ -5479,7 +5479,8 @@ installRemoteModule() {
 			else
 				installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
 			fi
-			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 2.2.0) -ge 0; then
+			# Optional serializers exist only in yac 2.2.0 - 2.x (removed in 3.0.0)
+			if test -n "$installRemoteModule_version" && test $(compareVersions "$installRemoteModule_version" 2.2.0) -ge 0 && test $(compareVersions "$installRemoteModule_version" 3.0.0) -lt 0; then
 				# Enable igbinary serializer support
 				if php --ri igbinary >/dev/null 2>/dev/null; then
 					addConfigureOption enable-igbinary yes
