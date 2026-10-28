@@ -654,6 +654,8 @@ sortModulesToInstall() {
 	checkRequiredModule relay igbinary
 	# pq requires raphf
 	checkRequiredModule pq raphf
+	# mailparse requires mbstring
+	checkRequiredModule mailparse mbstring
 	# phalcon up to v5.0.0beta3 requires psr
 	if test $PHP_MAJMINPAT_VERSION -lt 70401; then
 		checkRequiredModule phalcon psr
