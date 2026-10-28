@@ -3889,6 +3889,9 @@ installRemoteModule() {
 						alpine@3.7 | alpine@3.8 | debian@9) # With newer version: "This package requires GCC 7 or higher"
 							installRemoteModule_version=1.52.1
 							;;
+						alpine@3.9 | alpine@3.10 | debian@10) # With 1.85.0: "This package requires GCC 10 or higher"
+							installRemoteModule_version=1.84.0
+							;;
 						alpine@3.11 | alpine@3.12) # With 1.81.0: "/src/core/lib/promise/detail/promise_like.h:219:65: internal compiler error: in assign_temp, at function.c:982"
 							installRemoteModule_version=1.80.0
 							;;
