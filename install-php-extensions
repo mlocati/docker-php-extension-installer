@@ -980,8 +980,11 @@ buildRequiredPackageLists() {
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebp"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
+					if test $PHP_MAJMIN_VERSION -ge 806; then
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libwebpdemux libwebpmux"
+					fi
 					if test $PHP_MAJMIN_VERSION -ge 801; then
-						if test $DISTRO_MAJMIN_VERSION -ge 315; then
+						if isDistroLibavifUsable; then
 							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libavif aom-libs libdav1d"
 							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libavif-dev aom-dev dav1d-dev"
 						elif isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
@@ -1019,8 +1022,11 @@ buildRequiredPackageLists() {
 				else
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libwebp[0-9]+$"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libwebp-dev"
+					if test $PHP_MAJMIN_VERSION -ge 806; then
+						buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libwebpdemux[0-9]+$ ^libwebpmux[0-9]+$"
+					fi
 					if test $PHP_MAJMIN_VERSION -ge 801; then
-						if test $DISTRO_VERSION_NUMBER -ge 12; then
+						if isDistroLibavifUsable; then
 							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libavif[0-9]+$ ^libaom[0-9]+$ ^libdav1d[0-9]+$"
 							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libavif-dev libaom-dev libdav1d-dev"
 						elif ! isLibaomInstalled || ! isLibdav1dInstalled || ! isLibyuvInstalled || ! isLibavifInstalled; then
@@ -2587,6 +2593,33 @@ installLibyuv() {
 	cd - >/dev/null
 }
 
+# Check if the distro provides a libavif that's recent enough for gd (PHP 8.6 requires libavif 1.0+)
+#
+# Return:
+#   0 (true)
+#   1 (false)
+isDistroLibavifUsable() {
+	case "$DISTRO" in
+		alpine)
+			if test $PHP_MAJMIN_VERSION -ge 806; then
+				test $DISTRO_MAJMIN_VERSION -ge 319
+			else
+				test $DISTRO_MAJMIN_VERSION -ge 315
+			fi
+			;;
+		debian)
+			if test $PHP_MAJMIN_VERSION -ge 806; then
+				test $DISTRO_VERSION_NUMBER -ge 13
+			else
+				test $DISTRO_VERSION_NUMBER -ge 12
+			fi
+			;;
+		*)
+			return 1
+			;;
+	esac
+}
+
 # Check if libavif is installed
 #
 # Return:
@@ -3229,23 +3262,12 @@ EOF
 			elif test $PHP_MAJMIN_VERSION -le 800; then
 				docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype
 			else
-				installBundledModule_tmp=0
-				case "$DISTRO" in
-					alpine)
-						if test $DISTRO_MAJMIN_VERSION -ge 315; then
-							installBundledModule_tmp=1
-						fi
-						;;
-					debian)
-						if test $DISTRO_VERSION_NUMBER -ge 12; then
-							installBundledModule_tmp=1
-						fi
-						;;
-				esac
-				if test $installBundledModule_tmp -eq 0; then
-					if isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
-						installBundledModule_tmp=1
-					fi
+				if isDistroLibavifUsable; then
+					installBundledModule_tmp=1
+				elif isLibaomInstalled && isLibdav1dInstalled && isLibyuvInstalled && isLibavifInstalled; then
+					installBundledModule_tmp=1
+				else
+					installBundledModule_tmp=0
 				fi
 				if test $installBundledModule_tmp -eq 1; then
 					docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype --with-avif
