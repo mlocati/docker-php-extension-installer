@@ -31,7 +31,7 @@ jobs:
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_TO }}
-          message: Testing packages against PHP 8.6 failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.6.yml
+          message: Testing packages against PHP 8.6 on ${{ matrix.distro }} failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.6.yml
   test_unsupported_extensions:
     strategy:
       fail-fast: false
@@ -79,5 +79,5 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_TO }}
           message: |
-            Checking unsupported packages against PHP 8.6 failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.6.yml
+            Checking unsupported packages against PHP 8.6 on ${{ matrix.distro }} failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.6.yml
             ${{ steps.check.outputs.compilable && format('Now compilable: {0}', steps.check.outputs.compilable) || '' }}
