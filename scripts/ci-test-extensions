@@ -16,6 +16,7 @@
 # Global environment variables used:
 # - IPETEST_DOCKER_DISTRO (required) the handle of the docker distibution to be used (eg 'buster', 'alpine3.14')
 # - IPETEST_ONLY_PHPVERSIONS (optional) a space-separeted list of PHP versions: if set, we'll test only those PHP versions (eg '8.0 8.1')
+# - IPETEST_SKIP_SUPPORTEDCHECK (optional) if set to 1, we'll test the PHP versions listed in IPETEST_ONLY_PHPVERSIONS even if data/supported-extensions doesn't list them
 
 # Let's set a sane environment
 set -o errexit
@@ -215,10 +216,6 @@ getDockerImageName() {
 # Outputs:
 # the space-separated list of supported PHP versions
 getAllPHPVersionsForExtensions() {
-	if test -n "${PHP_VERSION_TO_TEST:-}"; then
-		echo "$PHP_VERSION_TO_TEST"
-		return
-	fi
 	getAllPHPVersionsForExtensions_result=''
 	IFS=' '
 	for getAllPHPVersionsForExtensions_extension in $1; do
@@ -249,30 +246,34 @@ getAllPHPVersionsForExtensions() {
 # Outputs:
 # the space-separated list of supported PHP versions
 getAllPHPVersionsForExtension() {
-	getAllPHPVersionsForExtension_result=''
-	while IFS= read -r getAllPHPVersionsForExtension_line; do
-		getAllPHPVersionsForExtension_ok=
-		IFS=' '
-		for getAllPHPVersionsForExtension_chunk in $getAllPHPVersionsForExtension_line; do
-			if test -z "$getAllPHPVersionsForExtension_ok"; then
-				if test "$getAllPHPVersionsForExtension_chunk" = "$1"; then
-					getAllPHPVersionsForExtension_ok=y
-				else
-					getAllPHPVersionsForExtension_ok=n
-				fi
-			else
-				if test $getAllPHPVersionsForExtension_ok = 'y'; then
-					if test -z "$getAllPHPVersionsForExtension_result"; then
-						getAllPHPVersionsForExtension_result="$getAllPHPVersionsForExtension_chunk"
+	if test $IPETEST_SKIP_SUPPORTEDCHECK -eq 1; then
+		getAllPHPVersionsForExtension_result="$IPETEST_ONLY_PHPVERSIONS"
+	else
+		getAllPHPVersionsForExtension_result=''
+		while IFS= read -r getAllPHPVersionsForExtension_line; do
+			getAllPHPVersionsForExtension_ok=
+			IFS=' '
+			for getAllPHPVersionsForExtension_chunk in $getAllPHPVersionsForExtension_line; do
+				if test -z "$getAllPHPVersionsForExtension_ok"; then
+					if test "$getAllPHPVersionsForExtension_chunk" = "$1"; then
+						getAllPHPVersionsForExtension_ok=y
 					else
-						if ! stringInList "$getAllPHPVersionsForExtension_chunk" "$getAllPHPVersionsForExtension_result"; then
-							getAllPHPVersionsForExtension_result="$getAllPHPVersionsForExtension_result $getAllPHPVersionsForExtension_chunk"
+						getAllPHPVersionsForExtension_ok=n
+					fi
+				else
+					if test $getAllPHPVersionsForExtension_ok = 'y'; then
+						if test -z "$getAllPHPVersionsForExtension_result"; then
+							getAllPHPVersionsForExtension_result="$getAllPHPVersionsForExtension_chunk"
+						else
+							if ! stringInList "$getAllPHPVersionsForExtension_chunk" "$getAllPHPVersionsForExtension_result"; then
+								getAllPHPVersionsForExtension_result="$getAllPHPVersionsForExtension_result $getAllPHPVersionsForExtension_chunk"
+							fi
 						fi
 					fi
 				fi
-			fi
-		done
-	done <"$CI_BUILD_DIR/data/supported-extensions"
+			done
+		done <"$CI_BUILD_DIR/data/supported-extensions"
+	fi
 
 	getAllPHPVersionsForExtension_reqs="$CI_BUILD_DIR/data/special-requirements"
 	if test -f "$getAllPHPVersionsForExtension_reqs"; then
@@ -459,6 +460,18 @@ if test -z "${IPETEST_DOCKER_DISTRO:-}"; then
 	echo 'IPETEST_DOCKER_DISTRO environment variable not set'
 	exit 1
 fi
+case "${IPETEST_SKIP_SUPPORTEDCHECK:-}" in
+	1 | y* | Y*)
+		if test -z "${IPETEST_ONLY_PHPVERSIONS:-}"; then
+			echo 'IPETEST_ONLY_PHPVERSIONS environment variable must be set when IPETEST_SKIP_SUPPORTEDCHECK is set'
+			exit 1
+		fi
+		IPETEST_SKIP_SUPPORTEDCHECK=1
+		;;
+	*)
+		IPETEST_SKIP_SUPPORTEDCHECK=0
+		;;
+esac
 
 . "$CI_BUILD_DIR/scripts/common"
 
