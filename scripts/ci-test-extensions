@@ -72,7 +72,7 @@ extractExtensionsFromCommits() {
 					for extractExtensionsFromCommits_extension in $extractExtensionsFromCommits_testList; do
 						if test $extractExtensionsFromCommits_extension = '-STOP-'; then
 							STOP_EXTENSIONS_FOUND=1
-							break 2
+							break 3
 						fi
 						if ! stringInList "$extractExtensionsFromCommits_extension" "$EXTENSIONS_TO_BE_TESTED"; then
 							EXTENSIONS_TO_BE_TESTED="$EXTENSIONS_TO_BE_TESTED $extractExtensionsFromCommits_extension"
