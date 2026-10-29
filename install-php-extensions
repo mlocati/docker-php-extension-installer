@@ -5749,7 +5749,8 @@ installPeclPackage() {
 			installPeclPackage_path="$installPeclPackage_path/package.xml"
 		fi
 	fi
-	cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" pecl install "$installPeclPackage_path"
+	# Calling undeclared functions (eg. ones removed in newer PHP versions) is just a warning with GCC < 14: the build succeeds, but the extension crashes at runtime
+	cat "$CONFIGURE_FILE" | MAKE="make -j$(getCompilationProcessorCount $1)" CPPFLAGS="${3:-}" EXTRA_CFLAGS=-Werror=implicit-function-declaration pecl install "$installPeclPackage_path"
 }
 
 # Check if a string is in a list of space-separated string
