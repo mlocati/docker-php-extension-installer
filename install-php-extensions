@@ -4862,7 +4862,12 @@ installRemoteModule() {
 				if test $PHP_MAJMIN_VERSION -le 506; then
 					installRemoteModule_version=0.13
 				elif test $PHP_MAJMIN_VERSION -le 704; then
-					installRemoteModule_version=1.4.1
+					if test "$DISTRO_VERSION" = debian@8; then
+						# ssh2 1.4+ requires libssh2 1.6+, but Jessie ships libssh2 1.4.3
+						installRemoteModule_version=1.3.1
+					else
+						installRemoteModule_version=1.4.1
+					fi
 				fi
 			fi
 			;;
