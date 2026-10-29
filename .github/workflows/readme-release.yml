@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - README.md
     tags:
       - "*"
   workflow_dispatch:
@@ -51,7 +53,7 @@ jobs:
             git config user.name 'Michele Locati'
             git config user.email 'michele@locati.it'
             git add README.md
-            git commit -m '[skip ci] Automatically update README.md'
+            git commit -m 'Automatically update README.md'
             git push
           fi
       -
