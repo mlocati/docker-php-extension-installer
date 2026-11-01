@@ -7,6 +7,8 @@
 #   Test the specified extensions
 # - ci-test-extensions all
 #   Test all the supported extensions
+# - ci-test-extensions pie
+#   Test the PIE packages listed in data/pie-packages on the PIE-supported PHP versions
 # - ci-test-extensions from-tests-file <tests file> <results directory>
 #   Perform the tests listed in the tests file (written by scripts/check-updates.php), one per line, in the format
 #   <comma-separated extensions> [<VARIABLE>=<value> ...]
@@ -198,7 +200,7 @@ getDockerImageName() {
 	if test -z "$(docker images -q "$getDockerImageName_imageName" 2>/dev/null)"; then
 		getDockerImageName_log="$(docker pull "$getDockerImageName_imageName" 2>&1 || true)"
 		if test -z "$(docker images -q "$getDockerImageName_imageName" 2>/dev/null)"; then
-			if test "${getDockerImageName_log#*manifest unknown}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*manifest for * not found}" != "$getDockerImageName_log"; then
+			if test "${getDockerImageName_log#*manifest unknown}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*manifest for * not found}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*failed to resolve reference * not found}" != "$getDockerImageName_log"; then
 				return
 			fi
 			printf 'Failed to pull the Docker image %s:\n%s\n' "$getDockerImageName_imageName" "$getDockerImageName_log" >&2
@@ -300,6 +302,38 @@ getAllPHPVersionsForExtension() {
 	printf '%s' "${getAllPHPVersionsForExtension_filtered_result# }"
 }
 
+# Get the minimum PHP version for a PIE package
+#
+# Arguments:
+# $1: the name of the extension
+getPieMinPhpVersion() {
+	awk -v extension="$1" '$1 == extension { print $2; exit }' "$CI_BUILD_DIR/data/pie-packages"
+}
+
+# Remove the extensions whose PIE package is not usable on the current distro
+#
+# Arguments:
+# $1: space-separated list with the names of the PHP extensions
+filterPieUnsupportedExtensionsForDistro() {
+	filterPieUnsupportedExtensionsForDistro_result=''
+	for filterPieUnsupportedExtensionsForDistro_extension in $1; do
+		filterPieUnsupportedExtensionsForDistro_exclusions="$(awk -v extension="$filterPieUnsupportedExtensionsForDistro_extension" '$1 == extension { for (i = 4; i <= NF; i++) print $i; exit }' "$CI_BUILD_DIR/data/pie-packages")"
+		filterPieUnsupportedExtensionsForDistro_excluded=0
+		for filterPieUnsupportedExtensionsForDistro_exclusion in $filterPieUnsupportedExtensionsForDistro_exclusions; do
+			case "$filterPieUnsupportedExtensionsForDistro_exclusion" in
+				"!$IPETEST_DOCKER_DISTRO")
+					filterPieUnsupportedExtensionsForDistro_excluded=1
+					break
+					;;
+			esac
+		done
+		if test $filterPieUnsupportedExtensionsForDistro_excluded -eq 0; then
+			filterPieUnsupportedExtensionsForDistro_result="$filterPieUnsupportedExtensionsForDistro_result $filterPieUnsupportedExtensionsForDistro_extension"
+		fi
+	done
+	printf '%s' "${filterPieUnsupportedExtensionsForDistro_result# }"
+}
+
 # Test extensions
 #
 # Arguments:
@@ -315,6 +349,17 @@ testExtensions() {
 		testExtensions_extension="$(printf '%s' "$testExtensions_extension" | sed -E 's/\+/ /g')"
 		printf '### TESTING EXTENSION(S) %s ###\n' "$testExtensions_extension"
 		for testExtensions_phpVersion in $(getAllPHPVersionsForExtensions "$testExtensions_extension"); do
+			if test "${TEST_PIE:-0}" -eq 1; then
+				case "$testExtensions_phpVersion" in
+					5.* | 7.* | 8.0)
+						continue
+						;;
+				esac
+				testExtensions_pieMinPhpVersion="$(getPieMinPhpVersion "$testExtensions_extension")"
+				if test -n "$testExtensions_pieMinPhpVersion" && test "$(printf '%s\n%s\n' "$testExtensions_pieMinPhpVersion" "$testExtensions_phpVersion" | sort -V | head -n 1)" != "$testExtensions_pieMinPhpVersion"; then
+					continue
+				fi
+			fi
 			if test -z "${IPETEST_ONLY_PHPVERSIONS:-}" || stringInList "$testExtensions_phpVersion" "$IPETEST_ONLY_PHPVERSIONS"; then
 				if ! testExtensionFor "$testExtensions_extension" "$testExtensions_phpVersion"; then
 					testExtensions_result=1
@@ -352,6 +397,17 @@ testExtensionFor() {
 	printf ' - Docker image: %s\n' "$testExtensionFor_Image"
 	testExtensionFor_out="$(mktemp)"
 	testExtensionFor_start=$(date +%s)
+	testExtensionFor_githubEnv=''
+	if test "${TEST_PIE:-0}" -eq 1 && test -n "${COMPOSER_AUTH:-}"; then
+		testExtensionFor_githubEnv='--env COMPOSER_AUTH'
+	fi
+	case "$1" in
+		mongodb | zstd)
+			if test -n "${COMPOSER_AUTH:-}"; then
+				testExtensionFor_githubEnv='--env COMPOSER_AUTH'
+			fi
+			;;
+	esac
 	testExtensionFor_ddtraceEnv=''
 	if stringInList ddtrace "$1"; then
 		case "$2" in
@@ -367,15 +423,28 @@ testExtensionFor() {
 				;;
 		esac
 	fi
-	if docker run --rm --volume "$CI_BUILD_DIR:/app" --env CI=true --env IPE_FIX_CACERTS=1 $testExtensionFor_ddtraceEnv $TEST_DOCKER_ENV --env IPE_ASPELL_LANGUAGES='en fr' --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >"$testExtensionFor_out" 2>&1; then
-		testExtensionFor_end=$(date +%s)
-		testExtensionFor_delta=$(expr $testExtensionFor_end - $testExtensionFor_start)
-		rm -rf "$testExtensionFor_out"
-		printf ' - Passed in %s seconds\n' $testExtensionFor_delta
-		IPE_SUMMARY_GOOD="$(printf '%s- %s (%s)\n ' "${IPE_SUMMARY_GOOD% }" "$1" "$testExtensionFor_Image")"
-		recordTestResult ok "$2" "$1"
-		return 0
-	fi
+	testExtensionFor_attempt=1
+	while test $testExtensionFor_attempt -le 3; do
+		printf '### ATTEMPT %s ###\n' "$testExtensionFor_attempt" >>"$testExtensionFor_out"
+		if docker run --rm --volume "$CI_BUILD_DIR:/app" --env CI=true --env IPE_FIX_CACERTS=1 $testExtensionFor_ddtraceEnv $testExtensionFor_githubEnv $TEST_DOCKER_ENV --env IPE_ASPELL_LANGUAGES='en fr' --workdir /app "$testExtensionFor_Image" sh -c "./install-php-extensions $1 && php ./scripts/check-installed-extension.php $1" >>"$testExtensionFor_out" 2>&1; then
+			testExtensionFor_end=$(date +%s)
+			testExtensionFor_delta=$(expr $testExtensionFor_end - $testExtensionFor_start)
+			if test $testExtensionFor_attempt -gt 1; then
+				printf ' - Recovered after %s attempts; attempt log follows.\n' "$testExtensionFor_attempt"
+				cat "$testExtensionFor_out"
+			fi
+			rm -rf "$testExtensionFor_out"
+			printf ' - Passed in %s seconds\n' $testExtensionFor_delta
+			IPE_SUMMARY_GOOD="$(printf '%s- %s (%s)\n ' "${IPE_SUMMARY_GOOD% }" "$1" "$testExtensionFor_Image")"
+			recordTestResult ok "$2" "$1"
+			return 0
+		fi
+		if test $testExtensionFor_attempt -lt 3; then
+			printf ' - Attempt %s failed, retrying in 10 seconds...\n' "$testExtensionFor_attempt"
+			sleep 10
+		fi
+		testExtensionFor_attempt=$((testExtensionFor_attempt + 1))
+	done
 	printf '\n\n###############\n##           ##\n##  FAILED!  ##\n##           ##\n###############\n'
 	echo '::group::Error details'
 	cat "$testExtensionFor_out"
@@ -505,6 +574,13 @@ case "${1:-}" in
 		;;
 	all)
 		runTests "$(cat "$CI_BUILD_DIR/data/supported-extensions" | cut -d' ' -f1 | tr '\n' ' ')"
+		;;
+	pie)
+		TEST_PIE=1
+		TEST_DOCKER_ENV='--env IPE_REQUIRE_PIE=1'
+		pie_extensions="$(cut -d' ' -f1 "$CI_BUILD_DIR/data/pie-packages" | tr '\n' ' ')"
+		pie_extensions="$(filterPieUnsupportedExtensionsForDistro "$pie_extensions")"
+		runTests "$pie_extensions"
 		;;
 	from-tests-file)
 		if test -z "${2:-}" || test -z "${3:-}"; then

@@ -62,6 +62,23 @@ IPE_EXTVERSION_SPX="${IPE_EXTVERSION_SPX:-0.4.22}"
 IPE_EXTVERSION_V8JS="${IPE_EXTVERSION_V8JS:-8a39efa3cf3b275e402ddf3c4f6b611a5f69a499}"
 IPE_EXTVERSION_YAJL_STREAM="${IPE_EXTVERSION_YAJL_STREAM:-0.1.0}"
 
+# The version of PIE (the PHP Installer for Extensions) used when IPE_USE_PIE is enabled
+IPE_EXTVERSION_PIE="${IPE_EXTVERSION_PIE:-1.5.2}"
+IPE_PIE_VERSION="${IPE_PIE_VERSION:-$IPE_EXTVERSION_PIE}"
+
+# The expected SHA-256 of the PIE phar
+IPE_PIE_SHA256="${IPE_PIE_SHA256:-fe70c59738cf56ec00a818cf9cb9593da171aac86f5f1f859995b8839dfd2cc7}"
+
+# The temporary directory used by PIE to store its data (set by configureInstaller)
+PIE_TMP_DIR=''
+
+# The Composer home directory used by PIE (set by configureInstaller)
+PIE_COMPOSER_HOME=''
+
+# Whether PIE may be used (0: no, 1: yes) and is actually used (set by configureInstaller)
+PIE_ENABLED=0
+USE_PIE=0
+
 StandWithUkraine() {
 	if test -t 1 && ! grep -Eq '^VERSION=.*jessie' /etc/os-release; then
 		printf '\e[37;44m#StandWith\e[30;43mUkraine\e[0m\n'
@@ -230,6 +247,132 @@ getPeclModuleName() {
 	printf '%s' "$normalizePHPModuleName_name"
 }
 
+# Get the PIE (Packagist) package name of a PHP extension
+#
+# Arguments:
+#   $1: the name of the PHP extension
+#
+# Output:
+#   The PIE package name (nothing if the extension can't be installed using PIE)
+getPiePackageName() {
+	case "$1" in
+		# START OF PIE PACKAGES (generated from data/pie-packages)
+		apcu)
+			printf '%s' 'apcu/apcu'
+			;;
+		ast)
+			printf '%s' 'nikic/php-ast'
+			;;
+		brotli)
+			printf '%s' 'kjdev/brotli'
+			;;
+		decimal)
+			printf '%s' 'php-decimal/ext-decimal'
+			;;
+		ds)
+			printf '%s' 'php-ds/ext-ds'
+			;;
+		excimer)
+			printf '%s' 'wikimedia/excimer'
+			;;
+		imagick)
+			printf '%s' 'imagick/imagick'
+			;;
+		inotify)
+			printf '%s' 'arnaud-lb/inotify'
+			;;
+		mailparse)
+			printf '%s' 'pecl/mailparse'
+			;;
+		mongodb)
+			printf '%s' 'mongodb/mongodb-extension'
+			;;
+		msgpack)
+			printf '%s' 'msgpack/msgpack-php'
+			;;
+		parallel)
+			printf '%s' 'pecl/parallel'
+			;;
+		pcov)
+			printf '%s' 'pecl/pcov'
+			;;
+		rdkafka)
+			printf '%s' 'rdkafka/rdkafka'
+			;;
+		redis)
+			printf '%s' 'phpredis/phpredis'
+			;;
+		timezonedb)
+			printf '%s' 'pecl/timezonedb'
+			;;
+		uuid)
+			printf '%s' 'pecl/uuid'
+			;;
+		xdebug)
+			printf '%s' 'xdebug/xdebug'
+			;;
+		yaml)
+			printf '%s' 'pecl/yaml'
+			;;
+		zstd)
+			printf '%s' 'kjdev/zstd'
+			;;
+		# END OF PIE PACKAGES (generated from data/pie-packages)
+		*)
+			return 1
+			;;
+	esac
+}
+
+# Check if an argument is a PIE package name (vendor/package with an optional :version constraint)
+#
+# Local directories also look like vendor/package: processPHPModuleArgument must check them first.
+isPiePackageArgument() {
+	printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | grep -Eq '^[a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*(:[^[:space:]]+)?$'
+}
+
+# Get a version comparable with compareVersions from a PIE version constraint
+#
+# This is only an approximation: for ranges (like ~6.0 or ^5) it returns the lower bound, not the version that will
+# be installed, and constraints using <, <=, ||, commas, spaces or wildcards are not supported.
+#
+# Arguments:
+#   $1: the version constraint (optional)
+#
+# Output:
+#   A numeric version (nothing if the constraint means the latest version)
+getPieComparableVersion() {
+	case "$1" in
+		'' | latest | stable | @stable | dev-*)
+			;;
+		*)
+			getPieComparableVersion_version="${1%@*}"
+			case "$getPieComparableVersion_version" in
+				'>='*)
+					getPieComparableVersion_version="${getPieComparableVersion_version#??}"
+					;;
+				'>'*)
+					getPieComparableVersion_version="${getPieComparableVersion_version#?}"
+					;;
+				'~'*)
+					getPieComparableVersion_version="${getPieComparableVersion_version#?}"
+					;;
+			esac
+			getPieComparableVersion_version="${getPieComparableVersion_version#^}"
+			case "$getPieComparableVersion_version" in
+				*.*.*) ;;
+				*.*)
+					getPieComparableVersion_version="$getPieComparableVersion_version.0"
+					;;
+				*)
+					getPieComparableVersion_version="$getPieComparableVersion_version.0.0"
+					;;
+			esac
+			printf '%s' "$getPieComparableVersion_version"
+			;;
+	esac
+}
+
 # Parse a package.xml (or package2.xml) file and extract the module name and version
 #
 # Arguments:
@@ -363,6 +506,11 @@ processPHPModuleArgument() {
 			printf 'Unable to parse the following module name:\n%s\n' "$PROCESSED_PHP_MODULE_ARGUMENT" >&2
 			exit 1
 		fi
+	elif isPiePackageArgument "$processPHPModuleArgument_arg"; then
+		processPHPModuleArgument_package="${processPHPModuleArgument_arg%%:*}"
+		processPHPModuleArgument_constraint="${processPHPModuleArgument_arg#"$processPHPModuleArgument_package"}"
+		PROCESSED_PHP_MODULE_ARGUMENT="$(printf '%s' "$processPHPModuleArgument_package" | tr '[:upper:]' '[:lower:]')$processPHPModuleArgument_constraint"
+		processPHPModuleArgument_version=''
 	else
 		PROCESSED_PHP_MODULE_ARGUMENT="${processPHPModuleArgument_arg%%-*}"
 		if test -n "$PROCESSED_PHP_MODULE_ARGUMENT" && test "$PROCESSED_PHP_MODULE_ARGUMENT" != "$processPHPModuleArgument_arg"; then
@@ -419,14 +567,27 @@ getModuleSourceCodePath() {
 #   $2: the wanted version (optional, if omitted we'll use getWantedPHPModuleVersion)
 #
 # Output:
-#   The version to be used
+#   The version to be used (a comparable version if PIE is used)
 resolvePHPModuleVersion() {
+	if moduleMayUsePie "$1"; then
+		if test $# -lt 2; then
+			getPieComparableVersion "$(getWantedPHPModuleVersion "$1")"
+		else
+			getPieComparableVersion "$2"
+		fi
+		return
+	fi
 	resolvePHPModuleVersion_module="$1"
 	if test $# -lt 2; then
 		resolvePHPModuleVersion_raw="$(getWantedPHPModuleVersion "$resolvePHPModuleVersion_module")"
 	else
 		resolvePHPModuleVersion_raw="$2"
 	fi
+	case "$resolvePHPModuleVersion_raw" in
+		@stable)
+			resolvePHPModuleVersion_raw='stable'
+			;;
+	esac
 	resolvePHPModuleVersion_afterCaret="${resolvePHPModuleVersion_raw#^}"
 	if test "$resolvePHPModuleVersion_raw" = "$resolvePHPModuleVersion_afterCaret"; then
 		printf '%s' "$resolvePHPModuleVersion_raw"
@@ -496,8 +657,13 @@ resolvePHPModuleVersion() {
 #   $1: the module name as known on the PECL archive
 #   $2: the version to be resolved
 # Output:
-#   $2 itself if $1 is not 'latest', 'stable', 'beta', 'alpha', or 'devel', the actual version otherwise
+#   $2 itself if $1 is not 'latest', 'stable', 'beta', 'alpha', or 'devel' (or if PIE is used for $1),
+#   the actual version otherwise
 resolvePeclStabilityVersion() {
+	if moduleMayUsePie "$1"; then
+		printf '%s' "$2"
+		return
+	fi
 	case "$2" in
 		latest | stable | beta | alpha | devel) ;;
 		*)
@@ -839,6 +1005,12 @@ buildRequiredPackageLists() {
 			fi
 			;;
 	esac
+if test $USE_PICKLE -gt 1; then
+		buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git"
+	fi
+	if test $USE_PIE -eq 1; then
+		buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile unzip"
+	fi
 	while :; do
 		if test $# -lt 1; then
 			break
@@ -1498,6 +1670,10 @@ buildRequiredPackageLists() {
 						buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile lz4-dev"
 					fi
 				fi
+				if moduleMayUsePie redis; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblzf"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblzf-dev"
+				fi
 				;;
 			redis@debian)
 				if test $PHP_MAJMIN_VERSION -ge 700; then
@@ -1509,7 +1685,7 @@ buildRequiredPackageLists() {
 							## libzstd is too old (available: 1.1.2, required: 1.3.0+)
 							;;
 						*)
-							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent ^libzstd[0-9]*$"
+							buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libzstd1"
 							buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile libzstd-dev"
 							;;
 					esac
@@ -1517,6 +1693,10 @@ buildRequiredPackageLists() {
 				if test $PHP_MAJMIN_VERSION -ge 702; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblz4-1"
 					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblz4-dev"
+				fi
+				if moduleMayUsePie redis; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent liblzf1"
+					buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile liblzf-dev"
 				fi
 				;;
 			rrd@alpine)
@@ -3523,9 +3703,11 @@ getPackageSource() {
 installRemoteModule() {
 	installRemoteModule_module="$1"
 	printf '### INSTALLING REMOTE MODULE %s ###\n' "$installRemoteModule_module"
+	installRemoteModule_requestedVersion="$(getWantedPHPModuleVersion "$installRemoteModule_module")"
 	installRemoteModule_version="$(resolvePHPModuleVersion "$installRemoteModule_module")"
 	installRemoteModule_path="$(getModuleSourceCodePath "$installRemoteModule_module")"
 	rm -rf "$CONFIGURE_FILE"
+	rm -rf "$PIE_CONFIGURE_FILE"
 	installRemoteModule_manuallyInstalled=0
 	installRemoteModule_cppflags=''
 	installRemoteModule_ini_basename=''
@@ -4187,7 +4369,10 @@ installRemoteModule() {
 				# Use system crypto profile (OpenSSL only)? (yes/no)
 				addConfigureOption enable-mongodb-crypto-system-profile yes
 				# Use bundled or system utf8proc for SCRAM-SHA-256 SASLprep? (bundled/system)
-				addConfigureOption with-mongodb-utf8proc bundled
+				if ! moduleMayUsePie mongodb; then
+					# The PIE package doesn't declare this option, and its default is bundled.
+					addConfigureOption with-mongodb-utf8proc bundled
+				fi
 			fi
 			;;
 		mosquitto)
@@ -4472,7 +4657,7 @@ installRemoteModule() {
 						installRemoteModule_tmp='librdkafka'
 						;;
 					debian)
-						installRemoteModule_tmp='librdkafka*'
+						installRemoteModule_tmp='librdkafka1'
 						;;
 					*)
 						installRemoteModule_tmp=''
@@ -4513,6 +4698,10 @@ installRemoteModule() {
 			fi
 			# Enable lzf compression support?
 			addConfigureOption enable-redis-lzf yes
+			if moduleMayUsePie redis; then
+				# The PIE package does not include the bundled liblzf
+				addConfigureOption with-liblzf yes
+			fi
 			if test -z "$installRemoteModule_version" || test $(compareVersions "$installRemoteModule_version" 5.0.0) -ge 0; then
 				if ! test -e /usr/include/zstd.h || ! test -e /usr/lib/libzstd.so -o -e "/usr/lib/$TARGET_TRIPLET/libzstd.so"; then
 					installRemoteModule_zstdVersion=$IPE_LIBVERSION_ZSTD
@@ -5639,13 +5828,57 @@ installRemoteModule() {
 			fi
 			;;
 	esac
+	if isPiePackageArgument "$installRemoteModule_module"; then
+		if ! installPiePackageDirect "$installRemoteModule_module"; then
+			printf 'PIE failed to install %s\n' "$installRemoteModule_module" >&2
+			exit 1
+		fi
+		return
+	fi
 	if test $installRemoteModule_manuallyInstalled -eq 0; then
 		if test -n "$installRemoteModule_path"; then
 			printf '  (installing version %s from %s)\n' "$installRemoteModule_version" "$installRemoteModule_path"
+		elif moduleMayUsePie "$installRemoteModule_module"; then
+			if test -n "$installRemoteModule_requestedVersion"; then
+				printf '  (installing version %s)\n' "$installRemoteModule_requestedVersion"
+			fi
 		elif test -n "$installRemoteModule_version"; then
 			printf '  (installing version %s)\n' "$installRemoteModule_version"
 		fi
-		installPeclPackage "$installRemoteModule_module" "$installRemoteModule_version" "$installRemoteModule_cppflags" "$installRemoteModule_path"
+		if moduleMayUsePie "$installRemoteModule_module"; then
+			if ! installPiePackage "$installRemoteModule_module" "$installRemoteModule_requestedVersion"; then
+				if pieIsRequired; then
+					printf 'PIE is required but failed to install %s\n' "$installRemoteModule_module" >&2
+					exit 1
+				fi
+				if ! pieFallbackAllowed; then
+					printf 'PIE failed to install %s. Set IPE_ALLOW_PIE_FALLBACK=1 to fall back to the standard installer.\n' "$installRemoteModule_module" >&2
+					exit 1
+				fi
+				printf 'PIE failed to install %s, falling back to the standard installer\n' "$installRemoteModule_module" >&2
+				PIE_ENABLED=0
+				if test $USE_PECL -eq 0; then
+					configurePecl
+					USE_PECL=1
+				fi
+				installRemoteModule "$installRemoteModule_module"
+				PIE_ENABLED=1
+				return
+			fi
+		else
+			if test $PIE_ENABLED -eq 1; then
+				if pieIsRequired; then
+					printf 'PIE is required but cannot be used for %s\n' "$installRemoteModule_module" >&2
+					exit 1
+				fi
+				printf 'PIE is not used for %s, using the standard installer\n' "$installRemoteModule_module" >&2
+			fi
+			if test $USE_PECL -eq 0; then
+				configurePecl
+				USE_PECL=1
+			fi
+			installPeclPackage "$installRemoteModule_module" "$installRemoteModule_version" "$installRemoteModule_cppflags" "$installRemoteModule_path"
+		fi
 	fi
 	postProcessModule "$installRemoteModule_module"
 	if test $installRemoteModule_manuallyInstalled -lt 2; then
@@ -5668,6 +5901,9 @@ installRemoteModule() {
 #   0: true
 #   1: false
 moduleMayUsePecl() {
+	if isPiePackageArgument "$1"; then
+		return 1
+	fi
 	case "$1" in
 		@composer | @fix_letsencrypt)
 			return 1
@@ -5682,22 +5918,153 @@ moduleMayUsePecl() {
 	return 0
 }
 
-# Install PEAR (and so the pecl command) with the same installer used by php-src
-installPear() {
-	printf '### INSTALLING PEAR ###\n'
-	installPear_prefix="$(php-config --prefix)"
-	installPear_phar="$(mktemp -p /tmp/src)"
-	curl $IPE_CURL_FLAGS -sSLf -o "$installPear_phar" https://pear.php.net/install-pear-nozlib.phar
-	php -n -dshort_open_tag=0 -dopen_basedir= -derror_reporting=1803 -dmemory_limit=-1 "$installPear_phar" -d "$installPear_prefix/lib/php" -b "$installPear_prefix/bin"
-	rm -f "$installPear_phar"
+# Check if the preinstalled librdkafka is too old for the PIE package of rdkafka (it needs at least 0.11.0)
+#
+# Return:
+#   0: true
+#   1: false (or librdkafka is not installed)
+isInstalledLibrdkafkaTooOldForPie() {
+	case "$DISTRO" in
+		alpine)
+			isInstalledLibrdkafkaTooOldForPie_package='librdkafka'
+			;;
+		debian)
+			isInstalledLibrdkafkaTooOldForPie_package='librdkafka1'
+			;;
+		*)
+			return 1
+			;;
+	esac
+	isInstalledLibrdkafkaTooOldForPie_version="$(getInstalledPackageVersion "$isInstalledLibrdkafkaTooOldForPie_package")"
+	test -n "$isInstalledLibrdkafkaTooOldForPie_version" && test $(compareVersions "$isInstalledLibrdkafkaTooOldForPie_version" '0.11.0') -lt 0
 }
 
-# Configure the PECL package installer (installing it if it's missing), but only if some module may need it
-configureInstaller() {
-	configureInstaller_needed=0
-	for PHP_MODULE_TO_INSTALL in $PHP_MODULES_TO_INSTALL; do
-		if moduleMayUsePecl "$PHP_MODULE_TO_INSTALL"; then
-			configureInstaller_needed=1
+# Check if a module/helper may be installed using PIE
+#
+# Arguments:
+#   $1: the name of the module
+#
+# Return:
+#   0: true
+#   1: false
+moduleMayUsePie() {
+	if test "$PIE_ENABLED" -ne 1; then
+		return 1
+	fi
+	if test -n "$(getModuleSourceCodePath "$1")"; then
+		return 1
+	fi
+	if stringInList "$1" "$BUNDLED_MODULES"; then
+		return 1
+	fi
+	if isPiePackageArgument "$1"; then
+		return 0
+	fi
+	if ! getPiePackageName "$1" >/dev/null; then
+		return 1
+	fi
+	case "$1" in
+		# START OF PIE MINIMUM PHP VERSIONS (generated from data/pie-packages)
+		ds)
+			if test $PHP_MAJMIN_VERSION -lt 802; then
+				return 1
+			fi
+			;;
+			# END OF PIE MINIMUM PHP VERSIONS (generated from data/pie-packages)
+	esac
+	case "$1" in
+		# START OF PIE UNSUPPORTED DISTROS (generated from data/pie-packages)
+		excimer)
+			case "$DISTRO_VERSION" in
+				alpine@3.9 | alpine@3.10 | alpine@3.11 | alpine@3.12 | alpine@3.13)
+					return 1
+					;;
+			esac
+			;;
+		rdkafka)
+			case "$DISTRO_VERSION" in
+				debian@9)
+					return 1
+					;;
+			esac
+			;;
+		redis)
+			case "$DISTRO_VERSION" in
+				alpine@3.9 | alpine@3.10 | alpine@3.11 | alpine@3.12 | alpine@3.13 | debian@8 | debian@9 | debian@10)
+					return 1
+					;;
+			esac
+			;;
+			# END OF PIE UNSUPPORTED DISTROS (generated from data/pie-packages)
+	esac
+	if test "$1" = rdkafka && isInstalledLibrdkafkaTooOldForPie; then
+		return 1
+	fi
+	moduleMayUsePie_version="$(getWantedPHPModuleVersion "$1")"
+	case "$moduleMayUsePie_version" in
+		'' | latest | stable | @stable | dev-* | ^*)
+			;;
+		*)
+			# Composer would treat 3.4 as exact 3.4.0, PECL treats it as an invalid version
+			moduleMayUsePie_version="${moduleMayUsePie_version%@*}"
+			case "$moduleMayUsePie_version" in
+				[0-9]*.[0-9]*.[0-9]*)
+					;;
+				[0-9]* | [0-9]*.[0-9]*)
+					return 1
+					;;
+			esac
+			;;
+	esac
+	moduleMayUsePie_stability="$(printf '%s' "$(getWantedPHPModuleVersion "$1")" | tr '[:upper:]' '[:lower:]')"
+	case "$moduleMayUsePie_stability" in
+		alpha | beta | rc | devel | snapshot | preview | *@alpha | *@beta | *@rc | *@dev | *@devel | *@snapshot | *@preview)
+			return 1
+			;;
+	esac
+	return 0
+}
+
+# Check if PIE is required
+#
+# Return:
+#   0: true
+#   1: false
+pieIsRequired() {
+	case "${IPE_REQUIRE_PIE:-}" in
+		1 | y* | Y*)
+			return 0
+			;;
+	esac
+	return 1
+}
+
+pieFallbackAllowed() {
+	case "${IPE_ALLOW_PIE_FALLBACK:-}" in
+		1 | y* | Y*)
+			return 0
+			;;
+	esac
+	return 1
+}
+
+# Configure the PECL package installer
+#
+# Sets:
+#   USE_PICKLE 0: no, 1: yes (already downloaded), 2: yes (build it from source)
+configurePecl() {
+	if ! which pecl >/dev/null; then
+		for configurePecl_module in $PHP_MODULES_TO_INSTALL; do
+			if ! moduleMayUsePecl "$configurePecl_module"; then
+				continue
+			fi
+			if false && anyStringInList '' "$PHP_MODULES_TO_INSTALL"; then
+				USE_PICKLE=2
+			else
+				curl $IPE_CURL_FLAGS -sSLf https://github.com/FriendsOfPHP/pickle/releases/latest/download/pickle.phar -o /tmp/pickle
+				chmod +x /tmp/pickle
+				USE_PICKLE=1
+			fi
 			break
 		fi
 	done
@@ -5717,13 +6084,285 @@ configureInstaller() {
 	pecl channel-update pecl.php.net || true
 }
 
-# Add a configure option for the pecl install command
+# Configure the PECL/PIE package installers
+#
+# Sets:
+#   USE_PICKLE 0: no, 1: yes (already downloaded), 2: yes (build it from source)
+#   USE_PIE 0: no, 1: yes
+#   USE_PECL 0: no, 1: yes
+#   PIE_ENABLED 0: no, 1: yes
+#   PIE_REQUESTED 0: no, 1: yes
+configureInstaller() {
+	USE_PICKLE=0
+	USE_PIE=0
+	USE_PECL=0
+	PIE_ENABLED=0
+	PIE_REQUESTED=0
+	PIE_DIRECT_REQUESTED=0
+	case "${IPE_USE_PIE:-}" in
+		1 | y* | Y*)
+			PIE_REQUESTED=1
+			;;
+	esac
+	if pieIsRequired; then
+		PIE_REQUESTED=1
+	fi
+	for configureInstaller_module in $PHP_MODULES_TO_INSTALL; do
+		if isPiePackageArgument "$configureInstaller_module"; then
+			PIE_DIRECT_REQUESTED=1
+			break
+		fi
+	done
+	if test $PIE_DIRECT_REQUESTED -eq 1; then
+		PIE_REQUESTED=1
+	fi
+	PIE_REMOTE_MODULES=0
+	if test $PIE_REQUESTED -eq 1; then
+		for configureInstaller_module in $PHP_MODULES_TO_INSTALL; do
+			case "$configureInstaller_module" in
+				@composer | @fix_letsencrypt)
+					continue
+					;;
+			esac
+			if stringInList "$configureInstaller_module" "$BUNDLED_MODULES" && ! stringInList "$configureInstaller_module" "$FORCED_REMOTE_MODULES"; then
+				continue
+			fi
+			PIE_REMOTE_MODULES=1
+			break
+		done
+	fi
+	if test $PIE_REQUESTED -eq 1; then
+		if test $PHP_MAJMIN_VERSION -lt 801; then
+			if test $PIE_REMOTE_MODULES -eq 1; then
+				if test $PIE_DIRECT_REQUESTED -eq 1; then
+					printf 'PIE package requests require PHP 8.1 or newer\n' >&2
+					exit 1
+				fi
+				if pieIsRequired; then
+					printf 'PIE is required but it needs PHP 8.1 or newer\n' >&2
+					exit 1
+				fi
+				printf 'PIE requires PHP 8.1 or newer, using PECL\n' >&2
+			fi
+		else
+			PIE_ENABLED=1
+		fi
+	fi
+	if pieIsRequired; then
+		for configureInstaller_module in $PHP_MODULES_TO_INSTALL; do
+			case "$configureInstaller_module" in
+				@composer | @fix_letsencrypt)
+					continue
+					;;
+			esac
+			if stringInList "$configureInstaller_module" "$BUNDLED_MODULES" && ! stringInList "$configureInstaller_module" "$FORCED_REMOTE_MODULES"; then
+				continue
+			fi
+			if ! moduleMayUsePie "$configureInstaller_module"; then
+				printf 'PIE is required but cannot be used for %s\n' "$configureInstaller_module" >&2
+				exit 1
+			fi
+		done
+	fi
+	for configureInstaller_module in $PHP_MODULES_TO_INSTALL; do
+		if moduleMayUsePie "$configureInstaller_module"; then
+			USE_PIE=1
+			continue
+		fi
+		if moduleMayUsePecl "$configureInstaller_module"; then
+			USE_PECL=1
+		fi
+	done
+	if test $USE_PIE -eq 1; then
+		if ! printf '%s' "$IPE_PIE_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+			printf 'Invalid IPE_PIE_VERSION: %s\n' "$IPE_PIE_VERSION" >&2
+			exit 1
+		fi
+		printf '### DOWNLOADING PIE v.%s ###\n' "$IPE_PIE_VERSION"
+		PIE_TMP_DIR="$(mktemp -p /tmp -d)"
+		if curl $IPE_CURL_FLAGS -sSLf "https://github.com/php/pie/releases/download/$IPE_PIE_VERSION/pie.phar" -o "$PIE_TMP_DIR/pie.phar"; then
+			if ! printf '%s  %s\n' "$IPE_PIE_SHA256" "$PIE_TMP_DIR/pie.phar" | sha256sum -c - >/dev/null 2>&1; then
+				printf 'PIE checksum verification failed. When changing IPE_PIE_VERSION, also set IPE_PIE_SHA256 to the SHA-256 of the pie.phar of that version\n' >&2
+				rm -rf "$PIE_TMP_DIR"
+				PIE_TMP_DIR=''
+				exit 1
+			fi
+			# Make PIE use our temporary directory instead of $HOME/.pie
+			mkdir -p "$PIE_TMP_DIR/pie"
+			PIE_COMPOSER_HOME="$PIE_TMP_DIR/composer"
+			mkdir -p "$PIE_COMPOSER_HOME"
+			case "${IPE_INSECURE:-}" in
+				1 | y* | Y*)
+					printf '{"config":{"disable-tls":true}}\n' >"$PIE_COMPOSER_HOME/config.json"
+					;;
+			esac
+		else
+			rm -rf "$PIE_TMP_DIR"
+			PIE_TMP_DIR=''
+			if pieIsRequired; then
+				printf 'PIE is required but it could not be downloaded\n' >&2
+				exit 1
+			fi
+			if test $PIE_DIRECT_REQUESTED -eq 1; then
+				printf 'PIE package requests require PIE, but it could not be downloaded\n' >&2
+				exit 1
+			fi
+			if ! pieFallbackAllowed; then
+				printf 'Failed to download PIE. Set IPE_ALLOW_PIE_FALLBACK=1 to fall back to PECL.\n' >&2
+				exit 1
+			fi
+			printf 'Failed to download PIE, using PECL\n' >&2
+			PIE_ENABLED=0
+			USE_PIE=0
+			USE_PECL=1
+		fi
+	fi
+	if test $USE_PIE -eq 0 || test $USE_PECL -eq 1; then
+		configurePecl
+	fi
+}
+
+buildPickle() {
+	printf '### BUILDING PICKLE ###\n'
+	buildPickle_tempDir="$(mktemp -p /tmp/src -d)"
+	cd -- "$buildPickle_tempDir"
+	printf 'Downloading... '
+	git clone --quiet --depth 1 https://github.com/FriendsOfPHP/pickle.git .
+	git tag 0.7.0
+	printf 'done.\n'
+	printf 'Installing composer... '
+	actuallyInstallComposer . composer '--1 --quiet'
+	printf 'done.\n'
+	printf 'Installing composer dependencies... '
+	./composer install --no-dev --no-progress --no-suggest --optimize-autoloader --ignore-platform-reqs --quiet --no-cache
+	printf 'done.\n'
+	printf 'Building... '
+	php -d phar.readonly=0 box.phar build
+	mv pickle.phar /tmp/pickle
+	printf 'done.\n'
+	cd - >/dev/null
+}
+
+# Add a configure option for the package installers
 #
 # Arguments:
 #   $1: the option name (for readability only: pecl reads the answers in order)
 #   $2: the option value
 addConfigureOption() {
-	printf -- '%s\n' "$2" >>"$CONFIGURE_FILE"
+printf -- '%s=%s\n' "$1" "$2" >>"$PIE_CONFIGURE_FILE"
+	if test $USE_PICKLE -eq 0; then
+		printf -- '%s\n' "$2" >>"$CONFIGURE_FILE"
+	else
+		printf -- '--%s=%s\n' "$1" "$2" >>"$CONFIGURE_FILE"
+	fi
+}
+
+# Get the configure options to be passed to PIE
+#
+# Arguments:
+#   $1: the PIE package request
+#
+# Output:
+#   The configure options (space-separated)
+getPieConfigureOptions() {
+	if ! test -s "$PIE_CONFIGURE_FILE"; then
+		return 0
+	fi
+	if ! getPieConfigureOptions_info="$(COMPOSER_HOME="$PIE_COMPOSER_HOME" XDG_CONFIG_HOME="$PIE_TMP_DIR" php "$PIE_TMP_DIR/pie.phar" info --no-cache --with-php-config="$(command -v php-config)" "$1")"; then
+		printf 'Unable to detect the configure options of %s\n' "$1" >&2
+		return 1
+	fi
+	getPieConfigureOptions_declared="$(printf '%s\n' "$getPieConfigureOptions_info" | awk '/^    --/ { n=$1; sub(/^--/,"",n); v="-"; if (n ~ /=[?]$/) { sub(/=[?]$/,"",n); v="=?" } print n, v }')"
+	getPieConfigureOptions_valueOptions=''
+	getPieConfigureOptions_flagOptions=''
+	while read -r getPieConfigureOptions_declaredName getPieConfigureOptions_declaredValue; do
+		if test "$getPieConfigureOptions_declaredValue" = '=?'; then
+			getPieConfigureOptions_valueOptions="$getPieConfigureOptions_valueOptions $getPieConfigureOptions_declaredName"
+		else
+			getPieConfigureOptions_flagOptions="$getPieConfigureOptions_flagOptions $getPieConfigureOptions_declaredName"
+		fi
+	done <<EOF
+$getPieConfigureOptions_declared
+EOF
+	getPieConfigureOptions_flags=''
+	getPieConfigureOptions_skipped=''
+	while IFS='=' read -r getPieConfigureOptions_name getPieConfigureOptions_value; do
+		if stringInList "$getPieConfigureOptions_name" "$getPieConfigureOptions_valueOptions"; then
+			if test -n "$getPieConfigureOptions_value"; then
+				getPieConfigureOptions_flags="$getPieConfigureOptions_flags --$getPieConfigureOptions_name=$getPieConfigureOptions_value"
+			fi
+		elif stringInList "$getPieConfigureOptions_name" "$getPieConfigureOptions_flagOptions"; then
+			case "$getPieConfigureOptions_value" in
+				1 | y* | Y* | t* | T*)
+					getPieConfigureOptions_flags="$getPieConfigureOptions_flags --$getPieConfigureOptions_name"
+					;;
+			esac
+		else
+			getPieConfigureOptions_skipped="$getPieConfigureOptions_skipped $getPieConfigureOptions_name"
+		fi
+	done <"$PIE_CONFIGURE_FILE"
+	if test -n "$getPieConfigureOptions_skipped"; then
+		printf 'The PIE package %s does not declare the following configure options:%s\n' "$1" "$getPieConfigureOptions_skipped" >&2
+		return 1
+	fi
+	printf '%s' "$getPieConfigureOptions_flags"
+}
+
+# Actually installs a PIE package
+#
+# Arguments:
+#   $1: the name of the extension to be installed
+#   $2: the extension version to be installed (optional)
+installPiePackage() {
+	installPiePackage_name="$1"
+	installPiePackage_package="$(getPiePackageName "$installPiePackage_name")"
+	installPiePackage_constraint="${2:-}"
+	case "$installPiePackage_constraint" in
+		latest | stable)
+			installPiePackage_constraint=''
+			;;
+	esac
+	if test -n "$installPiePackage_constraint"; then
+		installPiePackage_request="$installPiePackage_package:$installPiePackage_constraint"
+	else
+		installPiePackage_request="$installPiePackage_package"
+	fi
+	installPiePackage_configureOptions="$(getPieConfigureOptions "$installPiePackage_request")" || return 1
+	COMPOSER_HOME="$PIE_COMPOSER_HOME" XDG_CONFIG_HOME="$PIE_TMP_DIR" php "$PIE_TMP_DIR/pie.phar" install \
+		--no-cache \
+		--no-interaction \
+		--no-build-tools-check \
+		--no-system-dependencies-check \
+		--skip-enable-extension \
+		--make-parallel-jobs="$(getCompilationProcessorCount "$installPiePackage_name")" \
+		--with-php-config="$(command -v php-config)" \
+		$installPiePackage_configureOptions \
+		"$installPiePackage_request"
+}
+
+# Install a PIE package passed as vendor/package[:version]
+#
+# Differently from installPiePackage, PIE itself installs the build tools and the system packages it needs:
+# they are not tracked by us, so they won't be removed at the end of the installation.
+#
+# Arguments:
+#   $1: the PIE package request
+installPiePackageDirect() {
+	installPiePackageDirect_skipEnable=''
+	case "${IPE_DONT_ENABLE:-}" in
+		1 | y* | Y*)
+			installPiePackageDirect_skipEnable='--skip-enable-extension'
+			;;
+	esac
+	COMPOSER_HOME="$PIE_COMPOSER_HOME" XDG_CONFIG_HOME="$PIE_TMP_DIR" php "$PIE_TMP_DIR/pie.phar" install \
+		--no-cache \
+		--auto-install-build-tools \
+		--auto-install-system-dependencies \
+		--no-interaction \
+		$installPiePackageDirect_skipEnable \
+		--make-parallel-jobs="$(getCompilationProcessorCount "$1")" \
+		--with-php-config="$(command -v php-config)" \
+		"$1"
 }
 
 # Actually installs a PECL package
@@ -5973,7 +6612,13 @@ cleanup() {
 	esac
 	docker-php-source delete
 	rm -rf /tmp/src
+rm -rf /tmp/pickle
+	rm -rf /tmp/pickle.tmp
+	if test -n "$PIE_TMP_DIR"; then
+		rm -rf "$PIE_TMP_DIR"
+	fi
 	rm -rf "$CONFIGURE_FILE"
+	rm -rf "$PIE_CONFIGURE_FILE"
 	case "${IPE_KEEP_SYSPKG_CACHE:-}" in
 		1 | y* | Y*) ;;
 		*)
@@ -5996,6 +6641,7 @@ resetIFS
 mkdir -p /tmp/src
 IPE_ERRFLAG_FILE="$(mktemp -p /tmp/src)"
 CONFIGURE_FILE=/tmp/configure-options
+PIE_CONFIGURE_FILE=/tmp/pie-configure-options
 IPE_APK_FLAGS=''
 IPE_CURL_FLAGS='--retry 3 --retry-delay 5 --connect-timeout 15'
 if curl --help | grep -q -- '--retry-all-errors'; then

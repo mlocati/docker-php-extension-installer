@@ -400,6 +400,16 @@
                 "source": "custom"
             }
         },
+        "pie": {
+            "name": "PIE",
+            "pinnedVersion": true,
+            "url": "https://github.com/php/pie/releases",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/php/pie"
+            },
+            "skipTest": "PIE is tested by its own CI, and the phar SHA-256 must be updated together with the version"
+        },
         "relay": {
             "name": "Relay",
             "pinnedVersion": false,

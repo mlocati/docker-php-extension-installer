@@ -27,6 +27,12 @@ jobs:
             exit 1
           fi
           rm data/special-requirements.sorted
+          sort -o data/pie-packages.sorted data/pie-packages
+          if ! DIFF="$(diff -u data/pie-packages data/pie-packages.sorted)"; then
+            printf 'The order of extensions in data/pie-packages is wrong.\nThe list of required changes is:\n\n%s\n' "$DIFF" >&2
+            exit 1
+          fi
+          rm data/pie-packages.sorted
       -
         name: Check CI distros list
         run: |
@@ -102,6 +108,9 @@ jobs:
       -
         name: Check JSON files
         run: composer run-script check-json-schemas
+      -
+        name: Check generated PIE packages block
+        run: php scripts/update-pie-packages.php --check
 
   define_distros:
     name: Define distros
@@ -180,6 +189,328 @@ jobs:
         uses: actions/checkout@v7
       -
         run: docker run --rm --volume "$(pwd):/app" --workdir /app php:7.4-cli-alpine ./scripts/test-installversion "${{ matrix.xdebug_version }}"
+
+  test_pie:
+    name: Test installing extensions with PIE on ${{ matrix.container }}
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_issues_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        container:
+          - php:8.1-cli-bookworm
+          - php:8.4-cli-alpine
+          - php:8.4-cli-bookworm
+    steps:
+      -
+        name: Docker pull
+        run: docker pull "${{ matrix.container }}"
+      -
+        name: Checkout
+        uses: actions/checkout@v7
+      -
+        name: Install extensions using PIE
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            "${{ matrix.container }}" \
+            sh -c 'mkdir -p /tmp/fakebin && printf "#!/bin/sh\ntouch /tmp/pecl-called\nexit 1\n" > /tmp/fakebin/pecl && chmod +x /tmp/fakebin/pecl && PATH="/tmp/fakebin:$PATH" ./install-php-extensions apcu pcov redis && test ! -f /tmp/pecl-called && php ./scripts/check-installed-extension.php apcu pcov redis && php --ri redis | grep -q "Available compression => lzf"'
+      -
+        name: Check a version constraint
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            "${{ matrix.container }}" \
+            sh -c 'mkdir -p /tmp/fakebin && printf "#!/bin/sh\ntouch /tmp/pecl-called\nexit 1\n" > /tmp/fakebin/pecl && chmod +x /tmp/fakebin/pecl && PATH="/tmp/fakebin:$PATH" ./install-php-extensions "apcu-^5@stable" && test ! -f /tmp/pecl-called && php -r '\''exit(version_compare(phpversion("apcu"), "5.0.0", ">=") && version_compare(phpversion("apcu"), "6.0.0", "<") ? 0 : 1);'\'''
+
+  test_pie_extensions:
+    name: Test PIE extensions on ${{ matrix.distro }}
+    needs: define_distros
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: ${{ fromJSON(needs.define_distros.outputs.distros) }}
+    runs-on: ubuntu-latest
+    env:
+      IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
+      COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ github.token }}"}}'
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v7
+      -
+        name: Test PIE extensions
+        run: ./scripts/ci-test-extensions pie
+
+  test_pie_php81:
+    name: Test ds on PHP 8.1 with PECL
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_issues_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Docker pull
+        run: docker pull php:8.1-cli-alpine
+      -
+        name: Checkout
+        uses: actions/checkout@v7
+      -
+        name: Check that ds uses PECL before PHP 8.2
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            php:8.1-cli-alpine \
+            sh -c './install-php-extensions ds >/tmp/log 2>&1 && php ./scripts/check-installed-extension.php ds && ! grep -q "DOWNLOADING PIE" /tmp/log'
+
+  test_pie_fallback:
+    name: Test PIE fallback to PECL on ${{ matrix.container }}
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_issues_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        container:
+          - php:7.4-cli-alpine
+          - php:8.4-cli-bookworm
+    steps:
+      -
+        name: Docker pull
+        run: docker pull "${{ matrix.container }}"
+      -
+        name: Checkout
+        uses: actions/checkout@v7
+      -
+        name: Install extensions
+        run: |
+          for attempt in 1 2 3; do
+            if docker run --rm \
+              --volume "$(pwd):/app" \
+              --workdir /app \
+              --env CI=true \
+              --env IPE_USE_PIE=1 \
+              "${{ matrix.container }}" \
+              sh -c './install-php-extensions apcu ssh2 && php ./scripts/check-installed-extension.php apcu ssh2'; then
+              exit 0
+            fi
+            if test $attempt -lt 3; then
+              sleep 10
+            fi
+          done
+          exit 1
+      -
+        name: Check the fallback after a PIE failure
+        if: matrix.container == 'php:8.4-cli-bookworm'
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            --env IPE_ALLOW_PIE_FALLBACK=1 \
+            php:8.1-cli-bookworm \
+            sh -c './install-php-extensions apcu-5.1.21 >/tmp/log 2>&1 && php --ri apcu | grep -Eq "Version +=> +5.1.21" && grep -q "falling back to the standard installer" /tmp/log'
+      -
+        name: Check that requiring PIE fails before PHP 8.1
+        if: matrix.container == 'php:7.4-cli-alpine'
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_REQUIRE_PIE=1 \
+            "${{ matrix.container }}" \
+            sh -c './install-php-extensions apcu >/tmp/log 2>&1 && exit 1; grep -q "PIE is required but it needs PHP 8.1 or newer" /tmp/log'
+      -
+        name: Check that requiring PIE fails for an unsupported extension
+        if: matrix.container == 'php:8.4-cli-bookworm'
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_REQUIRE_PIE=1 \
+            "${{ matrix.container }}" \
+            sh -c './install-php-extensions ssh2 >/tmp/log 2>&1 && exit 1; grep -q "PIE is required but cannot be used for ssh2" /tmp/log'
+
+  test_pie_errors:
+    name: Test PIE error handling
+    needs:
+      - check_syntax_data
+      - check_syntax_shell
+      - check_issues_shell
+      - check_syntax_php
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Docker pull
+        run: docker pull php:8.4-cli-bookworm
+      -
+        name: Checkout
+        uses: actions/checkout@v7
+      -
+        name: Check that IPE_REQUIRE_PIE installs
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_REQUIRE_PIE=1 \
+            php:8.4-cli-bookworm \
+            sh -c 'mkdir -p /tmp/fakebin && printf "#!/bin/sh\ntouch /tmp/pecl-called\nexit 1\n" > /tmp/fakebin/pecl && chmod +x /tmp/fakebin/pecl && PATH="/tmp/fakebin:$PATH" ./install-php-extensions apcu && test ! -f /tmp/pecl-called && php ./scripts/check-installed-extension.php apcu'
+      -
+        name: Check that a bundled-only request does not require PIE
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_REQUIRE_PIE=1 \
+            php:7.4-cli-alpine \
+            sh -c './install-php-extensions bcmath && php ./scripts/check-installed-extension.php bcmath'
+      -
+        name: Check that a checksum mismatch fails
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            --env IPE_PIE_SHA256=0000000000000000000000000000000000000000000000000000000000000000 \
+            php:8.4-cli-bookworm \
+            sh -c './install-php-extensions apcu >/tmp/log 2>&1 && exit 1; grep -q "PIE checksum verification failed" /tmp/log'
+      -
+        name: Check that an invalid PIE version fails
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            --env IPE_PIE_VERSION=invalid \
+            php:8.4-cli-bookworm \
+            sh -c './install-php-extensions apcu >/tmp/log 2>&1 && exit 1; grep -q "Invalid IPE_PIE_VERSION" /tmp/log'
+      -
+        name: Check that IPE_INSECURE installs
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            --env IPE_INSECURE=1 \
+            php:8.4-cli-bookworm \
+            sh -c 'mkdir -p /tmp/fakebin && printf "#!/bin/sh\ntouch /tmp/pecl-called\nexit 1\n" > /tmp/fakebin/pecl && chmod +x /tmp/fakebin/pecl && PATH="/tmp/fakebin:$PATH" ./install-php-extensions apcu && test ! -f /tmp/pecl-called'
+      -
+        name: Check that a pre-release selector is rejected
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_REQUIRE_PIE=1 \
+            php:8.4-cli-bookworm \
+            sh -c '
+              if ./install-php-extensions apcu-beta >/tmp/log1 2>&1; then exit 1; fi
+              grep -q "PIE is required but cannot be used for apcu" /tmp/log1 || exit 1
+              if ./install-php-extensions "apcu-^5@RC" >/tmp/log2 2>&1; then exit 1; fi
+              grep -q "PIE is required but cannot be used for apcu" /tmp/log2
+            '
+      -
+        name: Check that a partial version stays on PECL
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            php:8.4-cli-bookworm \
+            sh -c '
+              mkdir -p /tmp/fakebin
+              printf "#!/bin/sh\nif test \"\$1\" = install; then touch /tmp/pecl-install-called; fi\nexit 1\n" > /tmp/fakebin/pecl
+              chmod +x /tmp/fakebin/pecl
+              if PATH="/tmp/fakebin:$PATH" ./install-php-extensions apcu-5.1 >/tmp/log 2>&1; then exit 1; fi
+              test -f /tmp/pecl-install-called || exit 1
+              ! grep -q "DOWNLOADING PIE" /tmp/log
+            '
+      -
+        name: Check that a PIE install failure aborts strict mode
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_REQUIRE_PIE=1 \
+            php:8.1-cli-bookworm \
+            sh -c 'if ./install-php-extensions apcu-5.1.21 >/tmp/log 2>&1; then exit 1; fi; grep -q "PIE is required but failed to install apcu" /tmp/log'
+      -
+        name: Check a range constraint
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            php:8.4-cli-bookworm \
+            sh -c 'mkdir -p /tmp/fakebin && printf "#!/bin/sh\ntouch /tmp/pecl-called\nexit 1\n" > /tmp/fakebin/pecl && chmod +x /tmp/fakebin/pecl && PATH="/tmp/fakebin:$PATH" ./install-php-extensions "redis-~6.0" && test ! -f /tmp/pecl-called && php --ri redis | grep -q "lz4"'
+      -
+        name: Check that PIE failures abort by default
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            php:8.1-cli-bookworm \
+            sh -c 'if ./install-php-extensions apcu-5.1.21 >/tmp/log 2>&1; then exit 1; fi; grep -q "Set IPE_ALLOW_PIE_FALLBACK=1" /tmp/log'
+      -
+        name: Check that a PIE download failure aborts by default
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            --env IPE_USE_PIE=1 \
+            --env IPE_PIE_VERSION=9.9.9 \
+            php:8.4-cli-bookworm \
+            sh -c 'if ./install-php-extensions apcu >/tmp/log 2>&1; then exit 1; fi; grep -q "Failed to download PIE" /tmp/log'
+      -
+        name: Check a direct PIE package
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            php:8.4-cli-bookworm \
+            sh -c 'mkdir -p /tmp/fakebin && printf "#!/bin/sh\ntouch /tmp/pecl-called\nexit 1\n" > /tmp/fakebin/pecl && chmod +x /tmp/fakebin/pecl && PATH="/tmp/fakebin:$PATH" ./install-php-extensions nikic/php-ast && test ! -f /tmp/pecl-called && php ./scripts/check-installed-extension.php ast'
+      -
+        name: Check that a PIE package request needs PHP 8.1
+        run: |
+          docker run --rm \
+            --volume "$(pwd):/app" \
+            --workdir /app \
+            --env CI=true \
+            php:8.0-cli-bullseye \
+            sh -c 'if ./install-php-extensions nikic/php-ast >/tmp/log 2>&1; then exit 1; fi; grep -q "PIE package requests require PHP 8.1 or newer" /tmp/log'
 
   test_composer:
     name: Test installing composer

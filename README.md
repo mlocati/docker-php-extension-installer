@@ -203,6 +203,39 @@ If instead you want to use a remote version:
 - oci8
 - zip
 
+## Using PIE instead of PECL
+
+[PIE](https://github.com/php/pie) is the official installer for PHP extensions, and PECL is now deprecated.
+
+By default, `install-php-extensions` uses PECL. You can opt in to PIE by setting the `IPE_USE_PIE=1` environment variable:
+
+```sh
+IPE_USE_PIE=1 install-php-extensions xdebug
+```
+
+PIE is used only when all these conditions are met:
+
+- the PHP version is 8.1 or newer
+- the extension has a PIE package supported by this script
+- the extension is not installed from its source code
+- the extension is not a bundled extension
+- the requested version, if any, is not a pre-release stability selector (like `xdebug-beta` or `xdebug-^3@beta`)
+- the requested version, if any, is not a partial numeric version (like `xdebug-3.4`; use `xdebug-3.5.0` for the exact release)
+
+All the other extensions use the standard installer, so you can mix them in the same command. If PIE is applicable but fails to install an extension, the script stops. Set `IPE_ALLOW_PIE_FALLBACK=1` to fall back to the standard installer.
+
+You can also pass a PIE package name directly, for example:
+
+```sh
+install-php-extensions nikic/php-ast
+```
+
+An argument in the `vendor/package` form is treated as a PIE package name. URLs and local paths keep their existing meaning. You can add a PIE version constraint after a colon, for example `nikic/php-ast:^1.1`. The package form requires PHP 8.1 or newer. PIE installs and enables the package and handles its system dependencies. The script stops if the package cannot be installed. `IPE_ALLOW_PIE_FALLBACK` does not apply to the package form. The installer's configure options and dependency handling apply only to the extension names supported by this script. The `IPE_SAVE_PERMDEPS_TO` and `IPE_SAVE_VOLDEPS_TO` lists do not include packages installed by PIE for a package argument. The existing `vendor/repository@ref` form is still a GitHub source install, so use the colon form for a PIE package version.
+
+Set `IPE_REQUIRE_PIE=1` to require PIE. In this mode the script fails when an extension that is not bundled cannot be installed with PIE. It implies `IPE_USE_PIE=1`.
+
+PIE receives the configure options that the extension package declares. A configure option that the package does not declare is an error.
+
 ## Installing composer
 
 You can also install [composer](https://getcomposer.org/), and you also can specify a major version of it, or a full version.
@@ -476,12 +509,17 @@ Here's the list of all the supported environment variables:
 | Extension | Environment variable | Description |
 |---|---|---|
 | | `IPE_DEBUG=1` | By setting this environment variable, the script will print all the commands it executes (it will be very verbose, useful only for debug purposes) |
-| | `IPE_INSECURE=1` | By setting this environment variable, HTTPS certificate validation is disabled for network operations performed by the program |
+| | `IPE_INSECURE=1` | By setting this environment variable, HTTPS certificate validation is disabled for network operations performed by the program. For PIE this uses Composer's `disable-tls` setting, which downgrades HTTPS requests to HTTP without encryption |
 | | `IPE_SAVE_PERMDEPS_TO=path`<br />`IPE_SAVE_VOLDEPS_TO=path` | By setting this environment variable, the script will store in the path specified the list of APT/APK packages required by the installed PHP extensions (`IPE_SAVE_PERMDEPS_TO`) and/or the packages required to build the PHP extensions (`IPE_SAVE_VOLDEPS_TO`).<br />Please remark that `install-php-extension` may configure the system in other ways ([example](https://github.com/mlocati/docker-php-extension-installer/blob/2.9.28/install-php-extensions#L2234-L2286)) |
 | | `IPE_PROCESSOR_COUNT` | By default all available processors. Set this environment variable to override the number of processors detected by the script (used for parallel compilation) |
 | | `IPE_DONT_ENABLE=1` | By default the script will install and enable the extensions.<br />If you want to only install them (without enabling them) you can set this environment variable.<br />To enable the extensions at a later time you can execute the command `docker-php-ext-enable-<extension>` (for example: `docker-php-ext-enable-xdebug`).<br />**Beware**: installing some PHP extensions requires that other PHP extensions are already enabled, so use this feature wisely. |
 | | `IPE_SKIP_CHECK=1` | By default the script will check if the extensions can be enabled: if you want to skip this check, you can use this flag.<br />**Beware**: extensions may be enabled even if they break PHP: use this function wisely. |
 | | `IPE_NOSTRIP=1` | By setting this environment variable, compiled PHP extensions will retain their debug symbols (useful for debugging of crashes like segmentation faults) |
+| | `IPE_USE_PIE=1` | Use [PIE](https://github.com/php/pie) instead of PECL for the extensions that have a PIE package (requires PHP 8.1 or newer). Extensions without a PIE package use the standard installer. If PIE is applicable but fails, the script stops |
+| | `IPE_ALLOW_PIE_FALLBACK=1` | Allow falling back to the standard installer when PIE cannot be downloaded or a PIE package fails to install |
+| | `IPE_PIE_VERSION=1.5.2` | The version of PIE to download when PIE is used (`IPE_USE_PIE=1`, `IPE_REQUIRE_PIE=1`, or a `vendor/package` argument) |
+| | `IPE_PIE_SHA256` | The expected SHA-256 of the PIE phar. It defaults to the hash of the pinned version. Set it when overriding `IPE_PIE_VERSION` |
+| | `IPE_REQUIRE_PIE=1` | Require PIE. The script fails when an extension that is not bundled cannot be installed with PIE, instead of using the standard installer. Implies `IPE_USE_PIE=1` |
 | | `IPE_KEEP_SYSPKG_CACHE=1` | By default the script will clear the apt/apk/pear cache in order to save disk space. You can disable it by setting this environment variable |
 | lzf | `IPE_LZF_BETTERCOMPRESSION=1` | By default `install-php-extensions` compiles the `lzf` extension to prefer speed over size; you can use this environment variable to compile it preferring size over speed |
 | event | `IPE_EVENT_NAMESPACE=`... | By default, the `event` classes are defined in the root namespace. You can use this environment variable to specify a custom namespace |

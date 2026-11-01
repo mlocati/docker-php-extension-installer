@@ -1,0 +1,20 @@
+apcu 8.1 apcu/apcu
+ast 8.1 nikic/php-ast
+brotli 8.1 kjdev/brotli
+decimal 8.1 php-decimal/ext-decimal
+ds 8.2 php-ds/ext-ds
+excimer 8.1 wikimedia/excimer !alpine3.9 !alpine3.10 !alpine3.11 !alpine3.12 !alpine3.13
+imagick 8.1 imagick/imagick
+inotify 8.1 arnaud-lb/inotify
+mailparse 8.1 pecl/mailparse
+mongodb 8.1 mongodb/mongodb-extension
+msgpack 8.1 msgpack/msgpack-php
+parallel 8.1 pecl/parallel
+pcov 8.1 pecl/pcov
+rdkafka 8.1 rdkafka/rdkafka !stretch
+redis 8.1 phpredis/phpredis !buster !jessie !stretch !alpine3.9 !alpine3.10 !alpine3.11 !alpine3.12 !alpine3.13
+timezonedb 8.1 pecl/timezonedb
+uuid 8.1 pecl/uuid
+xdebug 8.1 xdebug/xdebug
+yaml 8.1 pecl/yaml
+zstd 8.1 kjdev/zstd
