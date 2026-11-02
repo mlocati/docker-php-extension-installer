@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# The containerd image store can't pull images with an old manifest (eg php:5.5-cli)
+
+set -o errexit
+set -o nounset
+
+daemonConfig="$(sudo cat /etc/docker/daemon.json 2>/dev/null || echo '{}')"
+printf '%s' "$daemonConfig" | jq '.features["containerd-snapshotter"] = false' | sudo tee /etc/docker/daemon.json >/dev/null
+sudo systemctl restart docker
+printf 'Docker storage driver: %s\n' "$(docker info --format '{{.Driver}}')"
