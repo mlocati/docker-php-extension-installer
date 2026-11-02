@@ -1,30 +1,110 @@
-#!/bin/sh
+#!/usr/bin/env php
+<?php
 
-. "$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)/_bootstrap.sh"
+require_once __DIR__ . '/_bootstrap.php';
 
-rc=0
-if php --ri igbinary >/dev/null 2>/dev/null; then
-	if test -z "$(php --ri yac | grep 'Serializer => .*igbinary')"; then
-		echo 'yac has not been compiled with Igbinary support' >&2
-		rc=1
-	else
-		echo 'yac has been compiled with Igbinary support'
-	fi
-fi
-if php --ri json >/dev/null 2>/dev/null; then
-	if test -z "$(php --ri yac | grep 'Serializer => .*json')"; then
-		echo 'yac has not been compiled with Json support' >&2
-		rc=1
-	else
-		echo 'yac has been compiled with Json support'
-	fi
-fi
-if php --ri msgpack >/dev/null 2>/dev/null; then
-	if test -z "$(php --ri yac | grep 'Serializer => .*msgpack')"; then
-		echo 'yac has not been compiled with Msgpack support' >&2
-		rc=1
-	else
-		echo 'yac has been compiled with Msgpack support'
-	fi
-fi
-exit $rc
+if (isset($argv[1]) && strpos($argv[1], '--serializer=') === 0) {
+    exit(runChecks(substr($argv[1], strlen('--serializer='))));
+}
+
+$yacVersion = phpversion('yac');
+echo "Detected yac version: {$yacVersion}\n";
+
+if (version_compare($yacVersion, '3.0.0', '>=')) {
+    $serializers = [''];
+} else {
+    $serializers = ['php'];
+    foreach (['json', 'msgpack', 'igbinary'] as $serializer) {
+        if (extension_loaded($serializer)) {
+            $serializers[] = $serializer;
+        }
+    }
+}
+
+$rc = 0;
+foreach ($serializers as $serializer) {
+    $command = escapeshellarg(PHP_BINARY) . ' -d yac.enable_cli=1';
+    if ($serializer !== '') {
+        $command .= ' -d yac.serializer=' . escapeshellarg($serializer);
+    }
+    $command .= ' ' . escapeshellarg(__FILE__) . ' --serializer=' . escapeshellarg($serializer);
+    passthru($command, $childRC);
+    if ($childRC !== 0) {
+        $rc = 1;
+    }
+}
+exit($rc);
+
+function fail($message)
+{
+    fwrite(STDERR, "{$message}\n");
+    exit(1);
+}
+
+/**
+ * @param string $serializer
+ *
+ * @return int
+ */
+function runChecks($serializer)
+{
+    if ($serializer === '') {
+        echo "Testing yac...\n";
+    } else {
+        echo "Testing yac with the {$serializer} serializer...\n";
+        $constant = 'YAC_SERIALIZER_' . strtoupper($serializer);
+        if (!defined($constant)) {
+            fail("yac has not been compiled with {$serializer} support ({$constant} is not defined)");
+        }
+        if (YAC_SERIALIZER !== constant($constant)) {
+            fail("yac is not using the {$serializer} serializer");
+        }
+    }
+
+    $yac = new Yac('ipe_test_');
+    $values = [
+        'string' => 'Hello, world!',
+        'empty string' => '',
+        'int' => 12345,
+        'negative int' => -1,
+        'float' => 1.5,
+        'true' => true,
+        'false' => false,
+        'list' => [1, 2, 3],
+        'map' => ['a' => 1, 'b' => 'two', 'c' => [3.5, null]],
+        'big string' => str_repeat('0123456789', 10000),
+    ];
+    foreach ($values as $type => $value) {
+        $key = 'key_' . str_replace(' ', '_', $type);
+        if ($yac->set($key, $value) !== true) {
+            fail("Yac::set() failed for {$type}");
+        }
+        $actual = $yac->get($key);
+        if ($actual !== $value) {
+            fail("Yac::get() returned a wrong value for {$type}: " . var_export($actual, true));
+        }
+    }
+    if ($yac->get('missing_key') !== false) {
+        fail('Yac::get() should return false for missing keys');
+    }
+    if ($yac->delete('key_int') !== true) {
+        fail('Yac::delete() failed');
+    }
+    if ($yac->get('key_int') !== false) {
+        fail('Yac::get() returned a deleted value');
+    }
+    if (method_exists($yac, 'has')) {
+        if ($yac->has('key_string') !== true || $yac->has('key_int') !== false) {
+            fail('Yac::has() failed');
+        }
+    }
+    if ($yac->flush() !== true) {
+        fail('Yac::flush() failed');
+    }
+    if ($yac->get('key_string') !== false) {
+        fail('Yac::get() returned a value after flush');
+    }
+    echo "OK\n";
+
+    return 0;
+}

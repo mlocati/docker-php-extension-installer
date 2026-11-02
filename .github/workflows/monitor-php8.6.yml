@@ -1,0 +1,83 @@
+name: Monitor PHP 8.6
+
+on:
+  schedule:
+    - cron: "0 1 */2 * *"
+  workflow_dispatch:
+
+jobs:
+  test_extensions:
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - alpine3.23
+          - alpine3.24
+          - bookworm
+          - trixie
+    name: Check on ${{ matrix.distro }}
+    runs-on: ubuntu-latest
+    env:
+      IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
+      IPETEST_ONLY_PHPVERSIONS: "8.6"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Test extensions
+        run: ./scripts/ci-test-extensions all
+      - name: Notify failures
+        if: failure()
+        uses: appleboy/telegram-action@v1
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_TO }}
+          message: Testing packages against PHP 8.6 on ${{ matrix.distro }} failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.6.yml
+  test_unsupported_extensions:
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - alpine3.23
+          - alpine3.24
+          - bookworm
+          - trixie
+    name: Check unsupported on ${{ matrix.distro }}
+    runs-on: ubuntu-latest
+    env:
+      IPETEST_DOCKER_DISTRO: ${{ matrix.distro }}
+      IPETEST_ONLY_PHPVERSIONS: "8.6"
+      IPETEST_SKIP_SUPPORTEDCHECK: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: List extensions supporting PHP 8.5 but not PHP 8.6
+        run: |
+          grep -E ' 8\.5($| )' data/supported-extensions | cut -d' ' -f1 | sort > /tmp/php85.txt
+          grep -E ' 8\.6($| )' data/supported-extensions | cut -d' ' -f1 | sort > /tmp/php86.txt
+          comm -23 /tmp/php85.txt /tmp/php86.txt > /tmp/tests.txt
+          cat /tmp/tests.txt
+      - name: Test extensions
+        run: ./scripts/ci-test-extensions from-tests-file /tmp/tests.txt /tmp/results || true
+      - name: Check that no extension became compilable
+        id: check
+        run: |
+          if ! test -f /tmp/results/done; then
+            echo 'The tests did not complete'
+            exit 1
+          fi
+          compilable="$(grep -h -E '^ok ' /tmp/results/*.txt 2>/dev/null | cut -d' ' -f3- | sort | tr '\n' ' ' || true)"
+          if test -n "$compilable"; then
+            printf 'These extensions can now be compiled for PHP 8.6: %s\n' "$compilable"
+            echo "compilable=$compilable" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo 'No extension became compilable for PHP 8.6'
+      - name: Notify failures
+        if: failure()
+        uses: appleboy/telegram-action@v1
+        with:
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.TELEGRAM_TO }}
+          message: |
+            Checking unsupported packages against PHP 8.6 on ${{ matrix.distro }} failed on https://github.com/mlocati/docker-php-extension-installer/actions/workflows/monitor-php8.6.yml
+            ${{ steps.check.outputs.compilable && format('Now compilable: {0}', steps.check.outputs.compilable) || '' }}

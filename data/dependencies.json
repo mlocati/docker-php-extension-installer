@@ -483,6 +483,15 @@
                 "repository": "https://github.com/wikimedia/mediawiki-php-wikidiff2"
             }
         },
+        "yajl_stream": {
+            "name": "php-yajl-stream",
+            "pinnedVersion": true,
+            "url": "https://github.com/vlydev/php-yajl-stream/tags",
+            "latestVersion": {
+                "source": "gitTags",
+                "repository": "https://github.com/vlydev/php-yajl-stream"
+            }
+        },
         "zmq": {
             "name": "php-zmq (master branch)",
             "pinnedVersion": false,

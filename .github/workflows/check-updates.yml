@@ -84,6 +84,10 @@ jobs:
         with:
           name: detect
       -
+        name: Disable containerd image store
+        if: matrix.distro == 'jessie'
+        run: ./scripts/ci-disable-containerd-store
+      -
         name: Test
         run: ./scripts/ci-test-extensions from-tests-file check-updates-tests.txt "results/$IPETEST_DOCKER_DISTRO"
       -
