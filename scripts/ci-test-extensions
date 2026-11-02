@@ -198,7 +198,7 @@ getDockerImageName() {
 	if test -z "$(docker images -q "$getDockerImageName_imageName" 2>/dev/null)"; then
 		getDockerImageName_log="$(docker pull "$getDockerImageName_imageName" 2>&1 || true)"
 		if test -z "$(docker images -q "$getDockerImageName_imageName" 2>/dev/null)"; then
-			if test "${getDockerImageName_log#*manifest unknown}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*manifest for * not found}" != "$getDockerImageName_log"; then
+			if test "${getDockerImageName_log#*manifest unknown}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*manifest for * not found}" != "$getDockerImageName_log" || test "${getDockerImageName_log#*failed to resolve reference *: not found}" != "$getDockerImageName_log"; then
 				return
 			fi
 			printf 'Failed to pull the Docker image %s:\n%s\n' "$getDockerImageName_imageName" "$getDockerImageName_log" >&2
