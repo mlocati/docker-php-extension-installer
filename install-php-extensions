@@ -5605,6 +5605,11 @@ installRemoteModule() {
 				fi
 			fi
 			installRemoteModule_version="$(resolvePeclStabilityVersion "$installRemoteModule_module" "$installRemoteModule_version")"
+			if test -z "$installRemoteModule_path" && test $(compareVersions "$installRemoteModule_version" 0.6.1) -lt 0; then
+				installRemoteModule_path="$(getPackageSource https://pecl.php.net/get/zookeeper-$installRemoteModule_version.tgz)"
+				# php_add_tick_function() is declared in php_ticks.h, included since zookeeper 0.6.1
+				sed -i '/^#include <php\.h>$/a #include <php_ticks.h>'"$installRemoteModule_path/zookeeper-$installRemoteModule_version/php_zookeeper.c"
+			fi
 			case "$DISTRO" in
 				alpine)
 					if ! test -f /usr/local/include/zookeeper/zookeeper.h; then
