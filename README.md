@@ -3,6 +3,11 @@
 [![GitHub Registry pulls](https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/refs/heads/assets/resources/ghcr-badge.svg)](https://github.com/mlocati/docker-php-extension-installer/pkgs/container/php-extension-installer)
 [![Check updates](https://github.com/mlocati/docker-php-extension-installer/actions/workflows/check-updates.yml/badge.svg)](https://github.com/mlocati/docker-php-extension-installer/actions/workflows/check-updates.yml)
 
+> [!NOTE]
+> A new version of this project is being developed at [mlocati/install-php-extensions](https://github.com/mlocati/install-php-extensions).
+> It's a rewrite in PHP that also works outside of the official PHP Docker images (for example, with the PHP installed by APT or APK).
+> It's not ready for production yet, but feedback is very welcome!
+
 # Easy installation of PHP extensions in official PHP Docker images
 
 This repository contains a script that can be used to easily install a PHP extension inside the [official PHP Docker images](https://hub.docker.com/_/php/).
