@@ -4634,7 +4634,7 @@ installRemoteModule() {
 							;;
 					esac
 					installRemoteModule_regex="https://downloads.saxonica.com/SaxonC/${installRemoteModule_edition}/[0-9]+/SaxonC${installRemoteModule_edition}-$installRemoteModule_regexArchitecture-[0-9]+-[0-9]+-[0-9]+\.zip"
-					installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf https://www.saxonica.com/download/c.xml | grep -Eo "$installRemoteModule_regex" | head -n 1)"
+					installRemoteModule_url="$(curl $IPE_CURL_FLAGS -sSLf https://www.saxonica.com/src/download/c.xml | grep -Eo "$installRemoteModule_regex" | head -n 1)"
 					if test $? -ne 0 || test -z "$installRemoteModule_url"; then
 						printf "Failed to determine SaxonC download URL - Nothing matches\n%s\n" "$installRemoteModule_regex"
 						exit 1
