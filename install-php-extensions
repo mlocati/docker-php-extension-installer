@@ -115,7 +115,10 @@ setDistro() {
 		printf 'The file /etc/os-release is not readable\n' >&2
 		exit 1
 	fi
-	DISTRO="$(cat /etc/os-release | grep -E ^ID= | cut -d = -f 2)"
+	# os-release(5) allows double quotes around values. Debian leaves ID unquoted;
+	# some derivatives (Docker Hardened Images) quote it. Strip them the same way
+	# VERSION_ID is handled on the next line, or DISTRO becomes `"debian"`.
+	DISTRO="$(cat /etc/os-release | grep -E ^ID= | cut -d = -f 2 | cut -d '"' -f 2)"
 	DISTRO_VERSION_NUMBER="$(cat /etc/os-release | grep -E ^VERSION_ID= | cut -d = -f 2 | cut -d '"' -f 2 | cut -d . -f 1,2)"
 	DISTRO_VERSION="$(printf '%s@%s' $DISTRO $DISTRO_VERSION_NUMBER)"
 	DISTRO_MAJMIN_VERSION="$(echo "$DISTRO_VERSION_NUMBER" | awk -F. '{print $1*100+$2}')"
