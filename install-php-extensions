@@ -4553,6 +4553,10 @@ installRemoteModule() {
 					else
 						addConfigureOption enable-redis-msgpack no
 					fi
+					# Enable phpser serializer support?
+					if test $(compareVersions "${installRemoteModule_version:-$(resolvePeclStabilityVersion "$installRemoteModule_module" stable)}" 6.4.0) -ge 0; then
+						addConfigureOption enable-redis-phpser no
+					fi
 					# Enable lz4 compression?
 					addConfigureOption enable-redis-lz4 yes
 					# Use system liblz4?
