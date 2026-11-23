@@ -648,10 +648,11 @@ sortModulesToInstall() {
 	if test $PHP_MAJMIN_VERSION -le 506; then
 		checkRequiredModule event sockets
 	fi
-	# relay requires msgpack
-	checkRequiredModule relay msgpack
-	# relay requires igbinary
-	checkRequiredModule relay igbinary
+	# relay < 0.30.0 requires msgpack and igbinary (relay for PHP >= 8.6 is always newer)
+	if test $PHP_MAJMIN_VERSION -lt 806; then
+		checkRequiredModule relay msgpack
+		checkRequiredModule relay igbinary
+	fi
 	# pq requires raphf
 	checkRequiredModule pq raphf
 	# mailparse requires mbstring
