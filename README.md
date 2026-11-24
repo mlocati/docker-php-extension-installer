@@ -356,7 +356,7 @@ install-php-extensions @fix_letsencrypt
 | rdkafka |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | recode |  |  |  |  |  |  |  |  | &check; | &check; | &check; | &check; | &check; | &check; |
 | redis |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
-| relay |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |
+| relay[*](#special-requirements-for-relay) | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |  |  |  |  |
 | rrd |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
 | saxon[*](#special-requirements-for-saxon) |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |  |  |
 | seasclick[*](#special-requirements-for-seasclick) |  | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; | &check; |
@@ -529,6 +529,7 @@ Some extensions have special requirements:
 | <a name="special-requirements-for-pdo_snowflake"></a>pdo_snowflake | &bull; Not available in `alpine` docker images<br />&bull; Not available in `jessie` docker images |
 | <a name="special-requirements-for-phpy"></a>phpy | Not available in `buster` docker images |
 | <a name="special-requirements-for-pthreads"></a>pthreads | Requires images with PHP compiled with thread-safety enabled (`zts`) |
+| <a name="special-requirements-for-relay"></a>relay | &bull; Not available in `8.6-bookworm` docker images<br />&bull; Not available in `8.6-alpine` docker images |
 | <a name="special-requirements-for-saxon"></a>saxon | &bull; Not available in `alpine3.7` docker images<br />&bull; Not available in `alpine3.8` docker images<br />&bull; Not available in `alpine3.9` docker images<br />&bull; Not available in `alpine3.10` docker images<br />&bull; Not available in `alpine3.11` docker images<br />&bull; Not available in `7.2-alpine` docker images<br />&bull; Not available in `7.3-alpine` docker images<br />&bull; Not available in `7.4-alpine` docker images |
 | <a name="special-requirements-for-seasclick"></a>seasclick | &bull; Not available in `alpine3.23` docker images<br />&bull; Not available in `alpine3.24` docker images |
 | <a name="special-requirements-for-simdjson"></a>simdjson | &bull; Not available in `jessie` docker images<br />&bull; Not available in `stretch` docker images |
