@@ -166,26 +166,28 @@ getDockerImageName() {
 		return
 	fi
 	case "$2" in
-		8.6)
-			getDockerImageName_version="$2-rc"
-			;;
 		*)
 			getDockerImageName_version="$2"
 			;;
 	esac
 	getDockerImageName_suffix='cli'
-	getDockerImageName_reqs="$CI_BUILD_DIR/data/special-requirements"
-	if test -f "$getDockerImageName_reqs"; then
-		IFS=' '
-		for getDockerImageName_testExtensions in $1; do
-			IFS='+'
-			for getDockerImageName_testExtension in $getDockerImageName_testExtensions; do
-				if test -n "$(cat "$getDockerImageName_reqs" | grep -E "^${getDockerImageName_testExtension}[ \t]+zts[ \t]*$")"; then
-					getDockerImageName_suffix='zts'
-				fi
-			done
-		done
-	fi
+	# Since PHP 8.6 the cli images are thread-safe, and there are no zts images
+	case "$2" in
+		5.* | 7.* | 8.[0-5])
+			getDockerImageName_reqs="$CI_BUILD_DIR/data/special-requirements"
+			if test -f "$getDockerImageName_reqs"; then
+				IFS=' '
+				for getDockerImageName_testExtensions in $1; do
+					IFS='+'
+					for getDockerImageName_testExtension in $getDockerImageName_testExtensions; do
+						if test -n "$(cat "$getDockerImageName_reqs" | grep -E "^${getDockerImageName_testExtension}[ \t]+zts[ \t]*$")"; then
+							getDockerImageName_suffix='zts'
+						fi
+					done
+				done
+			fi
+			;;
+	esac
 	getDockerImageName_imageName="$(printf 'php:%s-%s-%s' "$getDockerImageName_version" "$getDockerImageName_suffix" "$IPETEST_DOCKER_DISTRO")"
 	case "$getDockerImageName_imageName" in
 		php:5.5-cli-jessie)
