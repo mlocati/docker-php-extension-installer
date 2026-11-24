@@ -648,10 +648,11 @@ sortModulesToInstall() {
 	if test $PHP_MAJMIN_VERSION -le 506; then
 		checkRequiredModule event sockets
 	fi
-	# relay requires msgpack
-	checkRequiredModule relay msgpack
-	# relay requires igbinary
-	checkRequiredModule relay igbinary
+	# relay < 0.30.0 requires msgpack and igbinary (relay for PHP >= 8.6 is always newer)
+	if test $PHP_MAJMIN_VERSION -lt 806; then
+		checkRequiredModule relay msgpack
+		checkRequiredModule relay igbinary
+	fi
 	# pq requires raphf
 	checkRequiredModule pq raphf
 	# mailparse requires mbstring
@@ -1531,6 +1532,14 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent lz4-libs zstd-libs"
 				if test $DISTRO_MAJMIN_VERSION -ge 317; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl"
+				fi
+				if test $PHP_THREADSAFE -eq 1; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent hiredis hiredis-ssl ck"
+				fi
+				;;
+			relay@debian)
+				if test $PHP_THREADSAFE -eq 1; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libhiredis1.1.0 ^libck0(t64)?$"
 				fi
 				;;
 			saxon@alpine)

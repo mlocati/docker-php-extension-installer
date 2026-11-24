@@ -10,6 +10,7 @@ parle !jessie
 pdo_snowflake !alpine !jessie
 phpy !buster
 pthreads zts
+relay !8.6-bookworm !8.6-alpine
 saxon !alpine3.7 !alpine3.8 !alpine3.9 !alpine3.10 !alpine3.11 !7.2-alpine !7.3-alpine !7.4-alpine
 seasclick !alpine3.23 !alpine3.24
 simdjson !jessie !stretch
