@@ -1533,6 +1533,14 @@ buildRequiredPackageLists() {
 				if test $DISTRO_MAJMIN_VERSION -ge 317; then
 					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent $buildRequiredPackageLists_libssl"
 				fi
+				if test $PHP_THREADSAFE -eq 1; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent hiredis hiredis-ssl ck"
+				fi
+				;;
+			relay@debian)
+				if test $PHP_THREADSAFE -eq 1; then
+					buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libhiredis1.1.0 ^libck0(t64)?$"
+				fi
 				;;
 			saxon@alpine)
 				buildRequiredPackageLists_persistent="$buildRequiredPackageLists_persistent libstdc++"
